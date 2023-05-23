@@ -1,19 +1,19 @@
-#include "build.h"
+#include "build.hpp"
 
 #if USE_POLYMOST && USE_OPENGL
 
-#include "baselayer.h"
-#include "glbuild.h"
-#include "kplib.h"
-#include "cache1d.h"
-#include "pragmas.h"
-#include "crc32.h"
-#include "engine_priv.h"
-#include "polymost_priv.h"
-#include "hightile_priv.h"
-#include "polymosttex_priv.h"
-#include "polymosttexcache.h"
-#include "polymosttexcompress.h"
+#include "baselayer.hpp"
+#include "glbuild.hpp"
+#include "kplib.hpp"
+#include "cache1d.hpp"
+#include "pragmas.hpp"
+#include "crc32.hpp"
+#include "engine_priv.hpp"
+#include "polymost_priv.hpp"
+#include "hightile_priv.hpp"
+#include "polymosttex_priv.hpp"
+#include "polymosttexcache.hpp"
+#include "polymosttexcompress.hpp"
 
 /** a texture hash entry */
 struct PTHash_typ {

@@ -1,4 +1,4 @@
-#include "a.h"
+#include "a.hpp"
 
 #ifndef USING_A_C
 # if defined _WIN32

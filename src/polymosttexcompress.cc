@@ -2,17 +2,17 @@
  * libsquish/rg_etc1 bridging interface
  */
 
-#include "build.h"
+#include "build.hpp"
 
 #if USE_POLYMOST && USE_OPENGL
 
-#include "polymosttexcompress.h"
+#include "polymosttexcompress.hpp"
 
 #include "squish.h"
-#include "rg_etc1.h"
+#include "rg_etc1.hpp"
 
 extern "C" {
-#include "glbuild.h"
+#include "glbuild.hpp"
 extern int gltexcomprquality;
 }
 

@@ -5,16 +5,16 @@
 // This file has been modified from Ken Silverman's original release
 // by Jonathon Fowler (jf@jonof.id.au)
 
-#include "build.h"
-#include "engine_priv.h"
-#include "pragmas.h"
-#include "osd.h"
-#include "cache1d.h"
-#include "editor.h"
+#include "build.hpp"
+#include "engine_priv.hpp"
+#include "pragmas.hpp"
+#include "osd.hpp"
+#include "cache1d.hpp"
+#include "editor.hpp"
 
-#include "baselayer.h"
+#include "baselayer.hpp"
 #ifdef RENDERTYPEWIN
-#include "winlayer.h"
+#include "winlayer.hpp"
 #endif
 
 
@@ -6459,9 +6459,9 @@ int loadnames(void)
 	int num, syms=0, line=0, a;
 	BFILE *fp;
 
-	fp = fopenfrompath("NAMES.H","r");
+	fp = fopenfrompath("NAMES.HPP","r");
 	if (!fp) {
-		if ((fp = fopenfrompath("names.h","r")) == NULL) {
+		if ((fp = fopenfrompath("names.hpp","r")) == NULL) {
 			buildprintf("Failed to open NAMES.H\n");
 			return -1;
 		}

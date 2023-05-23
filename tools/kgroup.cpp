@@ -5,7 +5,7 @@
 // This file has been modified from Ken Silverman's original release
 // by Jonathon Fowler (jf@jonof.id.au)
 
-#include "compat.h"
+#include "compat.hpp"
 
 // Glibc doesn't provide this function, so for the sake of less ugliness
 // for all platforms, here's a replacement just for this program.

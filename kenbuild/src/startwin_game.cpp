@@ -6,9 +6,9 @@
 #define _WIN32_WINNT 0x0501
 #define _WIN32_IE 0x0600
 
-#include "build.h"
-#include "winlayer.h"
-#include "game.h"
+#include "build.hpp"
+#include "winlayer.hpp"
+#include "game.hpp"
 
 #include <windows.h>
 #include <windowsx.h>
@@ -17,7 +17,7 @@
 #include <uxtheme.h>
 #include <stdio.h>
 
-#include "gameres.h"
+#include "gameres.hpp"
 
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1

@@ -9,7 +9,7 @@
 //         I still need to test it throughly when compiled with gcc.)
 //
 // v1.03 - 5/12/13 - Initial public release
-#include "rg_etc1.h"
+#include "rg_etc1.hpp"
 
 #include <stdlib.h>
 #include <memory.h>

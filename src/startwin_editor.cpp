@@ -6,10 +6,10 @@
 #define _WIN32_WINNT 0x0600
 #define _WIN32_IE 0x0600
 
-#include "compat.h"
-#include "winlayer.h"
-#include "build.h"
-#include "editor.h"
+#include "compat.hpp"
+#include "winlayer.hpp"
+#include "build.hpp"
+#include "editor.hpp"
 
 #include <windows.h>
 #include <windowsx.h>
@@ -17,7 +17,7 @@
 #include <uxtheme.h>
 #include <stdio.h>
 
-#include "buildres.h"
+#include "buildres.hpp"
 
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1

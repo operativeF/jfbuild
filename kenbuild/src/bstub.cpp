@@ -5,14 +5,14 @@
 // This file has been modified from Ken Silverman's original release
 // by Jonathon Fowler (jf@jonof.id.au)
 
-#include "compat.h"
-#include "build.h"
-#include "editor.h"
-#include "pragmas.h"
-#include "baselayer.h"
-#include "names.h"
-#include "osd.h"
-#include "cache1d.h"
+#include "compat.hpp"
+#include "build.hpp"
+#include "editor.hpp"
+#include "pragmas.hpp"
+#include "baselayer.hpp"
+#include "names.hpp"
+#include "osd.hpp"
+#include "cache1d.hpp"
 
 
 static unsigned char tempbuf[256];

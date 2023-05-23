@@ -9,11 +9,11 @@
 #define _WIN32_IE _WIN32_IE_WIN7
 
 #include "windows.h"
-#include "xaudio2.h"
+#include "xaudio2.hpp"
 
 extern "C" {
 #define KDMSOUND_INTERNAL
-#include "kdmsound.h"
+#include "kdmsound.hpp"
 
 // Nicked from build.h
 void buildprintf(const char *,...);

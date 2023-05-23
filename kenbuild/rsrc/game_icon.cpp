@@ -1,5 +1,5 @@
-#include "compat.h"
-#include "sdlayer.h"
+#include "compat.hpp"
+#include "sdlayer.hpp"
 
 static unsigned int sdlappicon_pixels[] = {
 	0xff415f7a, 0xff364a5c, 0xff364a5c, 0xff607486, 0xff667a8c, 0xff667a8c,

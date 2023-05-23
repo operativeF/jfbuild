@@ -7,12 +7,12 @@
 
 #define WITHKPLIB
 
-#include "build.h"
-#include "cache1d.h"
-#include "pragmas.h"
+#include "build.hpp"
+#include "cache1d.hpp"
+#include "pragmas.hpp"
 
 #ifdef WITHKPLIB
-#include "kplib.h"
+#include "kplib.hpp"
 
 	//Insert '|' in front of filename
 	//Doing this tells kzopen to load the file only if inside a .ZIP file

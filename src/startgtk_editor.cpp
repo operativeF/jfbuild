@@ -1,9 +1,9 @@
-#include "build.h"
+#include "build.hpp"
 
 #include <gtk/gtk.h>
 
-#include "baselayer.h"
-#include "editor.h"
+#include "baselayer.hpp"
+#include "editor.hpp"
 
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1

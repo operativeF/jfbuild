@@ -5,17 +5,17 @@
 // This file has been modified from Ken Silverman's original release
 // by Jonathon Fowler (jf@jonof.id.au)
 
-#include "build.h"
-#include "osd.h"
-#include "baselayer.h"
-#include "baselayer_priv.h"
+#include "build.hpp"
+#include "osd.hpp"
+#include "baselayer.hpp"
+#include "baselayer_priv.hpp"
 
 #ifdef RENDERTYPEWIN
-#include "winlayer.h"
+#include "winlayer.hpp"
 #endif
 
 #if USE_OPENGL
-#include "glbuild.h"
+#include "glbuild.hpp"
 struct glbuild_info glinfo;
 int glswapinterval = 1;
 int glunavailable;

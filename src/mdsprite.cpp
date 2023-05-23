@@ -1,19 +1,19 @@
-#include "build.h"
+#include "build.hpp"
 
 #if USE_POLYMOST && USE_OPENGL
 //------------------------------------- MD2/MD3 LIBRARY BEGINS -------------------------------------
 
-#include "glbuild.h"
-#include "kplib.h"
-#include "pragmas.h"
-#include "cache1d.h"
-#include "baselayer.h"
-#include "crc32.h"
-#include "engine_priv.h"
-#include "polymost_priv.h"
-#include "hightile_priv.h"
-#include "polymosttex_priv.h"
-#include "mdsprite_priv.h"
+#include "glbuild.hpp"
+#include "kplib.hpp"
+#include "pragmas.hpp"
+#include "cache1d.hpp"
+#include "baselayer.hpp"
+#include "crc32.hpp"
+#include "engine_priv.hpp"
+#include "polymost_priv.hpp"
+#include "hightile_priv.hpp"
+#include "polymosttex_priv.hpp"
+#include "mdsprite_priv.hpp"
 
 #if defined(_M_IX86) || defined(_M_AMD64) || defined(__i386) || defined(__x86_64)
 #define SHIFTMOD32(a) (a)

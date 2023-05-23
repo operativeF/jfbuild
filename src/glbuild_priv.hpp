@@ -7,7 +7,7 @@
 
 #if USE_OPENGL
 
-#include "glbuild.h"
+#include "glbuild.hpp"
 
 #if (USE_OPENGL == USE_GLES2)
 #  include <GLES2/gl2.h>
@@ -35,7 +35,7 @@
 #  else
 #    include <GL/gl.h>
 #  endif
-#  include "glext.h"
+#  include "glext.hpp"
    typedef void (APIENTRYP PFNGLCULLFACEPROC) (GLenum mode);
    typedef void (APIENTRYP PFNGLFRONTFACEPROC) (GLenum mode);
    typedef void (APIENTRYP PFNGLHINTPROC) (GLenum target, GLenum mode);

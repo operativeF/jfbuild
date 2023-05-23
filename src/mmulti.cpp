@@ -62,9 +62,9 @@ static int GetTickCount(void)
 
 #endif
 
-#include "build.h"
-#include "mmulti.h"
-#include "baselayer.h"
+#include "build.hpp"
+#include "mmulti.hpp"
+#include "baselayer.hpp"
 
 #define printf buildprintf
 

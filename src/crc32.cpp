@@ -1,4 +1,4 @@
-#include "crc32.h"
+#include "crc32.hpp"
 
 /*
 // this table of numbers is borrowed from the InfoZip source.

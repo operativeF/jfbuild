@@ -1,8 +1,8 @@
 #import <Cocoa/Cocoa.h>
 
-#include "build.h"
-#include "baselayer.h"
-#include "game.h"
+#include "build.hpp"
+#include "baselayer.hpp"
+#include "game.hpp"
 
 #include <stdlib.h>
 

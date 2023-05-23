@@ -13,7 +13,7 @@
 #include <shlobj.h>
 #endif
 
-#include "compat.h"
+#include "compat.hpp"
 
 #ifdef __APPLE__
 # include "osxbits.h"

@@ -4,12 +4,12 @@
  * See the included license file "BUILDLIC.TXT" for license info.
  */
 
-#include "build.h"
+#include "build.hpp"
 
 #if USE_POLYMOST && USE_OPENGL
 
-#include "kplib.h"
-#include "hightile_priv.h"
+#include "kplib.hpp"
+#include "hightile_priv.hpp"
 
 palette_t hictinting[MAXPALOOKUPS];
 
