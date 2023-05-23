@@ -5,9 +5,9 @@
  * See the included license file "BUILDLIC.TXT" for license info.
  */
 
-#include "build.h"
-#include "baselayer.h"
-#include "scriptfile.h"
+#include "build.hpp"
+#include "baselayer.hpp"
+#include "scriptfile.hpp"
 
 enum {
 	T_EOF = -2,

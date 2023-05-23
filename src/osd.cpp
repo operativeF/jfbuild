@@ -2,9 +2,9 @@
 // for the Build Engine
 // by Jonathon Fowler (jf@jonof.id.au)
 
-#include "build.h"
-#include "osd.h"
-#include "baselayer.h"
+#include "build.hpp"
+#include "osd.hpp"
+#include "baselayer.hpp"
 
 extern int getclosestcol(int r, int g, int b);	// engine.c
 extern int qsetmode;	// engine.c

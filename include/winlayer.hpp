@@ -23,7 +23,7 @@ unsigned win_getmaxrefreshfreq(void);
 }
 #endif
 
-#include "baselayer.h"
+#include "baselayer.hpp"
 
 #else
 #if (__build_interface_layer__ != WIN)

@@ -8,24 +8,24 @@
 
 #define ENGINE
 
-#include "build.h"
-#include "pragmas.h"
-#include "cache1d.h"
-#include "a.h"
-#include "osd.h"
-#include "crc32.h"
+#include "build.hpp"
+#include "pragmas.hpp"
+#include "cache1d.hpp"
+#include "a.hpp"
+#include "osd.hpp"
+#include "crc32.hpp"
 
-#include "baselayer.h"
-#include "baselayer_priv.h"
+#include "baselayer.hpp"
+#include "baselayer_priv.hpp"
 
-#include "engine_priv.h"
+#include "engine_priv.hpp"
 #if USE_POLYMOST
-# include "polymost_priv.h"
+# include "polymost_priv.hpp"
 # if USE_OPENGL
-#  include "hightile_priv.h"
-#  include "polymosttex_priv.h"
-#  include "polymosttexcache.h"
-#  include "mdsprite_priv.h"
+#  include "hightile_priv.hpp"
+#  include "polymosttex_priv.hpp"
+#  include "polymosttexcache.hpp"
+#  include "mdsprite_priv.hpp"
 # endif
 # ifdef _WIN32
 #  define WIN32_LEAN_AND_MEAN
@@ -7236,7 +7236,7 @@ readerror:
 //
 // loadmaphack
 //
-#include "scriptfile.h"
+#include "scriptfile.hpp"
 int loadmaphack(char *filename)
 {
 #if USE_POLYMOST && USE_OPENGL

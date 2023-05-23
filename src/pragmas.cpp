@@ -7,7 +7,7 @@
 // inline versions. I'll eventually convert these to macro-inline
 // equivalents.		--Jonathon
 
-#include "compat.h"
+#include "compat.hpp"
 
 int dmval;
 

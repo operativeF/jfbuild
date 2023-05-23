@@ -4,16 +4,16 @@
 // This file has been modified from Ken Silverman's original release
 // by Jonathon Fowler (jf@jonof.id.au)
 
-#include "build.h"
-#include "names.h"
-#include "pragmas.h"
-#include "cache1d.h"
-#include "game.h"
-#include "osd.h"
-#include "mmulti.h"
-#include "kdmsound.h"
+#include "build.hpp"
+#include "names.hpp"
+#include "pragmas.hpp"
+#include "cache1d.hpp"
+#include "game.hpp"
+#include "osd.hpp"
+#include "mmulti.hpp"
+#include "kdmsound.hpp"
 
-#include "baselayer.h"
+#include "baselayer.hpp"
 
 #define TIMERINTSPERSECOND 140 //280
 #define MOVESPERSECOND 40

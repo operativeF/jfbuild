@@ -5,7 +5,7 @@
 // This file has been modified from Ken Silverman's original release
 // by Jonathon Fowler (jf@jonof.id.au)
 
-#include "compat.h"
+#include "compat.hpp"
 
 #define MAXFILES 4096
 

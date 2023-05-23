@@ -8,7 +8,7 @@
 #error winlayer.c is for Windows only.
 #endif
 
-#include "build.h"
+#include "build.hpp"
 
 #define WINVER 0x0600
 #define _WIN32_WINNT 0x0600
@@ -25,15 +25,15 @@
 #include <commdlg.h>
 
 #if USE_OPENGL
-#include "glbuild_priv.h"
-#include "wglext.h"
+#include "glbuild_priv.hpp"
+#include "wglext.hpp"
 #endif
 
-#include "baselayer_priv.h"
-#include "winlayer.h"
-#include "pragmas.h"
-#include "a.h"
-#include "osd.h"
+#include "baselayer_priv.hpp"
+#include "winlayer.hpp"
+#include "pragmas.hpp"
+#include "a.hpp"
+#include "osd.hpp"
 
 
 static char *argvbuf = NULL;

@@ -35,7 +35,7 @@ enum {
 
 #if USE_OPENGL
 
-#include "glbuild_priv.h"
+#include "glbuild_priv.hpp"
 
 typedef struct { unsigned char r, g, b, a; } coltype;
 typedef struct { GLfloat r, g, b, a; } coltypef;

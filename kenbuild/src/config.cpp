@@ -1,15 +1,15 @@
 // Evil and Nasty Configuration File Reader for KenBuild
 // by Jonathon Fowler
 
-#include "build.h"
-#include "game.h"
-#include "osd.h"
-#include "scriptfile.h"
+#include "build.hpp"
+#include "game.hpp"
+#include "osd.hpp"
+#include "scriptfile.hpp"
 
 #ifdef RENDERTYPEWIN
-#include "winlayer.h"
+#include "winlayer.hpp"
 #endif
-#include "baselayer.h"
+#include "baselayer.hpp"
 
 extern short brightness;
 extern int fullscreen;

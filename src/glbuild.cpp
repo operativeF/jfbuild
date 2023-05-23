@@ -1,11 +1,11 @@
-#include "build.h"
+#include "build.hpp"
 
 #if USE_OPENGL
 
-#include "glbuild_priv.h"
-#include "osd.h"
-#include "baselayer.h"
-#include "baselayer_priv.h"
+#include "glbuild_priv.hpp"
+#include "osd.hpp"
+#include "baselayer.hpp"
+#include "baselayer_priv.hpp"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

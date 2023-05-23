@@ -11,7 +11,7 @@
 #endif
 
 #define KDMSOUND_INTERNAL
-#include "kdmsound.h"
+#include "kdmsound.hpp"
 
 #if (SDL_MAJOR_VERSION != 2)
 #  error This must be built with SDL2

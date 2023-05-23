@@ -6,11 +6,11 @@
 // Ken Silverman's official web site: "http://www.advsys.net/ken"
 // See the included license file "BUILDLIC.TXT" for license info.
 
-#include "a.h"
+#include "a.hpp"
 
 #ifdef USING_A_C
 
-#include "compat.h"
+#include "compat.hpp"
 
 int krecip(int num);	// from engine.c
 

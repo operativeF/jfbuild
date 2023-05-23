@@ -19,7 +19,7 @@
 #define USE_GL3 3
 #define USE_GLES2 12
 
-#include "compat.h"
+#include "compat.hpp"
 
 #ifdef __cplusplus
 extern "C" {

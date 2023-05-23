@@ -5,9 +5,9 @@
  * See the included license file "BUILDLIC.TXT" for license info.
  */
 
-#include "build.h"
-#include "scriptfile.h"
-#include "cache1d.h"
+#include "build.hpp"
+#include "scriptfile.hpp"
+#include "cache1d.hpp"
 #include <math.h>
 
 

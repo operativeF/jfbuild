@@ -1,12 +1,12 @@
-#include "build.h"
+#include "build.hpp"
 
 #if USE_POLYMOST && USE_OPENGL
 
-#include "polymosttexcache.h"
-#include "baselayer.h"
-#include "glbuild_priv.h"
-#include "hightile_priv.h"
-#include "polymosttex_priv.h"
+#include "polymosttexcache.hpp"
+#include "baselayer.hpp"
+#include "glbuild_priv.hpp"
+#include "hightile_priv.hpp"
+#include "polymosttex_priv.hpp"
 
 /*
  PolymostTex Cache file formats

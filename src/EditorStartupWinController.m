@@ -1,8 +1,8 @@
 #import <Cocoa/Cocoa.h>
 
-#include "build.h"
-#include "baselayer.h"
-#include "editor.h"
+#include "build.hpp"
+#include "baselayer.hpp"
+#include "editor.hpp"
 
 #include <stdlib.h>
 

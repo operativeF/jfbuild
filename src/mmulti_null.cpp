@@ -6,7 +6,7 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 
 
-#include "mmulti.h"
+#include "mmulti.hpp"
 
 
 int myconnectindex, numplayers, networkmode;

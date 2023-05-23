@@ -65,22 +65,22 @@ Low priority:
 
 **************************************************************************************************/
 
-#include "build.h"
+#include "build.hpp"
 
 #if USE_POLYMOST
 
-#include "glbuild.h"
-#include "pragmas.h"
-#include "baselayer.h"
-#include "baselayer_priv.h"
-#include "osd.h"
-#include "engine_priv.h"
-#include "polymost_priv.h"
+#include "glbuild.hpp"
+#include "pragmas.hpp"
+#include "baselayer.hpp"
+#include "baselayer_priv.hpp"
+#include "osd.hpp"
+#include "engine_priv.hpp"
+#include "polymost_priv.hpp"
 #if USE_OPENGL
-# include "hightile_priv.h"
-# include "polymosttex_priv.h"
-# include "polymosttexcache.h"
-# include "mdsprite_priv.h"
+# include "hightile_priv.hpp"
+# include "polymosttex_priv.hpp"
+# include "polymosttexcache.hpp"
+# include "mdsprite_priv.hpp"
 #endif
 
 int rendmode = 0;

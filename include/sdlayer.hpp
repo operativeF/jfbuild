@@ -5,7 +5,7 @@
 #ifndef __build_interface_layer__
 #define __build_interface_layer__ SDL
 
-#include "baselayer.h"
+#include "baselayer.hpp"
 
 struct sdlappicon {
 	int width,height;

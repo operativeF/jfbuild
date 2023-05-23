@@ -1,5 +1,5 @@
-#include "compat.h"
-#include "kplib.h"
+#include "compat.hpp"
+#include "kplib.hpp"
 
 struct icon {
 	int width,height;

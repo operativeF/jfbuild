@@ -1,4 +1,4 @@
-#include "build.h"
+#include "build.hpp"
 
 #include <gtk/gtk.h>
 
@@ -6,7 +6,7 @@
 # error Gtk+ 3.4 or higher required.
 #endif
 
-#include "baselayer.h"
+#include "baselayer.hpp"
 
 // Copied from a glib-compile-resource generated header.
 extern GResource *startgtk_get_resource (void);

@@ -17,7 +17,7 @@
  */
 //#define SDLAYER_USE_RENDERER
 
-#include "build.h"
+#include "build.hpp"
 
 #if defined __APPLE__
 # include <SDL2/SDL.h>
@@ -32,13 +32,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "baselayer_priv.h"
-#include "sdlayer.h"
-#include "cache1d.h"
-#include "pragmas.h"
-#include "a.h"
-#include "osd.h"
-#include "glbuild_priv.h"
+#include "baselayer_priv.hpp"
+#include "sdlayer.hpp"
+#include "cache1d.hpp"
+#include "pragmas.hpp"
+#include "a.hpp"
+#include "osd.hpp"
+#include "glbuild_priv.hpp"
 
 #if defined(__APPLE__)
 # include "osxbits.h"
