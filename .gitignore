@@ -8,6 +8,7 @@
 *~
 *.pdb
 /.vs
+/.vscode
 /src/version-auto.c
 /src/*_[fv]s.c
 
