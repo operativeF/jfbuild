@@ -14,6 +14,8 @@
 #include "a.hpp"
 #include "osd.hpp"
 #include "crc32.hpp"
+#include "textfonts.hpp"
+#include "version.hpp"
 
 #include "baselayer.hpp"
 #include "baselayer_priv.hpp"
@@ -50,8 +52,8 @@ int novoxmips = 0;
 #define MAXXSIZ 256
 #define MAXYSIZ 256
 #define MAXZSIZ 255
-#define MAXVOXMIPS 5
-intptr_t voxoff[MAXVOXELS][MAXVOXMIPS];
+// #define MAXVOXMIPS 5
+// intptr_t voxoff[MAXVOXELS][MAXVOXMIPS];
 unsigned char voxlock[MAXVOXELS][MAXVOXMIPS];
 int voxscale[MAXVOXELS];
 
@@ -112,7 +114,6 @@ static char kensmessage[128];
 char *engineerrstr = NULL;
 static BFILE *logfile=NULL;		// log filehandle
 
-extern const unsigned char textfont[], smalltextfont[], talltextfont[];
 const struct textfontspec textfonts[3] = {
 	{	//8x8
 		textfont,
@@ -5002,12 +5003,12 @@ static int loadpalette(void)
 		goto badpalette;
 	}
 
-	if ((palookup[0] = kmalloc(numpalookups<<8)) == NULL) {
+	if ((palookup[0] = static_cast<unsigned char*>(kmalloc(numpalookups<<8))) == NULL) {
 		engineerrstr = "Failed to allocate palette memory";
 		kclose(fil);
 		return 1;
 	}
-	if ((transluc = kmalloc(65536L)) == NULL) {
+	if ((transluc = static_cast<unsigned char*>(kmalloc(65536L))) == NULL) {
 		engineerrstr = "Failed to allocate translucency memory";
 		kclose(fil);
 		return 1;
@@ -7622,7 +7623,7 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 	j = ydim*4*sizeof(int);  //Leave room for horizlookup&horizlookup2
 
 	if (lookups != NULL) { kfree((void *)lookups); lookups = NULL; }
-	if ((lookups = kmalloc(j<<1)) == NULL) {
+	if ((lookups = static_cast<int*>(kmalloc(j<<1))) == NULL) {
 		engineerrstr = "Failed to allocate lookups memory";
 		return -1;
 	}
@@ -9760,7 +9761,7 @@ int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char
 	if (palookup[palnum] == NULL)
 	{
 			//Allocate palookup buffer
-		if ((palookup[palnum] = kmalloc(numpalookups<<8)) == NULL) {
+		if ((palookup[palnum] = static_cast<unsigned char*>(kmalloc(numpalookups<<8))) == NULL) {
 			engineerrstr = "Failed to allocate palette lookup memory";
 			return 1;
 		}
@@ -10570,7 +10571,7 @@ static int screencapture_writeframe(BFILE *fil, char mode, void *v,
 	}
 
 	if (inverseit && qsetmode != 200) {
-		buf = kmalloc(bytesperline);
+		buf = static_cast<unsigned char*>(kmalloc(bytesperline));
 		if (buf) {
 			for (y = ystart; y != yend; y += yinc) {
 				copybuf(ptr + y*bytesperline, buf, xdim >> 2);

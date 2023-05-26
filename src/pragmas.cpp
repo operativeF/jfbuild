@@ -176,69 +176,7 @@ void copybufreverse(void *S, void *D, int c)
 
 #else				// _MSC_VER
 
-//
-// Generic C version
-//
-
-void qinterpolatedown16(void *bufptr, int num, int val, int add)
-{ // gee, I wonder who could have provided this...
-    int i, *lptr = (int *)bufptr;
-    for(i=0;i<num;i++) { lptr[i] = (val>>16); val += add; }
-}
-
-void qinterpolatedown16short(void *bufptr, int num, int val, int add)
-{ // ...maybe the same person who provided this too?
-    int i; short *sptr = (short *)bufptr;
-    for(i=0;i<num;i++) { sptr[i] = (short)(val>>16); val += add; }
-}
-
-void clearbuf(void *d, int c, int a)
-{
-	int *p = (int*)d;
-	while ((c--) > 0) *(p++) = a;
-}
-
-void copybuf(void *s, void *d, int c)
-{
-	int *p = (int*)s, *q = (int*)d;
-	while ((c--) > 0) *(q++) = *(p++);
-}
-
-void swapbuf4(void *a, void *b, int c)
-{
-	int *p = (int*)a, *q = (int*)b;
-	int x, y;
-	while ((c--) > 0) {
-		x = *q;
-		y = *p;
-		*(q++) = y;
-		*(p++) = x;
-	}
-}
-
-void clearbufbyte(void *D, int c, int a)
-{
-	char *p = (char*)D;
-	int m[4] = { 0xffl,0xff00l,0xff0000l,0xff000000l };
-	int n[4] = { 0,8,16,24 };
-	int z=0;
-	while ((c--) > 0) {
-		*(p++) = (char)((a & m[z])>>n[z]);
-		z=(z+1)&3;
-	}
-}
-
-void copybufbyte(void *S, void *D, int c)
-{
-	char *p = (char*)S, *q = (char*)D;
-	while((c--) > 0) *(q++) = *(p++);
-}
-
-void copybufreverse(void *S, void *D, int c)
-{
-	char *p = (char*)S, *q = (char*)D;
-	while((c--) > 0) *(q++) = *(p--);
-}
+// Provided in pragmas.hpp
 
 #endif
 

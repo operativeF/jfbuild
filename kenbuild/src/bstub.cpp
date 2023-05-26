@@ -258,7 +258,7 @@ void ExtPreCheckKeys(void)
 }
 
 #define MAXVOXMIPS 5
-extern unsigned char *voxoff[][MAXVOXMIPS];
+
 void ExtAnalyzeSprites(void)
 {
 	int i, *longptr;
