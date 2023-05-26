@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-#define MAXNUMTILES 256
+constexpr auto MAXNUMTILES{256};
 
 int artversion, numtiles;
 int localtilestart, localtileend;

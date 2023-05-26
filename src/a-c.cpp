@@ -14,8 +14,8 @@
 
 int krecip(int num);	// from engine.c
 
-#define BITSOFPRECISION 3
-#define BITSOFPRECISIONPOW 8
+constexpr auto BITSOFPRECISION{3};
+constexpr auto BITSOFPRECISIONPOW{8};
 
 extern int asm1, asm2, asm4, fpuasm, globalx3, globaly3;
 extern intptr_t asm3;

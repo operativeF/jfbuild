@@ -10,8 +10,10 @@
 #include "cache1d.hpp"
 #include <math.h>
 
+constexpr bool is_whitespace(auto ch) {
+	return (ch == ' ') || (ch == '\t') || (ch == '\r') || (ch == '\n');
+};
 
-#define ISWS(x) ((x == ' ') || (x == '\t') || (x == '\r') || (x == '\n'))
 static void skipoverws(scriptfile *sf) { if ((sf->textptr < sf->eof) && (!sf->textptr[0])) sf->textptr++; }
 static void skipovertoken(scriptfile *sf) { while ((sf->textptr < sf->eof) && (sf->textptr[0])) sf->textptr++; }
 
@@ -63,7 +65,7 @@ static int scriptfile_getnumber_radix(scriptfile *sf, int *num, int radix)
 	
 	sf->ltextptr = sf->textptr;
 	(*num) = (int)strtol((const char *)sf->textptr,&sf->textptr,radix);
-	if (!ISWS(*sf->textptr) && *sf->textptr) {
+	if (!is_whitespace(*sf->textptr) && *sf->textptr) {
 		char *p = sf->textptr;
 		skipovertoken(sf);
 		buildprintf("Error on line %s:%d: expecting int, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
@@ -131,7 +133,7 @@ int scriptfile_getdouble(scriptfile *sf, double *num)
 	//(*num) = strtod((const char *)sf->textptr,&sf->textptr);
 	(*num) = parsedouble(sf->textptr, &sf->textptr);
 	
-	if (!ISWS(*sf->textptr) && *sf->textptr) {
+	if (!is_whitespace(*sf->textptr) && *sf->textptr) {
 		char *p = sf->textptr;
 		skipovertoken(sf);
 		buildprintf("Error on line %s:%d: expecting float, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
@@ -351,7 +353,7 @@ int scriptfile_eof(scriptfile *sf)
 	return 0;
 }
 
-#define SYMBTABSTARTSIZE 256
+constexpr auto SYMBTABSTARTSIZE{256};
 static size_t symbtablength=0, symbtaballoclength=0;
 static char *symbtab = NULL;
 

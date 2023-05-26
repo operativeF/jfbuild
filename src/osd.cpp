@@ -35,7 +35,7 @@ static void _internal_clearbackground(int,int);
 static int _internal_gettime(void);
 static void _internal_onshowosd(int);
 
-#define TEXTSIZE 16384
+constexpr auto TEXTSIZE{16384};
 
 // history display
 static char osdtext[TEXTSIZE];
@@ -52,7 +52,7 @@ static int  osdkey=0x45;		// numlock shows the osd
 static int  keytime=0;
 
 // command prompt editing
-#define EDITLENGTH 511
+constexpr auto EDITLENGTH{511};
 static int  osdovertype=0;		// insert (0) or overtype (1)
 static char osdeditbuf[EDITLENGTH+1];	// editing buffer
 static char osdedittmp[EDITLENGTH+1];	// editing buffer temporary workspace
@@ -64,10 +64,10 @@ static int  osdeditalt=0;		// alt state
 static int  osdeditcaps=0;		// capslock
 static int  osdeditwinstart=0;
 static int  osdeditwinend=60-1-3;
-#define editlinewidth (osdcols-1-3)
+#define editlinewidth (osdcols-1-3) // FIXME: Taking a static variable at preprocess time... :|
 
 // command processing
-#define HISTORYDEPTH 16
+constexpr auto HISTORYDEPTH{16};
 static int  osdhistorypos=-1;		// position we are at in the history buffer
 static char osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];	// history strings
 static int  osdhistorysize=0;		// number of entries in history
@@ -1047,7 +1047,7 @@ static char *strtoken(char *s, char **ptrptr, int *restart)
 	return start;
 }
 
-#define MAXPARMS 512
+constexpr auto MAXPARMS{512};
 int OSD_Dispatch(const char *cmd)
 {
 	char *workbuf, *wp, *wtp, *state;

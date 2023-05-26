@@ -18,7 +18,7 @@
 #endif
 
 
-#define TIMERINTSPERSECOND 120
+constexpr auto TIMERINTSPERSECOND{120};
 
 #define updatecrc16(crc,dat) (crc = (((crc<<8)&65535)^crctable[((((unsigned short)crc)>>8)&65535)^dat]))
 static int crctable[256];

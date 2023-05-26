@@ -88,17 +88,17 @@ int usemodels=1, usehightile=1, usegoodalpha=0;
 
 #include <math.h> //<-important!
 typedef struct { float x, cy[2], fy[2]; int n, p, tag, ctag, ftag; } vsptyp;
-#define VSPMAX 4096 //<- careful!
+constexpr auto VSPMAX{4096}; //<- careful!
 static vsptyp vsp[VSPMAX];
 static int vcnt, gtag;
 
 double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 
-#define SCISDIST 1.0 //1.0: Close plane clipping distance
+constexpr auto SCISDIST{1.0}; //1.0: Close plane clipping distance
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
-#define FOGSCALE 0.0000384
+constexpr auto FOGSCALE{0.0000384};
 
 double gxyaspect, grhalfxdown10x;
 static double gyxscale, gviewxrange, ghalfx, grhalfxdown10, ghoriz;
@@ -979,7 +979,6 @@ void polymost_nextpage(void)
 	//    +4 means it's a sprite, so wraparound isn't needed
 void drawpoly (double *dpx, double *dpy, int n, int method)
 {
-	#define PI 3.14159265358979323
 	double ngdx = 0.0, ngdy = 0.0, ngdo = 0.0, ngux = 0.0, nguy = 0.0, nguo = 0.0;
 	double ngvx = 0.0, ngvy = 0.0, ngvo = 0.0, dp, up, vp, rdp;
 	double ngdx2, ngux2, ngvx2;

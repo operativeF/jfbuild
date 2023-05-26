@@ -47,9 +47,9 @@ struct PTCacheIndex_typ {
 	struct PTCacheIndex_typ * next;
 };
 typedef struct PTCacheIndex_typ PTCacheIndex;
-#define PTCACHEHASHSIZ 512
+constexpr auto PTCACHEHASHSIZ{512};
 static PTCacheIndex * cachehead[PTCACHEHASHSIZ];	// will be initialized 0 by .bss segment
-#define PTCACHEINDEXFILENAMELEN 260
+constexpr auto PTCACHEINDEXFILENAMELEN{260};
 
 static const char * CACHEINDEXFILE = "texture.cacheindex";
 static const char * CACHESTORAGEFILE = "texture.cache";

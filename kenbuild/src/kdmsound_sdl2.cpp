@@ -21,9 +21,6 @@ static SDL_AudioDeviceID dev;
 
 static void preparesndbuf(void *udata, Uint8 *sndoffsplc, int sndbufsiz);
 
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
-
 void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeakers, char dabytespersample, char daintspersec, char daquality)
 {
     SDL_AudioSpec want, have;

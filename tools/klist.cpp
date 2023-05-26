@@ -8,7 +8,7 @@
 #include "compat.hpp"
 #include "crc32.hpp"
 
-#define MAXFILES 4096
+constexpr auto MAXFILES{4096};
 
 static char buf[65536];
 

@@ -83,7 +83,7 @@ struct keytranslate {
 	unsigned char normal;
 	unsigned char controlchar;  // an ASCII control character to insert into the character fifo
 };
-#define WITH_CONTROL_KEY 0x80
+constexpr auto WITH_CONTROL_KEY{0x80};
 static struct keytranslate keytranslation[SDL_NUM_SCANCODES];
 static int buildkeytranslationtable(void);
 

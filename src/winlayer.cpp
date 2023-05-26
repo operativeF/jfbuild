@@ -112,7 +112,7 @@ static unsigned maxrefreshfreq=60;
 
 // input and events
 static unsigned int mousewheel[2] = { 0,0 };
-#define MouseWheelFakePressTime (100)	// getticks() is a 1000Hz timer, and the button press is faked for 100ms
+constexpr auto MouseWheelFakePressTime{100};	// getticks() is a 1000Hz timer, and the button press is faked for 100ms
 
 static char taskswitching=1;
 

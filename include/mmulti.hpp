@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define MAXMULTIPLAYERS 16
+inline constexpr auto MAXMULTIPLAYERS{16};
 
 #define MMULTI_MODE_MS  0
 #define MMULTI_MODE_P2P 1

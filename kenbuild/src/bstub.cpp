@@ -17,7 +17,7 @@
 
 static unsigned char tempbuf[256];
 
-#define NUMOPTIONS 9
+constexpr auto NUMOPTIONS{9};
 unsigned char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
 int keys[NUMBUILDKEYS] =
 {
@@ -51,7 +51,7 @@ int keys[NUMBUILDKEYS] =
 //                                      but trust me, it's the sprite number)
 
 int averagefps;
-#define AVERAGEFRAMES 32
+constexpr auto AVERAGEFRAMES{32};
 static unsigned int frameval[AVERAGEFRAMES];
 static int framecnt = 0;
 
@@ -256,8 +256,6 @@ void ExtPreCheckKeys(void)
 	}
 #endif
 }
-
-#define MAXVOXMIPS 5
 
 void ExtAnalyzeSprites(void)
 {
