@@ -199,14 +199,14 @@ int netinit (int portnum)
 		}
 
 		// Allow local address reuse.
-		if (setsockopt(mysock, SOL_SOCKET, SO_REUSEADDR, (void *)&on, sizeof(on)) != 0) {
+		if (setsockopt(mysock, SOL_SOCKET, SO_REUSEADDR, static_cast<const char*>((void *)&on), sizeof(on)) != 0) {
 			printf("mmulti error: could not enable local address reuse on socket.\n");
 			break;
 		}
 
 		// Request that we receive IPV4 packet info.
 #if defined(__linux) || defined(_WIN32)
-		if (setsockopt(mysock, IPPROTO_IP, IP_PKTINFO, (void *)&on, sizeof(on)) != 0)
+		if (setsockopt(mysock, IPPROTO_IP, IP_PKTINFO, static_cast<const char*>((void *)&on), sizeof(on)) != 0)
 #else
 		if (domain == PF_INET && setsockopt(mysock, IPPROTO_IP, IP_RECVDSTADDR, &on, sizeof(on)) != 0)
 #endif
@@ -221,14 +221,14 @@ int netinit (int portnum)
 
 		if (domain == PF_INET6) {
 			// Allow dual-stack IPV4/IPV6 on the socket.
-			if (setsockopt(mysock, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&off, sizeof(off)) != 0) {
+			if (setsockopt(mysock, IPPROTO_IPV6, IPV6_V6ONLY, static_cast<const char*>((void *)&off), sizeof(off)) != 0) {
 				printf("mmulti warning: could not enable dual-stack socket, retrying for IPV4.\n");
 				domain = PF_INET;
 				continue;
 			}
 
 			// Request that we receive IPV6 packet info.
-			if (setsockopt(mysock, IPPROTO_IPV6, IPV6_RECVPKTINFO, (void *)&on, sizeof(on)) != 0) {
+			if (setsockopt(mysock, IPPROTO_IPV6, IPV6_RECVPKTINFO, static_cast<const char*>((void *)&on), sizeof(on)) != 0) {
 				printf("mmulti error: could not enable IPV6 packet info on socket.\n");
 				break;
 			}
@@ -301,7 +301,7 @@ int netsend (int other, void *dabuf, int bufsiz) //0:buffer full... can't send
 	WSACMSGHDR *cmsg;
 	DWORD len = 0;
 
-	iovec.buf = dabuf;
+	iovec.buf = static_cast<CHAR*>(dabuf);
 	iovec.len = bufsiz;
 	msg.name = (LPSOCKADDR)&otherhost[other];
 	if (otherhost[other].ss_family == AF_INET) {
@@ -415,7 +415,7 @@ int netread (int *other, void *dabuf, int bufsiz) //0:no packets in buffer
 	WSACMSGHDR *cmsg;
 	DWORD len = 0;
 
-	iovec.buf = dabuf;
+	iovec.buf = static_cast<CHAR*>(dabuf);
 	iovec.len = bufsiz;
 	msg.name = (LPSOCKADDR)&snatchhost;
 	msg.namelen = sizeof(snatchhost);

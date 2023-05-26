@@ -276,7 +276,9 @@ extern int usemodels, usehightile;
 #endif
 
 extern char *engineerrstr;
-extern const char *build_version, *build_date, *build_time;
+
+#define MAXVOXMIPS 5
+inline intptr_t voxoff[MAXVOXELS][MAXVOXMIPS];
 
 /*************************************************************************
 POSITION VARIABLES:

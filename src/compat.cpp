@@ -68,7 +68,7 @@ int Bvasprintf(char **ret, const char *format, va_list ap)
     va_end(app);
 
     if (len < 0) return -1;
-    if ((*ret = malloc(len + 1)) == NULL) return -1;
+    if ((*ret = static_cast<char*>(malloc(len + 1))) == NULL) return -1;
 
     va_copy(app, ap);
     len = vsnprintf(*ret, len + 1, format, app);

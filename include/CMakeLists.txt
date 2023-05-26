@@ -1,0 +1,19 @@
+
+set(BUILD_HEADERS
+  ${CMAKE_CURRENT_LIST_DIR}/baselayer.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/build.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/buildres.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/cache1d.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/compat.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/crc32.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/editor.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/glbuild.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/mmulti.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/osd.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/pragmas.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/scriptfile.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/sdlayer.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/textfonts.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/version.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/winlayer.hpp
+)

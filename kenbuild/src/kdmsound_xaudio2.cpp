@@ -8,8 +8,8 @@
 #define _WIN32_WINNT _WIN32_WINNT_WIN7
 #define _WIN32_IE _WIN32_IE_WIN7
 
-#include "windows.h"
-#include "xaudio2.hpp"
+#include <windows.h>
+#include <xaudio2.h>
 
 extern "C" {
 #define KDMSOUND_INTERNAL

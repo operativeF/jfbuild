@@ -1958,8 +1958,6 @@ void shootgun(short snum, int x, int y, int z,
 	}
 }
 
-#define MAXVOXMIPS 5
-extern unsigned char *voxoff[][MAXVOXMIPS];
 void analyzesprites(int dax, int day)
 {
 	int i, j=0, k, *intptr;

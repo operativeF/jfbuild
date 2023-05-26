@@ -16,7 +16,7 @@ static char marked4extraction[MAXFILES];
 static char filelist[MAXFILES][16];
 static int fileoffs[MAXFILES+1], fileleng[MAXFILES];
 
-void findfiles(const char *dafilespec)
+static void findfiles(const char *dafilespec)
 {
 	char t[13];
 	int i;
