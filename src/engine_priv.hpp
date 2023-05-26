@@ -1,13 +1,13 @@
 #ifndef ENGINE_PRIV_H
 #define ENGINE_PRIV_H
 
-#define MAXCLIPNUM 1024
-#define MAXPERMS 1024
-#define MAXTILEFILES 256
-#define MAXYSAVES ((MAXXDIM*MAXSPRITES)>>7)
-#define MAXNODESPERLINE 42   //Warning: This depends on MAXYSAVES & MAXYDIM!
-#define MAXWALLSB 4096
-#define MAXCLIPDIST 1024
+inline constexpr auto MAXCLIPNUM{1024};
+inline constexpr auto MAXPERMS{1024};
+inline constexpr auto MAXTILEFILES{256};
+inline constexpr auto MAXYSAVES = ((MAXXDIM * MAXSPRITES) >> 7);
+inline constexpr auto MAXNODESPERLINE{42};   //WARNING: This depends on MAXYSAVES & MAXYDIM!
+inline constexpr auto MAXWALLSB{4096};
+inline constexpr auto MAXCLIPDIST{1024};
 
 extern unsigned char pow2char[8];
 extern int pow2long[32];

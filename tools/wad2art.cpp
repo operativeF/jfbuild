@@ -8,7 +8,7 @@
 #include "compat.hpp"
 #include "pragmas.hpp"
 
-#define MAXWADS 4096
+constexpr auto MAXWADS{4096};
 
 static int artversion, localtilestart, localtileend;
 static int fil1, fil2;

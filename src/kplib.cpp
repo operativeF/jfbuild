@@ -94,7 +94,7 @@ static inline int _filelength (int h)
 static int bytesperline, xres, yres, globxoffs, globyoffs;
 static intptr_t frameplace;
 
-static const int pow2mask[32] =
+static constexpr int pow2mask[32] =
 {
 	0x00000000,0x00000001,0x00000003,0x00000007,
 	0x0000000f,0x0000001f,0x0000003f,0x0000007f,
@@ -105,7 +105,8 @@ static const int pow2mask[32] =
 	0x00ffffff,0x01ffffff,0x03ffffff,0x07ffffff,
 	0x0fffffff,0x1fffffff,0x3fffffff,0x7fffffff,
 };
-static const int pow2long[32] =
+
+static constexpr int pow2long[32] =
 {
 	0x00000001,0x00000002,0x00000004,0x00000008,
 	0x00000010,0x00000020,0x00000040,0x00000080,
@@ -121,7 +122,8 @@ static const int pow2long[32] =
 	//   0: PNG: do 12-byte chunk_header removal hack
 	// !=0: ZIP: use 64K buffer (olinbuf)
 static int zipfilmode;
-typedef struct
+
+struct kzfilestate
 {
 	FILE *fil;   //0:no file open, !=0:open file (either stand-alone or zip)
 	int comptyp; //0:raw data (can be ZIP or stand-alone), 8:PKZIP LZ77 *flate
@@ -135,7 +137,8 @@ typedef struct
 	int i;       //For stand-alone/ZIP comptyp#0, this is like "uncomptell"
 					  //For ZIP comptyp#8&btype==0 "<64K store", this saves i state
 	int bfinal;  //LZ77 decompression state (for later calls)
-} kzfilestate;
+};
+
 static kzfilestate kzfs;
 
 //Initialized tables (can't be in union)
@@ -179,8 +182,8 @@ static unsigned char pnginited = 0, olinbuf[65536]; //WARNING:max xres is: 65536
 static int gotcmov = -2, abstab10[1024];
 
 	//Variables to speed up dynamic Huffman decoding:
-#define LOGQHUFSIZ0 9
-#define LOGQHUFSIZ1 6
+constexpr auto LOGQHUFSIZ0{9};
+constexpr auto LOGQHUFSIZ1{6};
 static int qhufval0[1<<LOGQHUFSIZ0], qhufval1[1<<LOGQHUFSIZ1];
 static unsigned char qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
 

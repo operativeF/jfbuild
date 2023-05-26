@@ -58,7 +58,7 @@ static int kzipopen(const char *filnam)
 //           After calling uninitcache, it is still ok to call allocache
 //           without first calling initcache.
 
-#define MAXCACHEOBJECTS 9216
+constexpr auto MAXCACHEOBJECTS{9216};
 
 static size_t cachesize = 0;
 int cachecount = 0;
@@ -404,8 +404,8 @@ BFILE* fopenfrompath(const char *fn, const char *mode)
 }
 
 
-#define MAXGROUPFILES 4     //Warning: Fix groupfil if this is changed
-#define MAXOPENFILES 64     //Warning: Fix filehan if this is changed
+constexpr auto MAXGROUPFILES{4};     //Warning: Fix groupfil if this is changed
+constexpr auto MAXOPENFILES{64};     //Warning: Fix filehan if this is changed
 
 static int numgroupfiles = 0;
 static int gnumfiles[MAXGROUPFILES];
@@ -1056,7 +1056,7 @@ failure:
 }
 
 	//Internal LZW variables
-#define LZWSIZE 16384           //Watch out for shorts!
+constexpr auto LZWSIZE{16384};           //Watch out for shorts!
 static unsigned char *lzwbuf1, *lzwbuf4, *lzwbuf5, lzwbuflock[5];
 static short *lzwbuf2, *lzwbuf3;
 

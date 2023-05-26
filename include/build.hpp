@@ -25,41 +25,41 @@
 extern "C" {
 #endif
 
-#define MAXSECTORSV8 4096
-#define MAXWALLSV8 16384
-#define MAXSPRITESV8 16384
+inline constexpr auto MAXSECTORSV8 {4096};
+inline constexpr auto MAXWALLSV8 {16384};
+inline constexpr auto MAXSPRITESV8 {16384};
 
-#define MAXSECTORSV7 1024
-#define MAXWALLSV7 8192
-#define MAXSPRITESV7 4096
+inline constexpr auto MAXSECTORSV7 {1024};
+inline constexpr auto MAXWALLSV7 {8192};
+inline constexpr auto MAXSPRITESV7 {4096};
 
-#define MAXSECTORSV6 1024
-#define MAXWALLSV6   8192
-#define MAXSPRITESV6 4096
-#define MAXTILESV6   4096
+inline constexpr auto MAXSECTORSV6 {1024};
+inline constexpr auto MAXWALLSV6   {8192};
+inline constexpr auto MAXSPRITESV6 {4096};
+inline constexpr auto MAXTILESV6   {4096};
 
-#define MAXSECTORSV5 1024
-#define MAXWALLSV5   4096
-#define MAXSPRITESV5 4096
-#define MAXTILESV5   4096
+inline constexpr auto MAXSECTORSV5 {1024};
+inline constexpr auto MAXWALLSV5   {4096};
+inline constexpr auto MAXSPRITESV5 {4096};
+inline constexpr auto MAXTILESV5   {4096};
 
-#define MAXSECTORS MAXSECTORSV8
-#define MAXWALLS MAXWALLSV8
-#define MAXSPRITES MAXSPRITESV8
+inline constexpr auto MAXSECTORS{MAXSECTORSV8};
+inline constexpr auto MAXWALLS{MAXWALLSV8};
+inline constexpr auto MAXSPRITES{MAXSPRITESV8};
 
-#define MAXTILES 9216
-#define MAXVOXELS 4096
-#define MAXSTATUS 1024
-#define MAXPLAYERS 16
-#define MAXXDIM 2880
-#define MAXYDIM 1800
-#define MAXPALOOKUPS 256
-#define MAXPSKYTILES 256
-#define MAXSPRITESONSCREEN 2048
-#define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
+inline constexpr auto MAXTILES{9216};
+inline constexpr auto MAXVOXELS{4096};
+inline constexpr auto MAXSTATUS{1024};
+inline constexpr auto MAXPLAYERS{16};
+inline constexpr auto MAXXDIM{2880};
+inline constexpr auto MAXYDIM{1800};
+inline constexpr auto MAXPALOOKUPS{256};
+inline constexpr auto MAXPSKYTILES{256};
+inline constexpr auto MAXSPRITESONSCREEN{2048};
+inline constexpr auto MAXUNIQHUDID{256}; //Extra slots so HUD models can store animation state without messing game sprites
 
-#define CLIPMASK0 (((1L)<<16)+1L)
-#define CLIPMASK1 (((256L)<<16)+64L)
+inline constexpr auto CLIPMASK0 = (((1L)<<16)+1L);
+inline constexpr auto CLIPMASK1 = (((256L)<<16)+64L);
 
 	//Make all variables in BUILD.H defined in the ENGINE,
 	//and externed in GAME
@@ -133,7 +133,7 @@ typedef struct
 //   bits 10-15: reserved
 
 	//32 bytes
-typedef struct
+struct walltype
 {
 	int x, y;
 	short point2, nextwall, nextsector, cstat;
@@ -141,7 +141,7 @@ typedef struct
 	signed char shade;
 	unsigned char pal, xrepeat, yrepeat, xpanning, ypanning;
 	short lotag, hitag, extra;
-} walltype;
+};
 
 //cstat:
 //   bit 0: 1 = Blocking sprite (use with clipmove, getzrange)       "B"
@@ -159,7 +159,7 @@ typedef struct
 //   bit 15: 1 = Invisible sprite, 0 = not invisible
 
 	//44 bytes
-typedef struct
+struct spritetype
 {
 	int x, y, z;
 	short cstat, picnum;
@@ -170,16 +170,16 @@ typedef struct
 	short sectnum, statnum;
 	short ang, owner, xvel, yvel, zvel;
 	short lotag, hitag, extra;
-} spritetype;
+};
 
 	// 12 bytes
-typedef struct {
+struct spriteexttype {
 	unsigned int mdanimtims;
 	short mdanimcur;
 	short angoff;
 	unsigned char flags;
 	char filler[3];
-} spriteexttype;
+};
 #define SPREXT_NOTMD 1
 #define SPREXT_NOMDANIM 2
 
@@ -197,7 +197,7 @@ EXTERN spritetype tsprite[MAXSPRITESONSCREEN];
 EXTERN int xdim, ydim, ylookup[MAXYDIM+1], numpages;
 EXTERN int yxaspect, xyaspect, pixelaspect, widescreen, tallscreen, viewingrange;
 
-#define MAXVALIDMODES 256
+inline constexpr auto MAXVALIDMODES{256};
 EXTERN int validmodecnt;
 struct validmode_t {
 	int xdim,ydim;
@@ -261,9 +261,9 @@ extern unsigned int drawlinepat;
 
 extern void faketimerhandler(void);
 
-typedef struct {
+struct palette_t {
 	unsigned char r,g,b,f;
-} palette_t;
+};
 extern palette_t curpalette[256], curpalettefaded[256], palfadergb;
 extern unsigned char palfadedelta;
 
@@ -277,7 +277,7 @@ extern int usemodels, usehightile;
 
 extern char *engineerrstr;
 
-#define MAXVOXMIPS 5
+inline constexpr auto MAXVOXMIPS{5};
 inline intptr_t voxoff[MAXVOXELS][MAXVOXMIPS];
 
 /*************************************************************************

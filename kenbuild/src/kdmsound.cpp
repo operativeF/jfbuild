@@ -15,11 +15,11 @@
 #include "pragmas.hpp"
 #include "cache1d.hpp"
 
-#define NUMCHANNELS 16
-#define MAXWAVES 256
-#define MAXTRACKS 256
-#define MAXNOTES 8192
-#define MAXEFFECTS 16
+constexpr auto NUMCHANNELS{16};
+constexpr auto MAXWAVES{256};
+constexpr auto MAXTRACKS{256};
+constexpr auto MAXNOTES{8192};
+constexpr auto MAXEFFECTS{16};
 
     //Actual sound parameters after initsb was called
 static int samplerate, numspeakers, bytespersample;
@@ -51,7 +51,7 @@ static int timecount, notecnt, musicstatus, musicrepeat;
 
 static int kdmasm1, kdmasm2, kdmasm3, kdmasm4;
 
-#define MAXBYTESPERTIC 2048
+constexpr auto MAXBYTESPERTIC{2048};
 static int stemp[MAXBYTESPERTIC*2];
 
     //Sound reading information

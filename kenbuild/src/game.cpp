@@ -15,11 +15,11 @@
 
 #include "baselayer.hpp"
 
-#define TIMERINTSPERSECOND 140 //280
-#define MOVESPERSECOND 40
-#define TICSPERFRAME 3
-#define MOVEFIFOSIZ 256
-#define EYEHEIGHT (32<<8)   //Normally (32<<8), (51<<8) to make mirrors happy
+constexpr auto TIMERINTSPERSECOND{140}; //280
+constexpr auto MOVESPERSECOND{40};
+constexpr auto TICSPERFRAME{3};
+constexpr auto MOVEFIFOSIZ{256};
+constexpr auto EYEHEIGHT = 32 << 8;   //Normally (32<<8), (51<<8) to make mirrors happy
 
 // declared in config.c
 int loadsetup(const char *);
@@ -124,9 +124,9 @@ static int digihz[8] = {6000,8000,11025,16000,22050,32000,44100,48000};
 static unsigned char frame2draw[MAXPLAYERS];
 static int frameskipcnt[MAXPLAYERS];
 
-#define LAVASIZ 128
-#define LAVALOGSIZ 7
-#define LAVAMAXDROPS 32
+constexpr auto LAVASIZ{128};
+constexpr auto LAVALOGSIZ{7};
+constexpr auto LAVAMAXDROPS{32};
 static unsigned char lavabakpic[(LAVASIZ+4)*(LAVASIZ+4)], lavainc[LAVASIZ];
 static int lavanumdrops, lavanumframes;
 static int lavadropx[LAVAMAXDROPS], lavadropy[LAVAMAXDROPS];
@@ -153,7 +153,7 @@ static int nummoves;
 // Bug: NUMSTATS used to be equal to the greatest tag number,
 // so that the last statrate[] entry was random memory junk
 // because stats 0-NUMSTATS required NUMSTATS+1 bytes.   -Andy
-#define NUMSTATS 13
+constexpr auto NUMSTATS{13};
 static signed char statrate[NUMSTATS] = {-1,0,-1,0,0,0,1,3,0,3,15,-1,-1};
 
 	//Input structures
@@ -191,7 +191,7 @@ static short oang[MAXPLAYERS];
 
 static point3d osprite[MAXSPRITES];
 
-#define MAXINTERPOLATIONS 1024
+constexpr auto MAXINTERPOLATIONS{1024};
 static int numinterpolations = 0, startofdynamicinterpolations = 0;
 static int oldipos[MAXINTERPOLATIONS];
 static int bakipos[MAXINTERPOLATIONS];
@@ -217,7 +217,7 @@ static int globhiz, globloz, globhihit, globlohit;
 static int cameradist = -1, cameraang = 0, cameraclock = 0;
 
 	//Board animation variables
-#define MAXMIRRORS 64
+constexpr auto MAXMIRRORS{64};
 static short mirrorwall[MAXMIRRORS], mirrorsector[MAXMIRRORS], mirrorcnt;
 static short floormirrorsector[64], floormirrorcnt;
 static short turnspritelist[16], turnspritecnt;
@@ -275,7 +275,7 @@ static unsigned char scantoascwithshift[128] =
 	//These variables are for animating x, y, or z-coordinates of sectors,
 	//walls, or sprites (They are NOT to be used for changing the [].picnum's)
 	//See the setanimation(), and getanimategoal() functions for more details.
-#define MAXANIMATES 512
+constexpr auto MAXANIMATES{512};
 static int *animateptr[MAXANIMATES], animategoal[MAXANIMATES];
 static int animatevel[MAXANIMATES], animateacc[MAXANIMATES], animatecnt = 0;
 

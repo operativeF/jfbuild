@@ -47,7 +47,8 @@ LPFN_WSARECVMSG WSARecvMsgPtr;
 #include <sys/socket.h>
 #include <netdb.h>
 #include <stddef.h>
-#define SOCKET int
+
+using SOCKET = int;
 
 #include <sys/time.h>
 static int GetTickCount(void)
@@ -72,13 +73,12 @@ static int GetTickCount(void)
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
 
-#define MAXPLAYERS 16
-#define MAXPAKSIZ 256 //576
+constexpr auto MAXPAKSIZ{256}; //576
 
-#define PAKRATE 40   //Packet rate/sec limit ... necessary?
+constexpr auto PAKRATE{40};   //Packet rate/sec limit ... necessary?
 #define SIMMIS 0     //Release:0  Test:100 Packets per 256 missed.
 #define SIMLAG 0     //Release:0  Test: 10 Packets to delay receipt
-#define PRESENCETIMEOUT 2000
+constexpr auto PRESENCETIMEOUT{2000};
 #if (SIMLAG > 1)
 static int simlagcnt[MAXPLAYERS];
 static unsigned char simlagfif[MAXPLAYERS][SIMLAG+1][MAXPAKSIZ+2];
@@ -93,12 +93,12 @@ int connecthead, connectpoint2[MAXPLAYERS];
 static int tims, lastsendtims[MAXPLAYERS], lastrecvtims[MAXPLAYERS], prevlastrecvtims[MAXPLAYERS];
 static unsigned char pakbuf[MAXPAKSIZ], playerslive[MAXPLAYERS];
 
-#define FIFSIZ 512 //16384/40 = 6min:49sec
+constexpr auto FIFSIZ{512}; //16384/40 = 6min:49sec
 static int ipak[MAXPLAYERS][FIFSIZ], icnt0[MAXPLAYERS];
 static int opak[MAXPLAYERS][FIFSIZ], ocnt0[MAXPLAYERS], ocnt1[MAXPLAYERS];
 static unsigned char pakmem[4194304]; static int pakmemi = 1;
 
-#define NETPORT 0x5bd9
+constexpr auto NETPORT{0x5bd9};
 static SOCKET mysock = -1;
 static int domain = PF_UNSPEC;
 static struct sockaddr_storage otherhost[MAXPLAYERS], snatchhost;	// IPV4/6 address of peers

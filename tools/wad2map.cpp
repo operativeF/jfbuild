@@ -8,19 +8,19 @@
 #include "compat.hpp"
 #include "pragmas.hpp"
 
-#define MAXWADS 4096
-#define MAXPOINTS 8192
-#define MAXLINES 8192
-#define MAXSIDES 8192
-#define MAXSECTS 2048
-#define MAXTHINGS 4096
-#define MAXTEXTS 1024
-#define MAXPNAMES 1024
-#define MAXTHINGTYPES 3072
+constexpr auto MAXWADS{4096};
+constexpr auto MAXPOINTS{8192};
+constexpr auto MAXLINES{8192};
+constexpr auto MAXSIDES{8192};
+constexpr auto MAXSECTS{2048};
+constexpr auto MAXTHINGS{4096};
+constexpr auto MAXTEXTS{1024};
+constexpr auto MAXPNAMES{1024};
+constexpr auto MAXTHINGTYPES{3072};
 
-#define MAXSECTORS 1024
-#define MAXWALLS 8192
-#define MAXSPRITES 4096
+constexpr auto MAXSECTORS{1024};
+constexpr auto MAXWALLS{8192};
+constexpr auto MAXSPRITES{4096};
 
 static unsigned short sqrtable[4096], shlookup[4096+256];
 
@@ -149,7 +149,7 @@ static short secfield[4096];
 static char secop[4096];
 static int secval[4096], secopnum = 0;
 
-#define THINGLISTNUM 123
+constexpr auto THINGLISTNUM{123};
 static short thinglookup[MAXTHINGTYPES];
 typedef struct { short num; char name[8]; } thinglisttype;
 static thinglisttype thinglist[THINGLISTNUM] =

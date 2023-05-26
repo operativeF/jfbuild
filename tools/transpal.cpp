@@ -8,7 +8,7 @@
 #include "compat.hpp"
 #include "pragmas.hpp"
 
-#define MAXPALOOKUPS 256
+constexpr auto MAXPALOOKUPS{256};
 
 static int numpalookups, transratio, orignumpalookups;
 static char palettefilename[13];
@@ -16,7 +16,7 @@ static unsigned char origpalookup[MAXPALOOKUPS<<8];
 static unsigned char palette[768], palookup[MAXPALOOKUPS<<8], transluc[65536];
 static unsigned char closestcol[64][64][64];
 
-#define FASTPALGRIDSIZ 8
+constexpr auto FASTPALGRIDSIZ{8};
 static int rdist[129], gdist[129], bdist[129];
 static unsigned char colhere[((FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2))>>3];
 static unsigned char colhead[(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)];

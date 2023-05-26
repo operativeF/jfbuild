@@ -40,7 +40,7 @@ extern void (*baselayer_videomodedidchange)(void);
 extern int inputdevices;
 
 // keys
-#define KEYFIFOSIZ 64
+inline constexpr auto KEYFIFOSIZ{64};
 extern char keystatus[256];
 extern int keyfifo[KEYFIFOSIZ];
 extern unsigned char keyasciififo[KEYFIFOSIZ];

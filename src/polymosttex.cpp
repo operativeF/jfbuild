@@ -65,10 +65,10 @@ static int primepos   = 0;	// the position in pthashhead where we are up to in p
 int polymosttexverbosity = 1;	// 0 = none, 1 = errors, 2 = all
 int polymosttexfullbright = 256;	// first index of the fullbright palette entries
 
-#define PTHASHHEADSIZ 4096
+constexpr auto PTHASHHEADSIZ{4096};
 static PTHash * pthashhead[PTHASHHEADSIZ];	// will be initialised 0 by .bss segment
 
-#define PTMHASHHEADSIZ 4096
+constexpr auto PTMHASHHEADSIZ{4096};
 static PTMHash * ptmhashhead[PTMHASHHEADSIZ];	// will be initialised 0 by .bss segment
 
 static const char *compressfourcc[] = {

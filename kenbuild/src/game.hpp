@@ -1,7 +1,7 @@
 // game.h
 
-#define NUMOPTIONS 8
-#define NUMKEYS 20
+constexpr auto NUMOPTIONS{8};
+constexpr auto NUMKEYS{20};
 
 extern char option[NUMOPTIONS];
 extern int keys[NUMKEYS];

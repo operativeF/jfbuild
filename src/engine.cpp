@@ -49,11 +49,10 @@ int usevoxels = 1;
 int novoxmips = 0;
 
 	//These variables need to be copied into BUILD
-#define MAXXSIZ 256
-#define MAXYSIZ 256
-#define MAXZSIZ 255
-// #define MAXVOXMIPS 5
-// intptr_t voxoff[MAXVOXELS][MAXVOXMIPS];
+constexpr auto MAXXSIZ{256};
+constexpr auto MAXYSIZ{256};
+constexpr auto MAXZSIZ{255};
+
 unsigned char voxlock[MAXVOXELS][MAXVOXMIPS];
 int voxscale[MAXVOXELS];
 
@@ -76,7 +75,7 @@ static short *dotp1[MAXYDIM], *dotp2[MAXYDIM];
 static unsigned char tempbuf[MAXWALLS];
 
 int ebpbak, espbak;
-#define SLOPALOOKUPSIZ (MAXXDIM<<1)
+constexpr auto SLOPALOOKUPSIZ = MAXXDIM << 1;
 intptr_t slopalookup[SLOPALOOKUPSIZ];
 #if USE_POLYMOST && USE_OPENGL
 palette_t palookupfog[MAXPALOOKUPS];
@@ -512,7 +511,7 @@ short pointhighlight, linehighlight, highlightcnt;
 int lastx[MAXYDIM];
 unsigned char *transluc = NULL;
 
-#define FASTPALGRIDSIZ 8
+constexpr auto FASTPALGRIDSIZ{8};
 static int rdist[129], gdist[129], bdist[129];
 static unsigned char colhere[((FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2))>>3];
 static unsigned char colhead[(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)];
@@ -2068,7 +2067,7 @@ static void ceilspritescan(int x1, int x2)
 //
 // grouscan (internal)
 //
-#define BITSOFPRECISION 3  //Don't forget to change this in A.ASM also!
+constexpr auto BITSOFPRECISION{3};  //Don't forget to change this in A.ASM also!
 static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 {
 	int i, j, l, x, y, dx, dy, wx, wy, y1, y2, daz;

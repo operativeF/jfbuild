@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define NUMBUILDKEYS 20
+inline constexpr auto NUMBUILDKEYS{20};
 
 extern int qsetmode;
 extern short searchsector, searchwall, searchstat;
@@ -57,7 +57,7 @@ extern void ExtEditSectorData(short sectnum);
 extern void ExtEditWallData(short wallnum);
 extern void ExtEditSpriteData(short spritenum);
 
-#define STATUS2DSIZ 144
+inline constexpr auto STATUS2DSIZ{144};
 
 int loadsetup(const char *fn);	// from config.c
 int writesetup(const char *fn);	// from config.c

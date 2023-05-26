@@ -11,7 +11,7 @@
 // for all platforms, here's a replacement just for this program.
 static void jstrupr(char *s) { while (*s) { *s = Btoupper(*s); s++; } }
 
-#define MAXFILES 4096
+constexpr auto MAXFILES{4096};
 
 static char buf[65536];		// These limits should be abolished one day
 

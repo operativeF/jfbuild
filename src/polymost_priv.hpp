@@ -2,8 +2,6 @@
 #error Polymost not enabled.
 #endif
 
-#define PI 3.14159265358979323
-
 extern int rendmode;
 extern float gtang;
 extern double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
@@ -51,7 +49,7 @@ struct glfiltermodes {
 	char *name;
 	int min,mag;
 };
-#define numglfiltermodes 6
+inline constexpr auto numglfiltermodes{6};
 extern struct glfiltermodes glfiltermodes[numglfiltermodes];
 
 extern int gltexcomprquality;	// 0 = fast, 1 = slow and pretty, 2 = very slow and pretty
@@ -92,7 +90,7 @@ struct polymostdrawpolycall {
 };
 
 // Smallest initial size for the global index buffer.
-#define MINVBOINDEXES 16
+inline constexpr auto MINVBOINDEXES{16};
 
 struct polymostdrawauxcall {
     GLuint texture0;

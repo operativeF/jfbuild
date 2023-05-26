@@ -32,7 +32,7 @@ hudtyp hudmem[2][MAXTILES]; //~320KB ... ok for now ... could replace with dynam
 char mdinited=0;
 int mdtims, omdtims;
 
-#define MODELALLOCGROUP 256
+constexpr auto MODELALLOCGROUP{256};
 static int nummodelsalloced = 0;
 int nextmodelid = 0;
 mdmodel **models = NULL;
