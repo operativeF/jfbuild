@@ -12,7 +12,7 @@
 # endif
 #endif
 
-void makeasmwriteable(void)
+void makeasmwriteable()
 {
 #ifndef USING_A_C
     extern int dep_begin, dep_end;

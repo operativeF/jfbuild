@@ -28,8 +28,8 @@ static unsigned char *gbuf, *gpal, *ghlinepal, *gtrans;
 	//Global variable functions
 void setvlinebpl(int dabpl) { bpl = dabpl; }
 void fixtransluscence(void *datransoff) { gtrans = (unsigned char *)datransoff; }
-void settransnormal(void) { transmode = 0; }
-void settransreverse(void) { transmode = 1; }
+void settransnormal() { transmode = 0; }
+void settransreverse() { transmode = 1; }
 
 
 	//Ceiling/floor horizontal line functions

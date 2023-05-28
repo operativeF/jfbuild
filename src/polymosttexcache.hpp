@@ -33,12 +33,12 @@ typedef struct PTCacheTile_typ PTCacheTile;
 /**
  * Loads the cache index file into memory
  */
-void PTCacheLoadIndex(void);
+void PTCacheLoadIndex();
 
 /**
  * Unloads the cache index from memory
  */
-void PTCacheUnloadIndex(void);
+void PTCacheUnloadIndex();
 
 /**
  * Loads a tile from the cache.
@@ -82,7 +82,7 @@ int PTCacheWriteTile(PTCacheTile * tdef);
 /**
  * Forces the cache to be rebuilt.
  */
-void PTCacheForceRebuild(void);
+void PTCacheForceRebuild();
 
 #ifdef __cplusplus
 }

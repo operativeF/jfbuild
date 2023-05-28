@@ -109,7 +109,7 @@ void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeake
     INITSB_CHECK(SUCCEEDED(hr), "failed to start source voice (%08x)\n", hr);
 }
 
-void uninitsb(void)
+void uninitsb()
 {
     if (bufferthread) {
         SetEvent(bufferevents[EVENT_EXIT]);
@@ -151,18 +151,18 @@ void uninitsb(void)
     }
 }
 
-void refreshaudio(void)
+void refreshaudio()
 {
 }
 
-int lockkdm(void)
+int lockkdm()
 {
     if (!buffercritsecinited) return -1;
     EnterCriticalSection(&buffercritsec);
     return 0;
 }
 
-void unlockkdm(void)
+void unlockkdm()
 {
     if (!buffercritsecinited) return;
     LeaveCriticalSection(&buffercritsec);

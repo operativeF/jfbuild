@@ -3,9 +3,9 @@
 
 #include <gio/gio.h>
 
-extern GResource *startgtk_get_resource (void);
+extern GResource *startgtk_get_resource ();
 
-extern void startgtk_register_resource (void);
-extern void startgtk_unregister_resource (void);
+extern void startgtk_register_resource ();
+extern void startgtk_unregister_resource ();
 
 #endif

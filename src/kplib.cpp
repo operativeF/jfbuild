@@ -2788,7 +2788,7 @@ static int kzcheckhash (const char *filnam, char **zipnam, unsigned int *zipseek
 	return(0);
 }
 
-void kzuninit (void)
+void kzuninit ()
 {
 	if (kzhashbuf) { free(kzhashbuf); kzhashbuf = 0; }
 	kzhashpos = kzhashsiz = 0;
@@ -3266,7 +3266,7 @@ retkzread:;
 	return(kzfs.pos-i);
 }
 
-int kzfilelength (void)
+int kzfilelength ()
 {
 	if (!kzfs.fil) return(-1);
 	return(kzfs.leng);
@@ -3288,26 +3288,26 @@ int kzseek (int offset, int whence)
 	return(kzfs.pos);
 }
 
-int kztell (void)
+int kztell ()
 {
 	if (!kzfs.fil) return(-1);
 	return(kzfs.pos);
 }
 
-int kzgetc (void)
+int kzgetc ()
 {
 	char ch;
 	if (!kzread(&ch,1)) return(-1);
 	return((int)ch);
 }
 
-int kzeof (void)
+int kzeof ()
 {
 	if (!kzfs.fil) return(-1);
 	return(kzfs.pos >= kzfs.leng);
 }
 
-void kzclose (void)
+void kzclose ()
 {
 	if (kzfs.fil) { fclose(kzfs.fil); kzfs.fil = 0; }
 }

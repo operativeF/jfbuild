@@ -212,7 +212,7 @@ void win_allowbackgroundidle(int onf)
 //
 // win_checkinstance() -- looks for another instance of a Build app
 //
-int win_checkinstance(void)
+int win_checkinstance()
 {
 	if (!instanceflag) return 0;
 	return (WaitForSingleObject(instanceflag,0) == WAIT_TIMEOUT);
@@ -224,7 +224,7 @@ void win_setmaxrefreshfreq(unsigned frequency)
 	maxrefreshfreq = frequency;
 }
 
-unsigned win_getmaxrefreshfreq(void)
+unsigned win_getmaxrefreshfreq()
 {
 	return maxrefreshfreq;
 }
@@ -515,7 +515,7 @@ static int set_glswapinterval(const osdfuncparm_t *parm)
 //
 // initsystem() -- init systems
 //
-int initsystem(void)
+int initsystem()
 {
 	DEVMODE desktopmode;
 
@@ -568,7 +568,7 @@ int initsystem(void)
 //
 // uninitsystem() -- uninit systems
 //
-void uninitsystem(void)
+void uninitsystem()
 {
 	DestroyAppWindow();
 
@@ -624,7 +624,7 @@ void debugprintf(const char *f, ...)
 //   returns !0 if there was an important event worth checking (like quitting)
 //
 static int eatosdinput = 0;
-int handleevents(void)
+int handleevents()
 {
 	int rv=0;
 	MSG msg;
@@ -676,7 +676,7 @@ static int xinputusernum = -1;
 //
 // initinput() -- init input system
 //
-int initinput(void)
+int initinput()
 {
 	moustat=0;
 	memset(keystatus, 0, sizeof(keystatus));
@@ -719,7 +719,7 @@ int initinput(void)
 //
 // uninitinput() -- uninit input system
 //
-void uninitinput(void)
+void uninitinput()
 {
 	uninitmouse();
 
@@ -731,7 +731,7 @@ void uninitinput(void)
 //
 // initmouse() -- init mouse input
 //
-int initmouse(void)
+int initmouse()
 {
 	RAWINPUTDEVICE rid;
 
@@ -762,7 +762,7 @@ int initmouse(void)
 //
 // uninitmouse() -- uninit mouse input
 //
-void uninitmouse(void)
+void uninitmouse()
 {
 	RAWINPUTDEVICE rid;
 
@@ -807,7 +807,7 @@ static void constrainmouse(int a)
 	}
 }
 
-static void updatemouse(void)
+static void updatemouse()
 {
 	unsigned t = getticks();
 
@@ -861,7 +861,7 @@ void readmousebstatus(int *b)
 }
 
 
-static void updatejoystick(void)
+static void updatejoystick()
 {
 	XINPUT_STATE state;
 
@@ -895,7 +895,7 @@ static void updatejoystick(void)
 }
 
 
-void releaseallbuttons(void)
+void releaseallbuttons()
 {
 	int i;
 
@@ -928,7 +928,7 @@ static void putkeyname(int vsc, int ex, int scan) {
 	//buildprintf("VSC %8x scan %-2x = %s\n", vsc, scan, keynames[scan]);
 }
 
-static void fetchkeynames(void)
+static void fetchkeynames()
 {
 	int scan;
 	unsigned i;
@@ -1011,7 +1011,7 @@ static void (*usertimercallback)(void) = NULL;
 //
 // inittimer() -- initialise timer
 //
-int inittimer(int tickspersecond, void(*callback)(void))
+int inittimer(int tickspersecond, void(*callback)())
 {
 	int64_t t;
 
@@ -1039,7 +1039,7 @@ int inittimer(int tickspersecond, void(*callback)(void))
 //
 // uninittimer() -- shut down timer
 //
-void uninittimer(void)
+void uninittimer()
 {
 	if (!timerfreq) return;
 
@@ -1050,7 +1050,7 @@ void uninittimer(void)
 //
 // sampletimer() -- update totalclock
 //
-void sampletimer(void)
+void sampletimer()
 {
 	int64_t i;
 	int n;
@@ -1071,7 +1071,7 @@ void sampletimer(void)
 //
 // getticks() -- returns the millisecond ticks count
 //
-unsigned int getticks(void)
+unsigned int getticks()
 {
 	int64_t i;
 	if (timerfreq == 0) return 0;
@@ -1083,7 +1083,7 @@ unsigned int getticks(void)
 //
 // getusecticks() -- returns the microsecond ticks count
 //
-unsigned int getusecticks(void)
+unsigned int getusecticks()
 {
 	int64_t i;
 	if (timerfreq == 0) return 0;
@@ -1095,7 +1095,7 @@ unsigned int getusecticks(void)
 //
 // gettimerfreq() -- returns the number of ticks per second the timer is configured to generate
 //
-int gettimerfreq(void)
+int gettimerfreq()
 {
 	return timerticspersec;
 }
@@ -1116,7 +1116,7 @@ static VOID    *lpPixels    = NULL;
 static int setgammaramp(WORD gt[3][256]);
 static int getgammaramp(WORD gt[3][256]);
 
-static void shutdownvideo(void)
+static void shutdownvideo()
 {
 #if USE_OPENGL
 	if (frame) {
@@ -1196,7 +1196,7 @@ int setvideomode(int x, int y, int c, int fs)
 #define CHECKLE(w,h) if ((w <= maxx) && (h <= maxy))
 
 #if USE_OPENGL
-static void cdsenummodes(void)
+static void cdsenummodes()
 {
 	DEVMODE dm;
 	int i = 0, j = 0;
@@ -1253,7 +1253,7 @@ static int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
 
 	return 0;
 }
-void getvalidmodes(void)
+void getvalidmodes()
 {
 	static int defaultres[][2] = {
 		{1920,1200},{1920,1080},{1600,1200},{1680,1050},{1600,900},{1400,1050},{1440,900},{1366,768},
@@ -1315,7 +1315,7 @@ void getvalidmodes(void)
 //
 // resetvideomode() -- resets the video system
 //
-void resetvideomode(void)
+void resetvideomode()
 {
 	videomodereset = 1;
 	modeschecked = 0;
@@ -1325,7 +1325,7 @@ void resetvideomode(void)
 //
 // showframe() -- update the display
 //
-void showframe(void)
+void showframe()
 {
 #if USE_OPENGL
 	if (!glunavailable) {
@@ -1440,7 +1440,7 @@ static int getgammaramp(WORD gt[3][256])
 //
 // UninitDIB() -- clean up the DIB renderer
 //
-static void UninitDIB(void)
+static void UninitDIB()
 {
 	if (hPalette) {
 		DeleteObject(hPalette);
@@ -1535,7 +1535,7 @@ int loadgldriver(const char *dll)
 	return 0;
 }
 
-int unloadgldriver(void)
+int unloadgldriver()
 {
 	if (!hGLDLL) return 0;
 	FreeLibrary(hGLDLL);
@@ -1564,7 +1564,7 @@ void *getglprocaddress(const char *name, int ext)
 // UninitOpenGL() -- cleans up OpenGL rendering
 //
 
-static void UninitOpenGL(void)
+static void UninitOpenGL()
 {
 	if (hGLRC) {
 #if USE_POLYMOST
@@ -2082,7 +2082,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 //
 // DestroyAppWindow() -- destroys the application window
 //
-static void DestroyAppWindow(void)
+static void DestroyAppWindow()
 {
 	if (hWindow && gammabrightness) {
 		setgammaramp(sysgamma);
@@ -2105,7 +2105,7 @@ static void DestroyAppWindow(void)
 //
 // UpdateAppWindowTitle() -- sets the title of the application window
 //
-static void UpdateAppWindowTitle(void)
+static void UpdateAppWindowTitle()
 {
 	char tmp[256+3+256+1];		//sizeof(wintitle) + " - " + sizeof(apptitle) + '\0'
 
@@ -2143,7 +2143,7 @@ static void ShowErrorBox(const char *m)
 //
 // CheckWinVersion() -- check to see what version of Windows we happen to be running under
 //
-static BOOL CheckWinVersion(void)
+static BOOL CheckWinVersion()
 {
 	OSVERSIONINFO osv;
 
@@ -2353,7 +2353,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 //
 // RegisterWindowClass() -- register the window class
 //
-static BOOL RegisterWindowClass(void)
+static BOOL RegisterWindowClass()
 {
 	WNDCLASSEX wcx;
 

@@ -192,7 +192,7 @@ GLfloat gdrawroomsprojmat[4][4];      // Proj. matrix for drawrooms() calls.
 GLfloat grotatespriteprojmat[4][4];   // Proj. matrix for rotatesprite() calls.
 GLfloat gorthoprojmat[4][4];          // Proj. matrix for 2D (aux) calls.
 
-static int polymost_preparetext(void);
+static int polymost_preparetext();
 #endif //USE_OPENGL
 
 #ifdef DEBUGGINGAIDS
@@ -346,7 +346,7 @@ void polymost_texinvalidateall ()
 }
 
 
-void gltexapplyprops (void)
+void gltexapplyprops ()
 {
 	int i;
 	PTIter iter;
@@ -575,7 +575,7 @@ static void checkindexbuffer(unsigned int size)
 	elementindexbuffersize = size;
 }
 
-static void polymost_loadshaders(void)
+static void polymost_loadshaders()
 {
 	extern const char default_polymost_fs_glsl[];
 	extern const char default_polymost_vs_glsl[];
@@ -711,7 +711,7 @@ void polymost_glinit()
 	polymost_loadshaders();
 }
 
-void resizeglcheck (void)
+void resizeglcheck ()
 {
 	if (glredbluemode < lastglredbluemode) {
 		glox1 = -1;
@@ -744,7 +744,7 @@ void resizeglcheck (void)
 	}
 }
 
-void polymost_aftershowframe(void)
+void polymost_aftershowframe()
 {
 #if (USE_OPENGL != USE_GLES2)
 	if (glpolygonmode)
@@ -755,7 +755,7 @@ void polymost_aftershowframe(void)
 #endif
 }
 
-void polymost_setview(void)
+void polymost_setview()
 {
 	memset(gdrawroomsprojmat,0,sizeof(gdrawroomsprojmat));
 	gdrawroomsprojmat[0][0] = (float)ydimen; gdrawroomsprojmat[0][2] = 1.0;
@@ -903,7 +903,7 @@ static void polymost_drawaux_glcall(GLenum mode, struct polymostdrawauxcall *dra
 #endif
 }
 
-static void polymost_palfade(void)
+static void polymost_palfade()
 {
 	struct polymostdrawauxcall draw;
 	struct polymostvboitem vboitem[4];
@@ -947,7 +947,7 @@ static void polymost_palfade(void)
 
 #endif //USE_OPENGL
 
-void polymost_nextpage(void)
+void polymost_nextpage()
 {
 #if USE_OPENGL
 	polymost_palfade();
@@ -4504,7 +4504,7 @@ int polymost_plotpixel(int x, int y, unsigned char col)
 	return 0;
 }
 
-static int polymost_preparetext(void)
+static int polymost_preparetext()
 {
 	unsigned int *tbuf;
 
@@ -4840,7 +4840,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 	return OSDCMD_SHOWHELP;
 }
 
-void polymost_initosdfuncs(void)
+void polymost_initosdfuncs()
 {
 #if USE_OPENGL
 	OSD_RegisterFunction("usemodels","usemodels: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);

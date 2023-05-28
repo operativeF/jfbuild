@@ -32,7 +32,7 @@ static void _internal_drawosdcursor(int,int,int,int);
 static int _internal_getcolumnwidth(int);
 static int _internal_getrowheight(int);
 static void _internal_clearbackground(int,int);
-static int _internal_gettime(void);
+static int _internal_gettime();
 static void _internal_onshowosd(int);
 
 constexpr auto TEXTSIZE{16384};
@@ -92,10 +92,10 @@ static void (*drawosdcursor)(int, int, int, int) = _internal_drawosdcursor;
 static int (*getcolumnwidth)(int) = _internal_getcolumnwidth;
 static int (*getrowheight)(int) = _internal_getrowheight;
 static void (*clearbackground)(int,int) = _internal_clearbackground;
-static int (*gettime)(void) = _internal_gettime;
+static int (*gettime)() = _internal_gettime;
 static void (*onshowosd)(int) = _internal_onshowosd;
 
-static void findwhite(void)
+static void findwhite()
 {
 	if (qsetmode == 200) {
 		palmap256[0] = getclosestcol(0,0,0);    // black
@@ -186,7 +186,7 @@ static void _internal_clearbackground(int cols, int rows)
 	(void)cols; (void)rows;
 }
 
-static int _internal_gettime(void)
+static int _internal_gettime()
 {
 	return (int)getticks();
 }
@@ -274,7 +274,7 @@ static int osdcmd_echo(const osdfuncparm_t *parm)
 //
 // OSD_Cleanup() -- Cleans up the on-screen display
 //
-void OSD_Cleanup(void)
+void OSD_Cleanup()
 {
 	symbol_t *s;
 
@@ -290,7 +290,7 @@ void OSD_Cleanup(void)
 //
 // OSD_Init() -- Initialises the on-screen display
 //
-void OSD_Init(void)
+void OSD_Init()
 {
     if (osdinited) return;
 	osdinited=1;
@@ -318,7 +318,7 @@ void OSD_SetFunctions(
 		int (*colwidth)(int),
 		int (*rowheight)(int),
 		void (*clearbg)(int,int),
-		int (*gtime)(void),
+		int (*gtime)(),
 		void (*showosd)(int)
 	)
 {
@@ -867,7 +867,7 @@ void OSD_ShowDisplay(int onf)
 //
 // OSD_Draw() -- Draw the onscreen display
 //
-void OSD_Draw(void)
+void OSD_Draw()
 {
 	unsigned topoffs;
 	int row, lines, x, len;
@@ -896,7 +896,7 @@ void OSD_Draw(void)
 }
 
 
-static inline void linefeed(void)
+static inline void linefeed()
 {
 	Bmemmove(osdtext+osdcols, osdtext, TEXTSIZE-osdcols);
 	Bmemset(osdtext, 0, osdcols);
@@ -953,7 +953,7 @@ void OSD_Puts(const char *str)
 //
 // OSD_DispatchQueued() -- Executes any commands queued in the buffer
 //
-void OSD_DispatchQueued(void)
+void OSD_DispatchQueued()
 {
 	int cmd;
 

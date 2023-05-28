@@ -55,7 +55,7 @@ hicreplctyp * hicfindsubst(int picnum, int palnum, int skybox)
 /**
  * Initialise the high-colour stuff to a default state
  */
-void hicinit(void)
+void hicinit()
 {
 	int i,j;
 	hicreplctyp *hr, *next;

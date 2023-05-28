@@ -102,7 +102,7 @@ void dumpfont(const struct spec *spec)
 	puts(spec->filename);
 }
 
-void main(void)
+void main()
 {
 	int font;
 	int numfonts = sizeof(specs) / sizeof(specs[0]);

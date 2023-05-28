@@ -109,21 +109,21 @@ void polymost_drawpoly_glcall(GLenum mode, struct polymostdrawpolycall *draw);
 
 int polymost_texmayhavealpha (int dapicnum, int dapalnum);
 void polymost_texinvalidate (int dapicnum, int dapalnum, int dameth);
-void polymost_texinvalidateall (void);
-void polymost_glinit(void);
+void polymost_texinvalidateall ();
+void polymost_glinit();
 int polymost_printext256(int xpos, int ypos, short col, short backcol, const char *name, char fontsize);
 int polymost_drawline256(int x1, int y1, int x2, int y2, unsigned char col);
 int polymost_plotpixel(int x, int y, unsigned char col);
 void polymost_fillpolygon (int npoints);
-void polymost_setview(void);
+void polymost_setview();
 
 #endif //USE_OPENGL
 
-void polymost_nextpage(void);
-void polymost_aftershowframe(void);
-void polymost_drawrooms (void);
+void polymost_nextpage();
+void polymost_aftershowframe();
+void polymost_drawrooms ();
 void polymost_drawmaskwall (int damaskwallcnt);
 void polymost_drawsprite (int snum);
 void polymost_dorotatesprite (int sx, int sy, int z, short a, short picnum,
     signed char dashade, unsigned char dapalnum, unsigned char dastat, int cx1, int cy1, int cx2, int cy2, int uniqid);
-void polymost_initosdfuncs(void);
+void polymost_initosdfuncs();

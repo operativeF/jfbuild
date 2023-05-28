@@ -2,7 +2,7 @@
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
 
-char *osx_gethomedir(void)
+char *osx_gethomedir()
 {
     NSURL *url = [[NSFileManager defaultManager] URLForDirectory:NSUserDirectory
                                                         inDomain:NSUserDomainMask
@@ -15,7 +15,7 @@ char *osx_gethomedir(void)
     return NULL;
 }
 
-char *osx_getappdir(void)
+char *osx_getappdir()
 {
     NSString *path = [[NSBundle mainBundle] resourcePath];
     if (path) {

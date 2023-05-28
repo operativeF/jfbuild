@@ -9,15 +9,15 @@
 extern "C" {
 #endif
 
-intptr_t win_gethwnd(void);
-intptr_t win_gethinstance(void);
+intptr_t win_gethwnd();
+intptr_t win_gethinstance();
 
 void win_allowtaskswitching(int onf);
 void win_allowbackgroundidle(int onf);
-int win_checkinstance(void);
+int win_checkinstance();
 
 void win_setmaxrefreshfreq(unsigned frequency);
-unsigned win_getmaxrefreshfreq(void);
+unsigned win_getmaxrefreshfreq();
 
 #ifdef __cplusplus
 }

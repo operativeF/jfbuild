@@ -417,7 +417,7 @@ int scriptfile_addsymbolvalue(const char *name, int val)
 	return 1;   // added
 }
 
-void scriptfile_clearsymbols(void)
+void scriptfile_clearsymbols()
 {
 	if (symbtab) free(symbtab);
 	symbtab = NULL;

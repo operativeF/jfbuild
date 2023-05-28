@@ -300,13 +300,13 @@ char *strupr(char *);
 #endif
 
 int Bvasprintf(char **ret, const char *format, va_list ap);
-char *Bgethomedir(void);
-char *Bgetappdir(void);
+char *Bgethomedir();
+char *Bgetappdir();
 char *Bgetsupportdir(int global);
-size_t Bgetsysmemsize(void);
+size_t Bgetsysmemsize();
 int Bcorrectfilename(char *filename, int removefn);
 int Bcanonicalisefilename(char *filename, int removefn);
-char *Bgetsystemdrives(void);
+char *Bgetsystemdrives();
 off_t Bfilelength(int fd);
 char *Bstrtoken(char *s, char *delim, char **ptrptr, int chop);
 int Bwildmatch (const char *i, const char *j);

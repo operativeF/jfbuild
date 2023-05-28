@@ -222,7 +222,7 @@ void suckcache(void *suckptr)
 		}
 }
 
-void agecache(void)
+void agecache()
 {
 	int cnt;
 	unsigned char ch;
@@ -551,7 +551,7 @@ void uninitsinglegroupfile(int grphandle)
 	}
 }
 
-void uninitgroupfile(void)
+void uninitgroupfile()
 {
 	int i;
 
@@ -1063,7 +1063,7 @@ static short *lzwbuf2, *lzwbuf3;
 static int lzwcompress(unsigned char *lzwinbuf, int uncompleng, unsigned char *lzwoutbuf);
 static int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *lzwoutbuf);
 
-static void lzwallocate(void)
+static void lzwallocate()
 {
 	lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 200;
 	if (lzwbuf1 == NULL) allocache((void **)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
@@ -1073,7 +1073,7 @@ static void lzwallocate(void)
 	if (lzwbuf5 == NULL) allocache((void **)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
 }
 
-static void lzwrelease(void)
+static void lzwrelease()
 {
 	lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 1;
 }

@@ -100,7 +100,7 @@ static void set_page(int n)
     SendMessage(startupdlg, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(startupdlg, IDC_STARTWIN_TABCTL), TRUE);
 }
 
-static void setup_config_mode(void)
+static void setup_config_mode()
 {
     set_page(TAB_CONFIG);
 
@@ -158,7 +158,7 @@ static void setup_messages_mode(BOOL allowcancel)
     EnableWindow(GetDlgItem(startupdlg, IDOK), FALSE);
 }
 
-static void fullscreen_clicked(void)
+static void fullscreen_clicked()
 {
     populate_video_modes(FALSE);
 }
@@ -172,13 +172,13 @@ static void multiplayerradio_clicked(int sender)
     CheckRadioButton(pages[TAB_CONFIG], IDC_SINGLEPLAYER, IDC_HOSTMULTIPLAYER, sender);
 }
 
-static void cancelbutton_clicked(void)
+static void cancelbutton_clicked()
 {
     retval = STARTWIN_CANCEL;
     quitevent = quitevent || quiteventonclose;
 }
 
-static void startbutton_clicked(void)
+static void startbutton_clicked()
 {
     int i;
     HWND hwnd;
@@ -361,7 +361,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 }
 
 
-int startwin_open(void)
+int startwin_open()
 {
     INITCOMMONCONTROLSEX icc;
 
@@ -380,7 +380,7 @@ int startwin_open(void)
     return 0;
 }
 
-int startwin_close(void)
+int startwin_close()
 {
     if (!startupdlg) return 1;
 

@@ -60,7 +60,7 @@ static unsigned int crc32table[256] = {
 
 static unsigned int crc32table[256];
 
-void initcrc32table(void)
+void initcrc32table()
 {
 	unsigned int i,j,k;
 	

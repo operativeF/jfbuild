@@ -58,7 +58,7 @@ static int framecnt = 0;
 char *defsfilename = "kenbuild.def";
 int nextvoxid = 0;
 
-int ExtInit(void)
+int ExtInit()
 {
 	int i, rv = 0;
 
@@ -167,14 +167,14 @@ int ExtInit(void)
 	return rv;
 }
 
-void ExtUnInit(void)
+void ExtUnInit()
 {
 	uninitgroupfile();
 	writesetup("build.cfg");
 }
 
 //static int daviewingrange, daaspect, horizval1, horizval2;
-void ExtPreCheckKeys(void)
+void ExtPreCheckKeys()
 {
 	int /*cosang, sinang, dx, dy, mindx,*/ i, j, k;
 
@@ -257,7 +257,7 @@ void ExtPreCheckKeys(void)
 #endif
 }
 
-void ExtAnalyzeSprites(void)
+void ExtAnalyzeSprites()
 {
 	int i, *longptr;
 	spritetype *tspr;
@@ -301,7 +301,7 @@ void ExtAnalyzeSprites(void)
 	}
 }
 
-void ExtCheckKeys(void)
+void ExtCheckKeys()
 {
 	int i;//, p, y, dx, dy, cosang, sinang, bufplc, tsizy, tsizyup15;
 	int j;
@@ -358,11 +358,11 @@ void ExtCheckKeys(void)
 	}
 }
 
-void ExtCleanUp(void)
+void ExtCleanUp()
 {
 }
 
-void ExtPreLoadMap(void)
+void ExtPreLoadMap()
 {
 }
 
@@ -371,7 +371,7 @@ void ExtLoadMap(const char *mapname)
 	wm_setwindowtitle(mapname);
 }
 
-void ExtPreSaveMap(void)
+void ExtPreSaveMap()
 {
 }
 
@@ -552,7 +552,7 @@ void ExtEditSpriteData(short spritenum)   //F8
 	}
 }
 
-void faketimerhandler(void)
+void faketimerhandler()
 {
 	sampletimer();
 }

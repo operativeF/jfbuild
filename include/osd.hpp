@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
 // initializes things
-void OSD_Init(void);
+void OSD_Init();
 
 // sets the functions the OSD will call to interrogate the environment
 void OSD_SetFunctions(
@@ -31,7 +31,7 @@ void OSD_SetFunctions(
 		int (*colwidth)(int),
 		int (*rowheight)(int),
 		void (*clearbg)(int,int),
-		int (*gettime)(void),
+		int (*gettime)(),
 		void (*onshow)(int)
 	);
 
@@ -61,7 +61,7 @@ void OSD_ResizeDisplay(int w,int h);
 void OSD_ShowDisplay(int onf);
 
 // draw the osd to the screen
-void OSD_Draw(void);
+void OSD_Draw();
 
 // just like printf
 void OSD_Printf(const char *fmt, ...);
@@ -70,7 +70,7 @@ void OSD_Printf(const char *fmt, ...);
 void OSD_Puts(const char *str);
 
 // executes buffered commands
-void OSD_DispatchQueued(void);
+void OSD_DispatchQueued();
 
 // executes a string
 int OSD_Dispatch(const char *cmd);

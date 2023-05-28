@@ -31,7 +31,7 @@ vec4 applyfog(vec4 inputcolour) {
     return mix(inputcolour, u_fogcolour, amount);
 }
 
-void main(void)
+void main()
 {
     vec4 texcolour;
     vec4 glowcolour;

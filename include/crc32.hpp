@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void initcrc32table(void);
+void initcrc32table();
 
 unsigned int crc32once(unsigned char *blk, unsigned int len);
 

@@ -22,8 +22,8 @@ struct startwin_settings;
 
 // NOTE: these are implemented in game-land so they may be overridden in game specific ways
 extern int app_main(int argc, char const * const argv[]);
-extern int startwin_open(void);
-extern int startwin_close(void);
+extern int startwin_open();
+extern int startwin_close();
 extern int startwin_puts(const char *);
 extern int startwin_settitle(const char *);
 extern int startwin_idle(void *);
@@ -34,8 +34,8 @@ extern int xres, yres, bpp, fullscreen, bytesperline, imageSize;
 extern char offscreenrendering;
 extern intptr_t frameplace;
 
-extern void (*baselayer_videomodewillchange)(void);
-extern void (*baselayer_videomodedidchange)(void);
+extern void (*baselayer_videomodewillchange)();
+extern void (*baselayer_videomodedidchange)();
 
 extern int inputdevices;
 
@@ -59,40 +59,40 @@ extern char joynumaxes, joynumbuttons;
 void initputs(const char *);
 void debugprintf(const char *,...) PRINTF_FORMAT(1, 2);
 
-int handleevents(void);
+int handleevents();
 
-int initinput(void);
-void uninitinput(void);
-void releaseallbuttons(void);
+int initinput();
+void uninitinput();
+void releaseallbuttons();
 const char *getkeyname(int num);
 const char *getjoyname(int what, int num);	// what: 0=axis, 1=button, 2=hat
 
-unsigned char bgetchar(void);
-int bkbhit(void);
-void bflushchars(void);
-int bgetkey(void);  // >0 = press, <0 = release
-int bkeyhit(void);
-void bflushkeys(void);
+unsigned char bgetchar();
+int bkbhit();
+void bflushchars();
+int bgetkey();  // >0 = press, <0 = release
+int bkeyhit();
+void bflushkeys();
 
-int initmouse(void);
-void uninitmouse(void);
+int initmouse();
+void uninitmouse();
 void grabmouse(int a);
 void readmousexy(int *x, int *y);
 void readmousebstatus(int *b);
 
-int inittimer(int, void(*)(void));
-void uninittimer(void);
-void sampletimer(void);
-unsigned int getticks(void);
-unsigned int getusecticks(void);
-int gettimerfreq(void);
+int inittimer(int, void(*)());
+void uninittimer();
+void sampletimer();
+unsigned int getticks();
+unsigned int getusecticks();
+int gettimerfreq();
 
 int checkvideomode(int *x, int *y, int c, int fs, int forced);
 int setvideomode(int x, int y, int c, int fs);
-void getvalidmodes(void);
-void resetvideomode(void);
+void getvalidmodes();
+void resetvideomode();
 
-void showframe(void);
+void showframe();
 
 int setpalette(int start, int num, unsigned char *dapal);
 int setgamma(float gamma);
@@ -113,7 +113,7 @@ void wm_setapptitle(const char *name);
 void wm_setwindowtitle(const char *name);
 
 // baselayer.c
-void makeasmwriteable(void);
+void makeasmwriteable();
 
 #ifdef __cplusplus
 }

@@ -31,8 +31,8 @@ intptr_t frameplace=0;
 char modechange=1;
 char offscreenrendering=0;
 char videomodereset = 0;
-void (*baselayer_videomodewillchange)(void) = NULL;
-void (*baselayer_videomodedidchange)(void) = NULL;
+void (*baselayer_videomodewillchange)() = NULL;
+void (*baselayer_videomodedidchange)() = NULL;
 
 int inputdevices=0;
 
@@ -114,7 +114,7 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 //
 // bgetchar, bkbhit, bflushchars -- character-based input functions
 //
-unsigned char bgetchar(void)
+unsigned char bgetchar()
 {
 	unsigned char c;
 	if (keyasciififoplc == keyasciififoend) return 0;
@@ -123,17 +123,17 @@ unsigned char bgetchar(void)
 	return c;
 }
 
-int bkbhit(void)
+int bkbhit()
 {
 	return (keyasciififoplc != keyasciififoend);
 }
 
-void bflushchars(void)
+void bflushchars()
 {
 	keyasciififoplc = keyasciififoend = 0;
 }
 
-int bgetkey(void)
+int bgetkey()
 {
 	int c;
 	if (keyfifoplc == keyfifoend) return 0;
@@ -143,12 +143,12 @@ int bgetkey(void)
 	return c;
 }
 
-int bkeyhit(void)
+int bkeyhit()
 {
 	return (keyfifoplc != keyfifoend);
 }
 
-void bflushkeys(void)
+void bflushkeys()
 {
 	keyfifoplc = keyfifoend = 0;
 }
@@ -227,7 +227,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 	return OSDCMD_SHOWHELP;
 }
 
-int baselayer_init(void)
+int baselayer_init()
 {
     OSD_Init();
 

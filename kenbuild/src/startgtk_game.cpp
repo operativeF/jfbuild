@@ -117,7 +117,7 @@ static void set_settings(struct startwin_settings *thesettings)
     settings = thesettings;
 }
 
-static void setup_config_mode(void)
+static void setup_config_mode()
 {
     gtk_notebook_set_current_page(GTK_NOTEBOOK(controls.tabs), TAB_CONFIG);
 
@@ -243,7 +243,7 @@ static gboolean on_startgtk_delete_event(GtkWidget *widget, GdkEvent *event, gpo
     return TRUE;    // FALSE would let the event go through. We want the game to decide when to close.
 }
 
-static GtkWindow *create_window(void)
+static GtkWindow *create_window()
 {
     GtkBuilder *builder = NULL;
     GError *error = NULL;
@@ -318,7 +318,7 @@ fail:
 
 // -- BUILD ENTRY POINTS ------------------------------------------------------
 
-int startwin_open(void)
+int startwin_open()
 {
     if (!gtkenabled) return 0;
     if (startwin) return 1;
@@ -334,7 +334,7 @@ int startwin_open(void)
     return 0;
 }
 
-int startwin_close(void)
+int startwin_close()
 {
     if (!gtkenabled) return 0;
     if (!startwin) return 1;

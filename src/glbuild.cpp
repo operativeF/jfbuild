@@ -248,7 +248,7 @@ static void APIENTRY gl_debug_proc(GLenum source, GLenum type, GLuint id, GLenum
 }
 #endif
 
-int glbuild_init(void)
+int glbuild_init()
 {
 	const char *glver;
 
@@ -352,7 +352,7 @@ static inline void * getproc_(const char *func, int *err, int fatal)
 #define INIT_PROC(c,s)        glfunc.s = (c)getproc_(#s, &err, 1)
 #define INIT_PROC_SOFT(c,s)   glfunc.s = (c)getproc_(#s, &err, 0)
 
-int glbuild_loadfunctions(void)
+int glbuild_loadfunctions()
 {
 	int err=0;
 
@@ -461,7 +461,7 @@ int glbuild_loadfunctions(void)
 	return err;
 }
 
-void glbuild_unloadfunctions(void)
+void glbuild_unloadfunctions()
 {
 	memset(&glfunc, 0, sizeof(glfunc));
 }
@@ -852,7 +852,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 }
 #endif
 
-static void dumpglinfo(void)
+static void dumpglinfo()
 {
 	const char *supported = "supported", *unsupported = "not supported";
 	const char *glslverstr = "not supported";
@@ -917,7 +917,7 @@ static void indentedputs(const char *ext) {
 	buildputs(ext);
 }
 
-static void dumpglexts(void)
+static void dumpglexts()
 {
 	if (!glinfo.loaded) {
 		buildputs("OpenGL information not available.\n");

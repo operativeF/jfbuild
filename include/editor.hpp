@@ -38,14 +38,14 @@ struct startwin_settings {
     int forcesetup;
 };
 
-extern int ExtInit(void);
-extern void ExtUnInit(void);
-extern void ExtPreCheckKeys(void);
-extern void ExtAnalyzeSprites(void);
-extern void ExtCheckKeys(void);
-extern void ExtPreLoadMap(void);
+extern int ExtInit();
+extern void ExtUnInit();
+extern void ExtPreCheckKeys();
+extern void ExtAnalyzeSprites();
+extern void ExtCheckKeys();
+extern void ExtPreLoadMap();
 extern void ExtLoadMap(const char *mapname);
-extern void ExtPreSaveMap(void);
+extern void ExtPreSaveMap();
 extern void ExtSaveMap(const char *mapname);
 extern const char *ExtGetSectorCaption(short sectnum);
 extern const char *ExtGetWallCaption(short wallnum);
@@ -62,8 +62,8 @@ inline constexpr auto STATUS2DSIZ{144};
 int loadsetup(const char *fn);	// from config.c
 int writesetup(const char *fn);	// from config.c
 
-void editinput(void);
-void clearmidstatbar16(void);
+void editinput();
+void clearmidstatbar16();
 
 void drawline16(int x1, int y1, int x2, int y2, unsigned char col);
 void drawcircle16(int x1, int y1, int r, unsigned char col);

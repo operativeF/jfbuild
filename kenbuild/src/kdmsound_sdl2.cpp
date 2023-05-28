@@ -63,7 +63,7 @@ void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeake
     SDL_PauseAudioDevice(dev, 0);
 }
 
-void uninitsb(void)
+void uninitsb()
 {
     if (dev) SDL_CloseAudioDevice(dev);
     dev = 0;
@@ -71,20 +71,20 @@ void uninitsb(void)
     uninitkdm();
 }
 
-int lockkdm(void)
+int lockkdm()
 {
     if (!dev) return -1;
     SDL_LockAudioDevice(dev);
     return 0;
 }
 
-void unlockkdm(void)
+void unlockkdm()
 {
     if (!dev) return;
     SDL_UnlockAudioDevice(dev);
 }
 
-void refreshaudio(void)
+void refreshaudio()
 {
 }
 
