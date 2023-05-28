@@ -19,7 +19,7 @@ varying mediump vec2 v_texcoord;
 uniform sampler2D u_palette;
 uniform sampler2D u_frame;
 
-void main(void)
+void main()
 {
   lowp float pixelvalue;
   lowp vec3 palettevalue;

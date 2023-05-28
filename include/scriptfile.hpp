@@ -33,7 +33,7 @@ int scriptfile_eof(scriptfile *sf);
 
 int scriptfile_getsymbolvalue(const char *name, int *val);
 int scriptfile_addsymbolvalue(const char *name, int val);
-void scriptfile_clearsymbols(void);
+void scriptfile_clearsymbols();
 
 #ifdef __cplusplus
 }

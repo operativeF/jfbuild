@@ -86,7 +86,7 @@ extern int polymosttexverbosity;	// 0 = none, 1 = errors (default), 2 = all
 /**
  * Prepare for priming by sweeping through the textures and marking them as all unused
  */
-void PTBeginPriming(void);
+void PTBeginPriming();
 
 /**
  * Flag a texture as required for priming
@@ -104,12 +104,12 @@ int PTDoPrime(int* done, int* total);
 /**
  * Resets the texture hash but leaves the headers in memory
  */
-void PTReset(void);
+void PTReset();
 
 /**
  * Clears the texture hash of all content
  */
-void PTClear(void);
+void PTClear();
 
 /**
  * Creates a new iterator for walking the header hash looking for particular
@@ -127,7 +127,7 @@ PTIter PTIterNewMatch(int match, int picnum, int palnum, unsigned short flagsmas
  * Creates a new iterator for walking the entire header hash
  * @return an iterator
  */
-PTIter PTIterNew(void);
+PTIter PTIterNew();
 
 /**
  * Gets the next matching header from an iterator

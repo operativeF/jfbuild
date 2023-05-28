@@ -2,7 +2,7 @@
 #define __gtkbits_h__
 
 extern void wmgtk_init(int *argc, char ***argv);
-extern void wmgtk_exit(void);
+extern void wmgtk_exit();
 extern int wmgtk_idle(void *);
 extern void wmgtk_setapptitle(const char *name);
 extern int wmgtk_msgbox(const char *name, const char *msg);

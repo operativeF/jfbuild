@@ -9,20 +9,20 @@ void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeake
     (void)dadigistat; (void)damusistat; (void)dasamplerate; (void)danumspeakers; (void)dabytespersample; (void)daintspersec; (void)daquality;
 }
 
-void uninitsb(void)
+void uninitsb()
 {
 }
 
-void refreshaudio(void)
+void refreshaudio()
 {
 }
 
-int lockkdm(void)
+int lockkdm()
 {
     return -1;
 }
 
-void unlockkdm(void)
+void unlockkdm()
 {
 
 }

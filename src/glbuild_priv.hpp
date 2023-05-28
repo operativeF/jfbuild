@@ -185,10 +185,10 @@ typedef struct {
     GLuint buffer_elements;
 } glbuild8bit;
 
-int glbuild_init(void);
+int glbuild_init();
 
-int glbuild_loadfunctions(void);
-void glbuild_unloadfunctions(void);
+int glbuild_loadfunctions();
+void glbuild_unloadfunctions();
 void glbuild_check_errors(const char *file, int line);
 #define GLBUILD_CHECK_ERRORS() glbuild_check_errors(__FILE__, __LINE__)
 

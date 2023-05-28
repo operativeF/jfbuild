@@ -216,13 +216,13 @@ extern char mdinited;
 extern int mdtims, omdtims;
 extern int nextmodelid;
 
-void freeallmodels (void);
-void clearskins (void);
+void freeallmodels ();
+void clearskins ();
 void voxfree (voxmodel *m);
 voxmodel *voxload (const char *filnam);
 int voxdraw (voxmodel *m, spritetype *tspr, int method);
 
-void mdinit (void);
+void mdinit ();
 PTMHead * mdloadskin (md2model *m, int number, int pal, int surf);
 int mddraw (spritetype *, int method);
 

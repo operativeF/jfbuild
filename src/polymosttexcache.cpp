@@ -128,7 +128,7 @@ static PTCacheIndex * ptcache_findhash(const char * filename, int effects, int f
 /**
  * Loads the cache index file into memory
  */
-void PTCacheLoadIndex(void)
+void PTCacheLoadIndex()
 {
 	FILE * fh = 0;
 	int8_t sig[16];
@@ -242,7 +242,7 @@ void PTCacheLoadIndex(void)
 /**
  * Unloads the cache index from memory
  */
-void PTCacheUnloadIndex(void)
+void PTCacheUnloadIndex()
 {
 	PTCacheIndex * pci, * next;
 	int i;
@@ -585,7 +585,7 @@ fail:
 /**
 * Forces the cache to be rebuilt.
  */
-void PTCacheForceRebuild(void)
+void PTCacheForceRebuild()
 {
 	PTCacheUnloadIndex();
 	cachedisabled = 0;

@@ -20,7 +20,7 @@ static unsigned char pal[768], palookup[8192];
 static unsigned char screen[65536], tempbuf[131072];
 
 
-void loadwadheader(void)
+void loadwadheader()
 {
 	int i, j;
 
@@ -44,7 +44,7 @@ void loadwadheader(void)
 	}
 }
 
-void convpalette(void)
+void convpalette()
 {
 	int i, fil3;
 	short danumshades;
@@ -71,24 +71,23 @@ void convpalette(void)
 
 void saveart (short tilenum, short xlen, short ylen)
 {
-	int i, x, p, pend;
-
-	pend = ylookup[ylen];
-
 	tilesizx[tilenum] = xlen;
 	tilesizy[tilenum] = ylen;
-	i = 0;
-	for(x=0;x<xlen;x++)
-		for(p=x;p<pend;p+=320)
+	int i{0};
+	for(int x{0}; x < xlen; x++) {
+		for(int p{x}; p < ylookup[ylen]; p += 320) {
 			tempbuf[i++] = screen[p];
-	if (Bwrite(fil2,&tempbuf[0],i) < 0)
+		}
+	}
+
+	if (Bwrite(fil2, &tempbuf[0], i) < 0)
 	{
 		printf("NOT ENOUGH DISK SPACE!\n");
 		exit(0);
 	}
 }
 
-void savenames(void)
+void savenames()
 {
 	char buffer[160];
 	int fil3, i, j;

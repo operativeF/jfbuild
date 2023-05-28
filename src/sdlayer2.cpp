@@ -45,8 +45,8 @@
 #elif defined(HAVE_GTK)
 # include "gtkbits.h"
 #else
-int startwin_open(void) { return 0; }
-int startwin_close(void) { return 0; }
+int startwin_open() { return 0; }
+int startwin_close() { return 0; }
 int startwin_puts(const char *s) { (void)s; return 0; }
 int startwin_idle(void *s) { (void)s; return 0; }
 int startwin_settitle(const char *s) { (void)s; return 0; }
@@ -85,12 +85,12 @@ struct keytranslate {
 };
 constexpr auto WITH_CONTROL_KEY{0x80};
 static struct keytranslate keytranslation[SDL_NUM_SCANCODES];
-static int buildkeytranslationtable(void);
+static int buildkeytranslationtable();
 
-static void shutdownvideo(void);
+static void shutdownvideo();
 
 #ifndef __APPLE__
-static SDL_Surface * loadappicon(void);
+static SDL_Surface * loadappicon();
 #endif
 
 int wm_msgbox(const char *name, const char *fmt, ...)
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
 //
 // initsystem() -- init SDL systems
 //
-int initsystem(void)
+int initsystem()
 {
 	SDL_version linked;
 	SDL_version compiled;
@@ -345,7 +345,7 @@ int initsystem(void)
 //
 // uninitsystem() -- uninit SDL systems
 //
-void uninitsystem(void)
+void uninitsystem()
 {
 	uninitinput();
 	uninitmouse();
@@ -399,7 +399,7 @@ void debugprintf(const char *f, ...)
 //
 // initinput() -- init input system
 //
-int initinput(void)
+int initinput()
 {
 	int i;
 
@@ -472,7 +472,7 @@ int initinput(void)
 //
 // uninitinput() -- uninit input system
 //
-void uninitinput(void)
+void uninitinput()
 {
 	uninitmouse();
 
@@ -504,7 +504,7 @@ const char *getjoyname(int what, int num)
 //
 // initmouse() -- init mouse input
 //
-int initmouse(void)
+int initmouse()
 {
 	moustat=1;
 	grabmouse(1);
@@ -514,7 +514,7 @@ int initmouse(void)
 //
 // uninitmouse() -- uninit mouse input
 //
-void uninitmouse(void)
+void uninitmouse()
 {
 	grabmouse(0);
 	moustat=0;
@@ -565,7 +565,7 @@ void readmousebstatus(int *b)
 //
 // releaseallbuttons()
 //
-void releaseallbuttons(void)
+void releaseallbuttons()
 {
 }
 
@@ -584,12 +584,12 @@ void releaseallbuttons(void)
 static Uint64 timerfreq=0;
 static Uint32 timerlastsample=0;
 static Uint32 timerticspersec=0;
-static void (*usertimercallback)(void) = NULL;
+static void (*usertimercallback)() = NULL;
 
 //
 // inittimer() -- initialise timer
 //
-int inittimer(int tickspersecond, void(*callback)(void))
+int inittimer(int tickspersecond, void(*callback)())
 {
 	if (timerfreq) return 0;    // already installed
 
@@ -607,7 +607,7 @@ int inittimer(int tickspersecond, void(*callback)(void))
 //
 // uninittimer() -- shut down timer
 //
-void uninittimer(void)
+void uninittimer()
 {
 	if (!timerfreq) return;
 
@@ -617,7 +617,7 @@ void uninittimer(void)
 //
 // sampletimer() -- update totalclock
 //
-void sampletimer(void)
+void sampletimer()
 {
 	int n;
 
@@ -635,7 +635,7 @@ void sampletimer(void)
 //
 // getticks() -- returns a millisecond ticks count
 //
-unsigned int getticks(void)
+unsigned int getticks()
 {
 	return (unsigned int)SDL_GetTicks();
 }
@@ -643,7 +643,7 @@ unsigned int getticks(void)
 //
 // getusecticks() -- returns a microsecond ticks count
 //
-unsigned int getusecticks(void)
+unsigned int getusecticks()
 {
 	return (unsigned int)SDL_GetTicks() * 1000;
 }
@@ -652,7 +652,7 @@ unsigned int getusecticks(void)
 //
 // gettimerfreq() -- returns the number of ticks per second the timer is configured to generate
 //
-int gettimerfreq(void)
+int gettimerfreq()
 {
 	return timerticspersec;
 }
@@ -685,7 +685,7 @@ static int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
 	return 0;
 }
 static char modeschecked=0;
-void getvalidmodes(void)
+void getvalidmodes()
 {
 	static int defaultres[][2] = {
 		{1920,1200},{1920,1080},{1600,1200},{1680,1050},{1600,900},{1400,1050},{1440,900},{1366,768},
@@ -772,7 +772,7 @@ void getvalidmodes(void)
 	modeschecked=1;
 }
 
-static void shutdownvideo(void)
+static void shutdownvideo()
 {
 	if (frame) {
 		free(frame);
@@ -1042,7 +1042,7 @@ int setvideomode(int x, int y, int c, int fs)
 //
 // resetvideomode() -- resets the video system
 //
-void resetvideomode(void)
+void resetvideomode()
 {
 	videomodereset = 1;
 	modeschecked = 0;
@@ -1052,7 +1052,7 @@ void resetvideomode(void)
 //
 // showframe() -- update the display
 //
-void showframe(void)
+void showframe()
 {
 #if USE_OPENGL
 	if (!glunavailable) {
@@ -1185,7 +1185,7 @@ int loadgldriver(const char *soname)
 	return 0;
 }
 
-int unloadgldriver(void)
+int unloadgldriver()
 {
 	SDL_GL_UnloadLibrary();
 	return 0;
@@ -1204,7 +1204,7 @@ void *getglprocaddress(const char *name, int ext)
 
 #ifndef __APPLE__
 extern struct sdlappicon sdlappicon;
-static SDL_Surface * loadappicon(void)
+static SDL_Surface * loadappicon()
 {
 	SDL_Surface *surf;
 
@@ -1231,7 +1231,7 @@ static SDL_Surface * loadappicon(void)
 // handleevents() -- process the SDL message queue
 //   returns !0 if there was an important event worth checking (like quitting)
 //
-int handleevents(void)
+int handleevents()
 {
 	int code, rv=0, j, control;
 	SDL_Event ev;
@@ -1417,7 +1417,7 @@ int handleevents(void)
 }
 
 
-static int buildkeytranslationtable(void)
+static int buildkeytranslationtable()
 {
 	memset(keytranslation,0,sizeof(keytranslation));
 

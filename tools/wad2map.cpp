@@ -210,7 +210,7 @@ static inline int msqrtasm(unsigned int c)
 	return a;
 }
 
-static void initksqrt(void)
+static void initksqrt()
 {
 	int i, j, k;
 
@@ -251,7 +251,7 @@ int inside(int x, int y, short sectnum)
 	return(cnt);
 }
 
-int readbyte(void)
+int readbyte()
 {
 	if (filpos >= fileng) return(-1);
 	if ((filpos&16383) == 0) Bread(filhandle,filebuf,16384);
@@ -259,7 +259,7 @@ int readbyte(void)
 	return((int)filebuf[(filpos-1)&16383]);
 }
 
-int readline(void)
+int readline()
 {
 	int i, ch;
 
@@ -294,7 +294,7 @@ int readline(void)
 	return(i);
 }
 
-void parsescript(void)
+void parsescript()
 {
 	int i, j, k, l, lasti, breakout, tstart, tend, textnum, frontbackstat;
 	int spritenumstat, slen;

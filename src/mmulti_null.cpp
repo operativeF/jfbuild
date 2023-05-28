@@ -23,7 +23,7 @@ int initmultiplayersparms(int argc, char const * const argv[])
 	return 0;
 }
 
-int initmultiplayerscycle(void)
+int initmultiplayerscycle()
 {
 	return 0;
 }
@@ -38,25 +38,25 @@ void setpackettimeout(int datimeoutcount, int daresendagaincount)
 {
 }
 
-void uninitmultiplayers(void)
+void uninitmultiplayers()
 {
 }
 
-void initsingleplayers(void)
+void initsingleplayers()
 {
 	numplayers = 1; myconnectindex = 0;
 	connecthead = 0; connectpoint2[0] = -1;
 }
 
-void sendlogon(void)
+void sendlogon()
 {
 }
 
-void sendlogoff(void)
+void sendlogoff()
 {
 }
 
-int getoutputcirclesize(void)
+int getoutputcirclesize()
 {
 	return 0;
 }
@@ -74,7 +74,7 @@ int getpacket (int *other, unsigned char *bufptr)
 	return 0;
 }
 
-void flushpackets(void)
+void flushpackets()
 {
 }
 

@@ -51,7 +51,7 @@ LPFN_WSARECVMSG WSARecvMsgPtr;
 using SOCKET = int;
 
 #include <sys/time.h>
-static int GetTickCount(void)
+static int GetTickCount()
 {
 	struct timeval tv;
 	if (gettimeofday(&tv,NULL) < 0) return 0;
@@ -111,7 +111,7 @@ static int issameaddress(struct sockaddr *a, struct sockaddr *b);
 static const char *presentaddress(struct sockaddr *a);
 static void savesnatchhost(int other);
 
-void netuninit (void)
+void netuninit ()
 {
 #ifdef _WIN32
 	if (mysock != INVALID_SOCKET) closesocket(mysock);
@@ -597,7 +597,7 @@ static unsigned short getcrc16 (unsigned char *buffer, int bufleng)
 
 void uninitmultiplayers () { netuninit(); }
 
-static void initmultiplayers_reset(void)
+static void initmultiplayers_reset()
 {
 	int i;
 
@@ -625,7 +625,7 @@ static void initmultiplayers_reset(void)
 	memset(otherhost,0,sizeof(otherhost));
 }
 
-void initsingleplayers(void)
+void initsingleplayers()
 {
     initmultiplayers_reset();
 }
@@ -768,7 +768,7 @@ int initmultiplayersparms(int argc, char const * const argv[])
 	}
 }
 
-int initmultiplayerscycle(void)
+int initmultiplayerscycle()
 {
 	int i, k, dnetready = 1;
 
@@ -1225,7 +1225,7 @@ int getpacket (int *retother, unsigned char *bufptr)
 	return(0);
 }
 
-void flushpackets(void)
+void flushpackets()
 {
 	int i;
 	getpacket(&i,0);	// Process acks but no messages, do retransmission.

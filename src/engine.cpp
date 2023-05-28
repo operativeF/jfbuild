@@ -4831,7 +4831,7 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 //
 // initksqrt (internal)
 //
-static void initksqrt(void)
+static void initksqrt()
 {
 	int i, j, k;
 
@@ -4849,7 +4849,7 @@ static void initksqrt(void)
 //
 // dosetaspect
 //
-static void dosetaspect(void)
+static void dosetaspect()
 {
 	int i, j, k, x, xinc;
 
@@ -4887,7 +4887,7 @@ static void dosetaspect(void)
 //
 // loadtables (internal)
 //
-static void calcbritable(void)
+static void calcbritable()
 {
 	int i,j;
 	double a,b;
@@ -4899,7 +4899,7 @@ static void calcbritable(void)
 	}
 }
 
-static int loadtables(void)
+static int loadtables()
 {
 	int i;
 
@@ -4971,7 +4971,7 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 //
 // loadpalette (internal)
 //
-static int loadpalette(void)
+static int loadpalette()
 {
 	int fil = -1;
 	off_t flen;
@@ -5347,7 +5347,7 @@ static void sighandler(int sig, siginfo_t *info, void *ctx)
 // preinitengine
 //
 static int preinitcalled = 0;
-int preinitengine(void)
+int preinitengine()
 {
 	char compiler[30] = "an unidentified compiler";
 
@@ -5400,7 +5400,7 @@ int preinitengine(void)
 //
 // initengine
 //
-int initengine(void)
+int initengine()
 {
 	int i, j;
 
@@ -5474,7 +5474,7 @@ int initengine(void)
 //
 // uninitengine
 //
-void uninitengine(void)
+void uninitengine()
 {
 	int i;
 
@@ -5506,7 +5506,7 @@ void uninitengine(void)
 //
 // initspritelists
 //
-void initspritelists(void)
+void initspritelists()
 {
 	int i;
 
@@ -5687,7 +5687,7 @@ void drawrooms(int daposx, int daposy, int daposz,
 //
 // drawmasks
 //
-void drawmasks(void)
+void drawmasks()
 {
 	int i, j, k, l, gap, xs, ys, xp, yp, yoff, yspan;
 
@@ -7664,7 +7664,7 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 //
 // nextpage
 //
-void nextpage(void)
+void nextpage()
 {
 	int i;
 	permfifotype *per;
@@ -9388,7 +9388,7 @@ void getmousevalues(int *mousx, int *mousy, int *bstatus)
 //
 // krand
 //
-int krand(void)
+int krand()
 {
 	randomseed = (randomseed*27584621)+1;
 	return(((unsigned int)randomseed)>>16);
@@ -9647,7 +9647,7 @@ void setaspect(int daxrange, int daaspect)
 //
 // flushperms
 //
-void flushperms(void)
+void flushperms()
 {
 	permhead = permtail = 0;
 }
@@ -9809,7 +9809,7 @@ int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char
 }
 
 
-void setvgapalette(void)
+void setvgapalette()
 {
 	int i;
 
@@ -10049,7 +10049,7 @@ void setviewtotile(short tilenume, int xsiz, int ysiz)
 // setviewback
 //
 extern char modechange;
-void setviewback(void)
+void setviewback()
 {
 	int i, j, k;
 
@@ -10130,7 +10130,7 @@ void preparemirror(int dax, int day, int daz, short daang, int dahoriz, short da
 //
 // completemirror
 //
-void completemirror(void)
+void completemirror()
 {
 	int i, dy;
 	intptr_t p;
@@ -10946,7 +10946,7 @@ int setrendermode(int renderer)
 //
 // getrendermode
 //
-int getrendermode(void)
+int getrendermode()
 {
 	return rendmode;
 }
@@ -11008,7 +11008,7 @@ void invalidatetile(short tilenume, int pal, int how)
 // setpolymost2dview
 //  Sets OpenGL for 2D drawing
 //
-void setpolymost2dview(void)
+void setpolymost2dview()
 {
 	if (rendmode < 3) return;
 

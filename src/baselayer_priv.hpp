@@ -11,17 +11,17 @@ extern char videomodereset;
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
 
-int baselayer_init(void);
+int baselayer_init();
 
-int initsystem(void);
-void uninitsystem(void);
+int initsystem();
+void uninitsystem();
 
 #if USE_OPENGL
 extern int glunavailable;
 
 int loadgldriver(const char *driver);   // or NULL for platform default
 void *getglprocaddress(const char *name, int ext);
-int unloadgldriver(void);
+int unloadgldriver();
 #endif
 
 #endif // __baselayer_priv_h__

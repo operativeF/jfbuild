@@ -18,7 +18,7 @@ struct gradient {
 float min2(float x, float y);
 float max2(float x, float y);
 void convertHSVtoRGB(struct hsv *hsv, struct rgb *rgb);
-int showusage(void);
+int showusage();
 int readscript(char *fn);
 
 struct gradient ramps[256];
@@ -143,7 +143,7 @@ void convertHSVtoRGB(struct hsv *hsv, struct rgb *rgb)
 	}
 }
 
-int showusage(void)
+int showusage()
 {
 	puts("mkpalette <palettescript.txt> [outputfile]");
 	puts("If outputfile is not given, palette.dat is assumed");

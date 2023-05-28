@@ -9,25 +9,25 @@
 
 #ifdef KDMSOUND_INTERNAL
 int initkdm(char dadigistat, char damusistat, int dasamplerate, char danumspeakers, char dabytespersample);
-void uninitkdm(void);
+void uninitkdm();
 void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz);
 
 // Implemented in the per-platform interface.
-int lockkdm(void);
-void unlockkdm(void);
+int lockkdm();
+void unlockkdm();
 #endif
 
 // Implemented in the per-platform interface.
 void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeakers, char dabytespersample, char daintspersec, char daquality);
-void uninitsb(void);
-void refreshaudio(void);
+void uninitsb();
+void refreshaudio();
 
 void setears(int daposx, int daposy, int daxvect, int dayvect);
 void wsayfollow(char *dafilename, int dafreq, int davol, int *daxplc, int *dayplc, char followstat);
 void wsay(char *dafilename, int dafreq, int volume1, int volume2);
 void loadwaves(char *wavename);
 int loadsong(char *songname);
-void musicon(void);
-void musicoff(void);
+void musicon();
+void musicoff();
 
 #endif

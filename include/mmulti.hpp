@@ -16,20 +16,20 @@ extern int myconnectindex, numplayers, networkmode;
 extern int connecthead, connectpoint2[MAXMULTIPLAYERS];
 extern unsigned char syncstate;
 
-void initsingleplayers(void);
+void initsingleplayers();
 void initmultiplayers(int argc, char const * const argv[]);
 int initmultiplayersparms(int argc, char const * const argv[]);
-int initmultiplayerscycle(void);
+int initmultiplayerscycle();
 
 void setpackettimeout(int datimeoutcount, int daresendagaincount);
-void uninitmultiplayers(void);
-void sendlogon(void);
-void sendlogoff(void);
-int getoutputcirclesize(void);
+void uninitmultiplayers();
+void sendlogon();
+void sendlogoff();
+int getoutputcirclesize();
 void setsocket(int newsocket);
 void sendpacket(int other, unsigned char *bufptr, int messleng);
 int getpacket(int *other, unsigned char *bufptr);
-void flushpackets(void);
+void flushpackets();
 void genericmultifunction(int other, unsigned char *bufptr, int messleng, int command);
 
 #ifdef __cplusplus

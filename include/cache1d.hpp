@@ -10,7 +10,7 @@ extern "C" {
 void	initcache(void *dacachestart, size_t dacachesize);
 void	allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr);
 void	suckcache(void *suckptr);
-void	agecache(void);
+void	agecache();
 
 enum {
 	PATHSEARCH_GAME  = 0, 	// default
@@ -29,7 +29,7 @@ BFILE  *fopenfrompath(const char *fn, const char *mode);
 
 int 	initgroupfile(const char *filename);
 void	uninitsinglegroupfile(int grphandle);
-void	uninitgroupfile(void);
+void	uninitgroupfile();
 int 	kopen4load(const char *filename, char searchfirst);	// searchfirst: 0 = anywhere, 1 = first group, 2 = any group
 int 	kread(int handle, void *buffer, unsigned leng);
 int 	kgetc(int handle);

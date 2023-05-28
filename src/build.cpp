@@ -100,14 +100,14 @@ static int fillist[640];
 
 
 void qsetmodeany(int,int);
-void clear2dscreen(void);
+void clear2dscreen();
 void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride);
 void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride);
 
 unsigned char changechar(unsigned char dachar, int dadir, unsigned char smooshyalign, unsigned char boundcheck);
 int adjustmark(int *xplc, int *yplc, short danumwalls);
 int checkautoinsert(int dax, int day, short danumwalls);
-void keytimerstuff(void);
+void keytimerstuff();
 int clockdir(short wallstart);
 void flipwalls(short numwalls, short newnumwalls);
 void insertpoint(short linehighlight, int dax, int day);
@@ -124,23 +124,23 @@ void showsectordata(short sectnum);
 void showwalldata(short wallnum);
 void showspritedata(short spritenum);
 int drawtilescreen(int pictopleft, int picbox);
-void overheadeditor(void);
+void overheadeditor();
 int getlinehighlight(int xplc, int yplc);
-void fixspritesectors(void);
+void fixspritesectors();
 int movewalls(int start, int offs);
-int loadnames(void);
-void updatenumsprites(void);
+int loadnames();
+void updatenumsprites();
 void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny);
-void initcrc(void);
+void initcrc();
 void AutoAlignWalls(int nWall0, int ply);
 int gettile(int tilenum);
 
 char *findfilename(char *path);
 int menuselect(int newpathmode);
 int getfilenames(char *path, char *kind);
-void clearfilenames(void);
+void clearfilenames();
 
-void clearkeys(void) { memset(keystatus,0,sizeof(keystatus)); }
+void clearkeys() { memset(keystatus,0,sizeof(keystatus)); }
 
 static int osdcmd_restartvid(const osdfuncparm_t *parm)
 {
@@ -377,7 +377,6 @@ int app_main(int argc, char const * const argv[])
 		if (j < dark) { dark = j; blackcol = i; }
 	}
 
-	for(i=0;i<MAXSECTORS;i++) sector[i].extra = -1;
 	for(i=0;i<MAXWALLS;i++) wall[i].extra = -1;
 	for(i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
 
@@ -510,7 +509,7 @@ int app_main(int argc, char const * const argv[])
 	return(0);
 }
 
-void showmouse(void)
+void showmouse()
 {
 	drawline256((searchx+1)<<12, (searchy  )<<12, (searchx+5)<<12, (searchy  )<<12, whitecol);
 	drawline256((searchx  )<<12, (searchy+1)<<12, (searchx  )<<12, (searchy+5)<<12, whitecol);
@@ -518,7 +517,7 @@ void showmouse(void)
 	drawline256((searchx  )<<12, (searchy-1)<<12, (searchx  )<<12, (searchy-5)<<12, whitecol);
 }
 
-void setoverheadviewport(void)
+void setoverheadviewport()
 {
 	bakydim16 = ydim16;
 	bakytop16 = ytop16;
@@ -526,7 +525,7 @@ void setoverheadviewport(void)
 	ytop16 = 0;
 }
 
-void setstatusbarviewport(void)
+void setstatusbarviewport()
 {
 	bakydim16 = ydim16;
 	bakytop16 = ytop16;
@@ -534,13 +533,13 @@ void setstatusbarviewport(void)
 	ytop16 = yres - STATUS2DSIZ;
 }
 
-void restoreviewport(void)
+void restoreviewport()
 {
 	ydim16 = bakydim16;
 	ytop16 = bakytop16;
 }
 
-void editinput(void)
+void editinput()
 {
 	unsigned char smooshyalign, repeatpanalign, buffer[80];
 	short startwall, endwall, dasector, daang;
@@ -2690,7 +2689,7 @@ int drawtilescreen(int pictopleft, int picbox)
 	return(0);
 }
 
-void overheadeditor(void)
+void overheadeditor()
 {
 	char buffer[80];
 	const char *dabuffer;
@@ -5884,7 +5883,7 @@ int deletesector(short sucksect)
 	return(0);
 }
 
-void fixspritesectors(void)
+void fixspritesectors()
 {
 	int i, j, dax, day, daz;
 
@@ -5986,7 +5985,7 @@ void fixrepeats(short i)
 	wall[i].xrepeat = (unsigned char)min(max(mulscale10(dist,day),1),255);
 }
 
-void clearmidstatbar16(void)
+void clearmidstatbar16()
 {
 	setstatusbarviewport();
 	clearbuf((unsigned char *)(frameplace + (bytesperline*(ytop16+25L))),(bytesperline*(ydim16-1-(25<<1))) >> 2, 0x08080808l);
@@ -6122,8 +6121,7 @@ short getnumber256(char *namestart, short num, int maxnumber, char sign)
 	return((short)oldnum);
 }
 
-
-void clearfilenames(void)
+void clearfilenames()
 {
 	klistfree(finddirs);
 	klistfree(findfiles);
@@ -6453,7 +6451,7 @@ short whitelinescan(short dalinehighlight)
 		return(newnumwalls);
 }
 
-int loadnames(void)
+int loadnames()
 {
 	char buffer[1024], *p, *name, *number, *endptr;
 	int num, syms=0, line=0, a;
@@ -6749,7 +6747,7 @@ void qsetmodeany(int daxdim, int daydim)
 //
 // clear2dscreen
 //
-void clear2dscreen(void)
+void clear2dscreen()
 {
 	clearbuf((void *)frameplace, (bytesperline*ydim16) >> 2, 0);
 }
@@ -7174,7 +7172,7 @@ void printcoords16(int posxe, int posye, short ange)
 	restoreviewport();
 }
 
-void updatenumsprites(void)
+void updatenumsprites()
 {
 	int i;
 
@@ -7415,7 +7413,7 @@ void showspritedata(short spritenum)
 	restoreviewport();
 }
 
-void keytimerstuff(void)
+void keytimerstuff()
 {
 	static int ltotalclock=0;
 	if (totalclock == ltotalclock) return;
@@ -7507,7 +7505,7 @@ void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny)
 	*ny = wal->y + mulscale30(dy,i);
 }
 
-void initcrc(void)
+void initcrc()
 {
 	int i, j, k, a;
 

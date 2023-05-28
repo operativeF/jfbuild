@@ -274,7 +274,7 @@
 
 static EditorStartupWinController *startwin = nil;
 
-int startwin_open(void)
+int startwin_open()
 {
     if (startwin != nil) return 1;
 
@@ -296,7 +296,7 @@ int startwin_open(void)
     }
 }
 
-int startwin_close(void)
+int startwin_close()
 {
     if (startwin == nil) return 1;
 

@@ -22,7 +22,7 @@ uniform int u_mode;
 
 varying mediump vec2 v_texcoord;
 
-void main(void)
+void main()
 {
     vec4 pixel;
 

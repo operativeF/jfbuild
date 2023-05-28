@@ -155,7 +155,7 @@ int initkdm(char dadigistat, char damusistat, int dasamplerate, char danumspeake
     return 0;
 }
 
-void uninitkdm(void)
+void uninitkdm()
 {
     if (snd) free(snd);
     snd = NULL;
@@ -361,7 +361,7 @@ int loadsong(char *filename)
     return(0);
 }
 
-void musicon(void)
+void musicon()
 {
     if (musistat != 1)
         return;
@@ -376,7 +376,7 @@ void musicon(void)
     unlockkdm();
 }
 
-void musicoff(void)
+void musicoff()
 {
     int i;
 

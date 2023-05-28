@@ -17,7 +17,7 @@ uniform mat4 u_projection;
 
 varying mediump vec2 v_texcoord;
 
-void main(void)
+void main()
 {
     v_texcoord = a_texcoord;
     gl_Position = u_projection * vec4(a_vertex, 1.0);

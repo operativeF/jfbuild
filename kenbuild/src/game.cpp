@@ -2038,7 +2038,7 @@ void analyzesprites(int dax, int day)
 	}
 }
 
-void tagcode(void)
+void tagcode()
 {
 	int i, j, k, l, s, dax, day, cnt, good;
 	short startwall, endwall, dasector, p, oldang;
@@ -2338,7 +2338,7 @@ void tagcode(void)
 	}
 }
 
-void statuslistcode(void)
+void statuslistcode()
 {
 	short p, target, hitobject, daang, osectnum, movestat;
 	int i, nexti, j, nextj, k, l, dax, day, daz, dist=0, ox, oy, mindist;
@@ -4274,7 +4274,7 @@ void drawscreen(short snum, int dasmoothratio)
 	restoreinterpolations();
 }
 
-void movethings(void)
+void movethings()
 {
 	int i;
 
@@ -4286,7 +4286,7 @@ void movethings(void)
 	}
 }
 
-void fakedomovethings(void)
+void fakedomovethings()
 {
 	input *syn;
 	int doubvel, xvect, yvect, goalz;
@@ -4409,7 +4409,7 @@ void fakedomovethings(void)
 }
 
 	//Prediction correction
-void fakedomovethingscorrect(void)
+void fakedomovethingscorrect()
 {
 	int i;
 
@@ -4435,7 +4435,7 @@ void fakedomovethingscorrect(void)
 	while (fakemovefifoplc != movefifoend[myconnectindex]) fakedomovethings();
 }
 
-void domovethings(void)
+void domovethings()
 {
 	short i, j, startwall, endwall;
 	walltype *wal;
@@ -4517,7 +4517,7 @@ void domovethings(void)
 	checkmasterslaveswitch();
 }
 
-void getinput(void)
+void getinput()
 {
 	unsigned char ch;
 	int i, j;
@@ -4748,7 +4748,7 @@ void initplayersprite(short snum)
 	makepalookup(snum,remapbuf,0,0,0,1);
 }
 
-void playback(void)
+void playback()
 {
 	int i, j, k;
 
@@ -4811,7 +4811,7 @@ void playback(void)
 	exit(0);
 }
 
-void setup3dscreen(void)
+void setup3dscreen()
 {
 	int i, dax, day, dax2, day2;
 
@@ -4971,7 +4971,7 @@ void warpsprite(short spritenum)
 		show2dsprite[spritenum>>3] |= (1<<(spritenum&7));
 }
 
-void initlava(void)
+void initlava()
 {
 	int x, y, z, r;
 
@@ -5128,7 +5128,7 @@ void movelava(unsigned char *dapic)
 	lavanumframes++;
 }
 
-void doanimations(void)
+void doanimations()
 {
 	int i, j;
 
@@ -5189,7 +5189,7 @@ int setanimation(int *animptr, int thegoal, int thevel, int theacc)
 	return(j);
 }
 
-void checkmasterslaveswitch(void)
+void checkmasterslaveswitch()
 {
 	int i, j;
 
@@ -5267,7 +5267,7 @@ int testneighborsectors(short sect1, short sect2)
 	return(0);
 }
 
-int loadgame(void)
+int loadgame()
 {
 	int i;
 	int fil;
@@ -5309,7 +5309,7 @@ int loadgame(void)
 	kdfread(revolvedoory,4,MAXPLAYERS,fil);
 
 	kdfread(&numsectors,2,1,fil);
-	kdfread(sector,sizeof(sectortype),numsectors,fil);
+	kdfread(sector.data(),sizeof(sectortype),numsectors,fil);
 	kdfread(&numwalls,2,1,fil);
 	kdfread(wall,sizeof(walltype),numwalls,fil);
 		//Store all sprites (even holes) to preserve indeces
@@ -5408,7 +5408,7 @@ int loadgame(void)
 		//Warning: only works if all pointers are in sector structures!
 	kdfread(tmpanimateptr,4,MAXANIMATES,fil);
 	for(i=MAXANIMATES-1;i>=0;i--)
-		animateptr[i] = (int *)(tmpanimateptr[i]+(intptr_t)sector);
+		animateptr[i] = (int *)(tmpanimateptr[i]+(intptr_t)sector.data());
 
 	kdfread(animategoal,4,MAXANIMATES,fil);
 	kdfread(animatevel,4,MAXANIMATES,fil);
@@ -5448,7 +5448,7 @@ int loadgame(void)
 	return(0);
 }
 
-int savegame(void)
+int savegame()
 {
 	int i;
 	BFILE *fil;
@@ -5487,7 +5487,7 @@ int savegame(void)
 	dfwrite(revolvedoory,4,MAXPLAYERS,fil);
 
 	dfwrite(&numsectors,2,1,fil);
-	dfwrite(sector,sizeof(sectortype),numsectors,fil);
+	dfwrite(sector.data(),sizeof(sectortype),numsectors,fil);
 	dfwrite(&numwalls,2,1,fil);
 	dfwrite(wall,sizeof(walltype),numwalls,fil);
 		//Store all sprites (even holes) to preserve indeces
@@ -5585,7 +5585,7 @@ int savegame(void)
 
 		//Warning: only works if all pointers are in sector structures!
 	for(i=MAXANIMATES-1;i>=0;i--)
-		tmpanimateptr[i] = (int)((intptr_t)animateptr[i]-(intptr_t)sector);
+		tmpanimateptr[i] = (int)((intptr_t)animateptr[i]-(intptr_t)sector.data());
 	dfwrite(tmpanimateptr,4,MAXANIMATES,fil);
 
 	dfwrite(animategoal,4,MAXANIMATES,fil);
@@ -5617,7 +5617,7 @@ int savegame(void)
 	return(0);
 }
 
-void faketimerhandler(void)
+void faketimerhandler()
 {
 	short other;
 	int i, j, k, l;
@@ -5762,7 +5762,7 @@ void faketimerhandler(void)
 	}
 }
 
-void getpackets(void)
+void getpackets()
 {
 	int i, j, k, l;
 	int other, packbufleng, movecnt;
@@ -6320,14 +6320,14 @@ void stopinterpolation(int *posptr)
 		}
 }
 
-void updateinterpolations(void)  //Stick at beginning of domovethings
+void updateinterpolations()  //Stick at beginning of domovethings
 {
 	int i;
 
 	for(i=numinterpolations-1;i>=0;i--) oldipos[i] = *curipos[i];
 }
 
-void dointerpolations(void)       //Stick at beginning of drawscreen
+void dointerpolations()       //Stick at beginning of drawscreen
 {
 	int i, j, odelta, ndelta;
 
@@ -6341,7 +6341,7 @@ void dointerpolations(void)       //Stick at beginning of drawscreen
 	}
 }
 
-void restoreinterpolations(void)  //Stick at end of drawscreen
+void restoreinterpolations()  //Stick at end of drawscreen
 {
 	int i;
 

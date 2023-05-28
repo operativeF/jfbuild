@@ -9,9 +9,9 @@
 #include "baselayer.hpp"
 
 // Copied from a glib-compile-resource generated header.
-extern GResource *startgtk_get_resource (void);
-extern void startgtk_register_resource (void);
-extern void startgtk_unregister_resource (void);
+extern GResource *startgtk_get_resource ();
+extern void startgtk_register_resource ();
+extern void startgtk_unregister_resource ();
 
 
 int gtkenabled = 0;
@@ -132,7 +132,7 @@ void wmgtk_init(int *argc, char ***argv)
 	}
 }
 
-void wmgtk_exit(void)
+void wmgtk_exit()
 {
 	if (!gtkenabled) {
 		return;

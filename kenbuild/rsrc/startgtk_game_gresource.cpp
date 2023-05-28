@@ -2866,20 +2866,20 @@ static const SECTION union { const guint8 data[22848]; const double alignment; v
 } };
 
 static GStaticResource static_resource = { startgtk_resource_data.data, sizeof (startgtk_resource_data.data), NULL, NULL, NULL };
-extern GResource *startgtk_get_resource (void);
-GResource *startgtk_get_resource (void)
+extern GResource *startgtk_get_resource ();
+GResource *startgtk_get_resource ()
 {
   return g_static_resource_get_resource (&static_resource);
 }
 
-extern void startgtk_unregister_resource (void);
-void startgtk_unregister_resource (void)
+extern void startgtk_unregister_resource ();
+void startgtk_unregister_resource ()
 {
   g_static_resource_fini (&static_resource);
 }
 
-extern void startgtk_register_resource (void);
-void startgtk_register_resource (void)
+extern void startgtk_register_resource ();
+void startgtk_register_resource ()
 {
   g_static_resource_init (&static_resource);
 }

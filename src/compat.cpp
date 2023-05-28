@@ -83,7 +83,7 @@ int Bvasprintf(char **ret, const char *format, va_list ap)
  * The caller must free the string when done with it.
  * @return NULL if it could not be determined
  */
-char *Bgethomedir(void)
+char *Bgethomedir()
 {
     char *dir = NULL;
 
@@ -115,7 +115,7 @@ char *Bgethomedir(void)
  * The caller must free the string when done with it.
  * @return NULL if it could not be determined
  */
-char *Bgetappdir(void)
+char *Bgetappdir()
 {
     char *dir = NULL;
     
@@ -295,7 +295,7 @@ int Bcanonicalisefilename(char *filename, int removefn)
 	return Bcorrectfilename(fnp,removefn);
 }
 
-char *Bgetsystemdrives(void)
+char *Bgetsystemdrives()
 {
 #ifdef _WIN32
 	char *str, *p;
@@ -541,7 +541,7 @@ int Bwildmatch (const char *i, const char *j)
 //
 // getsysmemsize() -- gets the amount of system memory in the machine
 //
-size_t Bgetsysmemsize(void)
+size_t Bgetsysmemsize()
 {
 #ifdef _WIN32
 	size_t siz = 0x7fffffff;

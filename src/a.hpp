@@ -99,7 +99,7 @@ extern long drawslab(long,long,long,long,long,long);
 #define __cdecl
 #endif
 
-void __cdecl mmxoverlay(void);
+void __cdecl mmxoverlay();
 void __cdecl sethlinesizes(int,int,void *);
 void __cdecl setpalookupaddress(void *);
 void __cdecl setuphlineasm4(int,int);
@@ -137,8 +137,8 @@ void __cdecl thlineskipmodify(void *,int,int,int,int,void *);
 void __cdecl tsethlineshift(int,int);
 void __cdecl setupslopevlin(int,void *,int);
 void __cdecl slopevlin(void *,int,void *,int,int,int);
-void __cdecl settransnormal(void);
-void __cdecl settransreverse(void);
+void __cdecl settransnormal();
+void __cdecl settransreverse();
 void __cdecl setupdrawslab(int,void *);
 void __cdecl drawslab(int,int,int,int,void *,void *);
 void __cdecl stretchhline(void *,int,int,int,void *,void *);
@@ -149,8 +149,8 @@ void __cdecl stretchhline(void *,int,int,int,void *,void *);
 
 void setvlinebpl(int dabpl);
 void fixtransluscence(void *datransoff);
-void settransnormal(void);
-void settransreverse(void);
+void settransnormal();
+void settransreverse();
 
 void sethlinesizes(int logx, int logy, void *bufplc);
 void setpalookupaddress(void *paladdr);
@@ -188,7 +188,7 @@ void setupdrawslab (int dabpl, void *pal);
 void drawslab (int dx, int v, int dy, int vi, void *vptr, void *p);
 void stretchhline (void *p0, int u, int cnt, int uinc, void *rptr, void *p);
 
-void mmxoverlay(void);
+void mmxoverlay();
 
 #endif	// else
 

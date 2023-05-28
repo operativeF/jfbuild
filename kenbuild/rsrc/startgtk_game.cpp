@@ -361,8 +361,8 @@ static const SECTION union { const guint8 data[2804]; const double alignment; vo
 } };
 
 static GStaticResource static_resource = { a_resource_data.data, sizeof (a_resource_data.data), NULL, NULL, NULL };
-extern GResource *a_get_resource (void);
-GResource *a_get_resource (void)
+extern GResource *a_get_resource ();
+GResource *a_get_resource ()
 {
   return g_static_resource_get_resource (&static_resource);
 }
@@ -378,7 +378,7 @@ GResource *a_get_resource (void)
   #pragma G_DEFINE_CONSTRUCTOR_PRAGMA_ARGS(my_constructor)
   #endif
   G_DEFINE_CONSTRUCTOR(my_constructor)
-  static void my_constructor(void) {
+  static void my_constructor() {
    ...
   }
 
@@ -390,8 +390,8 @@ GResource *a_get_resource (void)
 
 #define G_HAS_CONSTRUCTORS 1
 
-#define G_DEFINE_CONSTRUCTOR(_func) static void __attribute__((constructor)) _func (void);
-#define G_DEFINE_DESTRUCTOR(_func) static void __attribute__((destructor)) _func (void);
+#define G_DEFINE_CONSTRUCTOR(_func) static void __attribute__((constructor)) _func ();
+#define G_DEFINE_DESTRUCTOR(_func) static void __attribute__((destructor)) _func ();
 
 #elif defined (_MSC_VER) && (_MSC_VER >= 1500)
 /* Visual studio 2008 and later has _Pragma */
@@ -421,20 +421,20 @@ GResource *a_get_resource (void)
 #define G_DEFINE_DESTRUCTOR(_func) G_MSVC_DTOR (_func, G_MSVC_SYMBOL_PREFIX)
 
 #define G_MSVC_CTOR(_func,_sym_prefix) \
-  static void _func(void); \
-  extern int (* _array ## _func)(void);              \
-  int _func ## _wrapper(void) { _func(); g_slist_find (NULL,  _array ## _func); return 0; } \
+  static void _func(); \
+  extern int (* _array ## _func)();              \
+  int _func ## _wrapper() { _func(); g_slist_find (NULL,  _array ## _func); return 0; } \
   __pragma(comment(linker,"/include:" _sym_prefix # _func "_wrapper")) \
   __pragma(section(".CRT$XCU",read)) \
-  __declspec(allocate(".CRT$XCU")) int (* _array ## _func)(void) = _func ## _wrapper;
+  __declspec(allocate(".CRT$XCU")) int (* _array ## _func)() = _func ## _wrapper;
 
 #define G_MSVC_DTOR(_func,_sym_prefix) \
-  static void _func(void); \
-  extern int (* _array ## _func)(void);              \
-  int _func ## _constructor(void) { atexit (_func); g_slist_find (NULL,  _array ## _func); return 0; } \
+  static void _func(); \
+  extern int (* _array ## _func)();              \
+  int _func ## _constructor() { atexit (_func); g_slist_find (NULL,  _array ## _func); return 0; } \
    __pragma(comment(linker,"/include:" _sym_prefix # _func "_constructor")) \
   __pragma(section(".CRT$XCU",read)) \
-  __declspec(allocate(".CRT$XCU")) int (* _array ## _func)(void) = _func ## _constructor;
+  __declspec(allocate(".CRT$XCU")) int (* _array ## _func)() = _func ## _constructor;
 
 #elif defined (_MSC_VER)
 
@@ -447,16 +447,16 @@ GResource *a_get_resource (void)
 #define G_DEFINE_CONSTRUCTOR_PRAGMA_ARGS(_func) \
   section(".CRT$XCU",read)
 #define G_DEFINE_CONSTRUCTOR(_func) \
-  static void _func(void); \
-  static int _func ## _wrapper(void) { _func(); return 0; } \
-  __declspec(allocate(".CRT$XCU")) static int (*p)(void) = _func ## _wrapper;
+  static void _func(); \
+  static int _func ## _wrapper() { _func(); return 0; } \
+  __declspec(allocate(".CRT$XCU")) static int (*p)() = _func ## _wrapper;
 
 #define G_DEFINE_DESTRUCTOR_PRAGMA_ARGS(_func) \
   section(".CRT$XCU",read)
 #define G_DEFINE_DESTRUCTOR(_func) \
-  static void _func(void); \
-  static int _func ## _constructor(void) { atexit (_func); return 0; } \
-  __declspec(allocate(".CRT$XCU")) static int (* _array ## _func)(void) = _func ## _constructor;
+  static void _func(); \
+  static int _func ## _constructor() { atexit (_func); return 0; } \
+  __declspec(allocate(".CRT$XCU")) static int (* _array ## _func)() = _func ## _constructor;
 
 #elif defined(__SUNPRO_C)
 
@@ -472,12 +472,12 @@ GResource *a_get_resource (void)
 #define G_DEFINE_CONSTRUCTOR_PRAGMA_ARGS(_func) \
   init(_func)
 #define G_DEFINE_CONSTRUCTOR(_func) \
-  static void _func(void);
+  static void _func();
 
 #define G_DEFINE_DESTRUCTOR_PRAGMA_ARGS(_func) \
   fini(_func)
 #define G_DEFINE_DESTRUCTOR(_func) \
-  static void _func(void);
+  static void _func();
 
 #else
 
@@ -502,12 +502,12 @@ G_DEFINE_DESTRUCTOR(resource_destructor)
 #warning "Constructor not supported on this compiler, linking in resources will not work"
 #endif
 
-static void resource_constructor (void)
+static void resource_constructor ()
 {
   g_static_resource_init (&static_resource);
 }
 
-static void resource_destructor (void)
+static void resource_destructor ()
 {
   g_static_resource_fini (&static_resource);
 }

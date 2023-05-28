@@ -1292,7 +1292,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 /**
  * Prepare for priming by sweeping through the textures and marking them as all unused
  */
-void PTBeginPriming(void)
+void PTBeginPriming()
 {
 	PTHash * pth;
 	int i;
@@ -1544,7 +1544,7 @@ PTIter PTIterNewMatch(int match, int picnum, int palnum, unsigned short flagsmas
  * Creates a new iterator for walking the header hash
  * @return an iterator
  */
-PTIter PTIterNew(void)
+PTIter PTIterNew()
 {
 	return PTIterNewMatch(0, 0, 0, 0, 0);
 }

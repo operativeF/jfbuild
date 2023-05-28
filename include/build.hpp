@@ -259,7 +259,7 @@ EXTERN int captureformat;
 extern unsigned char vgapalette[5*256];
 extern unsigned int drawlinepat;
 
-extern void faketimerhandler(void);
+extern void faketimerhandler();
 
 struct palette_t {
 	unsigned char r,g,b,f;
@@ -382,10 +382,10 @@ OTHER VARIABLES:
 			you call the loadboard function.
 ***************************************************************************/
 
-int    preinitengine(void);	// a partial setup of the engine used for launch windows
-int    initengine(void);
-void   uninitengine(void);
-void   initspritelists(void);
+int    preinitengine();	// a partial setup of the engine used for launch windows
+int    initengine();
+void   uninitengine();
+void   initspritelists();
 int   loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
 int   loadmaphack(char *filename);
 int   saveboard(char *filename, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
@@ -396,26 +396,26 @@ int   qloadkvx(int voxindex, char *filename);
 intptr_t allocatepermanenttile(short tilenume, int xsiz, int ysiz);
 void   copytilepiece(int tilenume1, int sx1, int sy1, int xsiz, int ysiz, int tilenume2, int sx2, int sy2);
 int    makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char g, signed char b, unsigned char dastat);
-void   setvgapalette(void);
+void   setvgapalette();
 void   setbrightness(int dabrightness, unsigned char *dapal, char noapply);
 void   setpalettefade(unsigned char r, unsigned char g, unsigned char b, unsigned char offset);
 void   squarerotatetile(short tilenume);
 
 int   setgamemode(char davidoption, int daxdim, int daydim, int dabpp);
-void   nextpage(void);
+void   nextpage();
 void   setview(int x1, int y1, int x2, int y2);
 void   setaspect(int daxrange, int daaspect);
-void   flushperms(void);
+void   flushperms();
 
 void   plotpixel(int x, int y, unsigned char col);
 unsigned char   getpixel(int x, int y);
 void   setviewtotile(short tilenume, int xsiz, int ysiz);
-void   setviewback(void);
+void   setviewback();
 void   preparemirror(int dax, int day, int daz, short daang, int dahoriz, short dawall, short dasector, int *tposx, int *tposy, short *tang);
-void   completemirror(void);
+void   completemirror();
 
 void   drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum);
-void   drawmasks(void);
+void   drawmasks();
 void   clearview(int dacol);
 void   clearallviews(int dacol);
 void   drawmapview(int dax, int day, int zoome, short ang);
@@ -438,7 +438,7 @@ void   dragpoint(short pointhighlight, int dax, int day);
 void   setfirstwall(short sectnum, short newfirstwall);
 
 void   getmousevalues(int *mousx, int *mousy, int *bstatus);
-int    krand(void);
+int    krand();
 int   ksqrt(int num);
 int   getangle(int xvect, int yvect);
 void   rotatepoint(int xpivot, int ypivot, int x, int y, short daang, int *x2, int *y2);
@@ -463,7 +463,7 @@ int   screencapture(char *filename, char mode);	// mode&1 == invert, mode&2 == w
 
 #if USE_POLYMOST
 int   setrendermode(int renderer);
-int   getrendermode(void);
+int   getrendermode();
 # define POLYMOST_RENDERMODE_CLASSIC() (getrendermode() == 0)
 # define POLYMOST_RENDERMODE_POLYMOST() (getrendermode() > 0)
 # define POLYMOST_RENDERMODE_POLYGL() (getrendermode() == 3)
@@ -493,11 +493,11 @@ extern int glswapinterval;
 //       clamping is for sprites, repeating is for walls
 void invalidatetile(short tilenume, int pal, int how);
 
-void setpolymost2dview(void);   // sets up GL for 2D drawing
+void setpolymost2dview();   // sets up GL for 2D drawing
 
 int polymost_drawtilescreen(int tilex, int tiley, int wallnum, int dimen);
-void polymost_glreset(void);
-void polymost_precache_begin(void);
+void polymost_glreset();
+void polymost_precache_begin();
 void polymost_precache(int dapicnum, int dapalnum, int datype);
 int  polymost_precache_run(int* done, int* total);
 
@@ -507,7 +507,7 @@ extern int gltexfiltermode;
 extern int glredbluemode;
 extern int glusetexcache;
 extern int glmultisample, glnvmultisamplehint, glsampleshading;
-void gltexapplyprops (void);
+void gltexapplyprops ();
 
 extern int polymosttexfullbright;	// set to the first index of the fullbright palette
 
