@@ -21,6 +21,8 @@
 
 #include "compat.hpp"
 
+#include <array>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -104,7 +106,7 @@ inline constexpr auto CLIPMASK1 = (((256L)<<16)+64L);
 //   bits 9-15: reserved
 
 	//40 bytes
-typedef struct
+struct sectortype
 {
 	short wallptr, wallnum;
 	int ceilingz, floorz;
@@ -116,8 +118,9 @@ typedef struct
 	signed char floorshade;
 	unsigned char floorpal, floorxpanning, floorypanning;
 	unsigned char visibility, filler;
-	short lotag, hitag, extra;
-} sectortype;
+	short lotag, hitag;
+	short extra{-1};
+};
 
 //cstat:
 //   bit 0: 1 = Blocking wall (use with clipmove, getzrange)         "B"
@@ -183,7 +186,7 @@ struct spriteexttype {
 #define SPREXT_NOTMD 1
 #define SPREXT_NOMDANIM 2
 
-EXTERN sectortype sector[MAXSECTORS];
+EXTERN std::array<sectortype, MAXSECTORS> sector;
 EXTERN walltype wall[MAXWALLS];
 EXTERN spritetype sprite[MAXSPRITES];
 EXTERN spriteexttype spriteext[MAXSPRITES+MAXUNIQHUDID];
