@@ -189,11 +189,11 @@ void win_allowtaskswitching(int onf)
 	if (onf == taskswitching) return;
 
 	if (onf) {
-		UnregisterHotKey(0,0);
-		UnregisterHotKey(0,1);
+		::UnregisterHotKey(0,0);
+		::UnregisterHotKey(0,1);
 	} else {
-		RegisterHotKey(0,0,MOD_ALT,VK_TAB);
-		RegisterHotKey(0,1,MOD_ALT|MOD_SHIFT,VK_TAB);
+		::RegisterHotKey(0,0,MOD_ALT,VK_TAB);
+		::RegisterHotKey(0,1,MOD_ALT|MOD_SHIFT,VK_TAB);
 	}
 
 	taskswitching = onf;
@@ -215,7 +215,7 @@ void win_allowbackgroundidle(int onf)
 int win_checkinstance()
 {
 	if (!instanceflag) return 0;
-	return (WaitForSingleObject(instanceflag,0) == WAIT_TIMEOUT);
+	return (::WaitForSingleObject(instanceflag,0) == WAIT_TIMEOUT);
 }
 
 
@@ -242,7 +242,7 @@ int wm_msgbox(const char *name, const char *fmt, ...)
 	vsprintf(buf,fmt,va);
 	va_end(va);
 
-	MessageBox(hWindow,buf,name,MB_OK|MB_TASKMODAL);
+	::MessageBox(hWindow,buf,name,MB_OK|MB_TASKMODAL);
 	return 0;
 }
 int wm_ynbox(const char *name, const char *fmt, ...)
@@ -255,7 +255,7 @@ int wm_ynbox(const char *name, const char *fmt, ...)
 	vsprintf(buf,fmt,va);
 	va_end(va);
 
-	r = MessageBox((HWND)win_gethwnd(),buf,name,MB_YESNO|MB_TASKMODAL);
+	r = ::MessageBox((HWND)win_gethwnd(),buf,name,MB_YESNO|MB_TASKMODAL);
 	if (r==IDYES) return 1;
 	return 0;
 }
@@ -281,7 +281,7 @@ int wm_filechooser(const char *initialdir, const char *initialfile, const char *
 	filterp += strlen(filterp) + 1;
 	sprintf(filterp, "*.%s", type);
 
-	ZeroMemory(&ofn, sizeof(ofn));
+	::ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = hWindow;
 	ofn.lpstrFilter = filter;
@@ -292,7 +292,7 @@ int wm_filechooser(const char *initialdir, const char *initialfile, const char *
 	ofn.Flags = OFN_DONTADDTORECENT | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
 	ofn.lpstrDefExt = type;
 
-	if (foropen ? GetOpenFileName(&ofn) : GetSaveFileName(&ofn)) {
+	if (foropen ? ::GetOpenFileName(&ofn) : ::GetSaveFileName(&ofn)) {
 		*choice = strdup(filename);
 		return 1;
 	} else {
@@ -359,22 +359,22 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	hInstance = hInst;
 
 	if (CheckWinVersion() || hPrevInst) {
-		MessageBox(0, "This application must be run under Windows Vista or newer.",
+		::MessageBox(0, "This application must be run under Windows Vista or newer.",
 			apptitle, MB_OK|MB_ICONSTOP);
 		return -1;
 	}
 
 	hdc = GetDC(NULL);
-	r = GetDeviceCaps(hdc, BITSPIXEL);
-	ReleaseDC(NULL, hdc);
+	r = ::GetDeviceCaps(hdc, BITSPIXEL);
+	::ReleaseDC(NULL, hdc);
 	if (r <= 8) {
-		MessageBox(0, "This application requires a desktop colour depth of 65536-colours or more.",
+		::MessageBox(0, "This application requires a desktop colour depth of 65536-colours or more.",
 			apptitle, MB_OK|MB_ICONSTOP);
 		return -1;
 	}
 
 	// carve up the commandline into more recognizable pieces
-	argvbuf = strdup(GetCommandLine());
+	argvbuf = strdup(::GetCommandLine());
 	_buildargc = 0;
 	if (argvbuf) {
 		char quoted = 0, instring = 0, swallownext = 0;
@@ -439,11 +439,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	// install signal handlers
 	signal(SIGSEGV, SignalHandler);
 
-	if (RegisterWindowClass()) return -1;
+	if (::RegisterWindowClass()) return -1;
 
 	atexit(uninitsystem);
 
-	instanceflag = CreateSemaphore(NULL, 1,1, WINDOW_CLASS);
+	instanceflag = ::CreateSemaphore(NULL, 1,1, WINDOW_CLASS);
 
 	startwin_open();
 	baselayer_init();
@@ -452,7 +452,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	fclose(stdout);
 
 	startwin_close();
-	if (instanceflag) CloseHandle(instanceflag);
+	if (instanceflag) ::CloseHandle(instanceflag);
 
 	if (argvbuf) free(argvbuf);
 
@@ -522,9 +522,9 @@ int initsystem()
 	buildputs("Initialising Windows system interface\n");
 
 	// get the desktop dimensions before anything changes them
-	ZeroMemory(&desktopmode, sizeof(DEVMODE));
+	::ZeroMemory(&desktopmode, sizeof(DEVMODE));
 	desktopmode.dmSize = sizeof(DEVMODE);
-	EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&desktopmode);
+	::EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&desktopmode);
 
 	desktopxdim = desktopmode.dmPelsWidth;
 	desktopydim = desktopmode.dmPelsHeight;
@@ -610,8 +610,8 @@ void debugprintf(const char *f, ...)
 	vsnprintf(buf, sizeof(buf), f, va);
 	va_end(va);
 
-	if (IsDebuggerPresent()) {
-		OutputDebugString(buf);
+	if (::IsDebuggerPresent()) {
+		::OutputDebugString(buf);
 	} else {
 		fputs(buf, stdout);
 	}
@@ -629,14 +629,14 @@ int handleevents()
 	int rv=0;
 	MSG msg;
 
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+	while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		if (msg.message == WM_QUIT)
 			quitevent = 1;
 
 		if (startwin_idle((void*)&msg) > 0) continue;
 
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		::TranslateMessage(&msg);
+		::DispatchMessage(&msg);
 	}
 
 	eatosdinput = 0;
@@ -696,7 +696,7 @@ int initinput()
 		buildputs("Initialising game controllers\n");
 
 		for (usernum = 0; usernum < XUSER_MAX_COUNT; usernum++) {
-			result = XInputGetCapabilities(usernum, XINPUT_FLAG_GAMEPAD, &caps);
+			result = ::XInputGetCapabilities(usernum, XINPUT_FLAG_GAMEPAD, &caps);
 			if (result == ERROR_SUCCESS && xinputusernum < 0) {
 				xinputusernum = (int)usernum;
 				inputdevices |= 4;
@@ -744,9 +744,9 @@ int initmouse()
 	rid.usUsage = 0x02;
 	rid.dwFlags = 0;	// We want legacy events when the mouse is not grabbed, so no RIDEV_NOLEGACY.
 	rid.hwndTarget = NULL;
-	if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE) {
+	if (::RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE) {
 		buildprintf("initinput: could not register for raw mouse input (%s)\n",
-			getwindowserrorstr(GetLastError()));
+			getwindowserrorstr(::GetLastError()));
 		return -1;
 	}
 
@@ -776,9 +776,9 @@ void uninitmouse()
 	rid.usUsage = 0x02;
 	rid.dwFlags = RIDEV_REMOVE;
 	rid.hwndTarget = NULL;
-	if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE) {
+	if (::RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE) {
 		buildprintf("initinput: could not unregister for raw mouse input (%s)\n",
-			getwindowserrorstr(GetLastError()));
+			getwindowserrorstr(::GetLastError()));
 	}
 }
 
@@ -790,7 +790,7 @@ static void constrainmouse(int a)
 
 	if (!hWindow) return;
 	if (a) {
-		GetWindowRect(hWindow, &rect);
+		::GetWindowRect(hWindow, &rect);
 
 		x = rect.left + (rect.right - rect.left) / 2;
 		y = rect.top + (rect.bottom - rect.top) / 2;
@@ -799,11 +799,11 @@ static void constrainmouse(int a)
 		rect.top = y - 1;
 		rect.bottom = y + 1;
 
-		ClipCursor(&rect);
-		ShowCursor(FALSE);
+		::ClipCursor(&rect);
+		::ShowCursor(FALSE);
 	} else {
-		ClipCursor(NULL);
-		ShowCursor(TRUE);
+		::ClipCursor(NULL);
+		::ShowCursor(TRUE);
 	}
 }
 
@@ -867,8 +867,8 @@ static void updatejoystick()
 
 	if (xinputusernum < 0) return;
 
-	ZeroMemory(&state, sizeof(state));
-	if (XInputGetState(xinputusernum, &state) != ERROR_SUCCESS) {
+	::ZeroMemory(&state, sizeof(state));
+	if (::XInputGetState(xinputusernum, &state) != ERROR_SUCCESS) {
 		buildputs("Joystick error, disabling.\n");
 		joyb = 0;
 		memset(joyaxis, 0, sizeof(joyaxis));
@@ -922,8 +922,8 @@ static void putkeyname(int vsc, int ex, int scan) {
 
 	vsc <<= 16;
 	vsc |= ex << 24;
-	if (GetKeyNameText(vsc, tbuf, 24) == 0) return;
-	CharToOemBuff(tbuf, keynames[scan], 24-1);
+	if (::GetKeyNameText(vsc, tbuf, 24) == 0) return;
+	::CharToOemBuff(tbuf, keynames[scan], 24-1);
 
 	//buildprintf("VSC %8x scan %-2x = %s\n", vsc, scan, keynames[scan]);
 }
@@ -1022,13 +1022,13 @@ int inittimer(int tickspersecond, void(*callback)())
 	// OpenWatcom seems to want us to query the value into a local variable
 	// instead of the global 'timerfreq' or else it gets pissed with an
 	// access violation
-	if (!QueryPerformanceFrequency((LARGE_INTEGER*)&t)) {
-		ShowErrorBox("Failed fetching timer frequency");
+	if (!::QueryPerformanceFrequency((LARGE_INTEGER*)&t)) {
+		::ShowErrorBox("Failed fetching timer frequency");
 		return -1;
 	}
 	timerfreq = t;
 	timerticspersec = tickspersecond;
-	QueryPerformanceCounter((LARGE_INTEGER*)&t);
+	::QueryPerformanceCounter((LARGE_INTEGER*)&t);
 	timerlastsample = (int)(t*timerticspersec / timerfreq);
 
 	usertimercallback = callback;
@@ -1057,7 +1057,7 @@ void sampletimer()
 
 	if (!timerfreq) return;
 
-	QueryPerformanceCounter((LARGE_INTEGER*)&i);
+	::QueryPerformanceCounter((LARGE_INTEGER*)&i);
 	n = (int)(i*timerticspersec / timerfreq) - timerlastsample;
 	if (n>0) {
 		totalclock += n;
@@ -1075,7 +1075,7 @@ unsigned int getticks()
 {
 	int64_t i;
 	if (timerfreq == 0) return 0;
-	QueryPerformanceCounter((LARGE_INTEGER*)&i);
+	::QueryPerformanceCounter((LARGE_INTEGER*)&i);
 	return (unsigned int)(i*INT64_C(1000)/timerfreq);
 }
 
@@ -1087,7 +1087,7 @@ unsigned int getusecticks()
 {
 	int64_t i;
 	if (timerfreq == 0) return 0;
-	QueryPerformanceCounter((LARGE_INTEGER*)&i);
+	::QueryPerformanceCounter((LARGE_INTEGER*)&i);
 	return (unsigned int)(i*INT64_C(1000000)/timerfreq);
 }
 
@@ -1129,7 +1129,7 @@ static void shutdownvideo()
 	UninitDIB();
 
 	if (desktopmodeset) {
-		ChangeDisplaySettings(NULL, 0);
+		::ChangeDisplaySettings(NULL, 0);
 		desktopmodeset = 0;
 	}
 }
@@ -1163,7 +1163,7 @@ int setvideomode(int x, int y, int c, int fs)
 	buildprintf("Setting video mode %dx%d (%d-bit %s)\n",
 			x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
 
-	if (CreateAppWindow(x, y, c, fs, refresh)) return -1;
+	if (::CreateAppWindow(x, y, c, fs, refresh)) return -1;
 
 	if (!gammabrightness) {
 		if (getgammaramp(sysgamma) >= 0) gammabrightness = 1;
@@ -1206,9 +1206,9 @@ static void cdsenummodes()
 	unsigned maxx = MAXXDIM, maxy = MAXYDIM;
 
 	// Enumerate display modes.
-	ZeroMemory(&dm,sizeof(DEVMODE));
+	::ZeroMemory(&dm,sizeof(DEVMODE));
 	dm.dmSize = sizeof(DEVMODE);
-	while (nmodes < MAXVALIDMODES && EnumDisplaySettings(NULL, j, &dm)) {
+	while (nmodes < MAXVALIDMODES && ::EnumDisplaySettings(NULL, j, &dm)) {
 		// Identify the same resolution and bit depth in the existing set.
 		for (i=0;i<nmodes;i++) {
 			if (modes[i].x == dm.dmPelsWidth
@@ -1229,7 +1229,7 @@ static void cdsenummodes()
 		}
 
 		j++;
-		ZeroMemory(&dm,sizeof(DEVMODE));
+		::ZeroMemory(&dm,sizeof(DEVMODE));
 		dm.dmSize = sizeof(DEVMODE);
 	}
 
@@ -1341,7 +1341,7 @@ void showframe()
 
 	{
 		if ((xres == desktopxdim && yres == desktopydim) || !fullscreen) {
-			BitBlt(hDCWindow, 0, 0, xres, yres, hDCSection, 0, 0, SRCCOPY);
+			::BitBlt(hDCWindow, 0, 0, xres, yres, hDCSection, 0, 0, SRCCOPY);
 		} else {
 			int xpos, ypos, xscl, yscl;
 			int desktopaspect = divscale16(desktopxdim, desktopydim);
@@ -1361,7 +1361,7 @@ void showframe()
 				ypos = (desktopydim - yscl) >> 1;
 			}
 
-			StretchBlt(hDCWindow, xpos, ypos, xscl, yscl, hDCSection, 0, 0, xres, yres, SRCCOPY);
+			::StretchBlt(hDCWindow, xpos, ypos, xscl, yscl, hDCSection, 0, 0, xres, yres, SRCCOPY);
 		}
 	}
 }
@@ -1391,7 +1391,7 @@ int setpalette(int start, int num, unsigned char * dapal)
 			rgb[i].rgbReserved = 0;
 		}
 
-		SetDIBColorTable(hDCSection, 0, 256, rgb);
+		::SetDIBColorTable(hDCSection, 0, 256, rgb);
 	}
 
 	return 0;
@@ -1404,7 +1404,7 @@ int setpalette(int start, int num, unsigned char * dapal)
 static int setgammaramp(WORD gt[3][256])
 {
 	int i;
-	i = SetDeviceGammaRamp(hDCWindow, gt) ? 0 : -1;
+	i = ::SetDeviceGammaRamp(hDCWindow, gt) ? 0 : -1;
 	return i;
 }
 
@@ -1431,7 +1431,7 @@ static int getgammaramp(WORD gt[3][256])
 
 	if (!hWindow) return -1;
 
-	i = GetDeviceGammaRamp(hDCWindow, gt) ? 0 : -1;
+	i = ::GetDeviceGammaRamp(hDCWindow, gt) ? 0 : -1;
 
 	return i;
 }
@@ -1443,17 +1443,17 @@ static int getgammaramp(WORD gt[3][256])
 static void UninitDIB()
 {
 	if (hPalette) {
-		DeleteObject(hPalette);
+		::DeleteObject(hPalette);
 		hPalette = NULL;
 	}
 
 	if (hDCSection) {
-		DeleteDC(hDCSection);
+		::DeleteDC(hDCSection);
 		hDCSection = NULL;
 	}
 
 	if (hDIBSection) {
-		DeleteObject(hDIBSection);
+		::DeleteObject(hDIBSection);
 		hDIBSection = NULL;
 	}
 }
@@ -1487,7 +1487,7 @@ static int SetupDIB(int width, int height)
 		dibsect.colours[i].rgbRed = curpalettefaded[i].r;
 	}
 
-	hDIBSection = CreateDIBSection(hDCWindow, (BITMAPINFO *)&dibsect, DIB_RGB_COLORS, &lpPixels, NULL, 0);
+	hDIBSection = ::CreateDIBSection(hDCWindow, (BITMAPINFO *)&dibsect, DIB_RGB_COLORS, &lpPixels, NULL, 0);
 	if (!hDIBSection || lpPixels == NULL) {
 		UninitDIB();
 		ShowErrorBox("Error creating DIB section");
@@ -1497,7 +1497,7 @@ static int SetupDIB(int width, int height)
 	memset(lpPixels, 0, (((width|1) + 4) & ~3)*height);
 
 	// create a compatible memory DC
-	hDCSection = CreateCompatibleDC(hDCWindow);
+	hDCSection = ::CreateCompatibleDC(hDCWindow);
 	if (!hDCSection) {
 		UninitDIB();
 		ShowErrorBox("Error creating compatible DC");
@@ -1505,7 +1505,7 @@ static int SetupDIB(int width, int height)
 	}
 
 	// select the DIB section into the memory DC
-	if (!SelectObject(hDCSection, hDIBSection)) {
+	if (!::SelectObject(hDCSection, hDIBSection)) {
 		UninitDIB();
 		ShowErrorBox("Error creating compatible DC");
 		return TRUE;
@@ -1529,7 +1529,7 @@ int loadgldriver(const char *dll)
 
 	buildprintf("Loading %s\n", dll);
 
-	hGLDLL = LoadLibrary(dll);
+	hGLDLL = ::LoadLibrary(dll);
 	if (!hGLDLL) return -1;
 
 	return 0;
@@ -1538,7 +1538,7 @@ int loadgldriver(const char *dll)
 int unloadgldriver()
 {
 	if (!hGLDLL) return 0;
-	FreeLibrary(hGLDLL);
+	::FreeLibrary(hGLDLL);
 	hGLDLL = NULL;
 	return 0;
 }
@@ -1554,7 +1554,7 @@ void *getglprocaddress(const char *name, int ext)
 		func = wglfunc.wglGetProcAddress(name);
 	}
 	if (!func) {
-		func = GetProcAddress(hGLDLL, name);
+		func = ::GetProcAddress(hGLDLL, name);
 	}
 	return func;
 }
@@ -1576,11 +1576,11 @@ static void UninitOpenGL()
 	}
 	if (hGLWindow) {
 		if (hDCGLWindow) {
-			ReleaseDC(hGLWindow, hDCGLWindow);
+			::ReleaseDC(hGLWindow, hDCGLWindow);
 			hDCGLWindow = NULL;
 		}
 
-		DestroyWindow(hGLWindow);
+		::DestroyWindow(hGLWindow);
 		hGLWindow = NULL;
 	}
 }
@@ -1663,7 +1663,7 @@ static int SetupOpenGL(int width, int height, int bitspp)
 	HGLRC dummyhGLRC = 0;
 	const char *errmsg = NULL;
 
-	dummyhGLwindow = CreateWindow(
+	dummyhGLwindow = ::CreateWindow(
 			WINDOW_CLASS,
 			"OpenGL Window",
 			WS_CHILD,
@@ -1678,19 +1678,19 @@ static int SetupOpenGL(int width, int height, int bitspp)
 		goto fail;
 	}
 
-	dummyhDC = GetDC(dummyhGLwindow);
+	dummyhDC = ::GetDC(dummyhGLwindow);
 	if (!dummyhDC) {
 		errmsg = "Error getting dummy device context";
 		goto fail;
 	}
 
-	dummyPixelFormat = ChoosePixelFormat(dummyhDC, &dummyPfd);
+	dummyPixelFormat = ::ChoosePixelFormat(dummyhDC, &dummyPfd);
 	if (!dummyPixelFormat) {
 		errmsg = "Can't choose dummy pixel format";
 		goto fail;
 	}
 
-	err = SetPixelFormat(dummyhDC, dummyPixelFormat, &dummyPfd);
+	err = ::SetPixelFormat(dummyhDC, dummyPixelFormat, &dummyPfd);
 	if (!err) {
 		errmsg = "Can't set dummy pixel format";
 		goto fail;
@@ -1708,10 +1708,10 @@ static int SetupOpenGL(int width, int height, int bitspp)
 	}
 
 	// Step 2. Check the WGL extensions.
-	EnumWGLExts(dummyhDC);
+	::EnumWGLExts(dummyhDC);
 
 	// Step 3. Create the actual window we will use going forward.
-	hGLWindow = CreateWindow(
+	hGLWindow = ::CreateWindow(
 			WINDOW_CLASS,
 			"OpenGL Window",
 			WS_CHILD|WS_VISIBLE,
@@ -1726,7 +1726,7 @@ static int SetupOpenGL(int width, int height, int bitspp)
 		goto fail;
 	}
 
-	hDCGLWindow = GetDC(hGLWindow);
+	hDCGLWindow = ::GetDC(hGLWindow);
 	if (!hDCGLWindow) {
 		errmsg = "Error getting device context.";
 		goto fail;
@@ -1782,15 +1782,15 @@ static int SetupOpenGL(int width, int height, int bitspp)
 			0,                             //Reserved
 			0,0,0                          //Layer Masks Ignored
 		};
-		pixelformat = ChoosePixelFormat(hDCGLWindow, &pfd);
+		pixelformat = ::ChoosePixelFormat(hDCGLWindow, &pfd);
 		if (!pixelformat) {
 			errmsg = "Can't choose pixel format";
 			goto fail;
 		}
 	}
 
-	DescribePixelFormat(hDCGLWindow, pixelformat, sizeof(PIXELFORMATDESCRIPTOR), &dummyPfd);
-	err = SetPixelFormat(hDCGLWindow, pixelformat, &dummyPfd);
+	::DescribePixelFormat(hDCGLWindow, pixelformat, sizeof(PIXELFORMATDESCRIPTOR), &dummyPfd);
+	err = ::SetPixelFormat(hDCGLWindow, pixelformat, &dummyPfd);
 	if (!err) {
 		errmsg = "Can't set pixel format.";
 		goto fail;
@@ -1829,8 +1829,8 @@ static int SetupOpenGL(int width, int height, int bitspp)
 	// Scrap the dummy stuff.
 	if (!wglfunc.wglMakeCurrent(NULL, NULL)) { }
 	if (!wglfunc.wglDeleteContext(dummyhGLRC)) { }
-	ReleaseDC(dummyhGLwindow, dummyhDC);
-	DestroyWindow(dummyhGLwindow);
+	::ReleaseDC(dummyhGLwindow, dummyhDC);
+	::DestroyWindow(dummyhGLwindow);
 	dummyhGLwindow = NULL;
 	dummyhGLRC = NULL;
 	dummyhDC = NULL;
@@ -1878,7 +1878,7 @@ fail:
 	}
 	if (hGLWindow) {
 		if (hDCGLWindow) {
-			ReleaseDC(hGLWindow, hDCGLWindow);
+			::ReleaseDC(hGLWindow, hDCGLWindow);
 		}
 	}
 	hDCGLWindow = NULL;
@@ -1890,9 +1890,9 @@ fail:
 	}
 	if (dummyhGLwindow) {
 		if (dummyhDC) {
-			ReleaseDC(dummyhGLwindow, dummyhDC);
+			::ReleaseDC(dummyhGLwindow, dummyhDC);
 		}
-		DestroyWindow(dummyhGLwindow);
+		::DestroyWindow(dummyhGLwindow);
 	}
 
 	return TRUE;
@@ -1911,7 +1911,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 	if (width == xres && height == yres && fs == fullscreen && bitspp == bpp && !videomodereset) return FALSE;
 
 	if (hWindow) {
-		ShowWindow(hWindow, SW_HIDE);	// so Windows redraws what's behind if the window shrinks
+		::ShowWindow(hWindow, SW_HIDE);	// so Windows redraws what's behind if the window shrinks
 	}
 
 	if (fs) {
@@ -1923,7 +1923,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 	}
 
 	if (!hWindow) {
-		hWindow = CreateWindowEx(
+		hWindow = ::CreateWindowEx(
 			stylebitsex,
 			"buildapp",
 			apptitle,
@@ -1941,7 +1941,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 			return TRUE;
 		}
 
-		hDCWindow = GetDC(hWindow);
+		hDCWindow = ::GetDC(hWindow);
 		if (!hDCWindow) {
 			ShowErrorBox("Error getting device context");
 			return TRUE;
@@ -1949,8 +1949,8 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 
 		startwin_close();
 	} else {
-		SetWindowLong(hWindow,GWL_EXSTYLE,stylebitsex);
-		SetWindowLong(hWindow,GWL_STYLE,stylebits);
+		::SetWindowLong(hWindow,GWL_EXSTYLE,stylebitsex);
+		::SetWindowLong(hWindow,GWL_STYLE,stylebits);
 	}
 
 	// resize the window
@@ -1959,7 +1959,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 		rect.top = 0;
 		rect.right = width;
 		rect.bottom = height;
-		AdjustWindowRectEx(&rect, stylebits, FALSE, stylebitsex);
+		::AdjustWindowRectEx(&rect, stylebits, FALSE, stylebitsex);
 
 		ww = (rect.right - rect.left);
 		wh = (rect.bottom - rect.top);
@@ -1972,12 +1972,12 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 		ww=vw=desktopxdim;
 		wh=vh=desktopydim;
 	}
-	SetWindowPos(hWindow, HWND_TOP, wx, wy, ww, wh, 0);
+	::SetWindowPos(hWindow, HWND_TOP, wx, wy, ww, wh, 0);
 
 	UpdateAppWindowTitle();
-	ShowWindow(hWindow, SW_SHOWNORMAL);
-	SetForegroundWindow(hWindow);
-	SetFocus(hWindow);
+	::ShowWindow(hWindow, SW_SHOWNORMAL);
+	::SetForegroundWindow(hWindow);
+	::SetFocus(hWindow);
 
 	if (bitspp == 8) {
 		int i, j;
@@ -1999,7 +1999,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 				// No luck. Write off OpenGL and try DIB.
 				buildputs("OpenGL initialisation failed. Falling back to DIB mode.\n");
 				glunavailable = 1;
-				return CreateAppWindow(width, height, bitspp, fs, refresh);
+				return ::CreateAppWindow(width, height, bitspp, fs, refresh);
 			}
 
 			bytesperline = (((width|1) + 4) & ~3);
@@ -2032,7 +2032,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 		if (fs) {
 			DEVMODE dmScreenSettings;
 
-			ZeroMemory(&dmScreenSettings, sizeof(DEVMODE));
+			::ZeroMemory(&dmScreenSettings, sizeof(DEVMODE));
 			dmScreenSettings.dmSize = sizeof(DEVMODE);
 			dmScreenSettings.dmPelsWidth = width;
 			dmScreenSettings.dmPelsHeight = height;
@@ -2043,16 +2043,16 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 				dmScreenSettings.dmFields |= DM_DISPLAYFREQUENCY;
 			}
 
-			if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
+			if (::ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
 				ShowErrorBox("Video mode not supported");
 				return TRUE;
 			}
 			desktopmodeset = 1;
 		}
 
-		ShowWindow(hWindow, SW_SHOWNORMAL);
-		SetForegroundWindow(hWindow);
-		SetFocus(hWindow);
+		::ShowWindow(hWindow, SW_SHOWNORMAL);
+		::SetForegroundWindow(hWindow);
+		::SetFocus(hWindow);
 
 		if (SetupOpenGL(width, height, bitspp)) {
 			return TRUE;
@@ -2073,7 +2073,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 
 	modechange = 1;
 
-	UpdateWindow(hWindow);
+	::UpdateWindow(hWindow);
 
 	return FALSE;
 }
@@ -2092,12 +2092,12 @@ static void DestroyAppWindow()
 	shutdownvideo();
 
 	if (hDCWindow) {
-		ReleaseDC(hWindow, hDCWindow);
+		::ReleaseDC(hWindow, hDCWindow);
 		hDCWindow = NULL;
 	}
 
 	if (hWindow) {
-		DestroyWindow(hWindow);
+		::DestroyWindow(hWindow);
 		hWindow = NULL;
 	}
 }
@@ -2113,16 +2113,11 @@ static void UpdateAppWindowTitle()
 
 	if (wintitle[0]) {
 		snprintf(tmp, sizeof(tmp), "%s - %s", wintitle, apptitle);
-		SetWindowText(hWindow, tmp);
+		::SetWindowText(hWindow, tmp);
 	} else {
-		SetWindowText(hWindow, apptitle);
+		::SetWindowText(hWindow, apptitle);
 	}
 }
-
-
-
-
-
 
 //-------------------------------------------------------------------------------------------------
 //  MOSTLY STATIC INTERNAL WINDOWS THINGS
@@ -2135,8 +2130,8 @@ static void ShowErrorBox(const char *m)
 {
 	TCHAR msg[1024];
 
-	wsprintf(msg, "%s: %s", m, GetWindowsErrorMsg(GetLastError()));
-	MessageBox(0, msg, apptitle, MB_OK|MB_ICONSTOP);
+	::wsprintf(msg, "%s: %s", m, ::GetWindowsErrorMsg(::GetLastError()));
+	::MessageBox(0, msg, apptitle, MB_OK|MB_ICONSTOP);
 }
 
 
@@ -2147,9 +2142,9 @@ static BOOL CheckWinVersion()
 {
 	OSVERSIONINFO osv;
 
-	ZeroMemory(&osv, sizeof(osv));
+	::ZeroMemory(&osv, sizeof(osv));
 	osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	if (!GetVersionEx(&osv)) return TRUE;
+	if (!::GetVersionEx(&osv)) return TRUE;
 
 	// At least Windows Vista
 	if (osv.dwPlatformId != VER_PLATFORM_WIN32_NT) return TRUE;
@@ -2164,8 +2159,8 @@ static BOOL CheckWinVersion()
 static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 #if USE_OPENGL
-	if (hGLWindow && hWnd == hGLWindow) return DefWindowProc(hWnd,uMsg,wParam,lParam);
-	if (dummyhGLwindow && hWnd == dummyhGLwindow) return DefWindowProc(hWnd,uMsg,wParam,lParam);
+	if (hGLWindow && hWnd == hGLWindow) return ::DefWindowProc(hWnd,uMsg,wParam,lParam);
+	if (dummyhGLwindow && hWnd == dummyhGLwindow) return ::DefWindowProc(hWnd,uMsg,wParam,lParam);
 #endif
 
 	switch (uMsg) {
@@ -2182,7 +2177,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		case WM_ACTIVATEAPP:
 			appactive = wParam;
 			if (backgroundidle)
-				SetPriorityClass( GetCurrentProcess(),
+				::SetPriorityClass( ::GetCurrentProcess(),
 					appactive ? NORMAL_PRIORITY_CLASS : IDLE_PRIORITY_CLASS );
 			break;
 
@@ -2278,7 +2273,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 				RAWINPUT raw;
 				UINT dwSize = sizeof(RAWINPUT);
 
-				GetRawInputData((HRAWINPUT)lParam, RID_INPUT, (LPVOID)&raw, &dwSize, sizeof(RAWINPUTHEADER));
+				::GetRawInputData((HRAWINPUT)lParam, RID_INPUT, (LPVOID)&raw, &dwSize, sizeof(RAWINPUTHEADER));
 
 				if (raw.header.dwType == RIM_TYPEMOUSE) {
 					int but;
@@ -2346,7 +2341,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 			break;
 	}
 
-	return DefWindowProc(hWnd, uMsg, wParam, lParam);
+	return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
 
@@ -2367,15 +2362,15 @@ static BOOL RegisterWindowClass()
 	wcx.cbClsExtra	= 0;
 	wcx.cbWndExtra	= 0;
 	wcx.hInstance	= hInstance;
-	wcx.hIcon	= static_cast<HICON>(LoadImage(hInstance, MAKEINTRESOURCE(100), IMAGE_ICON,
+	wcx.hIcon	= static_cast<HICON>(::LoadImage(hInstance, MAKEINTRESOURCE(100), IMAGE_ICON,
 				GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR));
-	wcx.hCursor	= LoadCursor(NULL, IDC_ARROW);
-	wcx.hbrBackground = CreateSolidBrush(RGB(0,0,0));
+	wcx.hCursor	= ::LoadCursor(NULL, IDC_ARROW);
+	wcx.hbrBackground = ::CreateSolidBrush(RGB(0,0,0));
 	wcx.lpszMenuName = NULL;
 	wcx.lpszClassName = WINDOW_CLASS;
-	wcx.hIconSm	= static_cast<HICON>(LoadImage(hInstance, MAKEINTRESOURCE(100), IMAGE_ICON,
+	wcx.hIconSm	= static_cast<HICON>(::LoadImage(hInstance, MAKEINTRESOURCE(100), IMAGE_ICON,
 				GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR));
-	if (!RegisterClassEx(&wcx)) {
+	if (!::RegisterClassEx(&wcx)) {
 		ShowErrorBox("Failed to register window class");
 		return TRUE;
 	}
@@ -2393,7 +2388,7 @@ static LPTSTR GetWindowsErrorMsg(DWORD code)
 {
 	static TCHAR lpMsgBuf[1024];
 
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+	::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL, code,
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR)lpMsgBuf, 1024, NULL);
@@ -2405,6 +2400,6 @@ static const char *getwindowserrorstr(DWORD code)
 {
 	static char msg[1024];
 	memset(msg, 0, sizeof(msg));
-	OemToCharBuff(GetWindowsErrorMsg(code), msg, sizeof(msg)-1);
+	::OemToCharBuff(GetWindowsErrorMsg(code), msg, sizeof(msg)-1);
 	return msg;
 }
