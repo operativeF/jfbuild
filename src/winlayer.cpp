@@ -186,12 +186,15 @@ intptr_t win_gethinstance()
 //
 void win_allowtaskswitching(int onf)
 {
-	if (onf == taskswitching) return;
+	if (onf == taskswitching) {
+		return;
+	}
 
 	if (onf) {
 		::UnregisterHotKey(nullptr, 0);
 		::UnregisterHotKey(nullptr, 1);
-	} else {
+	} 
+	else {
 		::RegisterHotKey(nullptr , 0, MOD_ALT, VK_TAB);
 		::RegisterHotKey(nullptr , 1, MOD_ALT|MOD_SHIFT, VK_TAB);
 	}
@@ -214,7 +217,10 @@ void win_allowbackgroundidle(int onf)
 //
 int win_checkinstance()
 {
-	if (!instanceflag) return 0;
+	if (!instanceflag) {
+		return 0;
+	}
+
 	return (::WaitForSingleObject(instanceflag,0) == WAIT_TIMEOUT);
 }
 
@@ -233,8 +239,7 @@ unsigned win_getmaxrefreshfreq()
 //
 // wm_msgbox/wm_ynbox() -- window-manager-provided message boxes
 //
-int wm_msgbox(const char *name, const char *fmt, ...)
-{
+int wm_msgbox(const char *name, const char *fmt, ...) {
 	char buf[1000];
 	va_list va;
 
@@ -242,21 +247,25 @@ int wm_msgbox(const char *name, const char *fmt, ...)
 	vsprintf(buf,fmt,va);
 	va_end(va);
 
-	::MessageBox(hWindow,buf,name,MB_OK|MB_TASKMODAL);
+	::MessageBox(hWindow, buf, name, MB_OK | MB_TASKMODAL);
+
 	return 0;
 }
-int wm_ynbox(const char *name, const char *fmt, ...)
-{
+
+int wm_ynbox(const char *name, const char *fmt, ...) {
 	char buf[1000];
 	va_list va;
-	int r;
 
 	va_start(va,fmt);
 	vsprintf(buf,fmt,va);
 	va_end(va);
 
-	r = ::MessageBox((HWND)win_gethwnd(),buf,name,MB_YESNO|MB_TASKMODAL);
-	if (r==IDYES) return 1;
+	int r = ::MessageBox((HWND)win_gethwnd(), buf, name, MB_YESNO | MB_TASKMODAL);
+
+	if (r==IDYES) {
+		return 1;
+	}
+
 	return 0;
 }
 
@@ -265,9 +274,9 @@ int wm_ynbox(const char *name, const char *fmt, ...)
 //
 int wm_filechooser(const char *initialdir, const char *initialfile, const char *type, int foropen, char **choice)
 {
-	OPENFILENAME ofn;
-	char filter[100], *filterp = filter;
-	char filename[BMAX_PATH+1] = "";
+	char filter[100];
+	char* filterp = filter;
+	char filename[BMAX_PATH + 1] = "";
 
 	*choice = nullptr;
 
@@ -280,6 +289,8 @@ int wm_filechooser(const char *initialdir, const char *initialfile, const char *
 	sprintf(filterp, "%s Files", type);
 	filterp += strlen(filterp) + 1;
 	sprintf(filterp, "*.%s", type);
+
+	OPENFILENAME ofn;
 
 	::ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(OPENFILENAME);
@@ -295,7 +306,8 @@ int wm_filechooser(const char *initialdir, const char *initialfile, const char *
 	if (foropen ? ::GetOpenFileName(&ofn) : ::GetSaveFileName(&ofn)) {
 		*choice = strdup(filename);
 		return 1;
-	} else {
+	}
+	else {
 		return 0;
 	}
 }
@@ -349,12 +361,8 @@ static void SignalHandler(int signum)
 //
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
 {
-	int r;
-	char *argp;
-	FILE *fp;
-	HDC hdc;
-
-	(void)lpCmdLine; (void)nCmdShow;
+	(void)lpCmdLine;
+	(void)nCmdShow;
 
 	hInstance = hInst;
 
@@ -364,9 +372,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 		return -1;
 	}
 
-	hdc = GetDC(nullptr);
-	r = ::GetDeviceCaps(hdc, BITSPIXEL);
+	HDC hdc = GetDC(nullptr);
+	int r = ::GetDeviceCaps(hdc, BITSPIXEL);
 	::ReleaseDC(nullptr, hdc);
+
 	if (r <= 8) {
 		::MessageBox(nullptr, "This application requires a desktop colour depth of 65536-colours or more.",
 			apptitle, MB_OK|MB_ICONSTOP);
@@ -376,8 +385,12 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	// carve up the commandline into more recognizable pieces
 	argvbuf = strdup(::GetCommandLine());
 	_buildargc = 0;
+
 	if (argvbuf) {
-		char quoted = 0, instring = 0, swallownext = 0;
+		char quoted{0};
+		char instring{0};
+		char swallownext{0};
+
 		char *p,*wp; int i;
 		for (p=wp=argvbuf; *p; p++) {
 			if (*p == ' ') {
@@ -425,25 +438,35 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	}
 
 	// pipe standard outputs to files
-	if ((argp = Bgetenv("BUILD_LOGSTDOUT")) != nullptr)
+	char *argp;
+
+	if ((argp = Bgetenv("BUILD_LOGSTDOUT")) != nullptr) {
 		if (!Bstrcasecmp(argp, "TRUE")) {
-			fp = freopen("stdout.txt", "w", stdout);
+			FILE* fp = freopen("stdout.txt", "w", stdout);
+
 			if (!fp) {
 				fp = fopen("stdout.txt", "w");
 			}
-			if (fp) setvbuf(fp, nullptr, _IONBF, 0);
+
+			if (fp) {
+				setvbuf(fp, nullptr, _IONBF, 0);
+			}
+
 			*stdout = *fp;
 			*stderr = *fp;
 		}
+	}
 
 	// install signal handlers
 	signal(SIGSEGV, SignalHandler);
 
-	if (::RegisterWindowClass()) return -1;
+	if (::RegisterWindowClass()) {
+		return -1;
+	}
 
 	atexit(uninitsystem);
 
-	instanceflag = ::CreateSemaphore(nullptr, 1,1, WINDOW_CLASS);
+	instanceflag = ::CreateSemaphore(nullptr, 1, 1, WINDOW_CLASS);
 
 	startwin_open();
 	baselayer_init();
@@ -462,18 +485,26 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
 static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 {
-	int freq;
 	if (parm->numparms == 0) {
-		if (maxrefreshfreq == 0)
+		if (maxrefreshfreq == 0) {
 			buildputs("maxrefreshfreq = No maximum\n");
-		else
+		}
+		else {
 			buildprintf("maxrefreshfreq = %d Hz\n",maxrefreshfreq);
+		}
+
 		return OSDCMD_OK;
 	}
-	if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
-	freq = atoi(parm->parms[0]);
-	if (freq < 0) return OSDCMD_SHOWHELP;
+	if (parm->numparms != 1) {
+		return OSDCMD_SHOWHELP;
+	}
+
+	int freq = atoi(parm->parms[0]);
+
+	if (freq < 0) {
+		return OSDCMD_SHOWHELP;
+	}
 
 	maxrefreshfreq = (unsigned)freq;
 	modeschecked = 0;
@@ -484,21 +515,26 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 #if USE_OPENGL
 static int set_glswapinterval(const osdfuncparm_t *parm)
 {
-	int interval;
-
 	if (!wglfunc.wglSwapIntervalEXT || glunavailable) {
 		buildputs("glswapinterval is not adjustable\n");
 		return OSDCMD_OK;
 	}
+
 	if (parm->numparms == 0) {
 		if (glswapinterval == -1) buildprintf("glswapinterval is %d (adaptive vsync)\n", glswapinterval);
 		else buildprintf("glswapinterval is %d\n", glswapinterval);
 		return OSDCMD_OK;
 	}
-	if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
-	interval = atoi(parm->parms[0]);
-	if (interval < -1 || interval > 2) return OSDCMD_SHOWHELP;
+	if (parm->numparms != 1) {
+		return OSDCMD_SHOWHELP;
+	}
+
+	int interval = atoi(parm->parms[0]);
+
+	if (interval < -1 || interval > 2) {
+		return OSDCMD_SHOWHELP;
+	}
 
 	if (interval == -1 && !wglfunc.have_EXT_swap_control_tear) {
 		buildputs("adaptive glswapinterval is not available\n");
@@ -517,14 +553,13 @@ static int set_glswapinterval(const osdfuncparm_t *parm)
 //
 int initsystem()
 {
-	DEVMODE desktopmode;
-
 	buildputs("Initialising Windows system interface\n");
 
 	// get the desktop dimensions before anything changes them
+	DEVMODE desktopmode;
 	::ZeroMemory(&desktopmode, sizeof(DEVMODE));
 	desktopmode.dmSize = sizeof(DEVMODE);
-	::EnumDisplaySettings(nullptr,ENUM_CURRENT_SETTINGS,&desktopmode);
+	::EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &desktopmode);
 
 	desktopxdim = desktopmode.dmPelsWidth;
 	desktopydim = desktopmode.dmPelsHeight;
@@ -534,7 +569,7 @@ int initsystem()
 
 	atexit(uninitsystem);
 
-	frameplace=0;
+	frameplace = 0;
 
 #if USE_OPENGL
 	memset(&wglfunc, 0, sizeof(wglfunc));
@@ -612,7 +647,8 @@ void debugprintf(const char *f, ...)
 
 	if (::IsDebuggerPresent()) {
 		::OutputDebugString(buf);
-	} else {
+	}
+	else {
 		fputs(buf, stdout);
 	}
 #endif
@@ -623,17 +659,19 @@ void debugprintf(const char *f, ...)
 // handleevents() -- process the Windows message queue
 //   returns !0 if there was an important event worth checking (like quitting)
 //
-static int eatosdinput = 0;
-int handleevents()
-{
-	int rv=0;
+static int eatosdinput{0};
+
+int handleevents() {
 	MSG msg;
 
 	while (::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-		if (msg.message == WM_QUIT)
+		if (msg.message == WM_QUIT) {
 			quitevent = 1;
+		}
 
-		if (startwin_idle((void*)&msg) > 0) continue;
+		if (startwin_idle((void*)&msg) > 0) {
+			continue;
+		}
 
 		::TranslateMessage(&msg);
 		::DispatchMessage(&msg);
@@ -643,7 +681,11 @@ int handleevents()
 	updatemouse();
 	updatejoystick();
 
-	if (!appactive || quitevent) rv = -1;
+	int rv{0};
+
+	if (!appactive || quitevent) {
+		rv = -1;
+	}
 
 	sampletimer();
 
@@ -651,16 +693,15 @@ int handleevents()
 }
 
 
-
-
 //-------------------------------------------------------------------------------------------------
 //  INPUT (MOUSE/KEYBOARD)
 //=================================================================================================
 
-static char moustat = 0, mousegrab = 0;
-static int joyblast=0;
+static char moustat{0};
+static char mousegrab{0};
+static int joyblast{0};
 
-static int xinputusernum = -1;
+static int xinputusernum{-1};
 
 // I don't see any pressing need to store the key-up events yet
 #define SetKey(key,state) { \
@@ -678,10 +719,12 @@ static int xinputusernum = -1;
 //
 int initinput()
 {
-	moustat=0;
+	moustat = 0;
 	memset(keystatus, 0, sizeof(keystatus));
-	keyfifoplc = keyfifoend = 0;
-	keyasciififoplc = keyasciififoend = 0;
+	keyfifoplc = 0;
+	keyfifoend = 0;
+	keyasciififoplc = 0;
+	keyasciififoend = 0;
 
 	inputdevices = 1;
 	joynumaxes=0;
@@ -690,13 +733,12 @@ int initinput()
 	fetchkeynames();
 
 	{
-		DWORD usernum, result;
 		XINPUT_CAPABILITIES caps;
 
 		buildputs("Initialising game controllers\n");
 
-		for (usernum = 0; usernum < XUSER_MAX_COUNT; usernum++) {
-			result = ::XInputGetCapabilities(usernum, XINPUT_FLAG_GAMEPAD, &caps);
+		for (DWORD usernum{0}; usernum < XUSER_MAX_COUNT; ++usernum) {
+			DWORD result = ::XInputGetCapabilities(usernum, XINPUT_FLAG_GAMEPAD, &caps);
 			if (result == ERROR_SUCCESS && xinputusernum < 0) {
 				xinputusernum = (int)usernum;
 				inputdevices |= 4;
@@ -705,9 +747,11 @@ int initinput()
 				joynumaxes = 6;
 			}
 		}
+		
 		if (xinputusernum >= 0) {
 			buildprintf("  - Using controller in port %d\n", xinputusernum);
-		} else {
+		}
+		else {
 			buildputs("  - No usable controller found\n");
 		}
 	}
@@ -733,25 +777,28 @@ void uninitinput()
 //
 int initmouse()
 {
-	RAWINPUTDEVICE rid;
-
-	if (moustat) return 0;
+	if (moustat) {
+		return 0;
+	}
 
 	buildputs("Initialising mouse\n");
 
 	// Register for mouse raw input.
-	rid.usUsagePage = 0x01;
-	rid.usUsage = 0x02;
-	rid.dwFlags = 0;	// We want legacy events when the mouse is not grabbed, so no RIDEV_NOLEGACY.
-	rid.hwndTarget = nullptr;
-	if (::RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE) {
+	RAWINPUTDEVICE rid{
+		.usUsagePage = 0x01,
+		.usUsage = 0x02,
+		.dwFlags = 0, // We want legacy events when the mouse is not grabbed, so no RIDEV_NOLEGACY.
+	    .hwndTarget = nullptr
+	};
+
+	if (!::RegisterRawInputDevices(&rid, 1, sizeof(rid))) {
 		buildprintf("initinput: could not register for raw mouse input (%s)\n",
 			getwindowserrorstr(::GetLastError()));
 		return -1;
 	}
 
 	// grab input
-	moustat=1;
+	moustat = 1;
 	inputdevices |= 2;
 	grabmouse(1);
 
@@ -764,36 +811,41 @@ int initmouse()
 //
 void uninitmouse()
 {
-	RAWINPUTDEVICE rid;
-
-	if (!moustat) return;
+	if (!moustat) {
+		return;
+	}
 
 	grabmouse(0);
-	moustat=mousegrab=0;
+	moustat = 0;
+	mousegrab = 0;
 
 	// Unregister for mouse raw input.
-	rid.usUsagePage = 0x01;
-	rid.usUsage = 0x02;
-	rid.dwFlags = RIDEV_REMOVE;
-	rid.hwndTarget = nullptr;
-	if (::RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE) {
+	RAWINPUTDEVICE rid {
+		.usUsagePage = 0x01,
+		.usUsage = 0x02,
+		.dwFlags = RIDEV_REMOVE,
+		.hwndTarget = nullptr
+	};
+
+	if (!::RegisterRawInputDevices(&rid, 1, sizeof(rid))) {
 		buildprintf("initinput: could not unregister for raw mouse input (%s)\n",
 			getwindowserrorstr(::GetLastError()));
 	}
 }
 
-
 static void constrainmouse(int a)
 {
-	RECT rect;
-	LONG x, y;
+	if (!hWindow) {
+		return;
+	}
 
-	if (!hWindow) return;
 	if (a) {
+		RECT rect;
+
 		::GetWindowRect(hWindow, &rect);
 
-		x = rect.left + (rect.right - rect.left) / 2;
-		y = rect.top + (rect.bottom - rect.top) / 2;
+		LONG x = rect.left + (rect.right - rect.left) / 2;
+		LONG y = rect.top + (rect.bottom - rect.top) / 2;
 		rect.left = x - 1;
 		rect.right = x + 1;
 		rect.top = y - 1;
@@ -801,7 +853,8 @@ static void constrainmouse(int a)
 
 		::ClipCursor(&rect);
 		::ShowCursor(FALSE);
-	} else {
+	}
+	else {
 		::ClipCursor(nullptr);
 		::ShowCursor(TRUE);
 	}
@@ -809,16 +862,20 @@ static void constrainmouse(int a)
 
 static void updatemouse()
 {
-	unsigned t = getticks();
+	unsigned int t = getticks();
 
-	if (!mousegrab) return;
+	if (!mousegrab) {
+		return;
+	}
 
 	// we only want the wheel to signal once, but hold the state for a moment
 	if (mousewheel[0] > 0 && t - mousewheel[0] > MouseWheelFakePressTime) {
-		mousewheel[0] = 0; mouseb &= ~16;
+		mousewheel[0] = 0;
+		mouseb &= ~16;
 	}
 	if (mousewheel[1] > 0 && t - mousewheel[1] > MouseWheelFakePressTime) {
-		mousewheel[1] = 0; mouseb &= ~32;
+		mousewheel[1] = 0;
+		mouseb &= ~32;
 	}
 }
 
@@ -827,11 +884,14 @@ static void updatemouse()
 //
 void grabmouse(int a)
 {
-	if (!moustat) return;
+	if (!moustat) {
+		return;
+	}
 
 	mousegrab = a;
 
 	constrainmouse(a);
+
 	mousex = 0;
 	mousey = 0;
 	mouseb = 0;
@@ -843,7 +903,12 @@ void grabmouse(int a)
 //
 void readmousexy(int *x, int *y)
 {
-	if (!moustat || !mousegrab) { *x = *y = 0; return; }
+	if (!moustat || !mousegrab) {
+		*x = 0;
+		*y = 0;
+		return;
+	}
+
 	*x = mousex;
 	*y = mousey;
 	mousex = 0;
@@ -856,18 +921,25 @@ void readmousexy(int *x, int *y)
 //
 void readmousebstatus(int *b)
 {
-	if (!moustat || !mousegrab) *b = 0;
-	else *b = mouseb;
+	if (!moustat || !mousegrab) {
+		*b = 0;
+	}
+	else {
+		*b = mouseb;
+	}
 }
 
 
 static void updatejoystick()
 {
+	if (xinputusernum < 0) {
+		return;
+	}
+
 	XINPUT_STATE state;
 
-	if (xinputusernum < 0) return;
-
 	::ZeroMemory(&state, sizeof(state));
+
 	if (::XInputGetState(xinputusernum, &state) != ERROR_SUCCESS) {
 		buildputs("Joystick error, disabling.\n");
 		joyb = 0;
@@ -897,14 +969,14 @@ static void updatejoystick()
 
 void releaseallbuttons()
 {
-	int i;
-
-	mousewheel[0]=mousewheel[1]=0;
+	mousewheel[0] = 0;
+	mousewheel[1] = 0;
 	mouseb = 0;
 
-	joyb = joyblast = 0;
+	joyb = 0;
+	joyblast = 0;
 
-	for (i=0;i<256;i++) {
+	for (int i{0}; i < 256; i++) {
 		//if (!keystatus[i]) continue;
 		//if (OSD_HandleKey(i, 0) != 0) {
 			OSD_HandleKey(i, 0);
@@ -931,30 +1003,36 @@ static void putkeyname(int vsc, int ex, int scan) {
 static void fetchkeynames()
 {
 	int scan;
-	unsigned i;
 
-	memset(keynames,0,sizeof(keynames));
-	for (i=0; i < 256; i++) {
-		scan = wscantable[i];
+	memset(keynames, 0, sizeof(keynames));
+
+	for (int i{0}; i < 256; ++i) {
+		int scan = wscantable[i];
+
 		if (scan != 0) {
 			putkeyname(i, 0, scan);
 		}
-		scan = wxscantable[i];
-		if (scan != 0) {
-			putkeyname(i, 1, scan);
+
+		int xscan = wxscantable[i];
+
+		if (xscan != 0) {
+			putkeyname(i, 1, xscan);
 		}
 	}
 }
 
 const char *getkeyname(int num)
 {
-	if ((unsigned)num >= 256) return nullptr;
+	if ((unsigned)num >= 256) {
+		return nullptr;
+	}
+
 	return keynames[num];
 }
 
-const char *getjoyname(int what, int num)
+const char* getjoyname(int what, int num)
 {
-	static const char * axisnames[6] = {
+	static const char* axisnames[6] = {
 		"Left Stick X",
 		"Left Stick Y",
 		"Right Stick X",
@@ -962,7 +1040,8 @@ const char *getjoyname(int what, int num)
 		"Left Trigger",
 		"Right Trigger",
 	};
-	static const char * buttonnames[15] = {
+
+	static const char* buttonnames[15] = {
 		"A",
 		"B",
 		"X",
@@ -979,6 +1058,7 @@ const char *getjoyname(int what, int num)
 		"DPad Left",
 		"DPad Right",
 	};
+
 	switch (what) {
 		case 0:	// axis
 			if ((unsigned)num > (unsigned)6) return nullptr;
@@ -993,17 +1073,13 @@ const char *getjoyname(int what, int num)
 	}
 }
 
-
-
-
-
 //-------------------------------------------------------------------------------------------------
 //  TIMER
 //=================================================================================================
 
-static int64_t timerfreq=0;
-static int timerlastsample=0;
-static int timerticspersec=0;
+static int64_t timerfreq{0};
+static int timerlastsample{0};
+static int timerticspersec{0};
 static void (*usertimercallback)() = nullptr;
 
 //  This timer stuff is all Ken's idea.
@@ -1013,15 +1089,16 @@ static void (*usertimercallback)() = nullptr;
 //
 int inittimer(int tickspersecond, void(*callback)())
 {
-	int64_t t;
-
-	if (timerfreq) return 0;	// already installed
+	if (timerfreq) {
+		return 0;	// already installed
+	}
 
 	buildputs("Initialising timer\n");
 
 	// OpenWatcom seems to want us to query the value into a local variable
 	// instead of the global 'timerfreq' or else it gets pissed with an
 	// access violation
+	int64_t t;
 	if (!::QueryPerformanceFrequency((LARGE_INTEGER*)&t)) {
 		::ShowErrorBox("Failed fetching timer frequency");
 		return -1;
@@ -1041,9 +1118,11 @@ int inittimer(int tickspersecond, void(*callback)())
 //
 void uninittimer()
 {
-	if (!timerfreq) return;
+	if (!timerfreq) {
+		return;
+	}
 
-	timerfreq=0;
+	timerfreq = 0;
 	timerticspersec = 0;
 }
 
@@ -1052,19 +1131,24 @@ void uninittimer()
 //
 void sampletimer()
 {
+	if (!timerfreq) {
+		return;
+	}
+
 	int64_t i;
-	int n;
-
-	if (!timerfreq) return;
-
 	::QueryPerformanceCounter((LARGE_INTEGER*)&i);
-	n = (int)(i*timerticspersec / timerfreq) - timerlastsample;
-	if (n>0) {
+	int n = (int)(i * timerticspersec / timerfreq) - timerlastsample;
+
+	if (n > 0) {
 		totalclock += n;
 		timerlastsample += n;
 	}
 
-	if (usertimercallback) for (; n>0; n--) usertimercallback();
+	if (usertimercallback) {
+		for (; n > 0; --n) {
+			usertimercallback();
+		}
+	}
 }
 
 
@@ -1073,10 +1157,13 @@ void sampletimer()
 //
 unsigned int getticks()
 {
+	if (timerfreq == 0) {
+		return 0;
+	}
+
 	int64_t i;
-	if (timerfreq == 0) return 0;
 	::QueryPerformanceCounter((LARGE_INTEGER*)&i);
-	return (unsigned int)(i*INT64_C(1000)/timerfreq);
+	return (unsigned int)(i * INT64_C(1000) / timerfreq);
 }
 
 
@@ -1085,10 +1172,14 @@ unsigned int getticks()
 //
 unsigned int getusecticks()
 {
+	if (timerfreq == 0) {
+		return 0;
+	}
+
 	int64_t i;
-	if (timerfreq == 0) return 0;
 	::QueryPerformanceCounter((LARGE_INTEGER*)&i);
-	return (unsigned int)(i*INT64_C(1000000)/timerfreq);
+
+	return (unsigned int)(i * INT64_C(1000000) / timerfreq);
 }
 
 
@@ -1108,10 +1199,10 @@ int gettimerfreq()
 //=================================================================================================
 
 // DIB stuff
-static HDC      hDCSection  = nullptr;
-static HBITMAP  hDIBSection = nullptr;
-static HPALETTE hPalette    = nullptr;
-static VOID    *lpPixels    = nullptr;
+static HDC      hDCSection{nullptr};
+static HBITMAP  hDIBSection{nullptr};
+static HPALETTE hPalette{nullptr};
+static VOID    *lpPixels{nullptr};
 
 static int setgammaramp(WORD gt[3][256]);
 static int getgammaramp(WORD gt[3][256]);
@@ -1139,15 +1230,19 @@ static void shutdownvideo()
 //
 int setvideomode(int x, int y, int c, int fs)
 {
-	int modenum, refresh=-1;
+	int refresh{-1};
 
 	if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) && !videomodereset) {
 		OSD_ResizeDisplay(xres,yres);
 		return 0;
 	}
 
-	modenum = checkvideomode(&x,&y,c,fs,0);
-	if (modenum < 0) return -1;
+	int modenum = checkvideomode(&x, &y, c, fs, 0);
+
+	if (modenum < 0) {
+		return -1;
+	}
+
 	if (modenum != 0x7fffffff) {
 		refresh = validmode[modenum].extra;
 	}
@@ -1157,23 +1252,37 @@ int setvideomode(int x, int y, int c, int fs)
 		gammabrightness = 0;
 	}
 
-	if (baselayer_videomodewillchange) baselayer_videomodewillchange();
+	if (baselayer_videomodewillchange) {
+		baselayer_videomodewillchange();
+	}
+
 	shutdownvideo();
 
 	buildprintf("Setting video mode %dx%d (%d-bit %s)\n",
-			x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
+			x, y, c, ((fs & 1) ? "fullscreen" : "windowed"));
 
-	if (::CreateAppWindow(x, y, c, fs, refresh)) return -1;
-
-	if (!gammabrightness) {
-		if (getgammaramp(sysgamma) >= 0) gammabrightness = 1;
-		if (gammabrightness && setgamma(curgamma) < 0) gammabrightness = 0;
+	if (::CreateAppWindow(x, y, c, fs, refresh)) {
+		return -1;
 	}
 
-	modechange=1;
+	if (!gammabrightness) {
+		if (getgammaramp(sysgamma) >= 0) {
+			gammabrightness = 1;
+		}
+
+		if (gammabrightness && setgamma(curgamma) < 0) {
+			gammabrightness = 0;
+		}
+	}
+
+	modechange = 1;
 	videomodereset = 0;
-	if (baselayer_videomodedidchange) baselayer_videomodedidchange();
-	OSD_ResizeDisplay(xres,yres);
+
+	if (baselayer_videomodedidchange) {
+		baselayer_videomodedidchange();
+	}
+
+	OSD_ResizeDisplay(xres, yres);
 
 	return 0;
 }
@@ -1253,6 +1362,7 @@ static int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
 
 	return 0;
 }
+
 void getvalidmodes()
 {
 	static int defaultres[][2] = {
