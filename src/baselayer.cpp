@@ -116,9 +116,11 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 //
 unsigned char bgetchar()
 {
-	unsigned char c;
-	if (keyasciififoplc == keyasciififoend) return 0;
-	c = keyasciififo[keyasciififoplc];
+	if (keyasciififoplc == keyasciififoend) {
+		return 0;
+	}
+
+	unsigned char c = keyasciififo[keyasciififoplc];
 	keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
 	return c;
 }
@@ -130,16 +132,23 @@ int bkbhit()
 
 void bflushchars()
 {
-	keyasciififoplc = keyasciififoend = 0;
+	keyasciififoplc = 0;
+	keyasciififoend = 0;
 }
 
 int bgetkey()
 {
-	int c;
-	if (keyfifoplc == keyfifoend) return 0;
-	c = keyfifo[keyfifoplc];
-	if (!keyfifo[(keyfifoplc+1)&(KEYFIFOSIZ-1)]) c = -c;
-	keyfifoplc = (keyfifoplc+2)&(KEYFIFOSIZ-1);
+	if (keyfifoplc == keyfifoend) {
+		return 0;
+	}
+
+	int c = keyfifo[keyfifoplc];
+	if (!keyfifo[(keyfifoplc + 1) & (KEYFIFOSIZ - 1)]) {
+		c = -c;
+	}
+
+	keyfifoplc = (keyfifoplc + 2) & (KEYFIFOSIZ - 1);
+
 	return c;
 }
 
@@ -150,7 +159,8 @@ int bkeyhit()
 
 void bflushkeys()
 {
-	keyfifoplc = keyfifoend = 0;
+	keyfifoplc = 0;
+	keyfifoend = 0;
 }
 
 
