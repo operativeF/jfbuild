@@ -76,7 +76,7 @@ static struct winlayer_glfuncs {
 	BOOL (WINAPI * wglChoosePixelFormatARB)(HDC hdc, const int *piAttribIList, const FLOAT *pfAttribFList, UINT nMaxFormats, int *piFormats, UINT *nNumFormats);
 	HGLRC (WINAPI * wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext, const int *attribList);
 	BOOL (WINAPI * wglSwapIntervalEXT)(int interval);
-	int (WINAPI * wglGetSwapIntervalEXT)(void);
+	int (WINAPI * wglGetSwapIntervalEXT)();
 
 	int have_ARB_create_context_profile;
 	int have_EXT_multisample;
@@ -88,21 +88,21 @@ static struct winlayer_glfuncs {
 static LPTSTR GetWindowsErrorMsg(DWORD code);
 static const char * getwindowserrorstr(DWORD code);
 static void ShowErrorBox(const char *m);
-static BOOL CheckWinVersion(void);
+static BOOL CheckWinVersion();
 static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-static void fetchkeynames(void);
-static void updatemouse(void);
-static void updatejoystick(void);
-static void UninitDIB(void);
+static void fetchkeynames();
+static void updatemouse();
+static void updatejoystick();
+static void UninitDIB();
 static int SetupDIB(int width, int height);
-static void UninitOpenGL(void);
+static void UninitOpenGL();
 static int SetupOpenGL(int width, int height, int bitspp);
-static BOOL RegisterWindowClass(void);
+static BOOL RegisterWindowClass();
 static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refresh);
-static void DestroyAppWindow(void);
-static void UpdateAppWindowTitle(void);
+static void DestroyAppWindow();
+static void UpdateAppWindowTitle();
 
-static void shutdownvideo(void);
+static void shutdownvideo();
 
 // video
 static int desktopxdim=0,desktopydim=0,desktopbpp=0, desktopmodeset=0;
@@ -166,7 +166,7 @@ static const int wxscantable[256] = {
 //
 // win_gethwnd() -- gets the window handle
 //
-intptr_t win_gethwnd(void)
+intptr_t win_gethwnd()
 {
 	return (intptr_t)hWindow;
 }
@@ -175,7 +175,7 @@ intptr_t win_gethwnd(void)
 //
 // win_gethinstance() -- gets the application instance
 //
-intptr_t win_gethinstance(void)
+intptr_t win_gethinstance()
 {
 	return (intptr_t)hInstance;
 }
@@ -1004,7 +1004,7 @@ const char *getjoyname(int what, int num)
 static int64_t timerfreq=0;
 static int timerlastsample=0;
 static int timerticspersec=0;
-static void (*usertimercallback)(void) = NULL;
+static void (*usertimercallback)() = NULL;
 
 //  This timer stuff is all Ken's idea.
 
