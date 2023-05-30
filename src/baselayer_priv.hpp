@@ -19,7 +19,7 @@ void uninitsystem();
 #if USE_OPENGL
 extern int glunavailable;
 
-int loadgldriver(const char *driver);   // or NULL for platform default
+int loadgldriver(const char *driver);   // or nullptr for platform default
 void *getglprocaddress(const char *name, int ext);
 int unloadgldriver();
 #endif

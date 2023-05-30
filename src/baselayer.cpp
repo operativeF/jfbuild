@@ -22,7 +22,7 @@ int glunavailable;
 #endif //USE_OPENGL
 
 int   _buildargc = 0;
-const char **_buildargv = NULL;
+const char **_buildargv = nullptr;
 
 char quitevent=0, appactive=1;
 
@@ -31,8 +31,8 @@ intptr_t frameplace=0;
 char modechange=1;
 char offscreenrendering=0;
 char videomodereset = 0;
-void (*baselayer_videomodewillchange)() = NULL;
-void (*baselayer_videomodedidchange)() = NULL;
+void (*baselayer_videomodewillchange)() = nullptr;
+void (*baselayer_videomodedidchange)() = nullptr;
 
 int inputdevices=0;
 

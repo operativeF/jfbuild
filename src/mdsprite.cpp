@@ -35,12 +35,12 @@ int mdtims, omdtims;
 constexpr auto MODELALLOCGROUP{256};
 static int nummodelsalloced = 0;
 int nextmodelid = 0;
-mdmodel **models = NULL;
+mdmodel **models = nullptr;
 
 static int maxmodelverts = 0, allocmodelverts = 0;
 static int maxelementvbo = 0, allocelementvbo = 0;
-static point3d *vertlist = NULL; //temp array to store interpolated vertices for drawing
-static struct polymostvboitem *elementvbo = NULL;	 // 3 per triangle.
+static point3d *vertlist = nullptr; //temp array to store interpolated vertices for drawing
+static struct polymostvboitem *elementvbo = nullptr;	 // 3 per triangle.
 
 mdmodel *mdload (const char *);
 void mdfree (mdmodel *);
@@ -52,7 +52,7 @@ void freeallmodels ()
 	if (models)
 	{
 		for(i=0;i<nextmodelid;i++) mdfree(models[i]);
-		free(models); models = NULL;
+		free(models); models = nullptr;
 		nummodelsalloced = 0;
 		nextmodelid = 0;
 	}
@@ -62,12 +62,12 @@ void freeallmodels ()
 	if (vertlist)
 	{
 		free(vertlist);
-		vertlist = NULL;
+		vertlist = nullptr;
 		allocmodelverts = maxmodelverts = 0;
 	}
 	if (elementvbo) {
 		free(elementvbo);
-		elementvbo = NULL;
+		elementvbo = nullptr;
 		allocelementvbo = maxelementvbo = 0;
 	}
 
@@ -282,7 +282,7 @@ int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int
 	if (m->mdnum < 2) return 0;
 	if (m->mdnum == 2) surfnum = 0;
 
-	skl = NULL;
+	skl = nullptr;
 	for (sk = m->skinmap; sk; skl = sk, sk = sk->next)
 		if (sk->palette == (unsigned char)palnum && skinnum == sk->skinnum && surfnum == sk->surfnum) break;
 	if (!sk) {
@@ -340,7 +340,7 @@ int md_undefinemodel(int modelid)
 
 	if (models) {
 		mdfree(models[modelid]);
-		models[modelid] = NULL;
+		models[modelid] = nullptr;
 	}
 
 	return 0;
@@ -524,8 +524,8 @@ static void updateanimation (md2model *m, spritetype *tspr)
 
 static void md2free (md2model *m)
 {
-	mdanim_t *anim, *nanim = NULL;
-	mdskinmap_t *sk, *nsk = NULL;
+	mdanim_t *anim, *nanim = nullptr;
+	mdskinmap_t *sk, *nsk = nullptr;
 
 	if (!m) return;
 
@@ -861,7 +861,7 @@ static md3model *md3load (int fil)
 	if (!m->head.frames) { md3free(m); return(0); }
 	kread(fil,m->head.frames,m->head.numframes*sizeof(md3frame_t));
 
-	if (m->head.numtags == 0) m->head.tags = NULL;
+	if (m->head.numtags == 0) m->head.tags = nullptr;
 	else {
 		klseek(fil,filehead.tags,SEEK_SET);
 		m->head.tags = (md3tag_t *)calloc(m->head.numtags, sizeof(md3tag_t));
@@ -1158,8 +1158,8 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 
 static void md3free (md3model *m)
 {
-	mdanim_t *anim, *nanim = NULL;
-	mdskinmap_t *sk, *nsk = NULL;
+	mdanim_t *anim, *nanim = nullptr;
+	mdskinmap_t *sk, *nsk = nullptr;
 	md3surf_t *s;
 	int surfi;
 
@@ -1964,7 +1964,7 @@ int voxdraw (voxmodel *m, spritetype *tspr, int method)
 	draw.indexbuffer = m->indexbuf;
 	draw.elementbuffer = m->vertexbuf;
 	draw.elementcount = 0;
-	draw.elementvbo = NULL;
+	draw.elementvbo = nullptr;
 	polymost_drawpoly_glcall(GL_TRIANGLES, &draw);
 
 //------------

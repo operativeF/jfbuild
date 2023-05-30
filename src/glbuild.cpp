@@ -84,8 +84,8 @@ static void enumerate_configure(const char *ext) {
 }
 
 static void glbuild_enumerate_exts(void (*callback)(const char *)) {
-	char *workstr = NULL, *workptr = NULL, *nextptr = NULL;
-	const char *ext = NULL;
+	char *workstr = nullptr, *workptr = nullptr, *nextptr = nullptr;
+	const char *ext = nullptr;
 
 #if (USE_OPENGL == USE_GL3)
 	GLint extn = 0, numexts = 0;
@@ -118,7 +118,7 @@ static void glbuild_enumerate_exts(void (*callback)(const char *)) {
 		} else
 #endif
 		{
-			workptr = NULL;
+			workptr = nullptr;
 		}
 	}
 
@@ -314,18 +314,18 @@ int glbuild_init()
 #if defined(GL_KHR_debug)
 		#if (USE_OPENGL == USE_GLES2)
 		if (glfunc.glDebugMessageCallbackKHR) {
-			glfunc.glDebugMessageCallbackKHR(gl_debug_proc, NULL);
+			glfunc.glDebugMessageCallbackKHR(gl_debug_proc, nullptr);
 			glfunc.glEnable(GL_DEBUG_OUTPUT_KHR);
 		}
 		#else
 		if (glfunc.glDebugMessageCallback) {
-			glfunc.glDebugMessageCallback(gl_debug_proc, NULL);
+			glfunc.glDebugMessageCallback(gl_debug_proc, nullptr);
 			glfunc.glEnable(GL_DEBUG_OUTPUT);
 		}
 		#endif
 #else
 		if (glfunc.glDebugMessageCallbackARB) {
-			glfunc.glDebugMessageCallbackARB(gl_debug_proc, NULL);
+			glfunc.glDebugMessageCallbackARB(gl_debug_proc, nullptr);
 			glfunc.glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 		}
 #endif
@@ -503,7 +503,7 @@ static GLchar *glbuild_cook_source(const GLchar *source, const char *spec)
 	cooked = strdup(source);
 	if (!cooked) {
 		debugprintf("glbuild_cook_source: couldn't duplicate source\n");
-		return NULL;
+		return nullptr;
 	}
 	pos = cooked;
 	do {
@@ -549,14 +549,14 @@ GLuint glbuild_compile_shader(GLuint type, const GLchar *source)
 		return 0;
 	}
 
-	glfunc.glShaderSource(shader, 1, (const GLchar**)&cookedsource, NULL);
+	glfunc.glShaderSource(shader, 1, (const GLchar**)&cookedsource, nullptr);
 	glfunc.glCompileShader(shader);
 	free(cookedsource);
 
 	glfunc.glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE) {
 		GLint loglen = 0;
-		GLchar *logtext = NULL;
+		GLchar *logtext = nullptr;
 
 		glfunc.glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &loglen);
 
@@ -592,7 +592,7 @@ GLuint glbuild_link_program(int shadercount, GLuint *shaders)
 	glfunc.glGetProgramiv(program, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE) {
 		GLint loglen = 0;
-		GLchar *logtext = NULL;
+		GLchar *logtext = nullptr;
 
 		glfunc.glGetProgramiv(program, GL_INFO_LOG_LENGTH, &loglen);
 
@@ -669,7 +669,7 @@ int glbuild_prepare_8bit_shader(glbuild8bit *state, int resx, int resy, int stri
 	glfunc.glGenTextures(1, &state->paltex);
 	glfunc.glActiveTexture(GL_TEXTURE1);
 	glfunc.glBindTexture(GL_TEXTURE_2D, state->paltex);
-	glfunc.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);	// Allocates memory.
+	glfunc.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);	// Allocates memory.
 	glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp);
@@ -686,7 +686,7 @@ int glbuild_prepare_8bit_shader(glbuild8bit *state, int resx, int resy, int stri
 	glfunc.glGenTextures(1, &state->frametex);
 	glfunc.glActiveTexture(GL_TEXTURE0);
 	glfunc.glBindTexture(GL_TEXTURE_2D, state->frametex);
-	glfunc.glTexImage2D(GL_TEXTURE_2D, 0, intfmt, tsizx, tsizy, 0, extfmt, GL_UNSIGNED_BYTE, NULL);	// Allocates memory.
+	glfunc.glTexImage2D(GL_TEXTURE_2D, 0, intfmt, tsizx, tsizy, 0, extfmt, GL_UNSIGNED_BYTE, nullptr);	// Allocates memory.
 	glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp);

@@ -23,8 +23,8 @@
 #define TAB_MESSAGES 1
 
 
-static HWND startupdlg = NULL;
-static HWND pages[2] = { NULL, NULL};
+static HWND startupdlg = nullptr;
+static HWND pages[2] = { nullptr, nullptr};
 static int mode = TAB_CONFIG;
 static struct startwin_settings *settings;
 static BOOL quiteventonclose = FALSE;
@@ -194,7 +194,7 @@ static void startbutton_clicked()
     }
 
     settings->numplayers = 0;
-    settings->joinhost = 0;
+    settings->joinhost = nullptr;
     if (IsDlgButtonChecked(pages[TAB_CONFIG], IDC_SINGLEPLAYER) == BST_CHECKED) {
         settings->numplayers = 1;
     } else if (IsDlgButtonChecked(pages[TAB_CONFIG], IDC_JOINMULTIPLAYER) == BST_CHECKED) {
@@ -208,13 +208,13 @@ static void startbutton_clicked()
         wcharstr = (WCHAR *)malloc(wcharlen * sizeof(WCHAR));
         GetWindowTextW(hwnd, wcharstr, wcharlen);
 
-        joinhostlen = WideCharToMultiByte(CP_UTF8, 0, wcharstr, -1, NULL, 0, NULL, NULL);
+        joinhostlen = WideCharToMultiByte(CP_UTF8, 0, wcharstr, -1, nullptr, 0, nullptr, nullptr);
         settings->joinhost = (char *)malloc(joinhostlen + 1);
-        WideCharToMultiByte(CP_UTF8, 0, wcharstr, -1, settings->joinhost, joinhostlen, NULL, NULL);
+        WideCharToMultiByte(CP_UTF8, 0, wcharstr, -1, settings->joinhost, joinhostlen, nullptr, nullptr);
 
         free(wcharstr);
     } else if (IsDlgButtonChecked(pages[TAB_CONFIG], IDC_HOSTMULTIPLAYER) == BST_CHECKED) {
-        settings->numplayers = (int)GetDlgItemInt(pages[TAB_CONFIG], IDC_NUMPLAYERS, NULL, TRUE);
+        settings->numplayers = (int)GetDlgItemInt(pages[TAB_CONFIG], IDC_NUMPLAYERS, nullptr, TRUE);
     }
 
     settings->forcesetup = IsDlgButtonChecked(startupdlg, IDC_ALWAYSSHOW) == BST_CHECKED;
@@ -293,11 +293,11 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
                 // Create the pages and position them in the tab control, but hide them.
                 pages[TAB_CONFIG] = CreateDialog((HINSTANCE)win_gethinstance(),
                     MAKEINTRESOURCE(IDD_PAGE_CONFIG), hwnd, ConfigPageProc);
-                SetWindowPos(pages[TAB_CONFIG], NULL, r.left,r.top,r.right,r.bottom, SWP_HIDEWINDOW | SWP_NOZORDER | SWP_NOSIZE);
+                SetWindowPos(pages[TAB_CONFIG], nullptr, r.left,r.top,r.right,r.bottom, SWP_HIDEWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 
                 pages[TAB_MESSAGES] = CreateDialog((HINSTANCE)win_gethinstance(),
                     MAKEINTRESOURCE(IDD_PAGE_MESSAGES), hwnd, MessagesPageProc);
-                SetWindowPos(pages[TAB_MESSAGES], NULL, r.left,r.top,r.right,r.bottom, SWP_HIDEWINDOW | SWP_NOZORDER | SWP_NOSIZE);
+                SetWindowPos(pages[TAB_MESSAGES], nullptr, r.left,r.top,r.right,r.bottom, SWP_HIDEWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 
                 SendMessage(hwndDlg, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(hwndDlg, IDOK), TRUE);
             }
@@ -331,15 +331,15 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         case WM_DESTROY:
             if (pages[TAB_CONFIG]) {
                 DestroyWindow(pages[TAB_CONFIG]);
-                pages[TAB_CONFIG] = NULL;
+                pages[TAB_CONFIG] = nullptr;
             }
 
             if (pages[TAB_MESSAGES]) {
                 DestroyWindow(pages[TAB_MESSAGES]);
-                pages[TAB_MESSAGES] = NULL;
+                pages[TAB_MESSAGES] = nullptr;
             }
 
-            startupdlg = NULL;
+            startupdlg = nullptr;
             return TRUE;
 
         case WM_COMMAND:
@@ -370,7 +370,7 @@ int startwin_open()
     icc.dwSize = sizeof(icc);
     icc.dwICC = ICC_TAB_CLASSES | ICC_UPDOWN_CLASS;
     InitCommonControlsEx(&icc);
-    startupdlg = CreateDialog((HINSTANCE)win_gethinstance(), MAKEINTRESOURCE(IDD_STARTWIN), NULL, startup_dlgproc);
+    startupdlg = CreateDialog((HINSTANCE)win_gethinstance(), MAKEINTRESOURCE(IDD_STARTWIN), nullptr, startup_dlgproc);
     if (!startupdlg) {
         return -1;
     }
@@ -386,14 +386,14 @@ int startwin_close()
 
     quiteventonclose = FALSE;
     DestroyWindow(startupdlg);
-    startupdlg = NULL;
+    startupdlg = nullptr;
 
     return 0;
 }
 
 int startwin_puts(const char *buf)
 {
-    const char *p = NULL, *q = NULL;
+    const char *p = nullptr, *q = nullptr;
     char workbuf[1024];
     static int newline = 0;
     int curlen, linesbefore, linesafter;
@@ -467,7 +467,7 @@ int startwin_run(struct startwin_settings *settings)
     setup_config_mode();
 
     while (retval < 0) {
-        switch (GetMessage(&msg, NULL, 0,0)) {
+        switch (GetMessage(&msg, nullptr, 0,0)) {
             case 0: retval = STARTWIN_CANCEL; break;    //WM_QUIT
             case -1: return -1;     // error
             default:
@@ -479,7 +479,7 @@ int startwin_run(struct startwin_settings *settings)
     }
 
     setup_messages_mode(settings->numplayers > 1);
-    set_settings(NULL);
+    set_settings(nullptr);
 
     return retval;
 }

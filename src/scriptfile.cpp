@@ -22,7 +22,7 @@ char *scriptfile_gettoken(scriptfile *sf)
 	char *start;
 
 	skipoverws(sf);
-	if (sf->textptr >= sf->eof) return NULL;
+	if (sf->textptr >= sf->eof) return nullptr;
 
 	start = sf->ltextptr = sf->textptr;
 	skipovertoken(sf);
@@ -36,14 +36,14 @@ char *scriptfile_peektoken(scriptfile *sf)
 	memcpy(&dupe, sf, sizeof(scriptfile));
 
 	skipoverws(&dupe);
-	if (dupe.textptr >= dupe.eof) return NULL;
+	if (dupe.textptr >= dupe.eof) return nullptr;
 	return dupe.textptr;
 }
 
 int scriptfile_getstring(scriptfile *sf, char **retst)
 {
 	(*retst) = scriptfile_gettoken(sf);
-	if (*retst == NULL)
+	if (*retst == nullptr)
 	{
 		buildprintf("Error on line %s:%d: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
 		return(-2);
@@ -280,20 +280,20 @@ scriptfile *scriptfile_fromfile(const char *fn)
 	unsigned int flen;
 
 	fp = kopen4load(fn,0);
-	if (fp<0) return NULL;
+	if (fp<0) return nullptr;
 
 	flen = kfilelength(fp);
 	tx = (char *) malloc(flen + 2);
 	if (!tx) {
 		kclose(fp);
-		return NULL;
+		return nullptr;
 	}
 
 	sf = (scriptfile*) malloc(sizeof(scriptfile));
 	if (!sf) {
 		kclose(fp);
 		free(tx);
-		return NULL;
+		return nullptr;
 	}
 
 	kread(fp, tx, flen);
@@ -313,24 +313,24 @@ scriptfile *scriptfile_fromstring(const char *string)
 	char *tx;
 	size_t flen;
 
-	if (!string) return NULL;
+	if (!string) return nullptr;
 
 	flen = strlen(string);
 
 	tx = (char *) malloc(flen + 2);
-	if (!tx) return NULL;
+	if (!tx) return nullptr;
 
 	sf = (scriptfile*) malloc(sizeof(scriptfile));
 	if (!sf) {
 		free(tx);
-		return NULL;
+		return nullptr;
 	}
 
 	memcpy(tx, string, flen);
 	tx[flen] = tx[flen+1] = 0;
 
 	scriptfile_preparse(sf,tx,flen);
-	sf->filename = NULL;
+	sf->filename = nullptr;
 
 	return sf;
 }
@@ -341,8 +341,8 @@ void scriptfile_close(scriptfile *sf)
 	if (sf->lineoffs) free(sf->lineoffs);
 	if (sf->textbuf) free(sf->textbuf);
 	if (sf->filename) free(sf->filename);
-	sf->textbuf = NULL;
-	sf->filename = NULL;
+	sf->textbuf = nullptr;
+	sf->filename = nullptr;
 	free(sf);
 }
 
@@ -355,7 +355,7 @@ int scriptfile_eof(scriptfile *sf)
 
 constexpr auto SYMBTABSTARTSIZE{256};
 static size_t symbtablength=0, symbtaballoclength=0;
-static char *symbtab = NULL;
+static char *symbtab = nullptr;
 
 static char * getsymbtabspace(size_t reqd)
 {
@@ -365,7 +365,7 @@ static char * getsymbtabspace(size_t reqd)
 	if (symbtablength + reqd > symbtaballoclength)
 	{
 		for(i=max(symbtaballoclength,SYMBTABSTARTSIZE);symbtablength+reqd>i;i<<=1);
-		np = (char *)realloc(symbtab, i); if (!np) return NULL;
+		np = (char *)realloc(symbtab, i); if (!np) return nullptr;
 		symbtab = np; symbtaballoclength = i;
 	}
 
@@ -420,7 +420,7 @@ int scriptfile_addsymbolvalue(const char *name, int val)
 void scriptfile_clearsymbols()
 {
 	if (symbtab) free(symbtab);
-	symbtab = NULL;
+	symbtab = nullptr;
 	symbtablength = 0;
 	symbtaballoclength = 0;
 }

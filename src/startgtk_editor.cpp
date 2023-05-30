@@ -44,7 +44,7 @@ static GObject * get_and_connect_signal(GtkBuilder *builder, const char *name, c
         buildprintf("gtk_builder_get_object: %s not found\n", name);
         return 0;
     }
-    g_signal_connect(object, signal_name, handler, NULL);
+    g_signal_connect(object, signal_name, handler, nullptr);
     return object;
 }
 
@@ -233,10 +233,10 @@ static gboolean on_startgtk_delete_event(GtkWidget *widget, GdkEvent *event, gpo
 
 static GtkWindow *create_window()
 {
-    GtkBuilder *builder = NULL;
-    GError *error = NULL;
-    GtkWidget *window = NULL;
-    GtkImage *appicon = NULL;
+    GtkBuilder *builder = nullptr;
+    GError *error = nullptr;
+    GtkWidget *window = nullptr;
+    GtkImage *appicon = nullptr;
 
     builder = gtk_builder_new();
     if (!builder) {
@@ -321,7 +321,7 @@ int startwin_close()
 
     quiteventonclose = FALSE;
     gtk_widget_destroy(GTK_WIDGET(startwin));
-    startwin = NULL;
+    startwin = nullptr;
 
     while (gtk_events_pending()) {
         gtk_main_iteration();
@@ -365,7 +365,7 @@ int startwin_puts(const char *str)
         }
     }
 
-    mark = gtk_text_buffer_create_mark(textbuffer, NULL, &enditer, 1);
+    mark = gtk_text_buffer_create_mark(textbuffer, nullptr, &enditer, 1);
     gtk_text_view_scroll_to_mark(GTK_TEXT_VIEW(controls.messagestext), mark, 0.0, FALSE, 0.0, 1.0);
     gtk_text_buffer_delete_mark(textbuffer, mark);
 
@@ -400,7 +400,7 @@ int startwin_run(struct startwin_settings *settings)
         gtk_main_iteration_do(TRUE);
     }
     setup_messages_mode(FALSE);
-    set_settings(NULL);
+    set_settings(nullptr);
 
     return retval;
 }

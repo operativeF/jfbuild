@@ -54,7 +54,7 @@ using SOCKET = int;
 static int GetTickCount()
 {
 	struct timeval tv;
-	if (gettimeofday(&tv,NULL) < 0) return 0;
+	if (gettimeofday(&tv,nullptr) < 0) return 0;
 	// tv is sec.usec, GTC gives msec
 	return (int)((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
@@ -118,8 +118,8 @@ void netuninit ()
 	WSACleanup();
 	mysock = INVALID_SOCKET;
 
-	WSASendMsgPtr = NULL;
-	WSARecvMsgPtr = NULL;
+	WSASendMsgPtr = nullptr;
+	WSARecvMsgPtr = nullptr;
 #else
 	if (mysock >= 0) close(mysock);
 	mysock = -1;
@@ -150,8 +150,8 @@ int netinit (int portnum)
 		// Tidy up from last cycle.
 #ifdef _WIN32
 		if (mysock != INVALID_SOCKET) closesocket(mysock);
-		WSASendMsgPtr = NULL;
-		WSARecvMsgPtr = NULL;
+		WSASendMsgPtr = nullptr;
+		WSARecvMsgPtr = nullptr;
 #else
 		if (mysock >= 0) close(mysock);
 #endif
@@ -175,13 +175,13 @@ int netinit (int portnum)
 		GUID sendguid = WSAID_WSASENDMSG, recvguid = WSAID_WSARECVMSG;
 		if (WSAIoctl(mysock, SIO_GET_EXTENSION_FUNCTION_POINTER,
 				&sendguid, sizeof(sendguid), &WSASendMsgPtr, sizeof(WSASendMsgPtr),
-				&len, NULL, NULL) == SOCKET_ERROR) {
+				&len, nullptr, nullptr) == SOCKET_ERROR) {
 			printf("mmulti error: could not get sendmsg entry point.\n");
 			break;
 		}
 		if (WSAIoctl(mysock, SIO_GET_EXTENSION_FUNCTION_POINTER,
 				&recvguid, sizeof(recvguid), &WSARecvMsgPtr, sizeof(WSARecvMsgPtr),
-				&len, NULL, NULL) == SOCKET_ERROR) {
+				&len, nullptr, nullptr) == SOCKET_ERROR) {
 			printf("mmulti error: could not get recvmsg entry point.\n");
 			break;
 		}
@@ -373,17 +373,17 @@ int netsend (int other, void *dabuf, int bufsiz) //0:buffer full... can't send
 #ifdef _WIN32
 	msg.Control.len = len;
 	if (len == 0) {
-		msg.Control.buf = NULL;
+		msg.Control.buf = nullptr;
 	}
 #else
 	msg.msg_controllen = len;
 	if (len == 0) {
-		msg.msg_control = NULL;
+		msg.msg_control = nullptr;
 	}
 #endif
 
 #ifdef _WIN32
-	if (WSASendMsgPtr(mysock, &msg, 0, &len, NULL, NULL) == SOCKET_ERROR)
+	if (WSASendMsgPtr(mysock, &msg, 0, &len, nullptr, nullptr) == SOCKET_ERROR)
 #else
 	if ((len = (int)sendmsg(mysock, &msg, 0)) < 0)
 #endif
@@ -425,7 +425,7 @@ int netread (int *other, void *dabuf, int bufsiz) //0:no packets in buffer
 	msg.Control.len = sizeof(msg_control);
 	msg.dwFlags = 0;
 
-	if (WSARecvMsgPtr(mysock, &msg, &len, NULL, NULL) == SOCKET_ERROR) return 0;
+	if (WSARecvMsgPtr(mysock, &msg, &len, nullptr, nullptr) == SOCKET_ERROR) return 0;
 #else
 	struct iovec iovec;
 	struct msghdr msg;
@@ -551,7 +551,7 @@ static const char *presentaddress(struct sockaddr *a) {
 		strcat(addr, "]");
 		port = ntohs(s->sin6_port);
 	} else {
-		return NULL;
+		return nullptr;
 	}
 
 	strcpy(str, addr);
@@ -772,7 +772,7 @@ int initmultiplayerscycle()
 {
 	int i, k, dnetready = 1;
 
-	getpacket(&i,0);
+	getpacket(&i, nullptr);
 
 	tims = GetTickCount();
 
@@ -903,7 +903,7 @@ static int lookuphost(const char *name, struct sockaddr *host, int warnifmany)
 	if (portch) {
 		*(portch++) = 0;
 		if (*portch != 0) {
-			port = (int)strtol(portch, NULL, 10);
+			port = (int)strtol(portch, nullptr, 10);
 		}
 	}
 	if (port < 1025 || port > 65534) port = NETPORT;
@@ -917,7 +917,7 @@ static int lookuphost(const char *name, struct sockaddr *host, int warnifmany)
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_protocol = IPPROTO_UDP;
 
-	error = getaddrinfo(wname, NULL, &hints, &result);
+	error = getaddrinfo(wname, nullptr, &hints, &result);
 	if (error) {
 		printf("mmulti error: problem resolving %s (%s)\n", name, gai_strerror(error));
 		free(wname);
@@ -1228,7 +1228,7 @@ int getpacket (int *retother, unsigned char *bufptr)
 void flushpackets()
 {
 	int i;
-	getpacket(&i,0);	// Process acks but no messages, do retransmission.
+	getpacket(&i, nullptr);	// Process acks but no messages, do retransmission.
 }
 
 // Records the IP address of a peer, along with our IPV4 and/or IPV6 addresses

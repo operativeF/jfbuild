@@ -250,7 +250,7 @@ int app_main(int argc, char const * const argv[])
 {
 	char quitflag;
 	int grpstoadd = 0;
-	char const ** grps = NULL;
+	char const ** grps = nullptr;
 	int i, j;
 
 #ifdef HAVE_STARTWIN
@@ -312,7 +312,7 @@ int app_main(int argc, char const * const argv[])
 	}
 	if (boardfilename[0] == 0) {
 		Bstrcpy(&boardfilename[0], "newboard.map");
-	} else if (Bstrrchr(&boardfilename[0],'.') == 0) {
+	} else if (Bstrrchr(&boardfilename[0],'.') == nullptr) {
 		Bstrcat(&boardfilename[0], ".map");
 	}
 	//Bcanonicalisefilename(boardfilename,0);
@@ -5146,7 +5146,7 @@ void overheadeditor()
 					if (ch == 'g' || ch == 'G') {
 						i = menuselect(PATHSEARCH_GAME);
 					} else {
-						char * filename = NULL, *initialdir = NULL, *initialfile = NULL;
+						char * filename = nullptr, *initialdir = nullptr, *initialfile = nullptr;
 						int filer;
 
 						initialfile = findfilename(&selectedboardfilename[0]);
@@ -5346,7 +5346,7 @@ void overheadeditor()
 				}
 				else if (ch == 'a' || ch == 'A')  //A
 				{
-					char *filename = NULL, *initialdir = NULL, *initialfile = NULL, *curs;
+					char *filename = nullptr, *initialdir = nullptr, *initialfile = nullptr, *curs;
 					int filer;
 
 					bad = 0;
@@ -5378,7 +5378,7 @@ void overheadeditor()
 								free(filename);
 								bad = 2;	// OK.
 							}
-							filename = NULL;
+							filename = nullptr;
 						} else {
 							// Fallback behaviour.
 							if (pathsearchmode == PATHSEARCH_SYSTEM) {
@@ -6140,7 +6140,7 @@ void clearfilenames()
 {
 	klistfree(finddirs);
 	klistfree(findfiles);
-	finddirs = findfiles = NULL;
+	finddirs = findfiles = nullptr;
 	numfiles = numdirs = 0;
 }
 
@@ -6474,7 +6474,7 @@ int loadnames()
 
 	fp = fopenfrompath("NAMES.HPP","r");
 	if (!fp) {
-		if ((fp = fopenfrompath("names.hpp","r")) == NULL) {
+		if ((fp = fopenfrompath("names.hpp","r")) == nullptr) {
 			buildprintf("Failed to open NAMES.H\n");
 			return -1;
 		}

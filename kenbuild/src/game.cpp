@@ -511,7 +511,7 @@ int app_main(int argc, char const * const argv[])
 
 	initgroupfile("stuff.dat");
 	if (initengine()) {
-		wm_msgbox(NULL, "There was a problem initialising the engine: %s.\n", engineerrstr);
+		wm_msgbox(nullptr, "There was a problem initialising the engine: %s.\n", engineerrstr);
 		return -1;
 	}
 
@@ -546,7 +546,7 @@ int app_main(int argc, char const * const argv[])
 
 	initinput();
 	if (option[3] != 0) initmouse();
-	inittimer(TIMERINTSPERSECOND, NULL);
+	inittimer(TIMERINTSPERSECOND, nullptr);
 
 	if (netparm) {
 		netsuccess = initmultiplayersparms(endnetparm - netparm, &argv[netparm]);
@@ -554,7 +554,7 @@ int app_main(int argc, char const * const argv[])
 #ifdef HAVE_STARTWIN
 	else if (settings.numplayers > 1) {
 		char modeparm[8];
-		const char *parmarr[3] = { modeparm, NULL, NULL };
+		const char *parmarr[3] = { modeparm, nullptr, nullptr };
 		int parmc = 0;
 
 		if (settings.joinhost) {
@@ -5454,7 +5454,7 @@ int savegame()
 	BFILE *fil;
 	int tmpanimateptr[MAXANIMATES];
 
-	if ((fil = Bfopen("save0000.gam","wb")) == 0) return(-1);
+	if ((fil = Bfopen("save0000.gam","wb")) == nullptr) return(-1);
 
 	dfwrite(&numplayers,4,1,fil);
 	dfwrite(&myconnectindex,4,1,fil);

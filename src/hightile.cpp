@@ -30,8 +30,8 @@ hicreplctyp * hicfindsubst(int picnum, int palnum, int skybox)
 {
 	hicreplctyp *hr;
 
-	if (!hicfirstinit) return NULL;
-	if ((unsigned int)picnum >= (unsigned int)MAXTILES) return NULL;
+	if (!hicfirstinit) return nullptr;
+	if ((unsigned int)picnum >= (unsigned int)MAXTILES) return nullptr;
 
 	do {
 		for (hr = hicreplc[picnum]; hr; hr = hr->next) {
@@ -48,7 +48,7 @@ hicreplctyp * hicfindsubst(int picnum, int palnum, int skybox)
 		palnum = 0;
 	} while (1);
 
-	return NULL;	// no replacement found
+	return nullptr;	// no replacement found
 }
 
 
@@ -139,13 +139,13 @@ int hicsetsubsttex(int picnum, int palnum, char *filen, float alphacut, unsigned
 	hrn->filename = strdup(filen);
 	if (!hrn->filename) {
 		if (hrn->skybox) return -1;	// don't free the base structure if there's a skybox defined
-		if (hr == NULL) free(hrn);	// not yet a link in the chain
+		if (hr == nullptr) free(hrn);	// not yet a link in the chain
 		return -1;
 	}
 	hrn->ignore = 0;
 	hrn->alphacut = min(alphacut,1.0);
 	hrn->flags = flags;
-	if (hr == NULL) {
+	if (hr == nullptr) {
 		hrn->next = hicreplc[picnum];
 		hicreplc[picnum] = hrn;
 	}
@@ -186,7 +186,7 @@ int hicsetskybox(int picnum, int palnum, char *faces[6])
 	if (!hrn->skybox) {
 		hrn->skybox = (struct hicskybox_t *)calloc(1,sizeof(struct hicskybox_t));
 		if (!hrn->skybox) {
-			if (hr == NULL) free(hrn);	// not yet a link in the chain
+			if (hr == nullptr) free(hrn);	// not yet a link in the chain
 			return -1;
 		}
 	} else {
@@ -203,13 +203,13 @@ int hicsetskybox(int picnum, int palnum, char *faces[6])
 			for (--j; j>=0; --j)	// free any previous faces
 				free(hrn->skybox->face[j]);
 			free(hrn->skybox);
-			hrn->skybox = NULL;
-			if (hr == NULL) free(hrn);
+			hrn->skybox = nullptr;
+			if (hr == nullptr) free(hrn);
 			return -1;
 		}
 	}
 	hrn->skybox->ignore = 0;
-	if (hr == NULL) {
+	if (hr == nullptr) {
 		hrn->next = hicreplc[picnum];
 		hicreplc[picnum] = hrn;
 	}
@@ -224,7 +224,7 @@ int hicsetskybox(int picnum, int palnum, char *faces[6])
 //
 int hicclearsubst(int picnum, int palnum)
 {
-	hicreplctyp *hr, *hrn = NULL;
+	hicreplctyp *hr, *hrn = nullptr;
 
 	if ((unsigned int)picnum >= (unsigned int)MAXTILES) return -1;
 	if ((unsigned int)palnum >= (unsigned int)MAXPALOOKUPS) return -1;

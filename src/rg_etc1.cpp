@@ -836,7 +836,7 @@ namespace rg_etc1
       {
          RG_ETC1_ASSERT(key_size == 1);
          if (key_size != 1)
-            return NULL;
+            return nullptr;
 
          T* p = pIndices0;
          T* q = pIndices0 + (num_indices >> 1) * 2;
@@ -1365,10 +1365,10 @@ namespace rg_etc1
 
       void clear()
       {
-         m_pParams = NULL;
-         m_pResult = NULL;
-         m_pSorted_luma = NULL;
-         m_pSorted_luma_indices = NULL;
+         m_pParams = nullptr;
+         m_pResult = nullptr;
+         m_pSorted_luma = nullptr;
+         m_pSorted_luma_indices = nullptr;
       }
 
       struct params : etc1_pack_params
@@ -1393,7 +1393,7 @@ namespace rg_etc1
          void clear_optimizer_params()
          {
             m_num_src_pixels = 0;
-            m_pSrc_pixels = 0;
+            m_pSrc_pixels = nullptr;
 
             m_use_color4 = false;
             static const int s_default_scan_delta[] = { 0 };
@@ -2278,7 +2278,7 @@ found_perfect_match:
                         break;
                   if (!r)
                   {
-                     pack_etc1_block_solid_color_constrained(results[2], 8, &subblock_pixels[0].r, pack_params, !use_color4, (subblock && !use_color4) ? &results[0].m_block_color_unscaled : NULL);
+                     pack_etc1_block_solid_color_constrained(results[2], 8, &subblock_pixels[0].r, pack_params, !use_color4, (subblock && !use_color4) ? &results[0].m_block_color_unscaled : nullptr);
                   }
                }
 

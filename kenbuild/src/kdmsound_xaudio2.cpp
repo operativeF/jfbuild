@@ -62,7 +62,7 @@ void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeake
     return; \
 }
 
-    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     INITSB_CHECK(SUCCEEDED(hr), "failed to initialise COM (%08x)\n", hr);
 
     hr = XAudio2Create(&xaudio, 0, XAUDIO2_USE_DEFAULT_PROCESSOR);
@@ -92,15 +92,15 @@ void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeake
     audiobuffer = (unsigned char *)malloc(buffersize * NUMBUFFERS);
     INITSB_CHECK(audiobuffer, "failed to allocate audio buffer\n");
 
-    bufferevents[EVENT_FILL] = CreateEvent(NULL, FALSE, TRUE, NULL);    // Signalled.
-    bufferevents[EVENT_EXIT] = CreateEvent(NULL, FALSE, FALSE, NULL);   // Unsignalled.
+    bufferevents[EVENT_FILL] = CreateEvent(nullptr, FALSE, TRUE, nullptr);    // Signalled.
+    bufferevents[EVENT_EXIT] = CreateEvent(nullptr, FALSE, FALSE, nullptr);   // Unsignalled.
     INITSB_CHECK(bufferevents[EVENT_FILL] && bufferevents[EVENT_EXIT],
         "failed to create buffer events\n");
 
     InitializeCriticalSection(&buffercritsec);
     buffercritsecinited = TRUE;
 
-    bufferthread = CreateThread(NULL, 0, bufferthreadproc, NULL, 0, NULL);
+    bufferthread = CreateThread(nullptr, 0, bufferthreadproc, nullptr, 0, nullptr);
     INITSB_CHECK(bufferthread, "failed to create buffer thread\n");
 
     SetThreadPriority(bufferthread, THREAD_PRIORITY_TIME_CRITICAL);
@@ -115,7 +115,7 @@ void uninitsb()
         SetEvent(bufferevents[EVENT_EXIT]);
         WaitForSingleObject(bufferthread, INFINITE);
         CloseHandle(bufferthread);
-        bufferthread = NULL;
+        bufferthread = nullptr;
     }
     if (buffercritsecinited) {
         DeleteCriticalSection(&buffercritsec);
@@ -123,31 +123,31 @@ void uninitsb()
     }
     if (bufferevents[EVENT_EXIT]) {
         CloseHandle(bufferevents[EVENT_EXIT]);
-        bufferevents[EVENT_EXIT] = NULL;
+        bufferevents[EVENT_EXIT] = nullptr;
     }
     if (bufferevents[EVENT_FILL]) {
         CloseHandle(bufferevents[EVENT_FILL]);
-        bufferevents[EVENT_FILL] = NULL;
+        bufferevents[EVENT_FILL] = nullptr;
     }
 
     if (audiobuffer) {
         free(audiobuffer);
-        audiobuffer = NULL;
+        audiobuffer = nullptr;
     }
 
     uninitkdm();
 
     if (sourcevoice) {
         sourcevoice->DestroyVoice();
-        sourcevoice = NULL;
+        sourcevoice = nullptr;
     }
     if (mastervoice) {
         mastervoice->DestroyVoice();
-        mastervoice = NULL;
+        mastervoice = nullptr;
     }
     if (xaudio) {
         xaudio->Release();
-        xaudio = NULL;
+        xaudio = nullptr;
     }
 }
 

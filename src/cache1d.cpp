@@ -163,7 +163,7 @@ void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
 
 		//Suck things out
 	for(sucklen=-newbytes,suckz=bestz;sucklen<0;sucklen+=cac[suckz++].leng)
-		if (*cac[suckz].lock) *cac[suckz].hand = 0;
+		if (*cac[suckz].lock) *cac[suckz].hand = nullptr;
 
 		//Remove all blocks except 1
 	suckz -= (bestz+1); cacnum -= suckz;
@@ -201,9 +201,9 @@ void suckcache(void *suckptr)
 	for(i=0;i<cacnum;i++)
 		if (*cac[i].hand == suckptr)
 		{
-			if (*cac[i].lock) *cac[i].hand = 0;
+			if (*cac[i].lock) *cac[i].hand = nullptr;
 			cac[i].lock = &zerochar;
-			cac[i].hand = 0;
+			cac[i].hand = nullptr;
 
 				//Combine empty blocks
 			if ((i > 0) && (*cac[i-1].lock == 0))
@@ -248,13 +248,13 @@ static void reportandexit(char *errormessage)
         if (cac[i].hand) {
             buildprintf("ptr: 0x%p, ",*cac[i].hand);
         } else {
-            buildprintf("ptr: NULL, ");
+            buildprintf("ptr: nullptr, ");
         }
         buildprintf("leng: %zu, ",cac[i].leng);
         if (cac[i].lock) {
             buildprintf("lock: %d\n",*cac[i].lock);
         } else {
-            buildprintf("lock: NULL\n");
+            buildprintf("lock: nullptr\n");
         }
         j += cac[i].leng;
     }
@@ -272,7 +272,7 @@ typedef struct _searchpath {
 	char *path;
 	size_t pathlen;		// to save repeated calls to strlen()
 } searchpath_t;
-static searchpath_t *searchpathhead = NULL;
+static searchpath_t *searchpathhead = nullptr;
 static size_t maxsearchpathlen = 0;
 int pathsearchmode = 0;
 
@@ -392,7 +392,7 @@ BFILE* fopenfrompath(const char *fn, const char *mode)
 		else c++;
 	}
 	fh = openfrompath(fn,bmode,smode);
-	if (fh < 0) return NULL;
+	if (fh < 0) return nullptr;
 	
 	h = fdopen(fh,mode);
 	if (!h) close(fh);
@@ -476,17 +476,17 @@ int initgroupfile(const char *filename)
 		}
 		gnumfiles[numgroupfiles] = B_LITTLE32(*((int *)&buf[12]));
 
-		if ((gfilelist[numgroupfiles] = (char *)kmalloc(gnumfiles[numgroupfiles]<<4)) == 0)
+		if ((gfilelist[numgroupfiles] = (char *)kmalloc(gnumfiles[numgroupfiles]<<4)) == nullptr)
 			{ buildprintf("Not enough memory for file grouping system\n"); exit(0); }
-		if ((gfileoffs[numgroupfiles] = (unsigned *)kmalloc((gnumfiles[numgroupfiles]+1)<<2)) == 0)
+		if ((gfileoffs[numgroupfiles] = (unsigned *)kmalloc((gnumfiles[numgroupfiles]+1)<<2)) == nullptr)
 			{ buildprintf("Not enough memory for file grouping system\n"); exit(0); }
 
 		if (Bread(groupfil[numgroupfiles],gfilelist[numgroupfiles],
 			 gnumfiles[numgroupfiles]<<4) != gnumfiles[numgroupfiles]<<4)
 		{
 			buildprintf("Group file %s is damaged\n", filename);
-			free(gfilelist[numgroupfiles]); gfilelist[numgroupfiles] = NULL;
-			free(gfileoffs[numgroupfiles]); gfileoffs[numgroupfiles] = NULL;
+			free(gfilelist[numgroupfiles]); gfilelist[numgroupfiles] = nullptr;
+			free(gfileoffs[numgroupfiles]); gfileoffs[numgroupfiles] = nullptr;
 			Bclose(groupfil[numgroupfiles]);
 			groupfil[numgroupfiles] = -1;
 			return(-1);
@@ -796,11 +796,11 @@ void kclose(int handle)
 
 static int klistaddentry(CACHE1D_FIND_REC **rec, char *name, int type, int source)
 {
-	CACHE1D_FIND_REC *r = NULL, *attach = NULL;
+	CACHE1D_FIND_REC *r = nullptr, *attach = nullptr;
 
 	if (*rec) {
 		int insensitive, v;
-		CACHE1D_FIND_REC *last = NULL;
+		CACHE1D_FIND_REC *last = nullptr;
 		
 		for (attach = *rec; attach; last = attach, attach = attach->next) {
 			if (type == CACHE1D_FIND_DRIVE) continue;	// we just want to get to the end for drives
@@ -821,7 +821,7 @@ static int klistaddentry(CACHE1D_FIND_REC **rec, char *name, int type, int sourc
 			if (v > 0) continue;	// item to add is bigger than the current one
 									// so look for something bigger than us
 			if (v < 0) {			// item to add is smaller than the current one
-				attach = NULL;		// so wedge it between the current item and the one before
+				attach = nullptr;		// so wedge it between the current item and the one before
 				break;
 			}
 			
@@ -846,10 +846,10 @@ static int klistaddentry(CACHE1D_FIND_REC **rec, char *name, int type, int sourc
 	r->name = (char*)r + sizeof(CACHE1D_FIND_REC); strcpy(r->name, name);
 	r->type = type;
 	r->source = source;
-	r->usera = r->userb = NULL;
+	r->usera = r->userb = nullptr;
 
 	if (!attach) {	// we are the first item
-		r->prev = NULL;
+		r->prev = nullptr;
 		r->next = *rec;
 		if (*rec) (*rec)->prev = r;
 		*rec = r;
@@ -876,14 +876,14 @@ void klistfree(CACHE1D_FIND_REC *rec)
 
 CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 {
-	CACHE1D_FIND_REC *rec = NULL;
+	CACHE1D_FIND_REC *rec = nullptr;
 	char *path;
 	
 	// pathsearchmode == 0: enumerates a path in the virtual filesystem
 	// pathsearchmode == 1: enumerates the system filesystem path passed in
 	
 	path = strdup(_path);
-	if (!path) return NULL;
+	if (!path) return nullptr;
 
 	// we don't need any leading dots and slashes or trailing slashes either
 	{
@@ -900,7 +900,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 	}
 	
 	if (!(type & CACHE1D_OPT_NOSTACK)) {	// current directory and paths in the search stack
-		searchpath_t *search = NULL;
+		searchpath_t *search = nullptr;
 		BDIR *dir;
 		struct Bdirent *dirent;
 		const char *d = ".";
@@ -1049,7 +1049,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 failure:
 	free(path);
 	klistfree(rec);
-	return NULL;
+	return nullptr;
 }
 
 	//Internal LZW variables
@@ -1063,11 +1063,11 @@ static int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *l
 static void lzwallocate()
 {
 	lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 200;
-	if (lzwbuf1 == NULL) allocache((void **)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
-	if (lzwbuf2 == NULL) allocache((void **)&lzwbuf2,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[1]);
-	if (lzwbuf3 == NULL) allocache((void **)&lzwbuf3,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[2]);
-	if (lzwbuf4 == NULL) allocache((void **)&lzwbuf4,LZWSIZE,&lzwbuflock[3]);
-	if (lzwbuf5 == NULL) allocache((void **)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
+	if (lzwbuf1 == nullptr) allocache((void **)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
+	if (lzwbuf2 == nullptr) allocache((void **)&lzwbuf2,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[1]);
+	if (lzwbuf3 == nullptr) allocache((void **)&lzwbuf3,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[2]);
+	if (lzwbuf4 == nullptr) allocache((void **)&lzwbuf4,LZWSIZE,&lzwbuflock[3]);
+	if (lzwbuf5 == nullptr) allocache((void **)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
 }
 
 static void lzwrelease()

@@ -12,7 +12,7 @@ char *osx_gethomedir()
     if (url && [url isFileURL]) {
         return strdup([[url path] UTF8String]);
     }
-    return NULL;
+    return nullptr;
 }
 
 char *osx_getappdir()
@@ -21,7 +21,7 @@ char *osx_getappdir()
     if (path) {
         return strdup([path cStringUsingEncoding:NSUTF8StringEncoding]);
     }
-    return NULL;
+    return nullptr;
 }
 
 char *osx_getsupportdir(int global)
@@ -34,7 +34,7 @@ char *osx_getsupportdir(int global)
     if (url && [url isFileURL]) {
         return strdup([[url path] UTF8String]);
     }
-    return NULL;
+    return nullptr;
 }
 
 int wmosx_filechooser(const char *initialdir, const char *initialfile, const char *type, int foropen, char **choice)
@@ -44,7 +44,7 @@ int wmosx_filechooser(const char *initialdir, const char *initialfile, const cha
     NSArray *filetypes = [[NSArray alloc] initWithObjects:[NSString stringWithUTF8String:type], nil];
     NSURL *initialdirurl = [NSURL fileURLWithPath:[NSString stringWithUTF8String:initialdir]];
 
-    *choice = NULL;
+    *choice = nullptr;
 
     if (foropen) {
         panel = [NSOpenPanel openPanel];    // Inherits from NSSavePanel.
