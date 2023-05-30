@@ -807,28 +807,28 @@ int OSD_HandleKey(int sc, int press)
 //
 void OSD_ResizeDisplay(int w, int h)
 {
-	int newcols;
-	int newmaxlines;
+	const int newcols = getcolumnwidth(w);
+	const int newmaxlines = TEXTSIZE / newcols;
+
+	const int j = min(newmaxlines, osdmaxlines);
+	const int k = min(newcols, osdcols);
+
 	char newtext[TEXTSIZE];
-	int i,j,k;
-
-	newcols = getcolumnwidth(w);
-	newmaxlines = TEXTSIZE / newcols;
-
-	j = min(newmaxlines, osdmaxlines);
-	k = min(newcols, osdcols);
-
 	memset(newtext, 0, TEXTSIZE);
-	for (i=0;i<j;i++) {
-		memcpy(newtext+newcols*i, osdtext+osdcols*i, k);
+
+	for(int i{0}; i < j; ++i) {
+		memcpy(newtext + newcols * i, osdtext + osdcols * i, k);
 	}
 
 	memcpy(osdtext, newtext, TEXTSIZE);
+
 	osdcols = newcols;
 	osdmaxlines = newmaxlines;
-	osdmaxrows = getrowheight(h)-2;
+	osdmaxrows = getrowheight(h) - 2;
 
-	if (osdrows > osdmaxrows) osdrows = osdmaxrows;
+	if (osdrows > osdmaxrows) {
+		osdrows = osdmaxrows;
+	}
 
 	osdpos = 0;
 	osdhead = 0;
@@ -869,18 +869,19 @@ void OSD_ShowDisplay(int onf)
 //
 void OSD_Draw()
 {
-	unsigned topoffs;
-	int row, lines, x, len;
+	int x, len;
 
-	if (!osdvisible || !osdinited) return;
+	if (!osdvisible || !osdinited) {
+		return;
+	}
 
-	topoffs = osdhead * osdcols;
-	row = osdrows-1;
-	lines = min( osdlines-osdhead, osdrows );
+	unsigned int topoffs = osdhead * osdcols;
+	int row = osdrows - 1;
+	int lines = min(osdlines - osdhead, osdrows);
 
-	clearbackground(osdcols,osdrows+1);
+	clearbackground(osdcols, osdrows + 1);
 
-	for (; lines>0; lines--, row--) {
+	for (; lines > 0; lines--, row--) {
 		drawosdstr(0,row,osdtext+topoffs,osdcols,osdtextshade,osdtextpal);
 		topoffs+=osdcols;
 	}
@@ -1047,7 +1048,8 @@ static char *strtoken(char *s, char **ptrptr, int *restart)
 	return start;
 }
 
-constexpr auto MAXPARMS{512};
+static constexpr auto MAXPARMS{512};
+
 int OSD_Dispatch(const char *cmd)
 {
 	char *workbuf, *wp, *wtp, *state;
