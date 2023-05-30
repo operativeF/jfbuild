@@ -75,7 +75,7 @@ static int ramplookup[64];
 
 static char digistat = 0, musistat = 0;
 
-static unsigned char *snd = NULL;
+static unsigned char *snd = nullptr;
 
 
 static void startwave(int wavnum, int dafreq, int davolume1, int davolume2, int dafrqeff, int davoleff, int dapaneff);
@@ -158,7 +158,7 @@ int initkdm(char dadigistat, char damusistat, int dasamplerate, char danumspeake
 void uninitkdm()
 {
     if (snd) free(snd);
-    snd = NULL;
+    snd = nullptr;
 
     digistat = 0;
     musistat = 0;

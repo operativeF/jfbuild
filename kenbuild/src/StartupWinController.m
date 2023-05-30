@@ -186,7 +186,7 @@
     }
 
     settings->numplayers = 0;
-    settings->joinhost = NULL;
+    settings->joinhost = nullptr;
     if ([singlePlayerButton state] == NSOnState) {
         settings->numplayers = 1;
     } else if ([joinMultiButton state] == NSOnState) {

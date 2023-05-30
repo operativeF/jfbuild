@@ -22,9 +22,9 @@ void makeasmwriteable()
     TCHAR msg[1024+64], msgbuf[1024];
     if (!VirtualProtect((LPVOID)&dep_begin, (SIZE_T)&dep_end - (SIZE_T)&dep_begin, PAGE_EXECUTE_READWRITE, &oldprot)) {
         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, GetLastError(),
+            nullptr, GetLastError(),
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPTSTR)msgbuf, 1024, NULL);
+            (LPTSTR)msgbuf, 1024, nullptr);
         wsprintf(msg, "Error making code writeable: %s", msgbuf);
         MessageBox(0, msg, "BUILD engine", MB_OK|MB_ICONSTOP);
         return;

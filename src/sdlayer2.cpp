@@ -77,7 +77,7 @@ static int set_glswapinterval(const osdfuncparm_t *parm);
 // input
 static char keynames[256][24];
 static char mouseacquired=0,moustat=0;
-static SDL_GameController *controller = NULL;
+static SDL_GameController *controller = nullptr;
 
 struct keytranslate {
 	unsigned char normal;
@@ -95,7 +95,7 @@ static SDL_Surface * loadappicon();
 
 int wm_msgbox(const char *name, const char *fmt, ...)
 {
-	char *buf = NULL;
+	char *buf = nullptr;
 	int rv;
 	va_list va;
 
@@ -133,7 +133,7 @@ int wm_msgbox(const char *name, const char *fmt, ...)
 
 int wm_ynbox(const char *name, const char *fmt, ...)
 {
-	char *buf = NULL;
+	char *buf = nullptr;
 	int rv;
 	va_list va;
 
@@ -158,7 +158,7 @@ int wm_ynbox(const char *name, const char *fmt, ...)
 		buf,
 		SDL_arraysize(buttons),
 		buttons,
-		NULL
+		nullptr
 	};
 
 	do {
@@ -365,8 +365,8 @@ void uninitsystem()
 void initputs(const char *str)
 {
 	startwin_puts(str);
-	startwin_idle(NULL);
-	wm_idle(NULL);
+	startwin_idle(nullptr);
+	wm_idle(nullptr);
 }
 
 
@@ -414,8 +414,8 @@ int initinput()
 
 	if (!SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER)) {
 		int flen, fh;
-		char *dbuf = NULL;
-		SDL_RWops *rwops = NULL;
+		char *dbuf = nullptr;
+		SDL_RWops *rwops = nullptr;
 
 		// Load an available controller mappings file.
 		fh = kopen4load("gamecontrollerdb.txt", 0);
@@ -478,13 +478,13 @@ void uninitinput()
 
 	if (controller) {
 		SDL_GameControllerClose(controller);
-		controller = NULL;
+		controller = nullptr;
 	}
 }
 
 const char *getkeyname(int num)
 {
-	if ((unsigned)num >= 256) return NULL;
+	if ((unsigned)num >= 256) return nullptr;
 	return keynames[num];
 }
 
@@ -496,7 +496,7 @@ const char *getjoyname(int what, int num)
 		case 1: // button
 			return SDL_GameControllerGetStringForButton(num);
 		default:
-			return NULL;
+			return nullptr;
 	}
 }
 
@@ -584,7 +584,7 @@ void releaseallbuttons()
 static Uint64 timerfreq=0;
 static Uint32 timerlastsample=0;
 static Uint32 timerticspersec=0;
-static void (*usertimercallback)() = NULL;
+static void (*usertimercallback)() = nullptr;
 
 //
 // inittimer() -- initialise timer
@@ -776,7 +776,7 @@ static void shutdownvideo()
 {
 	if (frame) {
 		free(frame);
-		frame = NULL;
+		frame = nullptr;
 	}
 #if USE_OPENGL
 	if (!glunavailable) {
@@ -788,27 +788,27 @@ static void shutdownvideo()
 #endif
 
 		SDL_GL_DeleteContext(sdl_glcontext);
-		sdl_glcontext = NULL;
+		sdl_glcontext = nullptr;
 	}
 #endif
 #ifdef SDLAYER_USE_RENDERER
 	if (sdl_texture) {
 		SDL_DestroyTexture(sdl_texture);
-		sdl_texture = NULL;
+		sdl_texture = nullptr;
 	}
 	if (sdl_renderer) {
 		SDL_DestroyRenderer(sdl_renderer);
-		sdl_renderer = NULL;
+		sdl_renderer = nullptr;
 	}
 #else
 	if (sdl_surface) {
 		SDL_FreeSurface(sdl_surface);
-		sdl_surface = NULL;
+		sdl_surface = nullptr;
 	}
 #endif
 	if (sdl_window) {
 		SDL_DestroyWindow(sdl_window);
-		sdl_window = NULL;
+		sdl_window = nullptr;
 	}
 }
 
@@ -1071,7 +1071,7 @@ void showframe()
 #ifdef SDLAYER_USE_RENDERER
 	int pitch, y, x;
 
-	if (SDL_LockTexture(sdl_texture, NULL, (void**)&pixels, &pitch)) {
+	if (SDL_LockTexture(sdl_texture, nullptr, (void**)&pixels, &pitch)) {
 		debugprintf("Could not lock texture: %s\n", SDL_GetError());
 		return;
 	}
@@ -1100,7 +1100,7 @@ void showframe()
 	}
 
 	SDL_UnlockTexture(sdl_texture);
-	if (SDL_RenderCopy(sdl_renderer, sdl_texture, NULL, NULL)) {
+	if (SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr)) {
 		debugprintf("Could not copy render texture: %s\n", SDL_GetError());
 	}
 	SDL_RenderPresent(sdl_renderer);
@@ -1130,7 +1130,7 @@ void showframe()
 		debugprintf("Could not get window surface: %s\n", SDL_GetError());
 		return;
 	}
-	SDL_BlitSurface(sdl_surface, NULL, winsurface, NULL);
+	SDL_BlitSurface(sdl_surface, nullptr, winsurface, nullptr);
 	SDL_UpdateWindowSurface(sdl_window);
 #endif //SDLAYER_USE_RENDERER
 }
@@ -1408,8 +1408,8 @@ int handleevents()
 	}
 
 	sampletimer();
-	startwin_idle(NULL);
-	wm_idle(NULL);
+	startwin_idle(nullptr);
+	wm_idle(nullptr);
 #undef SetKey
 
 	firstcall = 0;

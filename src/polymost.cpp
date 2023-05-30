@@ -526,9 +526,9 @@ static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, co
 	GLuint shader = 0;
 
 #ifdef SHADERDEV
-	GLchar *fileshadersrc = NULL;
+	GLchar *fileshadersrc = nullptr;
 	long shadersrclen = 0;
-	BFILE *shaderfh = NULL;
+	BFILE *shaderfh = nullptr;
 
 	shaderfh = fopen(filename, "rb");
 	if (shaderfh) {
@@ -541,7 +541,7 @@ static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, co
 		fileshadersrc[shadersrclen] = 0;
 
 		fclose(shaderfh);
-		shaderfh = NULL;
+		shaderfh = nullptr;
 
 		buildprintf("polymost_load_shader: loaded %s (%ld bytes)\n", filename, shadersrclen);
 		shadersrc = fileshadersrc;
@@ -553,7 +553,7 @@ static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, co
 #ifdef SHADERDEV
 	if (fileshadersrc) {
 		free(fileshadersrc);
-		fileshadersrc = NULL;
+		fileshadersrc = nullptr;
 	}
 #endif
 
@@ -935,7 +935,7 @@ static void polymost_palfade()
 	vboitem[3].v.z = 0.f;
 
 	draw.indexcount = 4;
-	draw.indexes = NULL;
+	draw.indexes = nullptr;
 	draw.elementcount = 4;
 	draw.elementvbo = vboitem;
 
@@ -985,7 +985,7 @@ void drawpoly (double *dpx, double *dpy, int n, int method)
 	double f, r, ox, oy, oz, ox2, oy2, oz2, dd[16], uu[16], vv[16], px[16], py[16];
 	int i, j, k, x, y, z, ix0, ix1, mini, maxi, tsizx, tsizy, tsizxm1 = 0, tsizym1 = 0, ltsizy = 0;
 	int xx, yy, xi, d0, u0, v0, d1, u1, v1, xmodnice = 0, ymulnice = 0, dorot;
-	unsigned char dacol = 0, *walptr, *palptr = NULL, *vidp, *vide;
+	unsigned char dacol = 0, *walptr, *palptr = nullptr, *vidp, *vide;
 
 #ifdef DEBUGGINGAIDS
 	polymostcallcounts.drawpoly++;
@@ -4005,7 +4005,7 @@ static void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1
 	draw->elementcount = n;
 	draw->elementvbo = vboitem;
 	polymost_drawpoly_glcall(GL_TRIANGLE_FAN, draw);
-	draw->elementvbo = NULL;
+	draw->elementvbo = nullptr;
 }
 
 static void tessectrap (float *px, float *py, int *point2, int numpoints,
@@ -4017,7 +4017,7 @@ static void tessectrap (float *px, float *py, int *point2, int numpoints,
 	static int allocpoints = 0, *slist = 0, *npoint2 = 0;
 	typedef struct { float x, y, xi; int i; } raster;
 	static raster *rst = 0;
-	static struct polymostvboitem *vboitem = NULL;
+	static struct polymostvboitem *vboitem = nullptr;
 	if (numpoints+16 > allocpoints) //16 for safety
 	{
 		allocpoints = numpoints+16;
@@ -4294,7 +4294,7 @@ int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 	vboitem[3].t.t = ydimepad;
 
 	draw.indexcount = 4;
-	draw.indexes = NULL;
+	draw.indexes = nullptr;
 	draw.elementcount = 4;
 	draw.elementvbo = vboitem;
 
@@ -4452,7 +4452,7 @@ int polymost_drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 	vboitem[1].v.z = 0.f;
 
 	draw.indexcount = 2;
-	draw.indexes = NULL;
+	draw.indexes = nullptr;
 	draw.elementcount = 2;
 	draw.elementvbo = vboitem;
 
@@ -4493,7 +4493,7 @@ int polymost_plotpixel(int x, int y, unsigned char col)
 	vboitem[0].v.z = 0.f;
 
 	draw.indexcount = 1;
-	draw.indexes = NULL;
+	draw.indexes = nullptr;
 	draw.elementcount = 1;
 	draw.elementvbo = vboitem;
 

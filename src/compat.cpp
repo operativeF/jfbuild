@@ -64,11 +64,11 @@ int Bvasprintf(char **ret, const char *format, va_list ap)
     va_list app;
 
     va_copy(app, ap);
-    len = vsnprintf(NULL, 0, format, app);
+    len = vsnprintf(nullptr, 0, format, app);
     va_end(app);
 
     if (len < 0) return -1;
-    if ((*ret = static_cast<char*>(malloc(len + 1))) == NULL) return -1;
+    if ((*ret = static_cast<char*>(malloc(len + 1))) == nullptr) return -1;
 
     va_copy(app, ap);
     len = vsnprintf(*ret, len + 1, format, app);
@@ -81,16 +81,16 @@ int Bvasprintf(char **ret, const char *format, va_list ap)
 /**
  * Get the location of the user's home/profile data directory.
  * The caller must free the string when done with it.
- * @return NULL if it could not be determined
+ * @return nullptr if it could not be determined
  */
 char *Bgethomedir()
 {
-    char *dir = NULL;
+    char *dir = nullptr;
 
 #ifdef _WIN32
 	TCHAR appdata[MAX_PATH];
 
-	if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, appdata))) {
+	if (SUCCEEDED(::SHGetFolderPathA(nullptr, CSIDL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, appdata))) {
 		dir = strdup(appdata);
     }
 
@@ -113,16 +113,16 @@ char *Bgethomedir()
  * On Windows this is the directory the executable was launched from.
  * On Linux/BSD it's the executable's directory
  * The caller must free the string when done with it.
- * @return NULL if it could not be determined
+ * @return nullptr if it could not be determined
  */
 char *Bgetappdir()
 {
-    char *dir = NULL;
+    char *dir = nullptr;
     
 #ifdef _WIN32
 	TCHAR appdir[MAX_PATH];
     
-	if (GetModuleFileName(NULL, appdir, MAX_PATH) > 0) {
+	if (::GetModuleFileName(nullptr, appdir, MAX_PATH) > 0) {
 		// trim off the filename
 		char *slash = strrchr(appdir, '\\');
 		if (slash) slash[0] = 0;
@@ -153,7 +153,7 @@ char *Bgetappdir()
     char buf[PATH_MAX] = {0};
     int name[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
     size_t len = sizeof(buf)-1;
-    int ret = sysctl(name, sizeof(name)/sizeof(name[0]), buf, &len, NULL, 0);
+    int ret = sysctl(name, sizeof(name)/sizeof(name[0]), buf, &len, nullptr, 0);
     if(ret == 0 && buf[0] != '\0') {
         // again, remove executable name with dirname()
         // on FreeBSD dirname() seems to use some internal buffer
@@ -175,11 +175,11 @@ char *Bgetappdir()
 /**
  * Get the location for global or user-local support files.
  * The caller must free the string when done with it.
- * @return NULL if it could not be determined
+ * @return nullptr if it could not be determined
  */
 char *Bgetsupportdir(int global)
 {
-    char *dir = NULL;
+    char *dir = nullptr;
     
 #ifdef __APPLE__
     dir = osx_getsupportdir(global);
@@ -218,7 +218,7 @@ int Bcorrectfilename(char *filename, int removefn)
 	first = fn;
 	do {
 		token = Bstrtoken(first, "/", &next, 1);
-		first = NULL;
+		first = nullptr;
 		if (!token) break;
 		else if (token[0] == 0) continue;
 		else if (token[0] == '.' && token[1] == 0) continue;
@@ -302,8 +302,8 @@ char *Bgetsystemdrives()
 	DWORD drv, mask;
 	int number=0;
 	
-	drv = GetLogicalDrives();
-	if (drv == 0) return NULL;
+	drv = ::GetLogicalDrives();
+	if (drv == 0) return nullptr;
 
 	for (mask=1; mask<0x8000000l; mask<<=1) {
 		if ((drv&mask) == 0) continue;
@@ -311,7 +311,7 @@ char *Bgetsystemdrives()
 	}
 
 	str = p = (char *)malloc(1 + (3*number));
-	if (!str) return NULL;
+	if (!str) return nullptr;
 
 	number = 0;
 	for (mask=1; mask<0x8000000l; mask<<=1, number++) {
@@ -325,7 +325,7 @@ char *Bgetsystemdrives()
 	return str;
 #else
 	// Perhaps have Unix OS's put /, /home/user, and /mnt/* in the "drives" list?
-	return NULL;
+	return nullptr;
 #endif
 }
 
@@ -363,7 +363,7 @@ BDIR* Bopendir(const char *name)
 
 	dirr = (BDIR_real*)malloc(sizeof(BDIR_real));
 	if (!dirr) {
-		return NULL;
+		return nullptr;
 	}
 	memset(dirr, 0, sizeof(BDIR_real));
 
@@ -371,7 +371,7 @@ BDIR* Bopendir(const char *name)
 	tname = (char*)malloc(strlen(name) + 4 + 1);
 	if (!tname) {
 		free(dirr);
-		return NULL;
+		return nullptr;
 	}
 
 	strcpy(tname, name);
@@ -384,17 +384,17 @@ BDIR* Bopendir(const char *name)
 	*(++tcurs) = '*';
 	*(++tcurs) = 0;
 	
-	dirr->hfind = FindFirstFile(tname, &dirr->fid);
+	dirr->hfind = ::FindFirstFile(tname, &dirr->fid);
 	free(tname);
 	if (dirr->hfind == INVALID_HANDLE_VALUE) {
 		free(dirr);
-		return NULL;
+		return nullptr;
 	}
 #else
 	dirr->dir = opendir(name);
-	if (dirr->dir == NULL) {
+	if (dirr->dir == nullptr) {
 		free(dirr);
-		return NULL;
+		return nullptr;
 	}
 #endif
 
@@ -411,9 +411,9 @@ struct Bdirent*	Breaddir(BDIR *dir)
 	LARGE_INTEGER tmp;
 
 	if (dirr->status > 0) {
-		if (FindNextFile(dirr->hfind, &dirr->fid) == 0) {
+		if (::FindNextFile(dirr->hfind, &dirr->fid) == 0) {
 			dirr->status = -1;
-			return NULL;
+			return nullptr;
 		}
 	}
 	dirr->info.namlen = strlen(dirr->fid.cFileName);
@@ -441,9 +441,9 @@ struct Bdirent*	Breaddir(BDIR *dir)
 	struct stat st;
 
 	de = readdir(dirr->dir);
-	if (de == NULL) {
+	if (de == nullptr) {
 		dirr->status = -1;
-		return NULL;
+		return nullptr;
 	} else {
 		dirr->status++;
 	}
@@ -483,21 +483,21 @@ char *Bstrtoken(char *s, char *delim, char **ptrptr, int chop)
 {
 	char *p, *start;
 
-	if (!ptrptr) return NULL;
+	if (!ptrptr) return nullptr;
 	
 	if (s) p = s;
 	else p = *ptrptr;
 
-	if (!p) return NULL;
+	if (!p) return nullptr;
 
 	while (*p != 0 && strchr(delim, *p)) p++;
 	if (*p == 0) {
-		*ptrptr = NULL;
-		return NULL;
+		*ptrptr = nullptr;
+		return nullptr;
 	}
 	start = p;
 	while (*p != 0 && !strchr(delim, *p)) p++;
-	if (*p == 0) *ptrptr = NULL;
+	if (*p == 0) *ptrptr = nullptr;
 	else {
 		if (chop) *(p++) = 0;
 		*ptrptr = p;

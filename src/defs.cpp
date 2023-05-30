@@ -541,7 +541,7 @@ static int defsparser(scriptfile *script)
 							case TokenType::T_FRAME:
 							{
 								char *frametokptr = script->ltextptr;
-								char *frameend, *framename = 0, happy=1;
+								char *frameend, *framename = nullptr, happy=1;
 								int ftilenume = -1, ltilenume = -1, tilex = 0;
 
 								if (scriptfile_getbraces(script,&frameend)) break;
@@ -597,7 +597,7 @@ static int defsparser(scriptfile *script)
 							case TokenType::T_ANIM:
 							{
 								char *animtokptr = script->ltextptr;
-								char *animend, *startframe = 0, *endframe = 0, happy=1; // FIXME: char* == 1?
+								char *animend, *startframe = nullptr, *endframe = nullptr, happy=1; // FIXME: char* == 1?
 								int flags{0};
 								double dfps{1.0};
 
@@ -644,7 +644,7 @@ static int defsparser(scriptfile *script)
 							case TokenType::T_SKIN:
 							{
 								char *skintokptr = script->ltextptr;
-								char *skinend, *skinfn = 0;
+								char *skinend, *skinfn = nullptr;
 								int palnum{0};
 								int surfnum{0};
 
@@ -802,7 +802,7 @@ static int defsparser(scriptfile *script)
 			case TokenType::T_SKYBOX:
 				{
 					char *skyboxtokptr = script->ltextptr;
-					char *fn[6] = {0,0,0,0,0,0}, *modelend, happy=1;
+					char *fn[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}, *modelend, happy=1;
 					int i, tile = -1, pal = 0;
 
 					if (scriptfile_getbraces(script,&modelend)) break;
@@ -877,7 +877,7 @@ static int defsparser(scriptfile *script)
 							case TokenType::T_PAL: {
 								char *paltokptr = script->ltextptr, *palend;
 								int pal=-1;
-								char *fn = NULL;
+								char *fn = nullptr;
 								double alphacut = -1.0;
 								char flags = 0;
 

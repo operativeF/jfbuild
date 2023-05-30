@@ -428,7 +428,8 @@ static void suckbitsnextblock ()
 		}
 		else
 		{
-			filptr = nfilptr; nfilptr = 0;
+			filptr = nfilptr;
+			nfilptr = nullptr;
 			bitpos -= ((nbitpos-4)<<3);
 		}
 		//if (n_from_suckbits < 4) will it crash?
@@ -1113,7 +1114,8 @@ static int kpngrend (const char *kfilebuf, int kfilength,
 
 		//Initialize this for the getbits() function
 	zipfilmode = 0;
-	filptr = &filptr[leng-4]; bitpos = -((leng-4)<<3); nfilptr = 0;
+	filptr = &filptr[leng-4]; bitpos = -((leng-4)<<3);
+	nfilptr = nullptr;
 	//if (leng < 4) will it crash?
 
 	frameplace = daframeplace;
@@ -1556,10 +1558,10 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 	int daglobxoffs, int daglobyoffs)
 {
 	int i, j, v, leng=0, xdim=0, ydim=0, index, prec, restartcnt, restartinterval;
-	int x, y, z, xx, yy, zz, *dc=NULL, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr;
+	int x, y, z, xx, yy, zz, *dc=nullptr, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr;
 	int passcnt = 0, ghsampmax=0, gvsampmax=0, glhsampmax=0, glvsampmax=0, glhstep, glvstep;
 	int eobrun, Ss, Se, Ah, Al, Alut[2], dctx[12], dcty[12], ldctx[12], /*ldcty[12],*/ lshx[4], lshy[4];
-	short *dctbuf = NULL, *dctptr[12], *ldctptr[12], *dcs=NULL;
+	short *dctbuf = nullptr, *dctptr[12], *ldctptr[12], *dcs=nullptr;
 	unsigned char ch, marker, dcflag;
 	const unsigned char *kfileptr;
 
@@ -1960,7 +1962,7 @@ static int kgifrend (const char *kfilebuf, int kfilelength,
 	int lzcols, dat, blocklen, bitcnt, xoff, yoff, transcol, backcol, *lptr;
 	intptr_t p=0;
 	unsigned char numbits, startnumbits, chunkind, ilacefirst;
-	const unsigned char *ptr, *cptr=NULL;
+	const unsigned char *ptr, *cptr=nullptr;
 
 	(void)kfilelength;
 
@@ -2144,7 +2146,7 @@ static int ktgarend (const char *header, int fleng,
 {
 	int i=0, x, y, pi, xi, yi, x0, x1, y0, y1, xsiz, ysiz, rlestat, colbyte, pixbyte;
 	intptr_t p;
-	const unsigned char *fptr, *cptr=0, *nptr;
+	const unsigned char *fptr, *cptr = nullptr, *nptr;
 
 		//Ugly and unreliable identification for .TGA!
 	if ((fleng < 20) || (header[1]&0xfe)) return(-1);
@@ -2734,7 +2736,7 @@ static int filnamcmp (const char *st0, const char *st1)
 	//[next hashindex/-1][next index/-1][zipnam index][zipseek][char filnam[?]\0]
 	//...
 #define KZHASHINITSIZE 8192
-static char *kzhashbuf = 0;
+static char *kzhashbuf = nullptr;
 static int kzhashead[256], kzhashpos, kzlastfnam, kzhashsiz;
 
 static int kzcheckhashsiz (int siz)
@@ -2789,7 +2791,7 @@ static int kzcheckhash (const char *filnam, char **zipnam, unsigned int *zipseek
 
 void kzuninit ()
 {
-	if (kzhashbuf) { free(kzhashbuf); kzhashbuf = 0; }
+	if (kzhashbuf) { free(kzhashbuf); kzhashbuf = nullptr; }
 	kzhashpos = kzhashsiz = 0;
 }
 
@@ -2889,7 +2891,7 @@ int kzopen (const char *filnam)
 		kzfs.seek0 = (unsigned int)ftell(fil);
 		kzfs.leng = LSWAPIB(*(int *)&tempbuf[22]);
 		kzfs.pos = 0;
-		if (kzfs.leng < 0) { fclose(kzfs.fil); kzfs.fil = 0; return(0); }   // File is ≥ 2GiB.
+		if (kzfs.leng < 0) { fclose(kzfs.fil); kzfs.fil = nullptr; return(0); }   // File is ≥ 2GiB.
 		switch(kzfs.comptyp) //Compression method
 		{
 			case 0: kzfs.i = 0; return(1);
@@ -2902,7 +2904,7 @@ int kzopen (const char *filnam)
 				gslidew = 0x7fffffff; //Force reload at beginning
 
 				return(1);
-			default: fclose(kzfs.fil); kzfs.fil = 0; return(0);
+			default: fclose(kzfs.fil); kzfs.fil = nullptr; return(0);
 		}
 	}
 	return(0);
@@ -2921,8 +2923,8 @@ static HANDLE hfind = INVALID_HANDLE_VALUE;
 static WIN32_FIND_DATA findata;
 #else
 static char wildst[260] = "";
-static DIR *hfind = NULL;
-static struct dirent *findata = NULL;
+static DIR *hfind = nullptr;
+static struct dirent *findata = nullptr;
 #endif
 
 void kzfindfilestart (const char *st)
@@ -2932,7 +2934,7 @@ void kzfindfilestart (const char *st)
 	if (hfind != INVALID_HANDLE_VALUE)
 		{ FindClose(hfind); hfind = INVALID_HANDLE_VALUE; }
 #else
-	if (hfind) { closedir(hfind); hfind = NULL; }
+	if (hfind) { closedir(hfind); hfind = nullptr; }
 #endif
 	strcpy(wildst,st);
 	srchstat = -3;
@@ -3015,8 +3017,8 @@ int kzfindfile (char *filnam)
 			if (findata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) strcat(&filnam[i],"\\");
 #else
 			struct stat st;
-			if ((findata = readdir(hfind)) == NULL)
-				{ closedir(hfind); hfind = NULL; if (!kzhashbuf) return 0; srchstat = kzlastfnam; break; }
+			if ((findata = readdir(hfind)) == nullptr)
+				{ closedir(hfind); hfind = nullptr; if (!kzhashbuf) return 0; srchstat = kzlastfnam; break; }
 			i = wildstpathleng;
 			if (fstatat(dirfd(hfind), findata->d_name, &st, 0)) continue;
 			if (st.st_mode & S_IFDIR)
@@ -3308,7 +3310,7 @@ int kzeof ()
 
 void kzclose ()
 {
-	if (kzfs.fil) { fclose(kzfs.fil); kzfs.fil = 0; }
+	if (kzfs.fil) { fclose(kzfs.fil); kzfs.fil = nullptr; }
 }
 
 //====================== ZIP decompression code ends =========================

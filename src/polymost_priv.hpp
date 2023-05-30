@@ -99,7 +99,7 @@ struct polymostdrawauxcall {
     int mode;
 
     GLuint indexcount;      // Number of index items.
-    GLushort *indexes;      // Array of indexes, or NULL to use the global index buffer.
+    GLushort *indexes;      // Array of indexes, or nullptr to use the global index buffer.
 
     int elementcount;
     struct polymostvboitem *elementvbo;

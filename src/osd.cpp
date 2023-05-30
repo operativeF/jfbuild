@@ -17,7 +17,7 @@ typedef struct _symbol {
 	int (*func)(const osdfuncparm_t *);
 } symbol_t;
 
-static symbol_t *symbols = NULL;
+static symbol_t *symbols = nullptr;
 static symbol_t *addnewsymbol(const char *name);
 static symbol_t *findsymbol(const char *name, symbol_t *startingat);
 static symbol_t *findexactsymbol(const char *name);
@@ -71,7 +71,7 @@ constexpr auto HISTORYDEPTH{16};
 static int  osdhistorypos=-1;		// position we are at in the history buffer
 static char osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];	// history strings
 static int  osdhistorysize=0;		// number of entries in history
-static symbol_t *lastmatch = NULL;
+static symbol_t *lastmatch = nullptr;
 
 // execution buffer
 // the execution buffer works from the command history
@@ -221,7 +221,7 @@ static int osdcmd_listsymbols(const osdfuncparm_t *parm)
 	(void)parm;
 
 	OSD_Printf("Symbol listing:\n");
-	for (i=symbols; i!=NULL; i=i->next)
+	for (i=symbols; i!=nullptr; i=i->next)
 		OSD_Printf("     %s\n", i->name);
 
 	return OSDCMD_OK;
@@ -396,7 +396,7 @@ enum {
 };
 static void OSD_Manipulate(int op) {
 	int i, j;
-	symbol_t *tabc = NULL;
+	symbol_t *tabc = nullptr;
 
 	switch (op) {
 		case OSDOP_START:
@@ -523,11 +523,11 @@ static void OSD_Manipulate(int op) {
 				osdedittmp[j] = 0;
 
 				if (j > 0)
-					tabc = findsymbol(osdedittmp, NULL);
+					tabc = findsymbol(osdedittmp, nullptr);
 			} else {
 				tabc = findsymbol(osdedittmp, lastmatch->next);
 				if (!tabc && lastmatch)
-					tabc = findsymbol(osdedittmp, NULL);	// wrap
+					tabc = findsymbol(osdedittmp, nullptr);	// wrap
 			}
 
 			if (tabc) {
@@ -729,7 +729,7 @@ int OSD_HandleKey(int sc, int press)
 
 	keytime = gettime();
 
-	if (sc != 15) lastmatch = NULL;		// reset tab-completion cycle
+	if (sc != 15) lastmatch = nullptr;		// reset tab-completion cycle
 
 	switch (sc) {
 		case 1:		// escape
@@ -978,14 +978,14 @@ static char *strtoken(char *s, char **ptrptr, int *restart)
 	char *p, *p2, *start;
 
 	*restart = 0;
-	if (!ptrptr) return NULL;
+	if (!ptrptr) return nullptr;
 
-	// if s != NULL, we process from the start of s, otherwise
+	// if s != nullptr, we process from the start of s, otherwise
 	// we just continue with where ptrptr points to
 	if (s) p = s;
 	else p = *ptrptr;
 
-	if (!p) return NULL;
+	if (!p) return nullptr;
 
 	// eat up any leading whitespace
 	while (*p != 0 && *p != ';' && *p == ' ') p++;
@@ -995,12 +995,12 @@ static char *strtoken(char *s, char **ptrptr, int *restart)
 	if (*p == ';') {
 		*restart = 1;
 		*ptrptr = p+1;
-		return NULL;
+		return nullptr;
 	}
 	// or if we hit the end of the input, signal all done by nulling *ptrptr
 	else if (*p == 0) {
-		*ptrptr = NULL;
-		return NULL;
+		*ptrptr = nullptr;
+		return nullptr;
 	}
 
 	if (*p == '\"') {
@@ -1030,7 +1030,7 @@ static char *strtoken(char *s, char **ptrptr, int *restart)
 
 	// if we hit the end of input, signal all done by nulling *ptrptr
 	if (*p == 0) {
-		*ptrptr = NULL;
+		*ptrptr = nullptr;
 	}
 	// or if we came upon a semicolon, signal caller to restart with the
 	// string at *ptrptr
@@ -1080,7 +1080,7 @@ int OSD_Dispatch(const char *cmd)
 
 		ofp.name = wp;
 		while (wtp && !restart) {
-			wp = strtoken(NULL, &wtp, &restart);
+			wp = strtoken(nullptr, &wtp, &restart);
 			if (wp && numparms < MAXPARMS) parms[numparms++] = wp;
 		}
 		ofp.numparms = numparms;
@@ -1175,7 +1175,7 @@ static symbol_t *addnewsymbol(const char *name)
 	symbol_t *newsymb, *s, *t;
 
 	newsymb = (symbol_t *)Bmalloc(sizeof(symbol_t));
-	if (!newsymb) { return NULL; }
+	if (!newsymb) { return nullptr; }
 	Bmemset(newsymb, 0, sizeof(symbol_t));
 
 	// link it to the main chain
@@ -1208,12 +1208,12 @@ static symbol_t *addnewsymbol(const char *name)
 static symbol_t *findsymbol(const char *name, symbol_t *startingat)
 {
 	if (!startingat) startingat = symbols;
-	if (!startingat) return NULL;
+	if (!startingat) return nullptr;
 
 	for (; startingat; startingat=startingat->next)
 		if (!Bstrncasecmp(name, startingat->name, Bstrlen(name))) return startingat;
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -1223,13 +1223,13 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat)
 static symbol_t *findexactsymbol(const char *name)
 {
 	symbol_t *startingat;
-	if (!symbols) return NULL;
+	if (!symbols) return nullptr;
 
 	startingat = symbols;
 
 	for (; startingat; startingat=startingat->next)
 		if (!Bstrcasecmp(name, startingat->name)) return startingat;
 
-	return NULL;
+	return nullptr;
 }
 

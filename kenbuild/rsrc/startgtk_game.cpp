@@ -360,7 +360,7 @@ static const SECTION union { const guint8 data[2804]; const double alignment; vo
   0x00, 0x00, 0x00, 0x00
 } };
 
-static GStaticResource static_resource = { a_resource_data.data, sizeof (a_resource_data.data), NULL, NULL, NULL };
+static GStaticResource static_resource = { a_resource_data.data, sizeof (a_resource_data.data), nullptr, nullptr, nullptr };
 extern GResource *a_get_resource ();
 GResource *a_get_resource ()
 {
@@ -423,7 +423,7 @@ GResource *a_get_resource ()
 #define G_MSVC_CTOR(_func,_sym_prefix) \
   static void _func(); \
   extern int (* _array ## _func)();              \
-  int _func ## _wrapper() { _func(); g_slist_find (NULL,  _array ## _func); return 0; } \
+  int _func ## _wrapper() { _func(); g_slist_find (nullptr,  _array ## _func); return 0; } \
   __pragma(comment(linker,"/include:" _sym_prefix # _func "_wrapper")) \
   __pragma(section(".CRT$XCU",read)) \
   __declspec(allocate(".CRT$XCU")) int (* _array ## _func)() = _func ## _wrapper;
@@ -431,7 +431,7 @@ GResource *a_get_resource ()
 #define G_MSVC_DTOR(_func,_sym_prefix) \
   static void _func(); \
   extern int (* _array ## _func)();              \
-  int _func ## _constructor() { atexit (_func); g_slist_find (NULL,  _array ## _func); return 0; } \
+  int _func ## _constructor() { atexit (_func); g_slist_find (nullptr,  _array ## _func); return 0; } \
    __pragma(comment(linker,"/include:" _sym_prefix # _func "_constructor")) \
   __pragma(section(".CRT$XCU",read)) \
   __declspec(allocate(".CRT$XCU")) int (* _array ## _func)() = _func ## _constructor;

@@ -44,7 +44,7 @@ void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeake
         return;
     }
 
-    dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE |
+    dev = SDL_OpenAudioDevice(nullptr, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE |
             SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
     if (dev == 0) {
         SDL_Log("Failed to open audio: %s", SDL_GetError());

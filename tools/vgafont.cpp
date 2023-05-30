@@ -66,7 +66,7 @@ void dumpfont(const struct spec *spec)
 	printf("Getting %s... ", spec->descr);
 
 	fp = fopen(spec->filename, "w+b");
-	if (fp == NULL) {
+	if (fp == nullptr) {
 		puts("Error");
 		return;
 	}

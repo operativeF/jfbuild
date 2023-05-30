@@ -14,7 +14,7 @@ FILE * openartfile(char *fn)
 	FILE *fh;
 	
 	fh = fopen(fn,"rb");
-	if (!fh) return NULL;
+	if (!fh) return nullptr;
 	
 	fread(&artversion,4,1,fh); if (artversion != 1) { puts("Bad art version"); goto fail; }
 	fread(&numtiles,4,1,fh);
@@ -29,7 +29,7 @@ FILE * openartfile(char *fn)
 	return fh;
 fail:
 	fclose(fh);
-	return NULL;
+	return nullptr;
 }
 
 int main(int argc, char **argv)

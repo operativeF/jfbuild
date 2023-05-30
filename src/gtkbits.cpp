@@ -28,7 +28,7 @@ int wmgtk_msgbox(char *name, char *msg)
 
 	if (!gtkenabled) return -1;
 
-	dialog = gtk_message_dialog_new(NULL,
+	dialog = gtk_message_dialog_new(nullptr,
 			GTK_DIALOG_DESTROY_WITH_PARENT,
 			GTK_MESSAGE_INFO,
 			GTK_BUTTONS_OK,
@@ -47,7 +47,7 @@ int wmgtk_ynbox(char *name, char *msg)
 
 	if (!gtkenabled) return -1;
 
-	dialog = gtk_message_dialog_new(NULL,
+	dialog = gtk_message_dialog_new(nullptr,
 			GTK_DIALOG_DESTROY_WITH_PARENT,
 			GTK_MESSAGE_INFO,
 			GTK_BUTTONS_YES_NO,
@@ -73,7 +73,7 @@ int wmgtk_filechooser(const char *initialdir, const char *initialfile, const cha
 
 	(void)initialdir;
 
-	*choice = NULL;
+	*choice = nullptr;
 	if (!gtkenabled) return -1;
 
 	if (foropen) {
@@ -83,10 +83,10 @@ int wmgtk_filechooser(const char *initialdir, const char *initialfile, const cha
 		action = GTK_FILE_CHOOSER_ACTION_SAVE;
 		title = "_Save";
 	}
-	dialog = gtk_file_chooser_dialog_new(title + 1, NULL, action,
+	dialog = gtk_file_chooser_dialog_new(title + 1, nullptr, action,
 		"_Cancel", GTK_RESPONSE_CANCEL,
 		title, GTK_RESPONSE_ACCEPT,
-		NULL);
+		nullptr);
 
 	if (!foropen && initialfile) {
 		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), initialfile);
@@ -113,8 +113,8 @@ int wmgtk_filechooser(const char *initialdir, const char *initialfile, const cha
 
 void wmgtk_init(int *argc, char ***argv)
 {
-	GdkPixbuf *appicon = NULL;
-	GError *error = NULL;
+	GdkPixbuf *appicon = nullptr;
+	GError *error = nullptr;
 
 	gtkenabled = gtk_init_check(argc, argv);
 	if (!gtkenabled) {

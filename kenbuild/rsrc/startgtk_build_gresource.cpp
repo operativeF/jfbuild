@@ -3740,7 +3740,7 @@ static const SECTION union { const guint8 data[29848]; const double alignment; v
   0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 } };
 
-static GStaticResource static_resource = { startgtk_resource_data.data, sizeof (startgtk_resource_data.data), NULL, NULL, NULL };
+static GStaticResource static_resource = { startgtk_resource_data.data, sizeof (startgtk_resource_data.data), nullptr, nullptr, nullptr };
 extern GResource *startgtk_get_resource ();
 GResource *startgtk_get_resource ()
 {
