@@ -94,7 +94,8 @@ void resetvideomode();
 
 void showframe();
 
-int setpalette(int start, int num, unsigned char *dapal);
+// FIXME: Parameters are unused.
+int setpalette(int start, int num, const unsigned char* dapal);
 int setgamma(float gamma);
 
 int wm_msgbox(const char *name, const char *fmt, ...) PRINTF_FORMAT(2, 3);

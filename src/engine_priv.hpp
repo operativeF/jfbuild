@@ -1,6 +1,8 @@
 #ifndef ENGINE_PRIV_H
 #define ENGINE_PRIV_H
 
+#include <array>
+
 inline constexpr auto MAXCLIPNUM{1024};
 inline constexpr auto MAXPERMS{1024};
 inline constexpr auto MAXTILEFILES{256};
@@ -9,8 +11,20 @@ inline constexpr auto MAXNODESPERLINE{42};   //WARNING: This depends on MAXYSAVE
 inline constexpr auto MAXWALLSB{4096};
 inline constexpr auto MAXCLIPDIST{1024};
 
-extern unsigned char pow2char[8];
-extern int pow2long[32];
+inline constexpr std::array<unsigned char, 8> pow2char = {
+	1, 2, 4, 8, 16, 32, 64, 128
+};
+
+inline constexpr std::array<int, 32> pow2long = {
+	1L,2L,4L,8L,
+	16L,32L,64L,128L,
+	256L,512L,1024L,2048L,
+	4096L,8192L,16384L,32768L,
+	65536L,131072L,262144L,524288L,
+	1048576L,2097152L,4194304L,8388608L,
+	16777216L,33554432L,67108864L,134217728L,
+	268435456L,536870912L,1073741824L,2147483647L
+};
 
 extern short thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern short bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
@@ -56,6 +70,7 @@ struct textfontspec {
 	int charxsiz, charysiz;
 	int cellh, cellxoff, cellyoff;
 };
+
 extern const struct textfontspec textfonts[3];
 
 #if USE_OPENGL
@@ -134,7 +149,7 @@ skipit:
 static inline void setgotpic(int tilenume)
 {
 	if (walock[tilenume] < 200) walock[tilenume] = 199;
-	gotpic[tilenume>>3] |= pow2char[tilenume&7];
+	gotpic[tilenume >> 3] |= pow2char[tilenume & 7];
 }
 
 #endif

@@ -11,24 +11,24 @@
 #include "osd.hpp"
 #include "cache1d.hpp"
 #include "editor.hpp"
+#include "version.hpp"
 
 #include "baselayer.hpp"
 #ifdef RENDERTYPEWIN
 #include "winlayer.hpp"
 #endif
 
+#include <array>
 
 constexpr auto TIMERINTSPERSECOND{120};
 
 #define updatecrc16(crc,dat) (crc = (((crc<<8)&65535)^crctable[((((unsigned short)crc)>>8)&65535)^dat]))
-static int crctable[256];
-static char kensig[24];
-
+static std::array<int, 256> crctable;
+static std::array<char, 24> kensig;
 
 int vel, svel, angvel;
 
-int buildkeys[NUMBUILDKEYS] =
-{
+int buildkeys[NUMBUILDKEYS] = {
 	0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
 	0x1e,0x2c,0xd1,0xc9,0x33,0x34,
 	0x9c,0x1c,0xd,0xc,0xf,0x45
@@ -41,28 +41,31 @@ int hvel;
 
 int grponlymode = 0;
 extern int editorgridextent;	// in engine.c
-int msens = 1<<16;
+int msens = 1 << 16;
 
-static int synctics = 0, lockclock = 0;
+static int synctics{0};
+static int lockclock{0};
 
 extern unsigned char picsiz[MAXTILES];
 extern int startposx, startposy, startposz;
 extern short startang, startsectnum;
 extern intptr_t frameplace;
 int ydim16, ytop16, halfxdim16, midydim16;
-static int bakydim16, bakytop16;
+static int bakydim16;
+static int bakytop16;
 int xdim2d = 640, ydim2d = 480, xdimgame = 640, ydimgame = 480, bppgame = 8;
 int forcesetup = 1;
 
 extern int cachesize, artsize;
 
-static short oldmousebstatus = 0;
+static short oldmousebstatus{0};
 short brightness = 0;
 int zlock = 0x7fffffff, zmode = 0, whitecol, blackcol, kensplayerheight = 32, kenswalldist = 128;
 short defaultspritecstat = 0;
 
-static short localartfreq[MAXTILES];
-static short localartlookup[MAXTILES], localartlookupnum;
+static std::array<short, MAXTILES> localartfreq;
+static std::array<short, MAXTILES> localartlookup;
+static short localartlookupnum;
 
 unsigned char tempbuf[4096];
 
@@ -83,20 +86,26 @@ extern int mapversion;
 short highlight[MAXWALLS];
 short highlightsector[MAXSECTORS], highlightsectorcnt = -1;
 
-static unsigned char pskysearch[MAXSECTORS];
+static std::array<unsigned char, MAXSECTORS> pskysearch;
 
 short temppicnum, tempcstat, templotag, temphitag, tempextra;
 unsigned char tempshade, temppal, tempvis, tempxrepeat, tempyrepeat;
 unsigned char somethingintab = 255;
 
-static char boardfilename[BMAX_PATH], selectedboardfilename[BMAX_PATH];
-static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
-static int numdirs=0, numfiles=0;
-static int currentlist=0;
+static std::array<char, BMAX_PATH> boardfilename;
+static std::array<char, BMAX_PATH> selectedboardfilename;
+static CACHE1D_FIND_REC* finddirs{nullptr};
+static CACHE1D_FIND_REC* findfiles{nullptr};
+static CACHE1D_FIND_REC* finddirshigh{nullptr};
+static CACHE1D_FIND_REC* findfileshigh{nullptr};
+static int numdirs{0};
+static int numfiles{0};
+static int currentlist{0};
 
-static int repeatcountx, repeatcounty;
+static int repeatcountx;
+static int repeatcounty;
 
-static int fillist[640];
+static std::array<int, 640> fillist;
 
 
 void qsetmodeany(int,int);
@@ -297,14 +306,14 @@ int app_main(int argc, char const * const argv[])
 			continue;
 		}
 		if (!boardfilename[0]) {
-			strncpy(boardfilename, argv[i], BMAX_PATH-4-1);
+			strncpy(&boardfilename[0], argv[i], BMAX_PATH-4-1);
 			boardfilename[BMAX_PATH-4-1] = 0;
 		}
 	}
 	if (boardfilename[0] == 0) {
-		Bstrcpy(boardfilename,"newboard.map");
-	} else if (Bstrrchr(boardfilename,'.') == 0) {
-		Bstrcat(boardfilename, ".map");
+		Bstrcpy(&boardfilename[0], "newboard.map");
+	} else if (Bstrrchr(&boardfilename[0],'.') == 0) {
+		Bstrcat(&boardfilename[0], ".map");
 	}
 	//Bcanonicalisefilename(boardfilename,0);
 
@@ -354,8 +363,8 @@ int app_main(int argc, char const * const argv[])
 	loadpics("tiles000.art",1048576);
 	loadnames();
 
-	Bstrcpy(kensig,"BUILD by Ken Silverman");
-	initcrc();
+	Bstrcpy(&kensig[0],"BUILD by Ken Silverman");
+	initcrc(); 
 
 	if (!loaddefinitionsfile(defsfilename)) buildputs("Definitions file loaded.\n");
 
@@ -384,8 +393,8 @@ int app_main(int argc, char const * const argv[])
 
 	ExtPreLoadMap();
 	j = pathsearchmode == PATHSEARCH_GAME && grponlymode ? KOPEN4LOAD_ANYGRP : KOPEN4LOAD_ANY;
-	i = loadboard(boardfilename,j,&posx,&posy,&posz,&ang,&cursectnum);
-	if (i == -2) i = loadoldboard(boardfilename,j,&posx,&posy,&posz,&ang,&cursectnum);
+	i = loadboard(&boardfilename[0], j, &posx, &posy, &posz, &ang, &cursectnum);
+	if (i == -2) i = loadoldboard(&boardfilename[0], j, &posx, &posy, &posz, &ang, &cursectnum);
 	if (i < 0)
 	{
 		initspritelists();
@@ -401,7 +410,7 @@ int app_main(int argc, char const * const argv[])
 	}
 	else
 	{
-		ExtLoadMap(boardfilename);
+		ExtLoadMap(&boardfilename[0]);
 	}
 
 	updatenumsprites();
@@ -479,7 +488,7 @@ int app_main(int argc, char const * const argv[])
 
 				keystatus[0x15] = 0;
 
-				filename = boardfilename;
+				filename = &boardfilename[0];
 				if (pathsearchmode == PATHSEARCH_GAME) {
 					filename = findfilename(filename);
 				}
@@ -2724,8 +2733,8 @@ void overheadeditor()
 	drawline16(xdim-1,0,xdim-1,ydim16-1,7);
 	drawline16(0,24,xdim-1,24,7);
 	drawline16(192,0,192,24,7);
-	printext16(9L,9L,4,-1,kensig,0);
-	printext16(8L,8L,12,-1,kensig,0);
+	printext16(9L,9L,4,-1, &kensig[0],0);
+	printext16(8L,8L,12,-1, &kensig[0], 0);
 	sprintf(buffer, "Version: %s", build_version);
 	printmessage16(buffer);
 	drawline16(0,ydim16-1-24,xdim-1,ydim16-1-24,7);
@@ -5115,7 +5124,7 @@ void overheadeditor()
 							numwalls = 0;
 							cursectnum = -1;
 							initspritelists();
-							Bstrcpy(boardfilename,"newboard.map");
+							Bstrcpy(&boardfilename[0],"newboard.map");
 							mapversion = 7;
 
 							wm_setwindowtitle("(new board)");
@@ -5133,18 +5142,18 @@ void overheadeditor()
 					printmessage16("Load board...");
 					showframe();
 
-					strcpy(selectedboardfilename, boardfilename);
+					strcpy(&selectedboardfilename[0], &boardfilename[0]);
 					if (ch == 'g' || ch == 'G') {
 						i = menuselect(PATHSEARCH_GAME);
 					} else {
 						char * filename = NULL, *initialdir = NULL, *initialfile = NULL;
 						int filer;
 
-						initialfile = findfilename(selectedboardfilename);
-						if (pathsearchmode == PATHSEARCH_GAME || initialfile == selectedboardfilename) {
+						initialfile = findfilename(&selectedboardfilename[0]);
+						if (pathsearchmode == PATHSEARCH_GAME || initialfile == &selectedboardfilename[0]) {
 							initialdir = "";
 						} else {
-							initialdir = selectedboardfilename;
+							initialdir = &selectedboardfilename[0];
 							*(initialfile-1) = 0;
 						}
 						while (1) {
@@ -5160,14 +5169,14 @@ void overheadeditor()
 								if (filer == 0 || !filename) {
 									i = -1;
 								} else {
-									strcpy(selectedboardfilename, filename);
+									strcpy(&selectedboardfilename[0], filename);
 									free(filename);
 									i = 0;
 									pathsearchmode = PATHSEARCH_SYSTEM;
 								}
 							} else {
 								// Fallback behaviour.
-								strcpy(selectedboardfilename, boardfilename);
+								strcpy(&selectedboardfilename[0], &boardfilename[0]);
 								i = menuselect(pathsearchmode);
 							}
 							break;
@@ -5181,7 +5190,7 @@ void overheadeditor()
 					}
 					else
 					{
-						Bstrcpy(boardfilename, selectedboardfilename);
+						Bstrcpy(&boardfilename[0], &selectedboardfilename[0]);
 
 						if (highlightsectorcnt >= 0)
 						{
@@ -5255,15 +5264,15 @@ void overheadeditor()
 
 						ExtPreLoadMap();
 						j = pathsearchmode == PATHSEARCH_GAME && grponlymode ? KOPEN4LOAD_ANYGRP : KOPEN4LOAD_ANY;
-						i = loadboard(boardfilename,j,&posx,&posy,&posz,&ang,&cursectnum);
-						if (i == -2) i = loadoldboard(boardfilename,j,&posx,&posy,&posz,&ang,&cursectnum);
+						i = loadboard(&boardfilename[0], j, &posx, &posy, &posz, &ang, &cursectnum);
+						if (i == -2) i = loadoldboard(&boardfilename[0], j, &posx, &posy, &posz, &ang, &cursectnum);
 						if (i < 0)
 						{
 							printmessage16("Invalid map format.");
 						}
 						else
 						{
-							ExtLoadMap(boardfilename);
+							ExtLoadMap(&boardfilename[0]);
 
 							if (highlightsectorcnt >= 0)
 							{
@@ -5344,12 +5353,12 @@ void overheadeditor()
 					printmessage16("Save board as...");
 					showframe();
 
-					strcpy(selectedboardfilename, boardfilename);
-					initialfile = findfilename(selectedboardfilename);
-					if (pathsearchmode == PATHSEARCH_GAME || initialfile == selectedboardfilename) {
+					strcpy(&selectedboardfilename[0], &boardfilename[0]);
+					initialfile = findfilename(&selectedboardfilename[0]);
+					if (pathsearchmode == PATHSEARCH_GAME || initialfile == &selectedboardfilename[0]) {
 						initialdir = "";
 					} else {
-						initialdir = selectedboardfilename;
+						initialdir = &selectedboardfilename[0];
 						*(initialfile-1) = 0;
 					}
 					while (1) {
@@ -5365,7 +5374,7 @@ void overheadeditor()
 							if (filer == 0 || !filename) {
 								bad = 1;	// Cancel.
 							} else {
-								strcpy(selectedboardfilename, filename);
+								strcpy(&selectedboardfilename[0], filename);
 								free(filename);
 								bad = 2;	// OK.
 							}
@@ -5373,11 +5382,11 @@ void overheadeditor()
 						} else {
 							// Fallback behaviour.
 							if (pathsearchmode == PATHSEARCH_SYSTEM) {
-								Bstrcpy(selectedboardfilename, boardfilename);
+								Bstrcpy(&selectedboardfilename[0], &boardfilename[0]);
 							} else {
-								filename = findfilename(boardfilename);
-								Bstrcpy(selectedboardfilename, filename);
-								Bcanonicalisefilename(selectedboardfilename, 0);
+								filename = findfilename(&boardfilename[0]);
+								Bstrcpy(&selectedboardfilename[0], filename);
+								Bcanonicalisefilename(&selectedboardfilename[0], 0);
 							}
 							bad = 0;
 						}
@@ -5385,7 +5394,7 @@ void overheadeditor()
 					}
 
 					// Find where the filename starts on the path.
-					filename = findfilename(selectedboardfilename);
+					filename = findfilename(&selectedboardfilename[0]);
 
 					// Find the end of the filename and cut off any .map extension.
 					curs = strrchr(filename, 0);
@@ -5410,7 +5419,7 @@ void overheadeditor()
 							if (curs - filename > 0 && (ch == 8 || ch == 127)) {
 								*(--curs) = 0;
 							}
-							else if (strlen(selectedboardfilename) < sizeof(selectedboardfilename)-5
+							else if (strlen(&selectedboardfilename[0]) < sizeof(selectedboardfilename)-5
 								&& ch > 32 && ch < 128)
 							{
 								*(curs++) = ch;
@@ -5437,14 +5446,20 @@ void overheadeditor()
 						updatesector(startposx,startposy,&startsectnum);
 						ExtPreSaveMap();
 						if (mapversion < 7) {
-							bad = saveoldboard(selectedboardfilename,&startposx,&startposy,&startposz,&startang,&startsectnum);
+							bad = saveoldboard(&selectedboardfilename[0],
+							                   &startposx, &startposy,
+											   &startposz, &startang,
+											   &startsectnum);
 						} else {
-							bad = saveboard(selectedboardfilename,&startposx,&startposy,&startposz,&startang,&startsectnum);
+							bad = saveboard(&selectedboardfilename[0],
+							                &startposx, &startposy,
+											&startposz, &startang,
+											&startsectnum);
 						}
 						if (!bad) {
-							ExtSaveMap(selectedboardfilename);
+							ExtSaveMap(&selectedboardfilename[0]);
 							printmessage16("Board saved.");
-							Bstrcpy(boardfilename, selectedboardfilename);
+							Bstrcpy(&boardfilename[0], &selectedboardfilename[0]);
 							pathsearchmode = PATHSEARCH_SYSTEM;
 							asksave = 0;
 						} else {
@@ -5461,7 +5476,7 @@ void overheadeditor()
 					bad = 0;
 					printmessage16("Saving board...");
 					showframe();
-					filename = boardfilename;
+					filename = &boardfilename[0];
 					if (pathsearchmode == PATHSEARCH_GAME) {
 						filename = findfilename(filename);
 					}
@@ -5514,7 +5529,7 @@ void overheadeditor()
 									{
 										char *filename;
 
-										filename = boardfilename;
+										filename = &boardfilename[0];
 										if (pathsearchmode == PATHSEARCH_GAME) {
 											filename = findfilename(filename);
 										}
@@ -5539,7 +5554,7 @@ void overheadeditor()
 							ExtUnInit();
 							uninitengine();
 							printf("Memory status: %d(%d) bytes\n",cachesize,artsize);
-							printf("%s\n",kensig);
+							printf("%s\n", &kensig[0]);
 							exit(0);
 						} else if (ch == 'n' || ch == 'N' || ch == 13 || ch == ' ') {
 							break;
@@ -6180,16 +6195,16 @@ int menuselect(int newpathmode)
 	listsize = (ydim16-32)/8;
 
 	if (newpathmode != pathsearchmode) {
-		strcpy(selectedboardfilename, "");
+		strcpy(&selectedboardfilename[0], "");
 		pathsearchmode = newpathmode;
 	}
 	if (pathsearchmode == PATHSEARCH_SYSTEM) {
-		Bcanonicalisefilename(selectedboardfilename, 1);		// clips off the last token and compresses relative path
+		Bcanonicalisefilename(&selectedboardfilename[0], 1);		// clips off the last token and compresses relative path
 	} else {
-		Bcorrectfilename(selectedboardfilename, 1);
+		Bcorrectfilename(&selectedboardfilename[0], 1);
 	}
 
-	getfilenames(selectedboardfilename, "*.map");
+	getfilenames(&selectedboardfilename[0], "*.map");
 
 	printmessage16("Select .MAP file with arrows&enter.");
 
@@ -6207,7 +6222,7 @@ int menuselect(int newpathmode)
 		}
 		printext16(halfxdim16-(8*(int)strlen(buffer)/2), 4, 14,0,buffer,0);
 
-		snprintf(buffer,sizeof(buffer),"(%d dirs, %d files) %s",numdirs,numfiles,selectedboardfilename);
+		snprintf(buffer,sizeof(buffer),"(%d dirs, %d files) %s",numdirs,numfiles, &selectedboardfilename[0]);
 		printext16(1,ydim16-8-1,8,0,buffer,0);
 
 		if (finddirshigh) {
@@ -6270,14 +6285,14 @@ int menuselect(int newpathmode)
 			currentlist = 0;
 			pathsearchmode = 1-pathsearchmode;
 			if (pathsearchmode == PATHSEARCH_SYSTEM) {
-				strcpy(selectedboardfilename, "");
-				Bcanonicalisefilename(selectedboardfilename, 1);
-			} else strcpy(selectedboardfilename, "/");
-			getfilenames(selectedboardfilename, "*.map");
+				strcpy(&selectedboardfilename[0], "");
+				Bcanonicalisefilename(&selectedboardfilename[0], 1);
+			} else strcpy(&selectedboardfilename[0], "/");
+			getfilenames(&selectedboardfilename[0], "*.map");
 		} else if (ch == 'g' || ch == 'G') {
 			if (pathsearchmode == PATHSEARCH_GAME) {
 				grponlymode = 1-grponlymode;
-				getfilenames(selectedboardfilename, "*.map");
+				getfilenames(&selectedboardfilename[0], "*.map");
 			}
 		} else if (ch == 9) {
 			if ((currentlist == 0 && findfiles) || (currentlist == 1 && finddirs))
@@ -6296,19 +6311,19 @@ int menuselect(int newpathmode)
 			}
 		} else if ((ch == 13) && (currentlist == 0) && finddirshigh) {
 			if (finddirshigh->type == CACHE1D_FIND_DRIVE) {
-				strcpy(selectedboardfilename, finddirshigh->name);
+				strcpy(&selectedboardfilename[0], finddirshigh->name);
 			} else {
-				strcat(selectedboardfilename, finddirshigh->name);
+				strcat(&selectedboardfilename[0], finddirshigh->name);
 			}
-			strcat(selectedboardfilename, "/");
+			strcat(&selectedboardfilename[0], "/");
 			if (pathsearchmode == PATHSEARCH_SYSTEM)
-				Bcanonicalisefilename(selectedboardfilename, 1);
+				Bcanonicalisefilename(&selectedboardfilename[0], 1);
 			else
-				Bcorrectfilename(selectedboardfilename, 1);
+				Bcorrectfilename(&selectedboardfilename[0], 1);
 
 			//printf("Changing directories to: %s\n", selectedboardfilename);
 
-			getfilenames(selectedboardfilename, "*.map");
+			getfilenames(&selectedboardfilename[0], "*.map");
 			ch = 0;
 
 			clearbuf((unsigned char *)frameplace, (bytesperline*ydim16) >> 2, 0l);
@@ -6319,7 +6334,7 @@ int menuselect(int newpathmode)
 	while ((ch != 13) && (ch != 27));
 	if (ch == 13)
 	{
-		Bstrcat(selectedboardfilename, findfileshigh->name);
+		Bstrcat(&selectedboardfilename[0], findfileshigh->name);
 		//printf("Selected file: %s\n", selectedboardfilename);
 
 		return(0);
@@ -6607,7 +6622,7 @@ void drawline16(int x1, int y1, int x2, int y2, unsigned char col)
 		} else
 		for(i=dx;i>0;i--)
 		{
-			if (drawlinepat & pow2long[(patc++)&31])
+			if (drawlinepat & pow2long[(patc++) & 31])
 				drawpixel((void *)p, col);
 			d += dy;
 			if (d >= dx) { d -= dx; p += pinc; }
@@ -6627,7 +6642,7 @@ void drawline16(int x1, int y1, int x2, int y2, unsigned char col)
 	p = ((ytop16+y1)*bytesperline)+x1+frameplace;
 	for(i=dy;i>0;i--)
 	{
-		if (drawlinepat & pow2long[(patc++)&31])
+		if (drawlinepat & pow2long[(patc++) & 31])
 			drawpixel((void *)p, col);
 		d += dx;
 		if (d >= dy) { d -= dy; p += pinc; }
@@ -6664,7 +6679,7 @@ void drawcircle16(int x1, int y1, int r, unsigned char col)
 
 	p = ((ytop16+y1)*bytesperline)+x1+frameplace;
 
-	if (drawlinepat & pow2long[(patc++)&31]) {
+	if (drawlinepat & pow2long[(patc++) & 31]) {
 		if ((unsigned int)y1 < (unsigned int)ydim16 && (unsigned int)(x1+r) < (unsigned int)xres  )
 			drawpixel((void *)(p+r), col);			// a
 		if ((unsigned int)x1 < (unsigned int)xres   && (unsigned int)(y1+r) < (unsigned int)ydim16)
@@ -6691,7 +6706,7 @@ void drawcircle16(int x1, int y1, int r, unsigned char col)
 
 		ypbpl = yp*bytesperline;
 		xpbpl = xp*bytesperline;
-		if (drawlinepat & pow2long[(patc++)&31]) {
+		if (drawlinepat & pow2long[(patc++) & 31]) {
 			if ((unsigned int)(x1+yp) < (unsigned int)xres && (unsigned int)(y1+xp) < (unsigned int)ydim16)
 				drawpixel((void *)(p+yp+xpbpl), col);	// 1
 			if ((unsigned int)(x1+xp) < (unsigned int)xres && (unsigned int)(y1+yp) < (unsigned int)ydim16)
@@ -7520,7 +7535,7 @@ void initcrc()
 				a = ((a<<1)&65535);
 			k = ((k<<1)&65535);
 		}
-		crctable[j] = (a&65535);
+		crctable[j] = (a & 65535);
 	}
 }
 

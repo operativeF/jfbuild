@@ -14,8 +14,10 @@
 #include "osd.hpp"
 #include "cache1d.hpp"
 
+#include <array>
 
-static unsigned char tempbuf[256];
+
+static std::array<unsigned char, 256> tempbuf;
 
 constexpr auto NUMOPTIONS{9};
 unsigned char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
@@ -151,7 +153,7 @@ int ExtInit()
 		//copy the right code!
 	for(i=0;i<256;i++)
 		tempbuf[i] = ((i+32)&255);  //remap colors for screwy palette sectors
-	makepalookup(16,tempbuf,0,0,0,1);
+	makepalookup(16, &tempbuf[0], 0, 0, 0, 1);
 
 	kensplayerheight = 32;
 	zmode = 0;
@@ -348,8 +350,8 @@ void ExtCheckKeys()
 		i = frameval[framecnt&(AVERAGEFRAMES-1)];
 		j = frameval[framecnt&(AVERAGEFRAMES-1)] = getticks(); framecnt++;
 		if (i != j) averagefps = ((mul3(averagefps)+((AVERAGEFRAMES*1000)/(j-i)) )>>2);
-		Bsprintf((char *)tempbuf,"%d",averagefps);
-		printext256(0L,0L,31,-1,(char *)tempbuf,1);
+		Bsprintf((char *)tempbuf, "%d", averagefps);
+		printext256(0L,0L,31,-1, (char *)&tempbuf[0], 1);
 
 		editinput();
 	}
@@ -388,10 +390,10 @@ const char *ExtGetSectorCaption(short sectnum)
 	}
 	else
 	{
-		Bsprintf((char *)tempbuf,"%hu,%hu",(unsigned short)sector[sectnum].hitag,
+		Bsprintf((char *)&tempbuf[0],"%hu,%hu",(unsigned short)sector[sectnum].hitag,
 								  (unsigned short)sector[sectnum].lotag);
 	}
-	return((char *)tempbuf);
+	return((char *)&tempbuf[0]);
 }
 
 const char *ExtGetWallCaption(short wallnum)
@@ -402,10 +404,10 @@ const char *ExtGetWallCaption(short wallnum)
 	}
 	else
 	{
-		Bsprintf((char *)tempbuf,"%hu,%hu",(unsigned short)wall[wallnum].hitag,
+		Bsprintf((char *)&tempbuf[0],"%hu,%hu",(unsigned short)wall[wallnum].hitag,
 								  (unsigned short)wall[wallnum].lotag);
 	}
-	return((char *)tempbuf);
+	return((char *)&tempbuf[0]);
 }
 
 const char *ExtGetSpriteCaption(short spritenum)
@@ -416,10 +418,10 @@ const char *ExtGetSpriteCaption(short spritenum)
 	}
 	else
 	{
-		Bsprintf((char *)tempbuf,"%hu,%hu",(unsigned short)sprite[spritenum].hitag,
+		Bsprintf((char *)&tempbuf[0],"%hu,%hu",(unsigned short)sprite[spritenum].hitag,
 								  (unsigned short)sprite[spritenum].lotag);
 	}
-	return((char *)tempbuf);
+	return((char *)&tempbuf[0]);
 }
 
 //printext16 parameters:
@@ -447,8 +449,8 @@ void ExtShowSectorData(short sectnum)   //F5
 	{
 		clearmidstatbar16();             //Clear middle of status bar
 
-		Bsprintf((char *)tempbuf,"Sector %d",sectnum);
-		printext16(8,32,11,-1,(char *)tempbuf,0);
+		Bsprintf((char *)&tempbuf[0],"Sector %d",sectnum);
+		printext16(8,32,11,-1, (char *)&tempbuf[0], 0);
 
 		printext16(8,48,11,-1,"8*8 font:  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789",0);
 		printext16(8,56,11,-1,"3*5 font:  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789",1);
@@ -471,8 +473,8 @@ void ExtShowWallData(short wallnum)       //F6
 	{
 		clearmidstatbar16();             //Clear middle of status bar
 
-		Bsprintf((char *)tempbuf,"Wall %d",wallnum);
-		printext16(8,32,11,-1,(char *)tempbuf,0);
+		Bsprintf((char *)&tempbuf[0],"Wall %d",wallnum);
+		printext16(8,32,11,-1,(char *)&tempbuf[0], 0);
 	}
 }
 
@@ -485,8 +487,8 @@ void ExtShowSpriteData(short spritenum)   //F6
 	{
 		clearmidstatbar16();             //Clear middle of status bar
 
-		Bsprintf((char *)tempbuf,"Sprite %d",spritenum);
-		printext16(8,32,11,-1,(char *)tempbuf,0);
+		Bsprintf((char *)&tempbuf[0],"Sprite %d",spritenum);
+		printext16(8,32,11,-1, (char *)&tempbuf[0], 0);
 	}
 }
 
@@ -506,9 +508,9 @@ void ExtEditSectorData(short sectnum)    //F7
 	}
 	else                    //In 2D mode
 	{
-		Bsprintf((char *)tempbuf,"Sector (%d) Nick's variable: ",sectnum);
+		Bsprintf((char *)&tempbuf[0],"Sector (%d) Nick's variable: ",sectnum);
 		nickdata = 0;
-		nickdata = getnumber16((char *)tempbuf,nickdata,65536L,0);
+		nickdata = getnumber16((char *)&tempbuf[0], nickdata, 65536L, 0);
 
 		printmessage16("");              //Clear message box (top right of status bar)
 		ExtShowSectorData(sectnum);
@@ -524,9 +526,9 @@ void ExtEditWallData(short wallnum)       //F8
 	}
 	else
 	{
-		Bsprintf((char *)tempbuf,"Wall (%d) Nick's variable: ",wallnum);
+		Bsprintf((char *)&tempbuf[0],"Wall (%d) Nick's variable: ",wallnum);
 		nickdata = 0;
-		nickdata = getnumber16((char *)tempbuf,nickdata,65536L,0);
+		nickdata = getnumber16((char *)&tempbuf[0], nickdata, 65536L, 0);
 
 		printmessage16("");              //Clear message box (top right of status bar)
 		ExtShowWallData(wallnum);
@@ -542,9 +544,9 @@ void ExtEditSpriteData(short spritenum)   //F8
 	}
 	else
 	{
-		Bsprintf((char *)tempbuf,"Sprite (%d) Nick's variable: ",spritenum);
+		Bsprintf((char *)&tempbuf[0],"Sprite (%d) Nick's variable: ",spritenum);
 		nickdata = 0;
-		nickdata = getnumber16((char *)tempbuf,nickdata,65536L,0);
+		nickdata = getnumber16((char *)&tempbuf[0], nickdata, 65536L, 0);
 		printmessage16("");
 
 		printmessage16("");              //Clear message box (top right of status bar)
