@@ -38,6 +38,8 @@
 #include <math.h>
 #include <assert.h>
 
+#include <array>
+
 void *kmalloc(bsize_t size) { return(Bmalloc(size)); }
 void kfree(void *buffer) { Bfree(buffer); }
 
@@ -56,23 +58,29 @@ constexpr auto MAXZSIZ{255};
 unsigned char voxlock[MAXVOXELS][MAXVOXMIPS];
 int voxscale[MAXVOXELS];
 
-static int ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
-static int lowrecip[1024], nytooclose, nytoofar;
-static unsigned int distrecip[65536];
+static std::array<int, MAXXSIZ + 1> ggxinc;
+static std::array<int, MAXXSIZ + 1> ggyinc;
+static std::array<int, 1024> lowrecip;
+static int nytooclose;
+static int nytoofar;
+static std::array<unsigned int, 65536> distrecip;
 
-static int *lookups = NULL;
+static int* lookups{nullptr};
 int dommxoverlay = 1, beforedrawrooms = 1;
 
-static int oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
+static int oxdimen{-1};
+static int oviewingrange{-1};
+static int oxyaspect{-1};
 
 int curbrightness = 0, gammabrightness = 0;
 float curgamma = 1.0;
 
 	//Textured Map variables
 static unsigned char globalpolytype;
-static short *dotp1[MAXYDIM], *dotp2[MAXYDIM];
+static std::array<short*, MAXYDIM> dotp1;
+static std::array<short*, MAXYDIM> dotp2;
 
-static unsigned char tempbuf[MAXWALLS];
+static std::array<unsigned char, MAXWALLS> tempbuf;
 
 int ebpbak, espbak;
 constexpr auto SLOPALOOKUPSIZ = MAXXDIM << 1;
@@ -82,8 +90,9 @@ palette_t palookupfog[MAXPALOOKUPS];
 #endif
 
 int artversion, mapversion=7L;	// JBF 20040211: default mapversion to 7
-void *pic = NULL;
-unsigned char picsiz[MAXTILES], tilefilenum[MAXTILES];
+void *pic = nullptr;
+unsigned char picsiz[MAXTILES];
+unsigned char tilefilenum[MAXTILES];
 int lastageclock;
 int tilefileoffs[MAXTILES];
 
@@ -91,27 +100,19 @@ int artsize = 0;
 size_t cachesize = 0;
 int editorgridextent = 131072;
 
-static short radarang[1280], radarang2[MAXXDIM];
-static unsigned short sqrtable[4096], shlookup[4096+256];
-unsigned char pow2char[8] = {1,2,4,8,16,32,64,128};
-int pow2long[32] =
-{
-	1L,2L,4L,8L,
-	16L,32L,64L,128L,
-	256L,512L,1024L,2048L,
-	4096L,8192L,16384L,32768L,
-	65536L,131072L,262144L,524288L,
-	1048576L,2097152L,4194304L,8388608L,
-	16777216L,33554432L,67108864L,134217728L,
-	268435456L,536870912L,1073741824L,2147483647L
-};
-int reciptable[2048], fpuasm;
+static std::array<short, 1280> radarang;
+static std::array<short, MAXXDIM> radarang2;
+static std::array<unsigned short, 4096> sqrtable;
+static std::array<unsigned short, 4096 + 256> shlookup;
+
+int reciptable[2048];
+int fpuasm;
 
 unsigned char britable[16][256];
 
-static char kensmessage[128];
-char *engineerrstr = NULL;
-static BFILE *logfile=NULL;		// log filehandle
+static std::array<char, 128> kensmessage;
+char *engineerrstr = nullptr;
+static BFILE *logfile = nullptr;		// log filehandle
 
 const struct textfontspec textfonts[3] = {
 	{	//8x8
@@ -509,14 +510,18 @@ int startposx, startposy, startposz;
 short startang, startsectnum;
 short pointhighlight, linehighlight, highlightcnt;
 int lastx[MAXYDIM];
-unsigned char *transluc = NULL;
+unsigned char *transluc = nullptr;
 
 constexpr auto FASTPALGRIDSIZ{8};
 static int rdist[129], gdist[129], bdist[129];
 static unsigned char colhere[((FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2))>>3];
 static unsigned char colhead[(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)];
 static int colnext[256];
-static unsigned char coldist[8] = {0,1,2,3,4,3,2,1};
+
+constexpr std::array<unsigned char, 8> coldist = {
+	0, 1, 2, 3, 4, 3, 2, 1
+};
+
 static int colscan[27];
 
 static short clipnum, hitwalls[4];
@@ -550,8 +555,8 @@ static int screencapture_pcx(char mode);
 static int screencapture_tga(char mode);
 static int screencapture_png(char mode);
 
-unsigned char vgapal16[4*256] =
-{
+// FIXME: Consider grouping the 4 numbers together in a struct
+constexpr std::array<unsigned char, 4 * 256> vgapal16 = {
 	00,00,00,00, 42,00,00,00, 00,42,00,00, 42,42,00,00, 00,00,42,00,
 	42,00,42,00, 00,21,42,00, 42,42,42,00, 21,21,21,00, 63,21,21,00,
 	21,63,21,00, 63,63,21,00, 21,21,63,00, 63,21,63,00, 21,63,63,00,
@@ -614,7 +619,7 @@ static void scansector(short sectnum)
 
 	if (sectnum < 0) return;
 
-	if (automapping) show2dsector[sectnum>>3] |= pow2char[sectnum&7];
+	if (automapping) show2dsector[sectnum>>3] |= pow2char[sectnum & 7];
 
 	sectorborder[0] = sectnum, sectorbordercnt = 1;
 	do
@@ -637,7 +642,7 @@ static void scansector(short sectnum)
 			}
 		}
 
-		gotsector[sectnum>>3] |= pow2char[sectnum&7];
+		gotsector[sectnum>>3] |= pow2char[sectnum & 7];
 
 		bunchfrst = numbunches;
 		numscansbefore = numscans;
@@ -654,7 +659,7 @@ static void scansector(short sectnum)
 			x2 = wal2->x-globalposx; y2 = wal2->y-globalposy;
 
 			if ((nextsectnum >= 0) && ((wal->cstat&32) == 0))
-				if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
+				if ((gotsector[nextsectnum>>3] & pow2char[nextsectnum & 7]) == 0)
 				{
 					templong = x1*y2-x2*y1;
 					if (((unsigned)templong+262144) < 524288)
@@ -761,9 +766,9 @@ static void maskwallscan(int x1, int x2, short *uwal, short *dwal, int *swal, in
 
 	startx = x1;
 
-	xnice = (pow2long[picsiz[globalpicnum]&15] == tsizx);
+	xnice = (pow2long[picsiz[globalpicnum] & 15] == tsizx);
 	if (xnice) tsizx = (tsizx-1);
-	ynice = (pow2long[picsiz[globalpicnum]>>4] == tsizy);
+	ynice = (pow2long[picsiz[globalpicnum] >> 4] == tsizy);
 	if (ynice) tsizy = (picsiz[globalpicnum]>>4);
 
 	fpalookup = (intptr_t)palookup[globalpal];
@@ -1732,9 +1737,9 @@ static void wallscan(int x1, int x2, short *uwal, short *dwal, int *swal, int *l
 
 	if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
-	xnice = (pow2long[picsiz[globalpicnum]&15] == tsizx);
+	xnice = (pow2long[picsiz[globalpicnum] & 15] == tsizx);
 	if (xnice) tsizx--;
-	ynice = (pow2long[picsiz[globalpicnum]>>4] == tsizy);
+	ynice = (pow2long[picsiz[globalpicnum] >> 4] == tsizy);
 	if (ynice) tsizy = (picsiz[globalpicnum]>>4);
 
 	fpalookup = (intptr_t)palookup[globalpal];
@@ -2312,13 +2317,13 @@ static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int 
 			else
 			{
 				for(j=xb1[z];j<=xb2[z];j++)
-					lplc[j] = ((((int)radarang2[j]+globalang)&2047)>>k);
+					lplc[j] = (((static_cast<int>(radarang2[j]) + globalang)&2047)>>k);
 			}
 			if (parallaxtype == 2)
 			{
 				n = mulscale16(xdimscale,viewingrange);
 				for(j=xb1[z];j<=xb2[z];j++)
-					swplc[j] = mulscale14(sintable[((int)radarang2[j]+512)&2047],n);
+					swplc[j] = mulscale14(sintable[(static_cast<int>(radarang2[j]) + 512) & 2047] ,n);
 			}
 			else
 				clearbuf(&swplc[xb1[z]],xb2[z]-xb1[z]+1,mulscale16(xdimscale,viewingrange));
@@ -2669,7 +2674,7 @@ static void drawalls(int bunch)
 				}
 			}
 			if (numhits < 0) return;
-			if ((!(wal->cstat&32)) && ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0))
+			if ((!(wal->cstat&32)) && ((gotsector[nextsectnum>>3] & pow2char[nextsectnum & 7]) == 0))
 			{
 				if (umost[x2] < dmost[x2])
 					scansector(nextsectnum);
@@ -2885,7 +2890,7 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 			case 8: case 7: x2 = gyinc; y2 = -gxinc; break;
 			case 6: case 3: x2 = gxinc+gyinc; y2 = gyinc-gxinc; break;
 		}
-		oand = pow2char[(xs<backx)+0]+pow2char[(ys<backy)+2];
+		oand = pow2char[(xs < backx) + 0] + pow2char[(ys < backy) + 2];
 		oand16 = oand+16;
 		oand32 = oand+32;
 
@@ -2896,8 +2901,8 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 		nxoff = mulscale16(x2-x1,viewingrangerecip);
 		x1 = mulscale16(x1,viewingrangerecip);
 
-		ggxstart = gxstart+ggyinc[ys];
-		ggystart = gystart-ggxinc[ys];
+		ggxstart = gxstart + ggyinc[ys];
+		ggystart = gystart - ggxinc[ys];
 
 		for(x=xs;x!=xe;x+=xi)
 		{
@@ -2905,7 +2910,7 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 			shortptr = (short *)&davoxptr[((x*(daysiz+1))<<1)+xyvoxoffs];
 
 			nx = mulscale16(ggxstart+ggxinc[x],viewingrangerecip)+x1;
-			ny = ggystart+ggyinc[x];
+			ny = ggystart + ggyinc[x];
 			for(y=ys;y!=ye;y+=yi,nx+=dagyinc,ny-=dagxinc)
 			{
 				if ((ny <= nytooclose) || (ny >= nytoofar)) continue;
@@ -2913,15 +2918,15 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 				voxend = (unsigned char *)(B_LITTLE16(shortptr[y+1])+slabxoffs);
 				if (voxptr == voxend) continue;
 
-				lx = mulscale32(nx>>3,distrecip[(ny+y1)>>14])+halfxdimen;
+				lx = mulscale32(nx >> 3, distrecip[(ny + y1) >> 14]) + halfxdimen;
 				if (lx < 0) lx = 0;
-				rx = mulscale32((nx+nxoff)>>3,distrecip[(ny+y2)>>14])+halfxdimen;
+				rx = mulscale32((nx + nxoff) >> 3, distrecip[(ny + y2) >> 14]) + halfxdimen;
 				if (rx > xdimen) rx = xdimen;
 				if (rx <= lx) continue;
 				rx -= lx;
 
-				l1 = distrecip[(ny-yoff)>>14];
-				l2 = distrecip[(ny+yoff)>>14];
+				l1 = distrecip[(ny - yoff) >> 14];
+				l2 = distrecip[(ny + yoff) >> 14];
 				for(;voxptr<voxend;voxptr+=voxptr[1]+3)
 				{
 					j = (voxptr[0]<<15)-syoff;
@@ -2955,7 +2960,7 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 					else
 					{
 						if (z2-z1 >= 1024) yinc = divscale16(voxptr[1],z2-z1);
-						else if (z2 > z1) yinc = (lowrecip[z2-z1]*voxptr[1]>>8);
+						else if (z2 > z1) yinc = (lowrecip[z2 - z1] * voxptr[1] >> 8);
 						if (z1 < daumost[lx]) { yplc = yinc*(daumost[lx]-z1); z1 = daumost[lx]; } else yplc = 0;
 					}
 					if (z2 > dadmost[lx]) z2 = dadmost[lx];
@@ -3886,7 +3891,7 @@ static void drawsprite(int snum)
 		drawvox(tspr->x,tspr->y,tspr->z,i,(int)tspr->xrepeat,(int)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
 	}
 
-	if (automapping == 1) show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
+	if (automapping == 1) show2dsprite[spritenum >> 3] |= pow2char[spritenum & 7];
 }
 
 
@@ -4839,9 +4844,9 @@ static void initksqrt()
 	for(i=0;i<4096;i++)
 	{
 		if (i >= j) { j <<= 2; k++; }
-		sqrtable[i] = (unsigned short)(msqrtasm((i<<18)+131072)<<1);
-		shlookup[i] = (k<<1)+((10-k)<<8);
-		if (i < 256) shlookup[i+4096] = ((k+6)<<1)+((10-(k+6))<<8);
+		sqrtable[i] = static_cast<unsigned short>(msqrtasm((i<<18)+131072)<<1);
+		shlookup[i] = (k << 1) + ((10 - k) << 8);
+		if (i < 256) shlookup[i + 4096] = ((k + 6) << 1)+((10 - (k + 6)) << 8);
 	}
 }
 
@@ -4875,9 +4880,12 @@ static void dosetaspect()
 		{
 			j = (x&65535); k = (x>>16); x += xinc;
 			if (j != 0) j = mulscale16((int)radarang[k+1]-(int)radarang[k],j);
-			radarang2[i] = (short)(((int)radarang[k]+j)>>6);
+			radarang2[i] = (short)((static_cast<int>(radarang[k]) + j) >> 6);
 		}
-		for(i=1;i<65536;i++) distrecip[i] = divscale20(xdimen,i);
+		for(i=1;i<65536;i++) {
+			distrecip[i] = divscale20(xdimen, i);
+		}
+
 		nytooclose = xdimen*2100;
 		nytoofar = 65536*16384-1048576;
 	}
@@ -4918,7 +4926,7 @@ static int loadtables()
         engineerrstr = "Calculation of sintable yielded unexpected results.";
         return 1;
     }
-    if (crc32once((unsigned char *)radarang, sizeof(radarang)/2) != 0xee893d92) {
+    if (crc32once((unsigned char *)&radarang[0], sizeof(radarang) / 2) != 0xee893d92) {
         engineerrstr = "Calculation of radarang yielded unexpected results.";
         return 1;
     }
@@ -4954,9 +4962,9 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 	for(i=255;i>=0;i--,pal1-=3)
 	{
 		j = (pal1[0]>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(pal1[1]>>3)*FASTPALGRIDSIZ+(pal1[2]>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
-		if (colhere[j>>3]&pow2char[j&7]) colnext[i] = colhead[j]; else colnext[i] = -1;
+		if (colhere[j>>3] & pow2char[j & 7]) colnext[i] = colhead[j]; else colnext[i] = -1;
 		colhead[j] = i;
-		colhere[j>>3] |= pow2char[j&7];
+		colhere[j>>3] |= pow2char[j & 7];
 	}
 
 	i = 0;
@@ -5002,12 +5010,12 @@ static int loadpalette()
 		goto badpalette;
 	}
 
-	if ((palookup[0] = static_cast<unsigned char*>(kmalloc(numpalookups<<8))) == NULL) {
+	if ((palookup[0] = static_cast<unsigned char*>(kmalloc(numpalookups<<8))) == nullptr) {
 		engineerrstr = "Failed to allocate palette memory";
 		kclose(fil);
 		return 1;
 	}
-	if ((transluc = static_cast<unsigned char*>(kmalloc(65536L))) == NULL) {
+	if ((transluc = static_cast<unsigned char*>(kmalloc(65536L))) == nullptr) {
 		engineerrstr = "Failed to allocate translucency memory";
 		kclose(fil);
 		return 1;
@@ -5042,8 +5050,8 @@ int getclosestcol(int r, int g, int b)
 	unsigned char *pal1;
 
 	j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(g>>3)*FASTPALGRIDSIZ+(b>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
-	mindist = min(rdist[coldist[r&7]+64+8],gdist[coldist[g&7]+64+8]);
-	mindist = min(mindist,bdist[coldist[b&7]+64+8]);
+	mindist = min(rdist[coldist[r & 7] + 64 + 8],gdist[coldist[g & 7] + 64 + 8]);
+	mindist = min(mindist,bdist[coldist[b & 7] + 64 + 8]);
 	mindist++;
 
 	r = 64-r; g = 64-g; b = 64-b;
@@ -5051,7 +5059,7 @@ int getclosestcol(int r, int g, int b)
 	retcol = -1;
 	for(k=26;k>=0;k--)
 	{
-		i = colscan[k]+j; if ((colhere[i>>3]&pow2char[i&7]) == 0) continue;
+		i = colscan[k]+j; if ((colhere[i>>3] & pow2char[i & 7]) == 0) continue;
 		i = colhead[i];
 		do
 		{
@@ -5423,7 +5431,10 @@ int initengine()
 	parallaxtype = 2; parallaxyoffs = 0L; parallaxyscale = 65536;
 	showinvisibility = 0;
 
-	for(i=1;i<1024;i++) lowrecip[i] = ((1<<24)-1)/i;
+	for(i=1;i<1024;i++) {
+		lowrecip[i] = ((1 << 24) - 1) / i;
+	}
+
 	for(i=0;i<MAXVOXELS;i++)
 		for(j=0;j<MAXVOXMIPS;j++)
 		{
@@ -5436,7 +5447,7 @@ int initengine()
 
 	searchit = 0; searchstat = -1;
 
-	for(i=0;i<MAXPALOOKUPS;i++) palookup[i] = NULL;
+	for(i=0;i<MAXPALOOKUPS;i++) palookup[i] = nullptr;
 
 	clearbuf(&waloff[0],(int)MAXTILES,0L);
 
@@ -5491,15 +5502,15 @@ void uninitengine()
 	uninitsystem();
 
 	if (logfile) Bfclose(logfile);
-	logfile = NULL;
+	logfile = nullptr;
 
 	if (artfil != -1) kclose(artfil);
 
-	if (transluc != NULL) { kfree(transluc); transluc = NULL; }
-	if (pic != NULL) { kfree(pic); pic = NULL; }
-	if (lookups != NULL) { kfree(lookups); lookups = NULL; }
+	if (transluc != nullptr) { kfree(transluc); transluc = nullptr; }
+	if (pic != nullptr) { kfree(pic); pic = nullptr; }
+	if (lookups != nullptr) { kfree(lookups); lookups = nullptr; }
 	for(i=0;i<MAXPALOOKUPS;i++)
-		if (palookup[i] != NULL) { kfree(palookup[i]); palookup[i] = NULL; }
+		if (palookup[i] != nullptr) { kfree(palookup[i]); palookup[i] = nullptr; }
 }
 
 
@@ -5651,7 +5662,7 @@ void drawrooms(int daposx, int daposy, int daposz,
 
 	while ((numbunches > 0) && (numhits > 0))
 	{
-		clearbuf(&tempbuf[0],(int)((numbunches+3)>>2),0L);
+		clearbuf(&tempbuf[0], (int)((numbunches+3)>>2),0L);
 		tempbuf[0] = 1;
 
 		closest = 0;              //Almost works, but not quite :(
@@ -5674,7 +5685,7 @@ void drawrooms(int daposx, int daposy, int daposz,
 		if (automapping)
 		{
 			for(z=bunchfirst[closest];z>=0;z=p2[z])
-				show2dwall[thewall[z]>>3] |= pow2char[thewall[z]&7];
+				show2dwall[thewall[z]>>3] |= pow2char[thewall[z] & 7];
 		}
 
 		numbunches--;
@@ -5913,7 +5924,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 	sortnum = 0;
 
 	for(s=0,sec=&sector[s];s<numsectors;s++,sec++)
-		if (show2dsector[s>>3]&pow2char[s&7])
+		if (show2dsector[s>>3] & pow2char[s & 7])
 		{
 			npoints = 0; i = 0;
 			startwall = sec->wallptr;
@@ -5965,7 +5976,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 					tsprite[sortnum++].owner = i;
 				}
 
-			gotsector[s>>3] |= pow2char[s&7];
+			gotsector[s >> 3] |= pow2char[s & 7];
 
 			globalorientation = (int)sec->floorstat;
 			if ((globalorientation&1) != 0) continue;
@@ -7250,7 +7261,7 @@ int loadmaphack(char *filename)
 		{ "nomd2anim", 3 },
 		{ "nomd3anim", 3 },
 		{ "nomdanim", 3 },
-		{ NULL, -1 }
+		{ nullptr, -1 }
 	};
 
 	scriptfile *script;
@@ -7576,7 +7587,7 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 	    (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp))
 		return(0);
 
-	strcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI.  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
+	strcpy(&kensmessage[0],"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI.  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
 
 #if USE_POLYMOST && USE_OPENGL
 	int oldbpp = bpp;
@@ -7621,8 +7632,8 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 
 	j = ydim*4*sizeof(int);  //Leave room for horizlookup&horizlookup2
 
-	if (lookups != NULL) { kfree((void *)lookups); lookups = NULL; }
-	if ((lookups = static_cast<int*>(kmalloc(j<<1))) == NULL) {
+	if (lookups != nullptr) { kfree((void *)lookups); lookups = nullptr; }
+	if ((lookups = static_cast<int*>(kmalloc(j<<1))) == nullptr) {
 		engineerrstr = "Failed to allocate lookups memory";
 		return -1;
 	}
@@ -7700,7 +7711,7 @@ void nextpage()
 #endif
 
 			if (captureatnextpage) {
-				screencapture(NULL, captureatnextpage);
+				screencapture(nullptr, captureatnextpage);
 				captureatnextpage = 0;
 			}
 
@@ -7834,7 +7845,7 @@ int loadpics(char *filename, int askedsize)
 		cachesize = (Bgetsysmemsize()/100)*60;
 	else
 		cachesize = askedsize;
-	while ((pic = kmalloc(cachesize)) == NULL)
+	while ((pic = kmalloc(cachesize)) == nullptr)
 	{
 		cachesize -= 65536L;
 		if (cachesize < 65536) return(-1);
@@ -8005,7 +8016,7 @@ int qloadkvx(int voxindex, char *filename)
 #if USE_POLYMOST && USE_OPENGL
 	if (voxmodels[voxindex]) {
 		voxfree(voxmodels[voxindex]);
-		voxmodels[voxindex] = NULL;
+		voxmodels[voxindex] = nullptr;
 	}
 	voxmodels[voxindex] = voxload(filename);
 #endif
@@ -9757,10 +9768,10 @@ int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char
 	int i, j, palscale;
 	unsigned char *ptr, *ptr2;
 
-	if (palookup[palnum] == NULL)
+	if (palookup[palnum] == nullptr)
 	{
 			//Allocate palookup buffer
-		if ((palookup[palnum] = static_cast<unsigned char*>(kmalloc(numpalookups<<8))) == NULL) {
+		if ((palookup[palnum] = static_cast<unsigned char*>(kmalloc(numpalookups<<8))) == nullptr) {
 			engineerrstr = "Failed to allocate palette lookup memory";
 			return 1;
 		}
@@ -9814,11 +9825,11 @@ void setvgapalette()
 	int i;
 
 	for (i=0;i<256;i++) {
-		curpalettefaded[i].b = curpalette[i].b = vgapal16[4*i] << 2;
-		curpalettefaded[i].g = curpalette[i].g = vgapal16[4*i+1] << 2;
-		curpalettefaded[i].r = curpalette[i].r = vgapal16[4*i+2] << 2;
+		curpalettefaded[i].b = curpalette[i].b = vgapal16[4 * i] << 2;
+		curpalettefaded[i].g = curpalette[i].g = vgapal16[4 * i + 1] << 2;
+		curpalettefaded[i].r = curpalette[i].r = vgapal16[4 * i + 2] << 2;
 	}
-	setpalette(0,256,vgapal16);
+	setpalette(0, 256, &vgapal16[0]);
 }
 
 //
@@ -9849,7 +9860,7 @@ void setbrightness(int dabrightness, unsigned char *dapal, char noapply)
 		curpalettefaded[i].f = tempbuf[k++] = 0;
 	}
 
-	if ((noapply&1) == 0) setpalette(0,256,(unsigned char*)tempbuf);
+	if ((noapply&1) == 0) setpalette(0,256,(unsigned char*)&tempbuf[0]);
 
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode == 3) {
@@ -9905,7 +9916,7 @@ void setpalettefade(unsigned char r, unsigned char g, unsigned char b, unsigned 
 		tempbuf[k++] = curpalettefaded[i].f = 0;
 	}
 
-	setpalette(0,256,(unsigned char*)tempbuf);
+	setpalette(0,256,(unsigned char*)&tempbuf[0]);
 }
 
 
@@ -10149,7 +10160,7 @@ void completemirror()
 	i = windowx2-windowx1-mirrorsx2-mirrorsx1; mirrorsx2 -= mirrorsx1;
 	for(dy=mirrorsy2-mirrorsy1-1;dy>=0;dy--)
 	{
-		copybufbyte((void*)(p+1),tempbuf,mirrorsx2+1);
+		copybufbyte((void*)(p+1), &tempbuf[0], mirrorsx2+1);
 		tempbuf[mirrorsx2] = tempbuf[mirrorsx2-1];
 		copybufreverse(&tempbuf[mirrorsx2],(void*)(p+i),mirrorsx2+1);
 		p += ylookup[1];
@@ -10472,7 +10483,7 @@ void printext256(int xpos, int ypos, short col, short backcol, const char *name,
 		{
 			for(x=f->charxsiz-1;x>=0;x--)
 			{
-				if (letptr[y]&pow2char[7-x-f->cellxoff])
+				if (letptr[y] & pow2char[7 - x - f->cellxoff])
 					ptr[x] = (unsigned char)col;
 				else if (backcol >= 0)
 					ptr[x] = (unsigned char)backcol;
@@ -10494,10 +10505,10 @@ static BFILE *screencapture_openfile(const char *ext)
 
 	do {	// JBF 2004022: So we don't overwrite existing screenshots
 		if (capturecount > 9999) {
-			return NULL;
+			return nullptr;
 		}
 
-		seq = strrchr(capturename, '.'); if (!seq) return NULL;
+		seq = strrchr(capturename, '.'); if (!seq) return nullptr;
 		seq -= 4;
 		seq[0] = ((capturecount/1000)%10)+48;
 		seq[1] = ((capturecount/100)%10)+48;
@@ -10507,7 +10518,7 @@ static BFILE *screencapture_openfile(const char *ext)
 		seq[6] = ext[1];
 		seq[7] = ext[2];
 
-		if ((fil = Bfopen(capturename, "rb")) == NULL) break;
+		if ((fil = Bfopen(capturename, "rb")) == nullptr) break;
 		Bfclose(fil);
 		capturecount++;
 	} while (1);
@@ -10600,7 +10611,7 @@ static int screencapture_tga(char mode)
 	unsigned char head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
 	BFILE *fil;
 
-	if ((fil = screencapture_openfile("tga")) == NULL) {
+	if ((fil = screencapture_openfile("tga")) == nullptr) {
 		return -1;
 	}
 
@@ -10639,7 +10650,7 @@ static int screencapture_tga(char mode)
 
 	// Targa renders bottom to top, from left to right.
 	// 24bit images use BGR element order.
-	screencapture_writeframe(fil, (mode&1) | 2 | 4, NULL, screencapture_writetgaline);
+	screencapture_writeframe(fil, (mode&1) | 2 | 4, nullptr, screencapture_writetgaline);
 
 	Bfclose(fil);
 	return(0);
@@ -10708,7 +10719,7 @@ static int screencapture_pcx(char mode)
 	unsigned char head[128];
 	BFILE *fil;
 
-	if ((fil = screencapture_openfile("pcx")) == NULL) {
+	if ((fil = screencapture_openfile("pcx")) == nullptr) {
 		return -1;
 	}
 
@@ -10742,7 +10753,7 @@ static int screencapture_pcx(char mode)
 
 	// PCX renders top to bottom, from left to right.
 	// 24-bit images have each scan line written as deinterleaved RGB.
-	screencapture_writeframe(fil, (mode&1), NULL, screencapture_writepcxline);
+	screencapture_writeframe(fil, (mode&1), nullptr, screencapture_writepcxline);
 
 	// palette last
 #if USE_POLYMOST && USE_OPENGL
@@ -10826,7 +10837,7 @@ static int screencapture_png(char mode)
 	glmode = (rendmode == 3 && qsetmode == 200);
 #endif
 
-	if ((fil = screencapture_openfile("png")) == NULL) {
+	if ((fil = screencapture_openfile("png")) == nullptr) {
 		return -1;
 	}
 
@@ -11063,9 +11074,9 @@ void buildputs(const char *str)
 void buildsetlogfile(const char *fn)
 {
 	if (logfile) Bfclose(logfile);
-	logfile = NULL;
+	logfile = nullptr;
 	if (fn) logfile = Bfopen(fn,"w");
-	if (logfile) setvbuf(logfile, (char*)NULL, _IONBF, 0);
+	if (logfile) setvbuf(logfile, (char*)nullptr, _IONBF, 0);
 }
 
 

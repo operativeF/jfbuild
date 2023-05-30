@@ -1370,7 +1370,8 @@ void showframe()
 //
 // setpalette() -- set palette values
 //
-int setpalette(int start, int num, unsigned char * dapal)
+// FIXME: Parameters are unused
+int setpalette(int start, int num, const unsigned char* dapal)
 {
 	(void)start; (void)num; (void)dapal;
 

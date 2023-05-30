@@ -94,9 +94,6 @@ extern void kfree(void *);
 
 static void reportandexit(char *errormessage);
 
-extern char pow2char[8];
-
-
 void initcache(void *dacachestart, size_t dacachesize)
 {
 	int i;

@@ -1280,7 +1280,6 @@ static int gcompid[4], gcomphsamp[4], gcompvsamp[4], gcompquantab[4], gcomphsamp
 static int lnumcomponents, lcompid[4], lcompdc[4], lcompac[4], lcomphsamp[4], lcompvsamp[4], lcompquantab[4];
 static int lcomphvsamp0, lcomphsampshift0, lcompvsampshift0;
 static int colclip[1024], colclipup8[1024], colclipup16[1024];
-//static unsigned char pow2char[8] = {1,2,4,8,16,32,64,128};
 
 #if defined(__WATCOMC__) && USE_ASM
 

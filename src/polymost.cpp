@@ -2853,7 +2853,7 @@ static void polymost_drawalls (int bunch)
 		}
 
 		if (nextsectnum >= 0)
-			if ((!(gotsector[nextsectnum>>3]&pow2char[nextsectnum&7])) && (testvisiblemost(x0,x1)))
+			if ((!(gotsector[nextsectnum >> 3] & pow2char[nextsectnum & 7])) && (testvisiblemost(x0,x1)))
 				polymost_scansector(nextsectnum);
 	}
 }
@@ -2884,7 +2884,7 @@ static void polymost_scansector (int sectnum)
 	int xs, ys, x1, y1, x2, y2;
 
 	if (sectnum < 0) return;
-	if (automapping) show2dsector[sectnum>>3] |= pow2char[sectnum&7];
+	if (automapping) show2dsector[sectnum >> 3] |= pow2char[sectnum & 7];
 
 	sectorborder[0] = sectnum, sectorbordercnt = 1;
 	do
@@ -2907,7 +2907,7 @@ static void polymost_scansector (int sectnum)
 			}
 		}
 
-		gotsector[sectnum>>3] |= pow2char[sectnum&7];
+		gotsector[sectnum >> 3] |= pow2char[sectnum & 7];
 
 		bunchfrst = numbunches;
 		numscansbefore = numscans;
@@ -2922,7 +2922,7 @@ static void polymost_scansector (int sectnum)
 			x2 = wal2->x-globalposx; y2 = wal2->y-globalposy;
 
 			nextsectnum = wal->nextsector; //Scan close sectors
-			if ((nextsectnum >= 0) && (!(wal->cstat&32)) && (!(gotsector[nextsectnum>>3]&pow2char[nextsectnum&7])))
+			if ((nextsectnum >= 0) && (!(wal->cstat&32)) && (!(gotsector[nextsectnum >> 3] & pow2char[nextsectnum & 7])))
 			{
 				d = (double)x1*(double)y2 - (double)x2*(double)y1; xp1 = (double)(x2-x1); yp1 = (double)(y2-y1);
 				if (d*d <= (xp1*xp1 + yp1*yp1)*(SCISDIST*SCISDIST*260.0))
@@ -3191,7 +3191,7 @@ void polymost_drawrooms ()
 		if (automapping)
 		{
 			for(j=bunchfirst[closest];j>=0;j=p2[j])
-				show2dwall[thewall[j]>>3] |= pow2char[thewall[j]&7];
+				show2dwall[thewall[j] >> 3] |= pow2char[thewall[j] & 7];
 		}
 
 		numbunches--;
@@ -3415,21 +3415,21 @@ void polymost_drawsprite (int snum)
 	while (rendmode == 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
 		if (usemodels && tile2model[tspr->picnum].modelid >= 0 && tile2model[tspr->picnum].framenum >= 0) {
 			if (mddraw(tspr, 0)) {
-				if (automapping == 1) show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
+				if (automapping == 1) show2dsprite[spritenum >> 3] |= pow2char[spritenum & 7];
 				return;
 			}
 			break;	// else, render as flat sprite
 		}
 		if (usevoxels && (tspr->cstat&48)!=48 && tiletovox[tspr->picnum] >= 0 && voxmodels[ tiletovox[tspr->picnum] ]) {
 			if (voxdraw(voxmodels[ tiletovox[tspr->picnum] ], tspr, 0)) {
-				if (automapping == 1) show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
+				if (automapping == 1) show2dsprite[spritenum >> 3] |= pow2char[spritenum & 7];
 				return;
 			}
 			break;	// else, render as flat sprite
 		}
 		if ((tspr->cstat&48)==48 && voxmodels[ tspr->picnum ]) {
 			voxdraw(voxmodels[ tspr->picnum ], tspr, 0);
-			if (automapping == 1) show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
+			if (automapping == 1) show2dsprite[spritenum >> 3] |= pow2char[spritenum & 7];
 			return;
 		}
 		break;
@@ -3692,7 +3692,7 @@ void polymost_drawsprite (int snum)
 		case 3: //Voxel sprite
 		    break;
 	}
-	if (automapping == 1) show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
+	if (automapping == 1) show2dsprite[spritenum >> 3] |= pow2char[spritenum & 7];
 }
 
 	//sx,sy       center of sprite; screen coods*65536
