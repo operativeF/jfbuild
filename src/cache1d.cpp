@@ -65,7 +65,7 @@ int cachecount = 0;
 unsigned char zerochar = 0;
 intptr_t cachestart = 0;
 int cacnum = 0, agecount = 0;
-typedef struct { void **hand; size_t leng; unsigned char *lock; } cactype;
+struct cactype { void **hand; size_t leng; unsigned char *lock; };
 cactype cac[MAXCACHEOBJECTS];
 static int lockrecip[200];
 
@@ -267,11 +267,12 @@ static void reportandexit(char *errormessage)
 
 #include <errno.h>
 
-typedef struct _searchpath {
-	struct _searchpath *next;
+struct searchpath_t {
+	searchpath_t* next;
 	char *path;
 	size_t pathlen;		// to save repeated calls to strlen()
-} searchpath_t;
+};
+
 static searchpath_t *searchpathhead = nullptr;
 static size_t maxsearchpathlen = 0;
 int pathsearchmode = 0;

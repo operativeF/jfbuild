@@ -16,24 +16,22 @@
 #include "polymosttexcompress.hpp"
 
 /** a texture hash entry */
-struct PTHash_typ {
-	struct PTHash_typ *next;
+struct PTHash {
+	PTHash* next;
 	PTHead head;
-	struct PTHash_typ *deferto;	// if pt_findpthash can't find an exact match for a set of
+	PTHash* deferto;	// if pt_findpthash can't find an exact match for a set of
 				// parameters, it creates a header and defers it to another
 				// entry that stands in its place
 	int primecnt;	// a count of how many times the texture is touched when priming
 };
-typedef struct PTHash_typ PTHash;
 
 /** a texture manager hash entry */
-struct PTMHash_typ {
-	struct PTMHash_typ *next;
+struct PTMHash {
+	PTMHash* next;
 	PTMHead head;
 	unsigned int idcrc;   // crc32 of the id below for quick comparisons
     PTMIdent id;
 };
-typedef struct PTMHash_typ PTMHash;
 
 /** an iterator for walking the hash */
 struct PTIter_typ {
@@ -49,14 +47,13 @@ struct PTIter_typ {
 };
 
 /** a convenient structure for passing around texture data that is being baked */
-struct PTTexture_typ {
+struct PTTexture {
 	coltype * pic;
 	GLsizei sizx, sizy;	// padded size
 	GLsizei tsizx, tsizy;	// true size
 	GLenum rawfmt;		// raw format of the data (GL_RGBA, GL_BGRA)
 	int hasalpha;
 };
-typedef struct PTTexture_typ PTTexture;
 
 static int primecnt   = 0;	// expected number of textures to load during priming
 static int primedone  = 0;	// running total of how many textures have been primed

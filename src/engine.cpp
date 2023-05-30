@@ -530,12 +530,12 @@ int hitscangoalx = (1<<29)-1, hitscangoaly = (1<<29)-1;
 int hitallsprites = 0;
 #endif
 
-typedef struct { int x1, y1, x2, y2; } linetype;
+struct linetype { int x1, y1, x2, y2; };
 static linetype clipit[MAXCLIPNUM];
 static short clipsectorlist[MAXCLIPNUM], clipsectnum;
 static short clipobjectval[MAXCLIPNUM];
 
-typedef struct
+struct permfifotype
 {
 	int sx, sy, z;
 	short a, picnum;
@@ -543,7 +543,8 @@ typedef struct
 	unsigned char dapalnum, dastat, pagesleft;
 	int cx1, cy1, cx2, cy2;
 	int uniqid;	//JF extension
-} permfifotype;
+};
+
 static permfifotype permfifo[MAXPERMS];
 static int permhead = 0, permtail = 0;
 

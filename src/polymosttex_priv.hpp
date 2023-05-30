@@ -28,7 +28,7 @@ enum {
 
 
 /** PolymostTex texture manager header */
-struct PTMHead_typ {
+struct PTMHead {
 	GLuint glpic;
 
 	int flags;
@@ -36,10 +36,8 @@ struct PTMHead_typ {
 	int tsizx, tsizy;		// true texture dimensions
 };
 
-typedef struct PTMHead_typ PTMHead;
-
 /** identifying information for a PolymostTex texture manager entry */
-struct PTMIdent_typ {
+struct PTMIdent {
     int type;       //see PTMIDENT_* constants
     int flags;
     int palnum;
@@ -49,8 +47,6 @@ struct PTMIdent_typ {
 	char filename[BMAX_PATH];
 };
 
-typedef struct PTMIdent_typ PTMIdent;
-
 enum {
     PTMIDENT_ART = 0,
     PTMIDENT_HIGHTILE = 1,
@@ -58,8 +54,8 @@ enum {
 };
 
 /** PolymostTex texture header */
-struct PTHead_typ {
-	PTMHead *pic[PTHPIC_SIZE];	// when (flags & PTH_SKYBOX), each is a face of the cube
+struct PTHead {
+	PTMHead* pic[PTHPIC_SIZE];	// when (flags & PTH_SKYBOX), each is a face of the cube
 					// when !(flags & PTH_SKYBOX), see PTHPIC_* constants
 	int picnum;
 	int palnum;
@@ -69,8 +65,6 @@ struct PTHead_typ {
 
 	float scalex, scaley;		// scale factor between texture and ART tile dimensions
 };
-
-typedef struct PTHead_typ PTHead;
 
 enum {
 	PTITER_PICNUM = 1,

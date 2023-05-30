@@ -1201,9 +1201,9 @@ static void md3free (md3model *m)
 static int xsiz, ysiz, zsiz, yzsiz, *vbit = 0; //vbit: 1 bit per voxel: 0=air,1=solid
 static float xpiv, ypiv, zpiv; //Might want to use more complex/unique names!
 static int *vcolhashead = 0, vcolhashsizm1;
-typedef struct { int p, c, n; } voxcol_t;
+struct voxcol_t { int p, c, n; };
 static voxcol_t *vcol = 0; int vnum = 0, vmax = 0;
-typedef struct { short x, y; } spoint2d;
+struct spoint2d { short x, y; };
 static spoint2d *shp;
 static int *shcntmal, *shcnt = 0, shcntp;
 static int mytexo5, *zbit, gmaxx, gmaxy, garea, pow2m1[33];

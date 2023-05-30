@@ -8,15 +8,15 @@ kmd2tool.exe: kmd2tool.c; cl kmd2tool.c /Ox /G6fy /MD /link /opt:nowin98
 #include <io.h>
 #include <math.h>
 
-typedef struct { float x, y, z; } point3d;
+struct point3d { float x, y, z; };
 
-typedef struct
+struct md2typ
 {  long id, vers, skinxsiz, skinysiz, framebytes; //id:"IPD2", vers:8
 	long numskins, numverts, numuv, numtris, numglcmds, numframes;
 	long ofsskins, ofsuv, ofstris, ofsframes, ofsglcmds, ofseof; //ofsskins: skin names (64 bytes each)
-} md2typ;
+};
 
-typedef struct { point3d mul, add; } frametyp;
+struct frametyp { point3d mul, add; };
 
 int main (int argc, char **argv)
 {

@@ -35,8 +35,8 @@ enum {
 
 #include "glbuild_priv.hpp"
 
-typedef struct { unsigned char r, g, b, a; } coltype;
-typedef struct { GLfloat r, g, b, a; } coltypef;
+struct coltype { unsigned char r, g, b, a; };
+struct coltypef { GLfloat r, g, b, a; };
 
 extern float glox1, gloy1;
 extern double gxyaspect, grhalfxdown10x;

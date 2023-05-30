@@ -87,7 +87,7 @@ int rendmode = 0;
 int usemodels=1, usehightile=1, usegoodalpha=0;
 
 #include <math.h> //<-important!
-typedef struct { float x, cy[2], fy[2]; int n, p, tag, ctag, ftag; } vsptyp;
+struct vsptyp { float x, cy[2], fy[2]; int n, p, tag, ctag, ftag; };
 constexpr auto VSPMAX{4096}; //<- careful!
 static vsptyp vsp[VSPMAX];
 static int vcnt, gtag;
@@ -4015,7 +4015,7 @@ static void tessectrap (float *px, float *py, int *point2, int numpoints,
 	int i, j, k, z, i0, i1, i2, i3, npoints, gap, numrst;
 
 	static int allocpoints = 0, *slist = 0, *npoint2 = 0;
-	typedef struct { float x, y, xi; int i; } raster;
+	struct raster { float x, y, xi; int i; };
 	static raster *rst = 0;
 	static struct polymostvboitem *vboitem = nullptr;
 	if (numpoints+16 > allocpoints) //16 for safety

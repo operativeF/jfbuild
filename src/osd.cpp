@@ -9,13 +9,13 @@
 extern int getclosestcol(int r, int g, int b);	// engine.c
 extern int qsetmode;	// engine.c
 
-typedef struct _symbol {
+struct symbol_t {
 	const char *name;
-	struct _symbol *next;
+	symbol_t *next;
 
 	const char *help;
 	int (*func)(const osdfuncparm_t *);
-} symbol_t;
+};
 
 static symbol_t *symbols = nullptr;
 static symbol_t *addnewsymbol(const char *name);

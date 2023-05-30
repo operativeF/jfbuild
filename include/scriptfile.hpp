@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+struct scriptfile {
     char *textbuf;
     unsigned int textlength;
     char *ltextptr;     // pointer to start of the last token fetched (use this for line numbers)
@@ -14,7 +14,7 @@ typedef struct {
     char *filename;
     int linenum;
     int *lineoffs;
-} scriptfile;
+};
 
 char *scriptfile_gettoken(scriptfile *sf);
 char *scriptfile_peektoken(scriptfile *sf);

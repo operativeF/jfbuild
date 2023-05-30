@@ -8,28 +8,29 @@
 #ifndef MDSPRITE_PRIV_H
 #define MDSPRITE_PRIV_H
 
-typedef struct _mdskinmap_t
+struct mdskinmap_t
 {
 	unsigned char palette, filler[3]; // Build palette number
 	int skinnum, surfnum;   // Skin identifier, surface number
 	char *fn;   // Skin filename
 	PTMHead *tex[HICEFFECTMASK+1];
-	struct _mdskinmap_t *next;
-} mdskinmap_t;
+	mdskinmap_t* next;
+};
 
-typedef struct
+struct mdmodel
 {
 	int mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
 	int shadeoff;
 	float scale, bscale, zadd;
-} mdmodel;
+};
 
-typedef struct _mdanim_t
+struct mdanim_t
 {
 	int startframe, endframe;
 	int fpssc, flags;
-	struct _mdanim_t *next;
-} mdanim_t;
+	mdanim_t* next;
+};
+
 #define MDANIM_LOOP 0
 #define MDANIM_ONESHOT 1
 
@@ -39,26 +40,27 @@ typedef struct _mdanim_t
 	//   Available from http://web.archive.org/web/20030816010242/http://tfc.duke.free.fr/us/tutorials/models/md2.htm
 	//   Now at http://tfc.duke.free.fr/coding/md2.html (in French)
 	//He probably wouldn't recognize it if he looked at it though :)
-typedef struct { float x, y, z; } point3d;
+struct point3d { float x, y, z; };
 
-typedef struct
+struct md2head_t
 {
 	int id, vers, skinxsiz, skinysiz, framebytes; //id:"IPD2", vers:8
 	int numskins, numverts, numuv, numtris, numglcmds, numframes;
 	int ofsskins, ofsuv, ofstris, ofsframes, ofsglcmds, ofseof; //ofsskins: skin names (64 bytes each)
-} md2head_t;
+};
 
-typedef struct { unsigned char v[3], ni; } md2vert_t; //compressed vertex coords (x,y,z), light normal index
-typedef struct { short u, v; } md2uv_t;	//compressed texture coords
-typedef struct { short ivert[3], iuv[3]; } md2tri_t;	//indices of vertices and tex coords for each point of a triangle
-typedef struct
+struct md2vert_t { unsigned char v[3], ni; }; //compressed vertex coords (x,y,z), light normal index
+struct md2uv_t { short u, v; };	//compressed texture coords
+struct md2tri_t { short ivert[3], iuv[3]; };	//indices of vertices and tex coords for each point of a triangle
+
+struct md2frame_t
 {
 	point3d mul, add; //scale&translation vector
 	char name[16];    //frame name
 	md2vert_t verts[1]; //first vertex of this frame
-} md2frame_t;
+};
 
-typedef struct
+struct md2model
 {
 		//common between mdmodel/voxmodel/md2model/md3model
 	int mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
@@ -81,28 +83,28 @@ typedef struct
 	md2tri_t *tris;
 	char *basepath;   // pointer to string of base path
 	char *skinfn;   // pointer to first of numskins 64-char strings
-} md2model;
+};
 
 
-typedef struct { char nam[64]; int i; } md3shader_t; //ascz path of shader, shader index
-typedef struct { int i[3]; } md3tri_t; //indices of tri
-typedef struct { float u, v; } md3uv_t;
-typedef struct { signed short x, y, z; unsigned char nlat, nlng; } md3xyzn_t; //xyz are [10:6] ints
+struct md3shader_t { char nam[64]; int i; }; //ascz path of shader, shader index
+struct md3tri_t { int i[3]; }; //indices of tri
+struct md3uv_t { float u, v; };
+struct md3xyzn_t { signed short x, y, z; unsigned char nlat, nlng; }; //xyz are [10:6] ints
 
-typedef struct
+struct md3frame_t
 {
 	point3d min, max, cen; //bounding box&origin
 	float r; //radius of bounding sphere
 	char nam[16]; //ascz frame name
-} md3frame_t;
+};
 
-typedef struct
+struct md3tag_t
 {
 	char nam[64]; //ascz tag name
 	point3d p, x, y, z; //tag object pos&orient
-} md3tag_t;
+};
 
-typedef struct
+struct md3surf_t
 {
 	int id; //IDP3(0x33806873)
 	char nam[64]; //ascz surface name
@@ -113,9 +115,9 @@ typedef struct
 	md3uv_t *uv;          //file format: rel offs from md3surf
 	md3xyzn_t *xyzn;      //file format: rel offs from md3surf
 	int ofsend;
-} md3surf_t;
+};
 
-typedef struct
+struct md3filesurf_t
 {
 	int id; //IDP3(0x33806873)
 	char nam[64]; //ascz surface name
@@ -126,9 +128,9 @@ typedef struct
 	int uv;         //file format: rel offs from md3surf
 	int xyzn;       //file format: rel offs from md3surf
 	int ofsend;
-} md3filesurf_t;
+};
 
-typedef struct
+struct md3head_t
 {
 	int id, vers; //id=IDP3(0x33806873), vers=15
 	char nam[64]; //ascz path in PK3
@@ -138,9 +140,9 @@ typedef struct
 	md3tag_t *tags;     //file format: abs offs
 	md3surf_t *surfs;   //file format: abs offs
 	int eof;           //file format: abs offs
-} md3head_t;
+};
 
-typedef struct
+struct md3filehead_t
 {
 	int id, vers; //id=IDP3(0x33806873), vers=15
 	char nam[64]; //ascz path in PK3
@@ -150,9 +152,9 @@ typedef struct
 	int tags;     //file format: abs offs
 	int surfs;   //file format: abs offs
 	int eof;           //file format: abs offs
-} md3filehead_t;
+};
 
-typedef struct
+struct md3model
 {
 		//common between mdmodel/voxmodel/md2model/md3model
 	int mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
@@ -169,27 +171,28 @@ typedef struct
 
 		//MD3 specific
 	md3head_t head;
-} md3model;
+};
 
-typedef struct
+struct tile2model_t
 { // maps build tiles to particular animation frames of a model
 	int modelid;
 	int skinnum;
 	int framenum;   // calculate the number from the name when declaring
-} tile2model_t;
+};
+
 extern tile2model_t tile2model[MAXTILES];
 
-typedef struct { float xadd, yadd, zadd; short angadd, flags; } hudtyp;
+struct hudtyp { float xadd, yadd, zadd; short angadd, flags; };
 extern hudtyp hudmem[2][MAXTILES];
 
 #define VOXUSECHAR 0
 #if (VOXUSECHAR != 0)
-typedef struct { unsigned char x, y, z, u, v; } vert_t;
+struct vert_t { unsigned char x, y, z, u, v; };
 #else
-typedef struct { unsigned short x, y, z, u, v; } vert_t;
+struct vert_t { unsigned short x, y, z, u, v; };
 #endif
-typedef struct { vert_t v[4]; } voxrect_t;
-typedef struct
+struct voxrect_t { vert_t v[4]; };
+struct voxmodel
 {
 		//common between mdmodel/voxmodel/md2model/md3model
 	int mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
@@ -207,7 +210,7 @@ typedef struct
 	GLuint vertexbuf;		// 4 per quad.
 	GLuint indexbuf;		// 6 per quad (0, 1, 2, 0, 2, 3)
 	unsigned int indexcount;
-} voxmodel;
+};
 
 extern voxmodel *voxmodels[MAXVOXELS];
 extern mdmodel **models;

@@ -6,12 +6,12 @@
 #define __osd_h__
 
 
-typedef struct {
+struct osdfuncparm_t {
 	int numparms;
 	const char *name;
 	const char **parms;
 	const char *raw;
-} osdfuncparm_t;
+};
 
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1

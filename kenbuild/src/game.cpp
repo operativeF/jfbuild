@@ -92,16 +92,16 @@ KEN'S STATUS DEFINITIONS:  (Please define your own statuses for your games)
 			code also)
 **************************************************************************/
 
-typedef struct
+struct point3d
 {
 	int x, y, z;
-} point3d;
+};
 
-typedef struct
+struct input
 {
 	signed char fvel, svel, avel;
 	short bits;
-} input;
+};
 
 static int screentilt = 0, oscreentilt = 0;
 

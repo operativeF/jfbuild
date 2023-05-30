@@ -174,7 +174,7 @@ struct glbuild_funcs {
 
 extern struct glbuild_funcs glfunc;
 
-typedef struct {
+struct glbuild8bit {
     GLuint program;
     GLuint paltex;
     GLuint frametex;
@@ -183,7 +183,7 @@ typedef struct {
     GLint attrib_texcoord;  // vec2
     GLuint buffer_indexes;
     GLuint buffer_elements;
-} glbuild8bit;
+};
 
 int glbuild_init();
 
