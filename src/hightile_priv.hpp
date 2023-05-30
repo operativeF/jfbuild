@@ -24,13 +24,13 @@ struct hicskybox_t {
 	char *face[6];
 };
 
-typedef struct hicreplc_t {
-	struct hicreplc_t *next;
+struct hicreplctyp {
+	hicreplctyp* next;
 	unsigned char palnum, ignore, flags, filler;
 	char *filename;
 	float alphacut;
 	struct hicskybox_t *skybox;
-} hicreplctyp;
+};
 
 extern palette_t hictinting[MAXPALOOKUPS];
 extern hicreplctyp *hicreplc[MAXTILES];

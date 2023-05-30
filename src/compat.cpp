@@ -342,7 +342,7 @@ off_t Bfilelength(int fd)
 }
 
 
-typedef struct {
+struct BDIR_real {
 #ifdef _MSC_VER
 	HANDLE hfind;
 	WIN32_FIND_DATA fid;
@@ -351,7 +351,7 @@ typedef struct {
 #endif
 	struct Bdirent info;
 	int status;
-} BDIR_real;
+};
 
 BDIR* Bopendir(const char *name)
 {

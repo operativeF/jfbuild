@@ -37,12 +37,12 @@
 
 namespace rg_etc1
 {
-   typedef unsigned char uint8;
-   typedef unsigned short uint16;
-   typedef unsigned int uint;
-   typedef unsigned int uint32;
-   typedef long long int64;
-   typedef unsigned long long uint64;
+   using uint8  = unsigned char;
+   using uint16 = unsigned short;
+   using uint   = unsigned int;
+   using uint32 = unsigned int;
+   using int64  = long long;
+   using uint64 = unsigned long long;
 
    const uint32 cUINT32_MAX = 0xFFFFFFFFU;
    const uint64 cUINT64_MAX = 0xFFFFFFFFFFFFFFFFULL; //0xFFFFFFFFFFFFFFFFui64;
@@ -69,8 +69,8 @@ namespace rg_etc1
       struct component_traits { enum { cSigned = false, cFloat = false, cMin = 0U, cMax = 255U }; };
 
    public:
-      typedef unsigned char component_t;
-      typedef int parameter_t;
+      using component_t = unsigned char;;
+      using parameter_t = int;
 
       enum { cNumComps = 4 };
 

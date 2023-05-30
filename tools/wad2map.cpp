@@ -32,35 +32,39 @@ static int pnumwads, pwadstart, pwadplc[MAXWADS], pwadlen[MAXWADS];
 
 static short px[MAXPOINTS], py[MAXPOINTS];
 
-typedef struct
+struct linedeftype
 {
 	short p1, p2, flags, special, tag;
 	short side1, side2;   //If side2 = -1, no left
-} linedeftype;
+};
+
 static linedeftype line[MAXLINES];
 
-typedef struct
+struct sidedeftype
 {
 	short xoffset, yoffset;
 	char uppertexture[8], lowertexture[8], middletexture[8];
 	short sect;
-} sidedeftype;
+};
+
 static sidedeftype side[MAXSIDES];
 static short sidetoppic[MAXSIDES], sidebotpic[MAXSIDES], sidemidpic[MAXSIDES];
 
-typedef struct
+struct secttype
 {
 	short floorz, ceilingz;
 	char floorpic[8], ceilingpic[8];
 	short shade, type, tag;
-} secttype;
+};
+
 static secttype sect[MAXSECTS];
 static short sectspri[MAXSECTS][8];
 
-typedef struct
+struct thingtype
 {
 	short x, y, ang, type, options;
-} thingtype;
+};
+
 static thingtype thing[MAXTHINGS];
 
 static char textname[MAXTEXTS][9];
@@ -74,8 +78,7 @@ static short picindex[MAXPOINTS], linindex[MAXPOINTS];
 static short wx[MAXPOINTS], wy[MAXPOINTS], wx2[MAXPOINTS], wy2[MAXPOINTS];
 static short point2[MAXPOINTS], slist[MAXPOINTS], sectorofwall[MAXPOINTS];
 
-typedef struct
-{
+struct sectortype {
 	short wallptr, wallnum;
 	int ceilingz, floorz;
 	short ceilingstat, floorstat;
@@ -87,20 +90,18 @@ typedef struct
 	unsigned char floorpal, floorxpanning, floorypanning;
 	unsigned char visibility, filler;
 	short lotag, hitag, extra;
-} sectortype;
+};
 
-typedef struct
-{
+struct walltype {
 	int x, y;
 	short point2, nextwall, nextsector, cstat;
 	short picnum, overpicnum;
 	signed char shade;
 	unsigned char pal, xrepeat, yrepeat, xpanning, ypanning;
 	short lotag, hitag, extra;
-} walltype;
+};
 
-typedef struct
-{
+struct spritetype {
 	int x, y, z;
 	short cstat, picnum;
 	signed char shade;
@@ -110,7 +111,7 @@ typedef struct
 	short sectnum, statnum;
 	short ang, owner, xvel, yvel, zvel;
 	short lotag, hitag, extra;
-} spritetype;
+};
 
 static sectortype sector[MAXSECTORS];
 static walltype wall[MAXWALLS];
@@ -151,7 +152,7 @@ static int secval[4096], secopnum = 0;
 
 constexpr auto THINGLISTNUM{123};
 static short thinglookup[MAXTHINGTYPES];
-typedef struct { short num; char name[8]; } thinglisttype;
+struct thinglisttype { short num; char name[8]; };
 static thinglisttype thinglist[THINGLISTNUM] =
 {{1,"PLAYA1"},{2,"PLAYA1"},{3,"PLAYA1"},{4,"PLAYA1"},{11,"PLAYA1"},{14,""},{3004,"POSSA1"},
 {84,"SSWVA1"},{9,"SPOSA1"},{65,"CPOSA1"},{3001,"TROOA1"},{3002,"SARGA1"},{58,"SARGA1"},

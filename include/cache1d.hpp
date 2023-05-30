@@ -52,11 +52,16 @@ enum {
 	CACHE1D_SOURCE_ZIP = 0x7ffffffe,
 	CACHE1D_SOURCE_GRP = 0x7fffffff,
 };
-typedef struct _CACHE1D_FIND_REC {
+
+struct CACHE1D_FIND_REC {
 	char *name;
 	int type, source;
-	struct _CACHE1D_FIND_REC *next, *prev, *usera, *userb;
-} CACHE1D_FIND_REC;
+	CACHE1D_FIND_REC* next;
+	CACHE1D_FIND_REC* prev;
+	CACHE1D_FIND_REC* usera;
+	CACHE1D_FIND_REC* userb;
+};
+
 void klistfree(CACHE1D_FIND_REC *rec);
 CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int type);
 
