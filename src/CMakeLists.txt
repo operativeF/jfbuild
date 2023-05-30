@@ -6,6 +6,7 @@ set(ENGINE_BASE_SRCS
   ${CMAKE_CURRENT_LIST_DIR}/build.cpp
   ${CMAKE_CURRENT_LIST_DIR}/cache1d.cpp
   ${CMAKE_CURRENT_LIST_DIR}/compat.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/config.cpp
   ${CMAKE_CURRENT_LIST_DIR}/crc32.cpp
   ${CMAKE_CURRENT_LIST_DIR}/defs.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine.cpp
