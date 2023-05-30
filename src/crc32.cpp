@@ -1,5 +1,7 @@
 #include "crc32.hpp"
 
+#include <array>
+
 /*
 // this table of numbers is borrowed from the InfoZip source.
 static unsigned int crc32table[256] = {
@@ -58,7 +60,7 @@ static unsigned int crc32table[256] = {
 };
 */
 
-static unsigned int crc32table[256];
+static std::array<unsigned int, 256> crc32table;
 
 void initcrc32table()
 {

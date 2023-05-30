@@ -9,6 +9,10 @@
 #include "baselayer.hpp"
 #include "scriptfile.hpp"
 
+#include <array>
+#include <span>
+#include <string_view>
+
 enum {
 	T_EOF = -2,
 	T_ERROR = -1,
@@ -59,8 +63,12 @@ enum {
 	T_TILEFROMTEXTURE,T_GLOW,T_SETUPTILERANGE,  // EDuke32 extensions
 };
 
-typedef struct { char *text; int tokenid; } tokenlist;
-static tokenlist basetokens[] = {
+struct tokenlist {
+	std::string_view text;
+	int tokenid;
+};
+
+static constexpr auto basetokens = std::to_array<tokenlist>({
 	{ "include",         T_INCLUDE          },
 	{ "#include",        T_INCLUDE          },
 	{ "define",          T_DEFINE           },
@@ -95,9 +103,9 @@ static tokenlist basetokens[] = {
 	// EDuke32 extensions
 	{ "tilefromtexture",   T_TILEFROMTEXTURE   },
 	{ "setuptilerange",    T_SETUPTILERANGE    },
-};
+});
 
-static tokenlist modeltokens[] = {
+static constexpr auto modeltokens = std::to_array<tokenlist>({
 	{ "scale",  T_SCALE  },
 	{ "shade",  T_SHADE  },
 	{ "zadd",   T_ZADD   },
@@ -105,31 +113,31 @@ static tokenlist modeltokens[] = {
 	{ "anim",   T_ANIM   },
 	{ "skin",   T_SKIN   },
 	{ "hud",    T_HUD    },
-};
+});
 
-static tokenlist modelframetokens[] = {
+static constexpr auto modelframetokens = std::to_array<tokenlist>({
 	{ "frame",  T_FRAME   },
 	{ "name",   T_FRAME   },
 	{ "tile",   T_TILE   },
 	{ "tile0",  T_TILE0  },
 	{ "tile1",  T_TILE1  },
-};
+});
 
-static tokenlist modelanimtokens[] = {
+static constexpr auto modelanimtokens = std::to_array<tokenlist>({
 	{ "frame0", T_FRAME0 },
 	{ "frame1", T_FRAME1 },
 	{ "fps",    T_FPS    },
 	{ "flags",  T_FLAGS  },
-};
+});
 
-static tokenlist modelskintokens[] = {
+static constexpr auto modelskintokens = std::to_array<tokenlist>({
 	{ "pal",    T_PAL    },
 	{ "file",   T_FILE   },
 	{ "surf",   T_SURF   },
 	{ "surface",T_SURF   },
-};
+});
 
-static tokenlist modelhudtokens[] = {
+static constexpr auto modelhudtokens = std::to_array<tokenlist>({
 	{ "tile",   T_TILE   },
 	{ "tile0",  T_TILE0  },
 	{ "tile1",  T_TILE1  },
@@ -141,16 +149,16 @@ static tokenlist modelhudtokens[] = {
 	{ "nobob",  T_NOBOB  },
 	{ "flipped",T_FLIPPED},
 	{ "nodepth",T_NODEPTH},
-};
+});
 
-static tokenlist voxeltokens[] = {
+static constexpr auto voxeltokens = std::to_array<tokenlist>({
 	{ "tile",   T_TILE   },
 	{ "tile0",  T_TILE0  },
 	{ "tile1",  T_TILE1  },
 	{ "scale",  T_SCALE  },
-};
+});
 
-static tokenlist skyboxtokens[] = {
+static constexpr auto skyboxtokens = std::to_array<tokenlist>({
 	{ "tile"   ,T_TILE   },
 	{ "pal"    ,T_PAL    },
 	{ "ft"     ,T_FRONT  },{ "front"  ,T_FRONT  },{ "forward",T_FRONT  },
@@ -159,59 +167,66 @@ static tokenlist skyboxtokens[] = {
 	{ "lf"     ,T_LEFT   },{ "left"   ,T_LEFT   },{ "lt"     ,T_LEFT   },
 	{ "up"     ,T_TOP    },{ "top"    ,T_TOP    },{ "ceiling",T_TOP    },{ "ceil"   ,T_TOP    },
 	{ "dn"     ,T_BOTTOM },{ "bottom" ,T_BOTTOM },{ "floor"  ,T_BOTTOM },{ "down"   ,T_BOTTOM }
-};
+});
 
-static tokenlist tinttokens[] = {
+static constexpr auto tinttokens = std::to_array<tokenlist>({
 	{ "pal",   T_PAL },
 	{ "red",   T_RED   },{ "r", T_RED },
 	{ "green", T_GREEN },{ "g", T_GREEN },
 	{ "blue",  T_BLUE  },{ "b", T_BLUE },
 	{ "flags", T_FLAGS }
-};
+});
 
-static tokenlist texturetokens[] = {
+static constexpr auto texturetokens = std::to_array<tokenlist>({
 	{ "pal",   T_PAL  },
 	{ "glow",  T_GLOW },    // EDuke32 extension
-};
-static tokenlist texturetokens_pal[] = {
-	{ "file",      T_FILE },{ "name", T_FILE },
+});
+
+static constexpr auto texturetokens_pal = std::to_array<tokenlist>({
+	{ "file",      T_FILE },
+	{ "name", T_FILE },
 	{ "alphacut",  T_ALPHACUT },
 	{ "nocompress",T_NOCOMPRESS },
-};
+});
 
 
-static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
+static int getatoken(scriptfile *sf, std::span<const tokenlist> tl)
 {
-	char *tok;
-	int i;
+	if (!sf) {
+		return T_ERROR;
+	}
 
-	if (!sf) return T_ERROR;
-	tok = scriptfile_gettoken(sf);
-	if (!tok) return T_EOF;
+	const char* tok = scriptfile_gettoken(sf);
 
-	for(i=0;i<ntokens;i++) {
-		if (!Bstrcasecmp(tok, tl[i].text))
-			return tl[i].tokenid;
+	if (!tok) {
+		return T_EOF;
+	}
+
+	for(const auto token : tl) {
+		if (!Bstrcasecmp(tok, token.text.data()))
+			return token.tokenid;
 	}
 
 	return T_ERROR;
 }
 
-static int lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
+static int lastmodelid{-1};
+static int lastvoxid{-1};
+static int modelskin{-1};
+static int lastmodelskin{-1};
+static int seenframe{0};
 extern int nextvoxid;
 
-static const char *skyfaces[6] = {
+static constexpr auto skyfaces = std::to_array<std::string_view>({
 	"front face", "right face", "back face",
 	"left face", "top face", "bottom face"
-};
+});
 
 static int defsparser(scriptfile *script)
 {
-	int tokn;
-	char *cmdtokptr;
 	while (1) {
-		tokn = getatoken(script,basetokens,sizeof(basetokens)/sizeof(tokenlist));
-		cmdtokptr = script->ltextptr;
+		int tokn = getatoken(script, basetokens);
+		char* cmdtokptr = script->ltextptr;
 		switch (tokn) {
 			case T_ERROR:
 				buildprintf("Error on line %s:%d.\n", script->filename,scriptfile_getlinum(script,cmdtokptr));
@@ -322,7 +337,8 @@ static int defsparser(scriptfile *script)
 					}
 					md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0);
 #endif
-					modelskin = lastmodelskin = 0;
+					modelskin = 0;
+					lastmodelskin = 0;
 					seenframe = 0;
 				}
 				break;
@@ -367,7 +383,8 @@ static int defsparser(scriptfile *script)
 				break;
 			case T_DEFINEMODELANIM:
 				{
-					char *startframe, *endframe;
+					char* startframe;
+					char* endframe;
 					int flags;
 					double dfps;
 
@@ -495,14 +512,17 @@ static int defsparser(scriptfile *script)
 				// NEW (ENCOURAGED) DEFINITION SYNTAX
 			case T_MODEL:
 				{
-					char *modelend, *modelfn;
-					double scale=1.0, mzadd=0.0;
-					int shadeoffs=0;
+					char* modelend;
+					char* modelfn;
+					double scale{1.0};
+					double mzadd{0.0};
+					int shadeoffs{0};
 
-					modelskin = lastmodelskin = 0;
+					modelskin = 0;
+					lastmodelskin = 0;
 					seenframe = 0;
 
-					if (scriptfile_getstring(script,&modelfn)) break;
+					if (scriptfile_getstring(script, &modelfn)) break;
 
 #if USE_POLYMOST && USE_OPENGL
 					lastmodelid = md_loadmodel(modelfn);
@@ -513,7 +533,7 @@ static int defsparser(scriptfile *script)
 #endif
 					if (scriptfile_getbraces(script,&modelend)) break;
 					while (script->textptr < modelend) {
-						switch (getatoken(script,modeltokens,sizeof(modeltokens)/sizeof(tokenlist))) {
+						switch (getatoken(script, modeltokens)) {
 							//case T_ERROR: buildprintf("Error on line %s:%d in model tokens\n", script->filename,script->linenum); break;
 							case T_SCALE: scriptfile_getdouble(script,&scale); break;
 							case T_SHADE: scriptfile_getnumber(script,&shadeoffs); break;
@@ -526,7 +546,7 @@ static int defsparser(scriptfile *script)
 
 								if (scriptfile_getbraces(script,&frameend)) break;
 								while (script->textptr < frameend) {
-									switch(getatoken(script,modelframetokens,sizeof(modelframetokens)/sizeof(tokenlist))) {
+									switch(getatoken(script, modelframetokens)) {
 										case T_FRAME: scriptfile_getstring(script,&framename); break;
 										case T_TILE:  scriptfile_getsymbol(script,&ftilenume); ltilenume = ftilenume; break;
 										case T_TILE0: scriptfile_getsymbol(script,&ftilenume); break; //first tile number
@@ -577,13 +597,13 @@ static int defsparser(scriptfile *script)
 							case T_ANIM:
 							{
 								char *animtokptr = script->ltextptr;
-								char *animend, *startframe = 0, *endframe = 0, happy=1;
-								int flags = 0;
-								double dfps = 1.0;
+								char *animend, *startframe = 0, *endframe = 0, happy=1; // FIXME: char* == 1?
+								int flags{0};
+								double dfps{1.0};
 
 								if (scriptfile_getbraces(script,&animend)) break;
 								while (script->textptr < animend) {
-									switch(getatoken(script,modelanimtokens,sizeof(modelanimtokens)/sizeof(tokenlist))) {
+									switch(getatoken(script, modelanimtokens)) {
 										case T_FRAME0: scriptfile_getstring(script,&startframe); break;
 										case T_FRAME1: scriptfile_getstring(script,&endframe); break;
 										case T_FPS: scriptfile_getdouble(script,&dfps); break; //animation frame rate
@@ -592,11 +612,11 @@ static int defsparser(scriptfile *script)
 								}
 
 								if (!startframe) {
-									buildprintf("Error: missing 'start frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr));
+									buildprintf("Error: missing 'start frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script, animtokptr));
 									happy = 0;
 								}
 								if (!endframe) {
-									buildprintf("Error: missing 'end frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr));
+									buildprintf("Error: missing 'end frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script, animtokptr));
 									happy = 0;
 								}
 								if (!happy) break;
@@ -625,11 +645,12 @@ static int defsparser(scriptfile *script)
 							{
 								char *skintokptr = script->ltextptr;
 								char *skinend, *skinfn = 0;
-								int palnum = 0, surfnum = 0;
+								int palnum{0};
+								int surfnum{0};
 
 								if (scriptfile_getbraces(script,&skinend)) break;
 								while (script->textptr < skinend) {
-									switch(getatoken(script,modelskintokens,sizeof(modelskintokens)/sizeof(tokenlist))) {
+									switch(getatoken(script, modelskintokens)) {
 										case T_PAL: scriptfile_getsymbol(script,&palnum); break;
 										case T_FILE: scriptfile_getstring(script,&skinfn); break; //skin filename
 										case T_SURF: scriptfile_getnumber(script,&surfnum); break;
@@ -669,7 +690,7 @@ static int defsparser(scriptfile *script)
 
 								if (scriptfile_getbraces(script,&frameend)) break;
 								while (script->textptr < frameend) {
-									switch(getatoken(script,modelhudtokens,sizeof(modelhudtokens)/sizeof(tokenlist))) {
+									switch(getatoken(script, modelhudtokens)) {
 										case T_TILE:  scriptfile_getsymbol(script,&ftilenume); ltilenume = ftilenume; break;
 										case T_TILE0: scriptfile_getsymbol(script,&ftilenume); break; //first tile number
 										case T_TILE1: scriptfile_getsymbol(script,&ltilenume); break; //last tile number (inclusive)
@@ -747,7 +768,7 @@ static int defsparser(scriptfile *script)
 
 					if (scriptfile_getbraces(script,&modelend)) break;
 					while (script->textptr < modelend) {
-						switch (getatoken(script,voxeltokens,sizeof(voxeltokens)/sizeof(tokenlist))) {
+						switch (getatoken(script, voxeltokens)) {
 							//case T_ERROR: buildprintf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
 							case T_TILE:
 								scriptfile_getsymbol(script,&tilex);
@@ -786,7 +807,7 @@ static int defsparser(scriptfile *script)
 
 					if (scriptfile_getbraces(script,&modelend)) break;
 					while (script->textptr < modelend) {
-						switch (getatoken(script,skyboxtokens,sizeof(skyboxtokens)/sizeof(tokenlist))) {
+						switch (getatoken(script, skyboxtokens)) {
 							//case T_ERROR: buildprintf("Error on line %s:%d in skybox tokens\n",script->filename,linenum); break;
 							case T_TILE:  scriptfile_getsymbol(script,&tile ); break;
 							case T_PAL:   scriptfile_getsymbol(script,&pal  ); break;
@@ -825,7 +846,7 @@ static int defsparser(scriptfile *script)
 
 					if (scriptfile_getbraces(script,&tintend)) break;
 					while (script->textptr < tintend) {
-						switch (getatoken(script,tinttokens,sizeof(tinttokens)/sizeof(tokenlist))) {
+						switch (getatoken(script, tinttokens)) {
 							case T_PAL:   scriptfile_getsymbol(script,&pal);   break;
 							case T_RED:   scriptfile_getnumber(script,&red);   red   = min(255,max(0,red));   break;
 							case T_GREEN: scriptfile_getnumber(script,&green); green = min(255,max(0,green)); break;
@@ -852,7 +873,7 @@ static int defsparser(scriptfile *script)
 					if (scriptfile_getsymbol(script,&tile)) break;
 					if (scriptfile_getbraces(script,&textureend)) break;
 					while (script->textptr < textureend) {
-						switch (getatoken(script,texturetokens,sizeof(texturetokens)/sizeof(tokenlist))) {
+						switch (getatoken(script, texturetokens)) {
 							case T_PAL: {
 								char *paltokptr = script->ltextptr, *palend;
 								int pal=-1;
@@ -863,7 +884,7 @@ static int defsparser(scriptfile *script)
 								if (scriptfile_getsymbol(script,&pal)) break;
 								if (scriptfile_getbraces(script,&palend)) break;
 								while (script->textptr < palend) {
-									switch (getatoken(script,texturetokens_pal,sizeof(texturetokens_pal)/sizeof(tokenlist))) {
+									switch (getatoken(script, texturetokens_pal)) {
 										case T_FILE:     scriptfile_getstring(script,&fn); break;
 										case T_ALPHACUT: scriptfile_getdouble(script,&alphacut); break;
 										case T_NOCOMPRESS: flags |= 1; break;
@@ -963,7 +984,10 @@ static int defsparser(scriptfile *script)
 				{
 					int r0;
 
-					if (scriptfile_getsymbol(script,&r0)) break;
+					if (scriptfile_getsymbol(script, &r0)) {
+						break;
+					}
+
 					if ((unsigned)r0 >= (unsigned)MAXTILES) {
 						buildprintf("Error: invalid tile number on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 						break;
@@ -1022,10 +1046,11 @@ static int defsparser(scriptfile *script)
 
 int loaddefinitionsfile(const char *fn)
 {
-	scriptfile *script;
-
-	script = scriptfile_fromfile(fn);
-	if (!script) return -1;
+	scriptfile* script = scriptfile_fromfile(fn);
+	
+	if (!script) {
+		return -1;
+	}
 
 	defsparser(script);
 
