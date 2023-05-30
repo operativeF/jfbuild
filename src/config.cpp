@@ -11,6 +11,8 @@
 #endif
 #include "baselayer.hpp"
 
+#include <array>
+
 extern short brightness;
 extern int fullscreen;
 extern char option[8];
@@ -71,12 +73,14 @@ static int tmpbrightness = -1;
 static unsigned tmpmaxrefreshfreq = -1;
 #endif
 
-static struct {
+struct configspec_t {
 	const char *name;
 	int type;
 	void *store;
 	const char *doc;
-} configspec[] = {
+};
+
+static constexpr auto configspec = std::to_array<configspec_t>({
 	{ "forcesetup", type_bool, &forcesetup,
 		"; Always show configuration options on startup\n"
 		";   0 - No\n"
@@ -165,15 +169,12 @@ static struct {
 	{ "keychat", type_hex, &keys[18], nullptr },
 	{ "keyconsole", type_hex, &keys[19], nullptr },
 	{ nullptr, 0, nullptr, nullptr }
-};
+});
 
 int loadsetup(const char *fn)
 {
-	scriptfile *cfg;
-	char *token;
-	int item;
-
-	cfg = scriptfile_fromfile(fn);
+	scriptfile* cfg = scriptfile_fromfile(fn);
+	
 	if (!cfg) {
 		return -1;
 	}
@@ -186,8 +187,13 @@ int loadsetup(const char *fn)
 	option[5] = 0;
 
 	while (1) {
-		token = scriptfile_gettoken(cfg);
-		if (!token) break;	//EOF
+		char* token = scriptfile_gettoken(cfg);
+
+		if (!token) {
+			break;	//EOF
+		}
+		
+		int item;
 
 		for (item = 0; configspec[item].name; item++) {
 			if (!Bstrcasecmp(token, configspec[item].name)) {
@@ -236,6 +242,7 @@ int loadsetup(const char *fn)
 				break;
 			}
 		}
+
 		if (!configspec[item].name) {
 			buildprintf("loadsetup: error on line %d\n", scriptfile_getlinum(cfg, cfg->ltextptr));
 			continue;
@@ -263,27 +270,33 @@ int loadsetup(const char *fn)
 
 int writesetup(const char *fn)
 {
-	BFILE *fp;
-	int item;
+	BFILE* fp = Bfopen(fn, "wt");
 
-	fp = Bfopen(fn,"wt");
-	if (!fp) return -1;
+	if (!fp) {
+		return -1;
+	}
 
 	tmpbrightness = brightness;
 #if USE_POLYMOST
 	tmprenderer = getrendermode();
 #endif
+
 #ifdef RENDERTYPEWIN
 	tmpmaxrefreshfreq = win_getmaxrefreshfreq();
 #endif
 
-	for (item = 0; configspec[item].name; item++) {
+	for (int item{0}; configspec[item].name; ++item) {
 		if (configspec[item].doc) {
-			if (item > 0) fputs("\n", fp);
+			if (item > 0) {
+				fputs("\n", fp);
+			}
+
 			fputs(configspec[item].doc, fp);
 		}
+
 		fputs(configspec[item].name, fp);
 		fputs(" = ", fp);
+		
 		switch (configspec[item].type) {
 			case type_bool: {
 				fprintf(fp, "%d\n", (*(int*)configspec[item].store != 0));
