@@ -120,7 +120,7 @@ unsigned char bgetchar()
 		return 0;
 	}
 
-	unsigned char c = keyasciififo[keyasciififoplc];
+	const unsigned char c = keyasciififo[keyasciififoplc];
 	keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
 	return c;
 }
@@ -170,7 +170,7 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 	int m;
 	char *p;
 
-	const char* modestrs[] = {
+	const char* const modestrs[] = {
 		"classic software",
 		"polygonal flat-shaded software",
 		"polygonal textured software",
@@ -210,10 +210,10 @@ static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 
 static int osdcmd_vars(const osdfuncparm_t *parm)
 {
-	int showval = (parm->numparms < 1);
+	const int showval = (parm->numparms < 1);
 
 	if (!Bstrcasecmp(parm->name, "screencaptureformat")) {
-		const char *fmts[3] = { "TGA", "PCX", "PNG" };
+		const char* const fmts[3] = { "TGA", "PCX", "PNG" };
 		if (!showval) {
 			int i;
 			for (i=0; i<3; i++)

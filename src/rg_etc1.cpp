@@ -43,8 +43,8 @@ namespace rg_etc1
    using int64  = long long;
    using uint64 = unsigned long long;
 
-   const uint32 cUINT32_MAX = 0xFFFFFFFFU;
-   const uint64 cUINT64_MAX = 0xFFFFFFFFFFFFFFFFULL; //0xFFFFFFFFFFFFFFFFui64;
+   constexpr uint32 cUINT32_MAX = 0xFFFFFFFFU;
+   constexpr uint64 cUINT64_MAX = 0xFFFFFFFFFFFFFFFFULL; //0xFFFFFFFFFFFFFFFFui64;
    
    template<typename T> inline T minimum(T a, T b) { return (a < b) ? a : b; }
    template<typename T> inline T minimum(T a, T b, T c) { return minimum(minimum(a, b), c); }
@@ -217,7 +217,7 @@ namespace rg_etc1
 
       inline color_quad_u8& set_grayscale(parameter_t l)
       {
-         component_t x = static_cast<component_t>(clamp(l));
+         const component_t x = static_cast<component_t>(clamp(l));
          c[0] = x;
          c[1] = x;
          c[2] = x;
@@ -883,8 +883,8 @@ namespace rg_etc1
 
          for ( ; p != q; p += 2)
          {
-            uint index0 = p[0];
-            uint index1 = p[1];
+            const uint index0 = p[0];
+            const uint index1 = p[1];
 
             uint c0 = (RG_ETC1_GET_KEY_FROM_INDEX(index0) >> pass_shift) & 0xFF;
             uint c1 = (RG_ETC1_GET_KEY_FROM_INDEX(index1) >> pass_shift) & 0xFF;
@@ -910,7 +910,7 @@ namespace rg_etc1
 
          if (num_indices & 1)
          {
-            uint index = *p;
+            const uint index{ *p };
             uint c = (RG_ETC1_GET_KEY_FROM_INDEX(index) >> pass_shift) & 0xFF;
 
             uint dst_offset = offsets[c];
@@ -1109,7 +1109,7 @@ namespace rg_etc1
       const int *pInten_modifer_table = &g_etc1_inten_tables[table_idx][0];
 
       uint r, g, b;
-      bool success = unpack_color5(r, g, b, packed_color5, packed_delta3, true);
+      const bool success = unpack_color5(r, g, b, packed_color5, packed_delta3, true);
 
       const int ir = static_cast<int>(r), ig = static_cast<int>(g), ib = static_cast<int>(b);
 
@@ -1506,7 +1506,7 @@ namespace rg_etc1
                const int mbr = m_br + xd;
                if (mbr < 0) continue; else if (mbr > m_limit) break;
       
-               etc1_solution_coordinates coords(mbr, mbg, mbb, 0, m_pParams->m_use_color4);
+               const etc1_solution_coordinates coords(mbr, mbg, mbb, 0, m_pParams->m_use_color4);
                if (m_pParams->m_quality == cHighQuality)
                {
                   if (!evaluate_solution(coords, m_trial_solution, &m_best_solution))
@@ -1573,7 +1573,7 @@ namespace rg_etc1
                   if (skip)
                      break;
 
-                  etc1_solution_coordinates coords1(br1, bg1, bb1, 0, m_pParams->m_use_color4);
+                  const etc1_solution_coordinates coords1(br1, bg1, bb1, 0, m_pParams->m_use_color4);
                   if (m_pParams->m_quality == cHighQuality)
                   {
                      if (!evaluate_solution(coords1, m_trial_solution, &m_best_solution)) 
@@ -1633,7 +1633,7 @@ namespace rg_etc1
       m_pParams = &p;
       m_pResult = &r;
                   
-      const uint n = 8;
+      constexpr uint n{ 8 };
       
       m_limit = m_pParams->m_use_color4 ? 15 : 31;
 
@@ -1688,7 +1688,7 @@ namespace rg_etc1
 
       const color_quad_u8 base_color(coords.get_scaled_color());
       
-      const uint n = 8;
+      constexpr uint n = 8;
             
       trial_solution.m_error = cUINT64_MAX;
             
@@ -1782,7 +1782,7 @@ namespace rg_etc1
 
       const color_quad_u8 base_color(coords.get_scaled_color());
 
-      const uint n = 8;
+      constexpr uint n{ 8 };
       
       trial_solution.m_error = cUINT64_MAX;
 
@@ -1795,7 +1795,7 @@ namespace rg_etc1
          for (uint s = 0; s < 4; s++)
          {
             const int yd = pInten_table[s];
-            color_quad_u8 block_color(base_color.r + yd, base_color.g + yd, base_color.b + yd, 0);
+            const color_quad_u8 block_color(base_color.r + yd, base_color.g + yd, base_color.b + yd, 0);
             block_colors[s] = block_color;
             block_inten[s] = block_color.r + block_color.g + block_color.b;
          }
@@ -1899,7 +1899,7 @@ done:
       return c;
    }
 
-   static inline int mul_8bit(int a, int b) { int t = a*b + 128; return (t + (t >> 8)) >> 8; }
+   static inline int mul_8bit(int a, int b) { const int t = a * b + 128; return (t + (t >> 8)) >> 8; }
 
    void pack_etc1_block_init()
    {
@@ -1917,8 +1917,8 @@ done:
                   uint best_error = cUINT32_MAX, best_packed_c = 0;
                   for (uint packed_c = 0; packed_c < limit; packed_c++)
                   {
-                     int v = etc1_decode_value(diff, inten, selector, packed_c);
-                     uint err = abs(v - static_cast<int>(color));  //JonoF
+                     const int v = etc1_decode_value(diff, inten, selector, packed_c);
+                     const uint err = abs(v - static_cast<int>(color));  //JonoF
                      if (err < best_error)
                      {
                         best_error = err;
@@ -1940,7 +1940,7 @@ done:
 
       for(int i = 0; i < 256 + 16; i++)
       {
-         int v = clamp<int>(i - 8, 0, 255);
+         const int v = clamp<int>(i - 8, 0, 255);
          g_quant5_tab[i] = static_cast<uint8>(expand5[mul_8bit(v,31)]);
       }
    }
@@ -1962,7 +1962,7 @@ done:
       {
          const uint c1 = pColor[s_next_comp[i]], c2 = pColor[s_next_comp[i + 1]];
 
-         const int delta_range = 1;
+         constexpr int delta_range{ 1 };
          for (int delta = -delta_range; delta <= delta_range; delta++)
          {
             const int c_plus_delta = rg_etc1::clamp<int>(pColor[i] + delta, 0, 255);
@@ -1988,8 +1988,8 @@ done:
 #endif
 
                const uint16* pInverse_table = g_etc1_inverse_lookup[x & 0xFF];
-               uint16 p1 = pInverse_table[c1];
-               uint16 p2 = pInverse_table[c2];
+               const uint16 p1 = pInverse_table[c1];
+               const uint16 p2 = pInverse_table[c2];
                const uint trial_error = rg_etc1::square(c_plus_delta - pColor[i]) + rg_etc1::square(p1 >> 8) + rg_etc1::square(p2 >> 8);
                if (trial_error < best_error)
                {
@@ -2052,7 +2052,7 @@ found_perfect_match:
       {
          const uint c1 = pColor[s_next_comp[i]], c2 = pColor[s_next_comp[i + 1]];
 
-         const int delta_range = 1;
+         constexpr int delta_range{1};
          for (int delta = -delta_range; delta <= delta_range; delta++)
          {
             const int c_plus_delta = rg_etc1::clamp<int>(pColor[i] + delta, 0, 255);
@@ -2079,7 +2079,7 @@ found_perfect_match:
                if ((diff) && (pBase_color5_unscaled))
                {
                   const int p0 = (x >> 8) & 255;
-                  int delta = p0 - static_cast<int>(pBase_color5_unscaled->c[i]);
+                  const int delta = p0 - static_cast<int>(pBase_color5_unscaled->c[i]);
                   if ((delta < cETC1ColorDeltaMin) || (delta > cETC1ColorDeltaMax))
                   {
                      if (*pTable == 0xFFFF)
@@ -2098,13 +2098,13 @@ found_perfect_match:
 #endif
 
                const uint16* pInverse_table = g_etc1_inverse_lookup[x & 0xFF];
-               uint16 p1 = pInverse_table[c1];
-               uint16 p2 = pInverse_table[c2];
+               const uint16 p1 = pInverse_table[c1];
+               const uint16 p2 = pInverse_table[c2];
 
                if ((diff) && (pBase_color5_unscaled))
                {
-                  int delta1 = (p1 & 0xFF) - static_cast<int>(pBase_color5_unscaled->c[s_next_comp[i]]);
-                  int delta2 = (p2 & 0xFF) - static_cast<int>(pBase_color5_unscaled->c[s_next_comp[i + 1]]);
+                  const int delta1 = (p1 & 0xFF) - static_cast<int>(pBase_color5_unscaled->c[s_next_comp[i]]);
+                  const int delta2 = (p2 & 0xFF) - static_cast<int>(pBase_color5_unscaled->c[s_next_comp[i + 1]]);
                   if ((delta1 < cETC1ColorDeltaMin) || (delta1 > cETC1ColorDeltaMax) || (delta2 < cETC1ColorDeltaMin) || (delta2 > cETC1ColorDeltaMax))
                   {
                      if (*pTable == 0xFFFF)
@@ -2204,7 +2204,7 @@ found_perfect_match:
       }
 #endif
 
-      color_quad_u8 src_pixel0(pSrc_pixels[0]);
+      const color_quad_u8 src_pixel0(pSrc_pixels[0]);
 
       // Check for solid block.
       const uint32 first_pixel_u32 = pSrc_pixels->m_u32;
@@ -2316,8 +2316,8 @@ found_perfect_match:
                if (params.m_quality >= cMediumQuality)
                {
                   // TODO: Fix fairly arbitrary/unrefined thresholds that control how far away to scan for potentially better solutions.
-                  const uint refinement_error_thresh0 = 3000;
-                  const uint refinement_error_thresh1 = 6000;
+                  constexpr uint refinement_error_thresh0 = 3000;
+                  constexpr uint refinement_error_thresh1 = 6000;
                   if (results[subblock].m_error > refinement_error_thresh0)
                   {
                      if (params.m_quality == cMediumQuality)

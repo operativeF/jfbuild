@@ -472,7 +472,7 @@ static PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int cr
 	int i = pt_gethashhead(picnum);
 	PTHash * pth;
 
-	unsigned short flagmask = flags & (PTH_HIGHTILE | PTH_CLAMPED | PTH_SKYBOX);
+	const unsigned short flagmask = flags & (PTH_HIGHTILE | PTH_CLAMPED | PTH_SKYBOX);
 
 	// first, try and find an existing match for our parameters
 	pth = pthashhead[i];
@@ -872,7 +872,7 @@ static void pt_load_applyparameters(PTHead * pth)
 			glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		} else {     //For sprite textures, clamping looks better than wrapping
-			GLint c = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
+			const GLint c = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
 			glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, c);
 			glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, c);
 		}
@@ -890,8 +890,10 @@ static void ptm_fixtransparency(PTTexture * tex, int clamped)
 	coltype *wpptr;
 	int j, x, y, r, g, b;
 	int dox, doy, naxsiz2;
-	int daxsiz = tex->tsizx, daysiz = tex->tsizy;
-	int daxsiz2 = tex->sizx, daysiz2 = tex->sizy;
+	int daxsiz = tex->tsizx;
+	int daysiz = tex->tsizy;
+	int daxsiz2 = tex->sizx;
+	const int daysiz2 = tex->sizy;
 
 	dox = daxsiz2-1;
 	doy = daysiz2-1;

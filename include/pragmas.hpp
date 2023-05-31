@@ -3669,8 +3669,8 @@ static inline int mul3(int a) { return (a<<1)+a; }
 static inline int mul5(int a) { return (a<<2)+a; }
 static inline int mul9(int a) { return (a<<3)+a; }
 
-static inline int divmod(int a, int b) { unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a%_b; return _a/_b; }
-static inline int moddiv(int a, int b) { unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a/_b; return _a%_b; }
+static inline int divmod(int a, int b) { const unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a%_b; return _a/_b; }
+static inline int moddiv(int a, int b) { const unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a/_b; return _a%_b; }
 
 static inline int klabs(int a) { if (a < 0) return -a; return a; }
 static inline int ksgn(int a)  { if (a > 0) return 1; if (a < 0) return -1; return 0; }

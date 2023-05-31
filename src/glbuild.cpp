@@ -500,7 +500,7 @@ static GLchar *glbuild_cook_source(const GLchar *source, const char *spec)
 {
 	GLchar *cooked, *pos, *match, *end;
 	const char *marker = "#glbuild(";
-	const int markerlen = 9;
+	constexpr int markerlen{ 9 };
 
 	cooked = strdup(source);
 	if (!cooked) {
@@ -625,8 +625,8 @@ int glbuild_prepare_8bit_shader(glbuild8bit *state, int resx, int resy, int stri
 	float tx = (float)resx / (float)stride, ty = 1.0;
 	int tsizx = stride, tsizy = resy;
 
-	float winaspect = (float)winx / (float)winy;
-	float frameaspect = (float)resx / (float)resy;
+	const float winaspect = (float)winx / (float)winy;
+	const float frameaspect = (float)resx / (float)resy;
 	float aspectx, aspecty;
 
 	if (!glinfo.texnpot) {
@@ -651,8 +651,8 @@ int glbuild_prepare_8bit_shader(glbuild8bit *state, int resx, int resy, int stri
 	}
 
 	// Buffer contents: indexes and texcoord/vertex elements.
-	GLushort indexes[6] = { 0, 1, 2, 0, 2, 3 };
-	GLfloat elements[4][4] = {
+	const GLushort indexes[6] = { 0, 1, 2, 0, 2, 3 };
+	const GLfloat elements[4][4] = {
 		// tx, ty,  vx, vy
 		{ 0.0, ty,  -aspectx, -aspecty },
 		{ tx,  ty,   aspectx, -aspecty },
@@ -660,7 +660,7 @@ int glbuild_prepare_8bit_shader(glbuild8bit *state, int resx, int resy, int stri
 		{ 0.0, 0.0, -aspectx,  aspecty },
 	};
 
-	GLint clamp = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
+	const GLint clamp = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
 	GLenum intfmt, extfmt;
 
 	// Initialise texture objects for the palette and framebuffer.
@@ -802,9 +802,9 @@ void glbuild_update_8bit_palette(glbuild8bit *state, const GLvoid *pal)
 void glbuild_update_8bit_frame(glbuild8bit *state, const GLvoid *frame, int resx, int resy, int stride)
 {
 #if (USE_OPENGL == USE_GLES2)
-	GLenum extfmt = GL_LUMINANCE;
+	constexpr GLenum extfmt{ GL_LUMINANCE };
 #else
-	GLenum extfmt = GL_RED;
+	constexpr GLenum extfmt{ GL_RED };
 #endif
 
 	(void)resx;

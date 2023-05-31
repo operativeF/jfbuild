@@ -507,16 +507,18 @@ void polymost_glreset ()
 
 static GLint polymost_get_attrib(GLuint program, const GLchar *name)
 {
-	GLint attribloc = glfunc.glGetAttribLocation(program, name);
+	const GLint attribloc = glfunc.glGetAttribLocation(program, name);
+	
 	if (attribloc < 0) {
 		buildprintf("polymost_get_attrib: could not get location of attribute \"%s\"\n", name);
 	}
+
 	return attribloc;
 }
 
 static GLint polymost_get_uniform(GLuint program, const GLchar *name)
 {
-	GLint uniformloc = glfunc.glGetUniformLocation(program, name);
+	const GLint uniformloc = glfunc.glGetUniformLocation(program, name);
 	if (uniformloc < 0) {
 		buildprintf("polymost_get_uniform: could not get location of uniform \"%s\"\n", name);
 	}
@@ -2140,7 +2142,7 @@ static void polymost_drawalls (int bunch)
 		{
 				//Parallaxing sky... hacked for Ken's mountain texture; paper-sky only :/
 #if USE_OPENGL
-			float tempfogdensity = gfogdensity;
+			const float tempfogdensity{ gfogdensity };
 			if (rendmode == 3)
 			{
 				gfogdensity = 0.f;
@@ -2207,7 +2209,8 @@ static void polymost_drawalls (int bunch)
 				double _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1, _nx0, _ny0, _nx1, _ny1;
 				double _ryp0, _ryp1, _x0, _x1, _cy0, _fy0, _cy1, _fy1, _ox0, _ox1;
 				double nfy0, nfy1;
-				int skywalx[4] = {-512,512,512,-512}, skywaly[4] = {-512,-512,512,512};
+				constexpr int skywalx[4] = { -512,512,512,-512 };
+				constexpr int skywaly[4] = { -512,-512,512,512 };
 
 				(void)_nx0; (void)_ny0; (void)_nx1; (void)_ny1;
 				domostmethod = METH_CLAMPED;
@@ -2476,7 +2479,7 @@ static void polymost_drawalls (int bunch)
 		else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
 		{
 #if USE_OPENGL
-			float tempfogdensity = gfogdensity;
+			const float tempfogdensity{ gfogdensity };
 			if (rendmode == 3)
 			{
 				gfogdensity = 0.f;
@@ -2542,7 +2545,8 @@ static void polymost_drawalls (int bunch)
 				double _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1, _nx0, _ny0, _nx1, _ny1;
 				double _ryp0, _ryp1, _x0, _x1, _cy0, _fy0, _cy1, _fy1, _ox0, _ox1;
 				double ncy0, ncy1;
-				int skywalx[4] = {-512,512,512,-512}, skywaly[4] = {-512,-512,512,512};
+				constexpr int skywalx[4] = { -512,512,512,-512 };
+				constexpr int skywaly[4] = { -512,-512,512,512 };
 
 				(void)_nx0; (void)_ny0; (void)_nx1; (void)_ny1;
 				domostmethod = METH_CLAMPED;
@@ -4743,7 +4747,8 @@ static int osdcmd_forcetexcacherebuild(const osdfuncparm_t *parm)
 
 static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 {
-	int showval = (parm->numparms < 1), val = 0;
+	const int showval = (parm->numparms < 1);
+	int val{ 0 };
 
 	if (!showval) val = atoi(parm->parms[0]);
 #if USE_OPENGL

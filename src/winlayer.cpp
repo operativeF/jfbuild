@@ -271,7 +271,7 @@ int wm_ynbox(const char *name, const char *fmt, ...) {
 	vsprintf(buf,fmt,va);
 	va_end(va);
 
-	int r = ::MessageBox((HWND)win_gethwnd(), buf, name, MB_YESNO | MB_TASKMODAL);
+	const int r = ::MessageBox((HWND)win_gethwnd(), buf, name, MB_YESNO | MB_TASKMODAL);
 
 	if (r==IDYES) {
 		return 1;
@@ -511,7 +511,7 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 		return OSDCMD_SHOWHELP;
 	}
 
-	int freq = atoi(parm->parms[0]);
+	const int freq = atoi(parm->parms[0]);
 
 	if (freq < 0) {
 		return OSDCMD_SHOWHELP;
@@ -541,7 +541,7 @@ static int set_glswapinterval(const osdfuncparm_t *parm)
 		return OSDCMD_SHOWHELP;
 	}
 
-	int interval = atoi(parm->parms[0]);
+	const int interval = atoi(parm->parms[0]);
 
 	if (interval < -1 || interval > 2) {
 		return OSDCMD_SHOWHELP;
@@ -749,7 +749,7 @@ int initinput()
 		buildputs("Initialising game controllers\n");
 
 		for (DWORD usernum{0}; usernum < XUSER_MAX_COUNT; ++usernum) {
-			DWORD result = ::XInputGetCapabilities(usernum, XINPUT_FLAG_GAMEPAD, &caps);
+			const DWORD result = ::XInputGetCapabilities(usernum, XINPUT_FLAG_GAMEPAD, &caps);
 			if (result == ERROR_SUCCESS && xinputusernum < 0) {
 				xinputusernum = (int)usernum;
 				inputdevices |= 4;
@@ -795,7 +795,7 @@ int initmouse()
 	buildputs("Initialising mouse\n");
 
 	// Register for mouse raw input.
-	RAWINPUTDEVICE rid{
+	const RAWINPUTDEVICE rid{
 		.usUsagePage = 0x01,
 		.usUsage = 0x02,
 		.dwFlags = 0, // We want legacy events when the mouse is not grabbed, so no RIDEV_NOLEGACY.
@@ -831,7 +831,7 @@ void uninitmouse()
 	mousegrab = 0;
 
 	// Unregister for mouse raw input.
-	RAWINPUTDEVICE rid {
+	const RAWINPUTDEVICE rid {
 		.usUsagePage = 0x01,
 		.usUsage = 0x02,
 		.dwFlags = RIDEV_REMOVE,
@@ -855,8 +855,8 @@ static void constrainmouse(int a)
 
 		::GetWindowRect(hWindow, &rect);
 
-		LONG x = rect.left + (rect.right - rect.left) / 2;
-		LONG y = rect.top + (rect.bottom - rect.top) / 2;
+		const LONG x = rect.left + (rect.right - rect.left) / 2;
+		const LONG y = rect.top + (rect.bottom - rect.top) / 2;
 		rect.left = x - 1;
 		rect.right = x + 1;
 		rect.top = y - 1;
@@ -873,7 +873,7 @@ static void constrainmouse(int a)
 
 static void updatemouse()
 {
-	unsigned int t = getticks();
+	const unsigned int t = getticks();
 
 	if (!mousegrab) {
 		return;
@@ -1013,18 +1013,16 @@ static void putkeyname(int vsc, int ex, int scan) {
 
 static void fetchkeynames()
 {
-	int scan;
-
 	memset(keynames, 0, sizeof(keynames));
 
 	for (int i{0}; i < 256; ++i) {
-		int scan = wscantable[i];
+		const int scan = wscantable[i];
 
 		if (scan != 0) {
 			putkeyname(i, 0, scan);
 		}
 
-		int xscan = wxscantable[i];
+		const int xscan = wxscantable[i];
 
 		if (xscan != 0) {
 			putkeyname(i, 1, xscan);
@@ -1248,7 +1246,7 @@ int setvideomode(int x, int y, int c, int fs)
 		return 0;
 	}
 
-	int modenum = checkvideomode(&x, &y, c, fs, 0);
+	const int modenum = checkvideomode(&x, &y, c, fs, 0);
 
 	if (modenum < 0) {
 		return -1;
@@ -1323,7 +1321,8 @@ static void cdsenummodes()
 
 	struct { unsigned x,y,bpp,freq; } modes[MAXVALIDMODES];
 	int nmodes=0;
-	unsigned maxx = MAXXDIM, maxy = MAXYDIM;
+	constexpr int maxx{ MAXXDIM };
+	constexpr int maxy{ MAXYDIM };
 
 	// Enumerate display modes.
 	::ZeroMemory(&dm,sizeof(DEVMODE));
@@ -1465,8 +1464,8 @@ void showframe()
 			::BitBlt(hDCWindow, 0, 0, xres, yres, hDCSection, 0, 0, SRCCOPY);
 		} else {
 			int xpos, ypos, xscl, yscl;
-			int desktopaspect = divscale16(desktopxdim, desktopydim);
-			int frameaspect = divscale16(xres, yres);
+			const int desktopaspect = divscale16(desktopxdim, desktopydim);
+			const int frameaspect = divscale16(xres, yres);
 
 			if (desktopaspect >= frameaspect) {
 				// Desktop is at least as wide as the frame. We maximise frame height and centre on width.
@@ -1868,7 +1867,7 @@ static int SetupOpenGL(int width, int height, unsigned char bitspp)
 	// Step 3. Find and set a suitable pixel format.
 	if (wglfunc.wglChoosePixelFormatARB) {
 		UINT numformats;
-		int pformatattribs[] = {
+		const int pformatattribs[] = {
 			WGL_DRAW_TO_WINDOW_ARB,	GL_TRUE,
 			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
 			WGL_DOUBLE_BUFFER_ARB,  GL_TRUE,
@@ -1891,7 +1890,7 @@ static int SetupOpenGL(int width, int height, unsigned char bitspp)
 			goto fail;
 		}
 	} else {
-		PIXELFORMATDESCRIPTOR pfd = {
+		const PIXELFORMATDESCRIPTOR pfd = {
 			sizeof(PIXELFORMATDESCRIPTOR),
 			1,                             //Version Number
 			PFD_DRAW_TO_WINDOW|PFD_SUPPORT_OPENGL|PFD_DOUBLEBUFFER, //Must Support these
@@ -2352,8 +2351,8 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		case WM_KEYDOWN:
 		case WM_KEYUP:
 			{
-				int press = (lParam & 0x80000000l) == 0;
-				int wscan = (lParam >> 16) & 0xff;
+				const int press = (lParam & 0x80000000l) == 0;
+				const int wscan = (lParam >> 16) & 0xff;
 				int scan = 0;
 
 				if (lParam & (1<<24)) {

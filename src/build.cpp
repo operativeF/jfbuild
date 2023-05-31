@@ -574,8 +574,8 @@ void editinput()
 	mousz = 0;
 	getmousevalues(&mousx,&mousy,&bstatus);
 	{
-	div_t ldx = div(mulscale16(mousx<<16, msens) + mousexsurp, (1<<16)); mousx = ldx.quot; mousexsurp = ldx.rem;
-	div_t ldy = div(mulscale16(mousy<<16, msens) + mouseysurp, (1<<16)); mousy = ldy.quot; mouseysurp = ldy.rem;
+	  const div_t ldx = div(mulscale16(mousx<<16, msens) + mousexsurp, (1<<16)); mousx = ldx.quot; mousexsurp = ldx.rem;
+	  const div_t ldy = div(mulscale16(mousy<<16, msens) + mouseysurp, (1<<16)); mousy = ldy.quot; mouseysurp = ldy.rem;
 	}
 	searchx += mousx;
 	searchy += mousy;
@@ -2793,8 +2793,8 @@ void overheadeditor()
 		oldmousebstatus = bstatus;
 		getmousevalues(&mousx,&mousy,&bstatus);
 		{
-		div_t ldx = div(mulscale16(mousx<<16, msens) + mousexsurp, (1<<16)); mousx = ldx.quot; mousexsurp = ldx.rem;
-		div_t ldy = div(mulscale16(mousy<<16, msens) + mouseysurp, (1<<16)); mousy = ldy.quot; mouseysurp = ldy.rem;
+		  const div_t ldx = div(mulscale16(mousx<<16, msens) + mousexsurp, (1<<16)); mousx = ldx.quot; mousexsurp = ldx.rem;
+		  const div_t ldy = div(mulscale16(mousy<<16, msens) + mouseysurp, (1<<16)); mousy = ldy.quot; mouseysurp = ldy.rem;
 		}
 		searchx += mousx;
 		searchy += mousy;
@@ -6194,7 +6194,7 @@ int menuselect(int newpathmode)
 	char ch, buffer[90];
 	CACHE1D_FIND_REC *dir;
 
-	int bakpathsearchmode = pathsearchmode;
+	const int bakpathsearchmode{ pathsearchmode };
 
 	listsize = (ydim16-32)/8;
 
@@ -6233,7 +6233,7 @@ int menuselect(int newpathmode)
 			dir = finddirshigh;
 			for(i=listsize/2-1; i>=0; i--) if (!dir->prev) break; else dir=dir->prev;
 			for(i=0; i<listsize && dir; i++, dir=dir->next) {
-				int c = dir->type == CACHE1D_FIND_DIR ? 4 : 3;
+				const int c = dir->type == CACHE1D_FIND_DIR ? 4 : 3;
 				memset(buffer,0,sizeof(buffer));
 				strncpy(buffer,dir->name,25);
 				if (strlen(buffer) == 25)
@@ -6994,9 +6994,9 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 								int rxi[4], ryi[4];
 								int clipx[4] = {0}, clipy[4] = {0};
 
-								int tilenum = sprite[j].picnum;
-								int ang = sprite[j].ang;
-								int xrepeat = sprite[j].xrepeat, yrepeat = sprite[j].yrepeat;
+								const int tilenum = sprite[j].picnum;
+								const int ang = sprite[j].ang;
+								const int xrepeat = sprite[j].xrepeat, yrepeat = sprite[j].yrepeat;
 
 								xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)sprite[j].xoffset);
 								yoff = (int)((signed char)((picanm[tilenum]>>16)&255))+((int)sprite[j].yoffset);
@@ -7005,8 +7005,8 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 
 								if (sprite[j].cstat & 32) {
 									// Floor sprite
-									int cosang = sintable[(ang+512)&2047];
-									int sinang = sintable[(ang)&2047];
+									const int cosang = sintable[(ang+512)&2047];
+									const int sinang = sintable[(ang)&2047];
 
 									dax = ((tilesizx[tilenum]>>1)+xoff)*xrepeat;
 									day = ((tilesizy[tilenum]>>1)+yoff)*yrepeat;

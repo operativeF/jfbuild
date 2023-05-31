@@ -53,7 +53,7 @@ constexpr auto PTCACHEINDEXFILENAMELEN{260};
 
 static const char * CACHEINDEXFILE = "texture.cacheindex";
 static const char * CACHESTORAGEFILE = "texture.cache";
-static const int CACHEVER = 0;
+static constexpr int CACHEVER{ 0 };
 
 static int cachedisabled = 0, cachereplace = 0;
 
@@ -422,7 +422,7 @@ void PTCacheFreeTile(PTCacheTile * tdef)
  */
 PTCacheTile * PTCacheAllocNewTile(int nummipmaps)
 {
-	int size = sizeof(PTCacheTile) + (nummipmaps-1) * sizeof(PTCacheTileMip);
+	const int size = sizeof(PTCacheTile) + (nummipmaps-1) * sizeof(PTCacheTileMip);
 	PTCacheTile * tdef;
 
 	tdef = (PTCacheTile *) malloc(size);
