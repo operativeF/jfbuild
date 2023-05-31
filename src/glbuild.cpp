@@ -6,6 +6,8 @@
 #include "osd.hpp"
 #include "baselayer.hpp"
 #include "baselayer_priv.hpp"
+#include "glbuild_fs_vs.hpp"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -619,9 +621,6 @@ GLuint glbuild_link_program(int shadercount, GLuint *shaders)
 int glbuild_prepare_8bit_shader(glbuild8bit *state, int resx, int resy, int stride, int winx, int winy)
 {
 	GLuint shaders[2] = {0,0}, prog = 0;
-
-	extern const char default_glbuild_fs_glsl[];
-	extern const char default_glbuild_vs_glsl[];
 
 	float tx = (float)resx / (float)stride, ty = 1.0;
 	int tsizx = stride, tsizy = resy;

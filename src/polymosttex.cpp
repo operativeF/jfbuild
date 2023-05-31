@@ -356,7 +356,7 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 	}
 	memset(tex.pic, 0, tex.sizx * tex.sizy * sizeof(coltype));
 
-	if (kprender(picdata, picdatalen, tex.pic, tex.sizx * sizeof(coltype), tex.sizx, tex.sizy, 0, 0)) {
+	if (kprender(picdata, picdatalen, (intptr_t)tex.pic, tex.sizx * sizeof(coltype), tex.sizx, tex.sizy, 0, 0)) {
 		free(picdata);
 		free(tex.pic);
 		return -5;

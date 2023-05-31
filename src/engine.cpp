@@ -39,6 +39,7 @@
 #include <assert.h>
 
 #include <array>
+#include <numbers>
 
 void *kmalloc(bsize_t size) { return(Bmalloc(size)); }
 void kfree(void *buffer) { Bfree(buffer); }
@@ -10552,7 +10553,7 @@ static int screencapture_writeframe(BFILE *fil, char mode, void *v,
 			yend = -1;
 			yinc = -1;
 		}
-		buf = kmalloc(xdim*ydim*3);
+		buf = static_cast<unsigned char*>(kmalloc(xdim * ydim * 3));
 		if (buf) {
 			glfunc.glReadPixels(0,0,xdim,ydim,GL_RGB,GL_UNSIGNED_BYTE,buf);
 			if (bgr) {
@@ -10970,7 +10971,7 @@ int getrendermode()
 void setrollangle(int rolla)
 {
 	if (rolla == 0) gtang = 0.0;
-	else gtang = PI * (double)rolla / 1024.0;
+	else gtang = std::numbers::pi_v<double> * (double)rolla / 1024.0;
 }
 
 #endif //USE_POLYMOST

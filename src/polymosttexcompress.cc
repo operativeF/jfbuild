@@ -7,13 +7,12 @@
 #if USE_POLYMOST && USE_OPENGL
 
 #include "polymosttexcompress.hpp"
-
+#include "polymost_priv.hpp"
 #include "squish.h"
 #include "rg_etc1.hpp"
 
 extern "C" {
 #include "glbuild.hpp"
-extern int gltexcomprquality;
 }
 
 static int getsquishflags(int format)

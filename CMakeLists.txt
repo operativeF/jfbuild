@@ -27,9 +27,10 @@ if(WIN32)
   find_package(xaudio2redist CONFIG REQUIRED)
 endif()
 
+find_package(unofficial-libsquish CONFIG REQUIRED)
+
 include_directories(include)
 
 add_subdirectory(kenbuild)
-add_subdirectory(libsquish)
 add_subdirectory(src)
 add_subdirectory(tools)

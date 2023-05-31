@@ -76,7 +76,9 @@ Low priority:
 #include "osd.hpp"
 #include "engine_priv.hpp"
 #include "polymost_priv.hpp"
+#include "polymost_fs_vs_aux.hpp"
 #if USE_OPENGL
+# include "glbuild_fs_vs.hpp"
 # include "hightile_priv.hpp"
 # include "polymosttex_priv.hpp"
 # include "polymosttexcache.hpp"
@@ -577,12 +579,6 @@ static void checkindexbuffer(unsigned int size)
 
 static void polymost_loadshaders()
 {
-	extern const char default_polymost_fs_glsl[];
-	extern const char default_polymost_vs_glsl[];
-
-	extern const char default_polymostaux_fs_glsl[];
-	extern const char default_polymostaux_vs_glsl[];
-
 	GLuint shader[2] = {0,0};
 
 	// General texture rendering shader.

@@ -1809,9 +1809,8 @@ voxmodel *voxload (const char *filnam)
 {
 	int is8bit, ret;
 	voxmodel *vm;
-	char *dot;
 
-	dot = strrchr(filnam, '.'); if (!dot) return(0);
+	auto* dot = strrchr(filnam, '.'); if (!dot) return(0);
 	     if (!strcasecmp(dot,".vox")) { ret = loadvox(filnam); is8bit = 1; }
 	else if (!strcasecmp(dot,".kvx")) { ret = loadkvx(filnam); is8bit = 1; }
 	else if (!strcasecmp(dot,".kv6")) { ret = loadkv6(filnam); is8bit = 0; }

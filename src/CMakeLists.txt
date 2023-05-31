@@ -23,8 +23,6 @@ set(ASM_SRCS
 )
 
 set(GLBUILD_SRCS
-  ${CMAKE_CURRENT_LIST_DIR}/glbuild_fs.glsl
-  ${CMAKE_CURRENT_LIST_DIR}/glbuild_vs.glsl
   ${CMAKE_CURRENT_LIST_DIR}/glbuild.cpp
 )
 
@@ -35,24 +33,10 @@ set(POLYMOST_BUILD_SRCS
 set(OPENGL_ENGINE_BUILD_SRCS
   ${CMAKE_CURRENT_LIST_DIR}/hightile.cpp
   ${CMAKE_CURRENT_LIST_DIR}/mdsprite.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/polymost_fs.glsl
-  ${CMAKE_CURRENT_LIST_DIR}/polymost_vs.glsl
-  ${CMAKE_CURRENT_LIST_DIR}/polymostaux_fs.glsl
-  ${CMAKE_CURRENT_LIST_DIR}/polymostaux_vs.glsl
   ${CMAKE_CURRENT_LIST_DIR}/polymosttex.cpp
   ${CMAKE_CURRENT_LIST_DIR}/polymosttexcache.cpp
   ${CMAKE_CURRENT_LIST_DIR}/polymosttexcompress.cc
   ${CMAKE_CURRENT_LIST_DIR}/rg_etc1.cpp
-
-  ${CMAKE_SOURCE_DIR}/libsquish/alpha.cpp
-  ${CMAKE_SOURCE_DIR}/libsquish/clusterfit.cpp
-  ${CMAKE_SOURCE_DIR}/libsquish/colourblock.cpp
-  ${CMAKE_SOURCE_DIR}/libsquish/colourfit.cpp
-  ${CMAKE_SOURCE_DIR}/libsquish/colourset.cpp
-  ${CMAKE_SOURCE_DIR}/libsquish/maths.cpp
-  ${CMAKE_SOURCE_DIR}/libsquish/rangefit.cpp
-  ${CMAKE_SOURCE_DIR}/libsquish/singlecolourfit.cpp
-  ${CMAKE_SOURCE_DIR}/libsquish/squish.cpp
 )
 
 # TODO: Add to own, separate directory.
@@ -87,7 +71,7 @@ add_library(build_engine STATIC
 
 target_link_libraries(build_engine
   PUBLIC
-    ${LIBSQUISH}
+    unofficial::libsquish::squish
     Microsoft::XApoBase
     Microsoft::XAudio2Redist
     ws2_32.lib
@@ -98,4 +82,15 @@ target_link_libraries(build_engine
     Xinput9_1_0.lib
 )
 
-target_include_directories(build_engine PUBLIC ${LIBSQUISH} ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(build_engine
+  PUBLIC
+    unofficial::libsquish::squish
+    ${CMAKE_CURRENT_LIST_DIR}
+)
+
+# TODO: Propagate these options?
+target_compile_definitions(build_engine
+  PUBLIC
+  -DUSE_OPENGL=3
+  -DUSE_POLYMOST=1
+)

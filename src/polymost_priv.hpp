@@ -4,7 +4,7 @@
 
 extern int rendmode;
 extern float gtang;
-extern double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
+extern double dxb1[4096], dxb2[4096]; // FIXME: Was MAXWALLSB in size.
 
 #ifdef DEBUGGINGAIDS
 struct polymostcallcounts {
