@@ -2370,7 +2370,7 @@ void statuslistcode()
 			{
 				wsayfollow("monshoot.wav",5144L+(krand()&127)-64,256L,&sprite[i].x,&sprite[i].y,1);
 
-				doubvel = (TICSPERFRAME<<((ssync[target].bits&256)>0));
+				doubvel = (TICSPERFRAME<<static_cast<int>((ssync[target].bits & 256) > 0));
 				xvect = 0, yvect = 0;
 				if (ssync[target].fvel != 0)
 				{
@@ -3201,7 +3201,7 @@ void processinput(short snum)
 		//Movement code
 	if ((ssync[snum].fvel|ssync[snum].svel) != 0)
 	{
-		doubvel = (TICSPERFRAME<<((ssync[snum].bits&256)>0));
+		doubvel = (TICSPERFRAME << static_cast<int>((ssync[snum].bits & 256) > 0));
 
 		xvect = 0, yvect = 0;
 		if (ssync[snum].fvel != 0)
@@ -4305,7 +4305,7 @@ void fakedomovethings()
 
 	if ((syn->fvel|syn->svel) != 0)
 	{
-		doubvel = (TICSPERFRAME<<((syn->bits&256)>0));
+		doubvel = (TICSPERFRAME << static_cast<int>((syn->bits & 256) > 0));
 
 		xvect = 0, yvect = 0;
 		if (syn->fvel != 0)
