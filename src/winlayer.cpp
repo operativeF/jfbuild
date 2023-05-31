@@ -65,6 +65,18 @@ static HWND hGLWindow = nullptr;
 static HWND dummyhGLwindow = nullptr;
 static HDC hDCGLWindow = nullptr;
 
+using wglExtStringARB_t = const char* (WINAPI *)(HDC);
+using wglChoosePixelFmtARB_t = BOOL (WINAPI *)(HDC, const int *, const FLOAT *, UINT, int *, UINT *);
+using wglCreateCtxAttribsARB_t = HGLRC (WINAPI *)(HDC, HGLRC, const int *);
+using wglSwapIntervalExt_t = BOOL (WINAPI *)(int);
+using wglGetSwapIntervalExt_t = int (WINAPI *)();
+
+using wglCreateCtx_t = HGLRC (WINAPI *)(HDC);
+using wglDeleteCtx_t = BOOL (WINAPI *)(HGLRC);
+using wglGetProcAddr_t = PROC (WINAPI *)(LPCSTR);
+using wglMakeCurrent_t = BOOL (WINAPI *)(HDC,HGLRC);
+using wglSwapBuffer_t = BOOL (WINAPI *)(HDC);
+
 static struct winlayer_glfuncs {
 	HGLRC (WINAPI * wglCreateContext)(HDC);
 	BOOL (WINAPI * wglDeleteContext)(HGLRC);
@@ -576,11 +588,11 @@ int initsystem()
 	glunavailable = loadgldriver(getenv("BUILD_GLDRV"));
 	if (!glunavailable) {
 		// Load the core WGL functions.
-		wglfunc.wglGetProcAddress = getglprocaddress("wglGetProcAddress", 0);
-		wglfunc.wglCreateContext  = getglprocaddress("wglCreateContext", 0);
-		wglfunc.wglDeleteContext  = getglprocaddress("wglDeleteContext", 0);
-		wglfunc.wglMakeCurrent    = getglprocaddress("wglMakeCurrent", 0);
-		wglfunc.wglSwapBuffers    = getglprocaddress("wglSwapBuffers", 0);
+		wglfunc.wglGetProcAddress = static_cast<wglGetProcAddr_t>(getglprocaddress("wglGetProcAddress", 0));
+		wglfunc.wglCreateContext  = static_cast<wglCreateCtx_t>(getglprocaddress("wglCreateContext", 0));
+		wglfunc.wglDeleteContext  = static_cast<wglDeleteCtx_t>(getglprocaddress("wglDeleteContext", 0));
+		wglfunc.wglMakeCurrent    = static_cast<wglMakeCurrent_t>(getglprocaddress("wglMakeCurrent", 0));
+		wglfunc.wglSwapBuffers    = static_cast<wglSwapBuffer_t>(getglprocaddress("wglSwapBuffers", 0));
 		glunavailable = !wglfunc.wglGetProcAddress ||
 		 	   !wglfunc.wglCreateContext ||
 		 	   !wglfunc.wglDeleteContext ||
@@ -1649,7 +1661,7 @@ int loadgldriver(const char *dll)
 int unloadgldriver()
 {
 	if (!hGLDLL) return 0;
-	::FreeLibrary(hGLDLL);
+	::FreeLibrary(static_cast<HMODULE>(hGLDLL));
 	hGLDLL = nullptr;
 	return 0;
 }
@@ -1660,13 +1672,18 @@ int unloadgldriver()
 void *getglprocaddress(const char *name, int ext)
 {
 	void *func = nullptr;
-	if (!hGLDLL) return nullptr;
+	if (!hGLDLL) {
+		return nullptr;
+	}
+
 	if (ext && wglfunc.wglGetProcAddress) {
 		func = wglfunc.wglGetProcAddress(name);
 	}
+
 	if (!func) {
-		func = ::GetProcAddress(hGLDLL, name);
+		func = ::GetProcAddress(static_cast<HMODULE>(hGLDLL), name);
 	}
+	
 	return func;
 }
 
@@ -1703,7 +1720,7 @@ static void EnumWGLExts(HDC hdc)
 	char *workstr, *workptr, *nextptr = nullptr, *ext = nullptr;
 	int ack;
 
-	wglfunc.wglGetExtensionsStringARB = getglprocaddress("wglGetExtensionsStringARB", 1);
+	wglfunc.wglGetExtensionsStringARB = static_cast<wglExtStringARB_t>(getglprocaddress("wglGetExtensionsStringARB", 1));
 	if (!wglfunc.wglGetExtensionsStringARB) {
 		debugprintf("Note: OpenGL does not provide WGL_ARB_extensions_string extension.\n");
 		return;
@@ -1715,10 +1732,10 @@ static void EnumWGLExts(HDC hdc)
 	workstr = workptr = strdup(extstr);
 	while ((ext = Bstrtoken(workptr, " ", &nextptr, 1)) != nullptr) {
 		if (!strcmp(ext, "WGL_ARB_pixel_format")) {
-			wglfunc.wglChoosePixelFormatARB = getglprocaddress("wglChoosePixelFormatARB", 1);
+			wglfunc.wglChoosePixelFormatARB = static_cast<wglChoosePixelFmtARB_t>(getglprocaddress("wglChoosePixelFormatARB", 1));
 			ack = !wglfunc.wglChoosePixelFormatARB ? '!' : '+';
 		} else if (!strcmp(ext, "WGL_ARB_create_context")) {
-			wglfunc.wglCreateContextAttribsARB = getglprocaddress("wglCreateContextAttribsARB", 1);
+			wglfunc.wglCreateContextAttribsARB = static_cast<wglCreateCtxAttribsARB_t>(getglprocaddress("wglCreateContextAttribsARB", 1));
 			ack = !wglfunc.wglCreateContextAttribsARB ? '!' : '+';
 		} else if (!strcmp(ext, "WGL_ARB_create_context_profile")) {
 			wglfunc.have_ARB_create_context_profile = 1;
@@ -1728,8 +1745,8 @@ static void EnumWGLExts(HDC hdc)
 			ack = '+';
 		} else if (!strcmp(ext, "WGL_EXT_swap_control")) {
 			wglfunc.have_EXT_swap_control = 1;
-			wglfunc.wglSwapIntervalEXT = getglprocaddress("wglSwapIntervalEXT", 1);
-			wglfunc.wglGetSwapIntervalEXT = getglprocaddress("wglGetSwapIntervalEXT", 1);
+			wglfunc.wglSwapIntervalEXT = static_cast<wglSwapIntervalExt_t>(getglprocaddress("wglSwapIntervalEXT", 1));
+			wglfunc.wglGetSwapIntervalEXT = static_cast<wglGetSwapIntervalExt_t>(getglprocaddress("wglGetSwapIntervalEXT", 1));
 			ack = (!wglfunc.wglSwapIntervalEXT || !wglfunc.wglGetSwapIntervalEXT) ? '!' : '+';
 		} else if (!strcmp(ext, "WGL_EXT_swap_control_tear")) {
 			wglfunc.have_EXT_swap_control_tear = 1;
@@ -1880,7 +1897,7 @@ static int SetupOpenGL(int width, int height, int bitspp)
 			1,                             //Version Number
 			PFD_DRAW_TO_WINDOW|PFD_SUPPORT_OPENGL|PFD_DOUBLEBUFFER, //Must Support these
 			PFD_TYPE_RGBA,                 //Request An RGBA Format
-			bitspp,                        //Color Depth
+			bitspp,                        //Color Depth // FIXME: Narrowing conversion.
 			0,0,0,0,0,0,                   //Color Bits Ignored
 			0,                             //No Alpha Buffer
 			0,                             //Shift Bit Ignored

@@ -32,16 +32,6 @@ set(KENBUILD_GAME_RSRCS
   # ${CMAKE_CURRENT_LIST_DIR}/rsrc/game.png
 )
 
-set(KENBUILD_GAME_DATA
-  ${CMAKE_CURRENT_LIST_DIR}/data/ascboard.map
-  ${CMAKE_CURRENT_LIST_DIR}/data/boards.map
-  ${CMAKE_CURRENT_LIST_DIR}/data/evilal.map
-  ${CMAKE_CURRENT_LIST_DIR}/data/kensig.map
-  ${CMAKE_CURRENT_LIST_DIR}/data/nsnoal.map
-  ${CMAKE_CURRENT_LIST_DIR}/data/nukeland.map
-  ${CMAKE_CURRENT_LIST_DIR}/data/stuff.dat
-)
-
 add_executable(test_game WIN32
   ${KENBUILD_GAME_SRCS}
   # ${KENBUILD_GAME_RC}
@@ -61,6 +51,8 @@ target_include_directories(test_game
 target_compile_options(test_game
   PRIVATE
     -DRENDERTYPEWIN
+    -DUSE_OPENGL=3
+    -DUSE_POLYMOST=1
 )
 
 add_dependencies(test_game build_engine)

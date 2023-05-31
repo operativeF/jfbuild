@@ -1,21 +1,21 @@
 	//High-level (easy) picture loading function:
-extern void kpzload (const char *, intptr_t *, int *, int *, int *);
+void kpzload (const char *, intptr_t *, int *, int *, int *);
 	//Low-level PNG/JPG functions:
-extern void kpgetdim (void *, int, int *, int *);
-extern int kprender (void *, int, void *, int, int, int, int, int);
-
+int kpgetdim (const char *buf, int leng, int *xsiz, int *ysiz);
+int kprender (const char *buf, int leng, intptr_t frameptr, int bpl,
+					int xdim, int ydim, int xoff, int yoff);
 	//ZIP functions:
-extern int kzaddstack (const char *);
-extern void kzuninit ();
-extern int kzopen (const char *);
-extern int kzread (void *, int);
-extern int kzfilelength ();
-extern int kzseek (int, int);
-extern int kztell ();
-extern int kzgetc ();
-extern int kzeof ();
-extern void kzclose ();
+int kzaddstack (const char *);
+void kzuninit ();
+int kzopen (const char *);
+int kzread (void *, int);
+int kzfilelength ();
+int kzseek (int, int);
+int kztell ();
+int kzgetc ();
+int kzeof ();
+void kzclose ();
 
-extern void kzfindfilestart (const char *); //pass wildcard string
-extern int kzfindfile (char *); //you alloc buf, returns 1:found,0:~found
+void kzfindfilestart (const char *); //pass wildcard string
+int kzfindfile (char *); //you alloc buf, returns 1:found,0:~found
 
