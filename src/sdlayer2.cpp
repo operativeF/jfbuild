@@ -29,9 +29,6 @@
 #  error This must be built with SDL2
 #endif
 
-#include <stdlib.h>
-#include <math.h>
-
 #include "baselayer_priv.hpp"
 #include "sdlayer.hpp"
 #include "cache1d.hpp"
@@ -39,6 +36,9 @@
 #include "a.hpp"
 #include "osd.hpp"
 #include "glbuild_priv.hpp"
+
+#include <cmath>
+#include <cstdlib>
 
 #if defined(__APPLE__)
 # include "osxbits.h"

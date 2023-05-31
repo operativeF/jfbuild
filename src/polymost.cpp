@@ -85,10 +85,11 @@ Low priority:
 # include "mdsprite_priv.hpp"
 #endif
 
+#include <cmath>
+
 int rendmode = 0;
 int usemodels=1, usehightile=1, usegoodalpha=0;
 
-#include <math.h> //<-important!
 struct vsptyp { float x, cy[2], fy[2]; int n, p, tag, ctag, ftag; };
 constexpr auto VSPMAX{4096}; //<- careful!
 static vsptyp vsp[VSPMAX];

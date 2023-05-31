@@ -46,7 +46,8 @@ LPFN_WSARECVMSG WSARecvMsgPtr;
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <stddef.h>
+
+#include <cstddef>
 
 using SOCKET = int;
 

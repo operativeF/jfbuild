@@ -1,6 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
+
 #include <fcntl.h>
+
+#include <cstdio>
+#include <cstdlib>
 
 constexpr auto MAXNUMTILES{256};
 

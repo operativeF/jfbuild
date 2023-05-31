@@ -15,7 +15,7 @@
 #include <strsafe.h>
 #include <commctrl.h>
 #include <uxtheme.h>
-#include <stdio.h>
+#include <cstdio>
 
 #include "gameres.hpp"
 

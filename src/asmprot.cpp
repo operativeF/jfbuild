@@ -7,8 +7,8 @@
 # elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __APPLE__
 #  include <sys/mman.h>
 #  include <unistd.h>
-#  include <stdio.h>
-#  include <errno.h>
+#  include <cerrno>
+#  include <cstdio>
 # endif
 #endif
 

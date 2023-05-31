@@ -265,7 +265,7 @@ static void reportandexit(char *errormessage)
 	exit(0);
 }
 
-#include <errno.h>
+#include <cerrno>
 
 struct searchpath_t {
 	searchpath_t* next;

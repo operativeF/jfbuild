@@ -15,9 +15,10 @@
 #include <windowsx.h>
 #include <commctrl.h>
 #include <uxtheme.h>
-#include <stdio.h>
 
 #include "buildres.hpp"
+
+#include <cstdio>
 
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1

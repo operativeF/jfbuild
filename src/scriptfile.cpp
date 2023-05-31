@@ -8,7 +8,8 @@
 #include "build.hpp"
 #include "scriptfile.hpp"
 #include "cache1d.hpp"
-#include <math.h>
+
+#include <cmath>
 
 constexpr bool is_whitespace(auto ch) {
 	return (ch == ' ') || (ch == '\t') || (ch == '\r') || (ch == '\n');
