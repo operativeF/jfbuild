@@ -448,7 +448,7 @@ static void suckbitsnextblock ()
 
 static inline int peekbits (int n) { return((LSWAPIB(*(int *)&filptr[bitpos>>3])>>(bitpos&7))&pow2mask[n]); }
 static inline void suckbits (int n) { bitpos += n; if (bitpos >= 0) suckbitsnextblock(); }
-static inline int getbits (int n) { int i = peekbits(n); suckbits(n); return(i); }
+static inline int getbits (int n) { const int i = peekbits(n); suckbits(n); return(i); }
 
 static int hufgetsym (int *hitab, int *hbmax)
 {

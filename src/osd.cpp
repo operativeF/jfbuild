@@ -154,7 +154,7 @@ static void _internal_drawosdcursor(int x, int y, int type, int lastkeypress)
 	char st[2] = { '\x16', 0 };  // solid lower third of character cell
 	int colour, yoff = 2;
 
-	unsigned blinkcycle = gettime() - (unsigned)lastkeypress;
+	const unsigned int blinkcycle = gettime() - (unsigned)lastkeypress;
 	if (blinkcycle % 1000 > 500) return;  // blink each half-second.
 
 	if (type) {
@@ -200,7 +200,7 @@ static void _internal_onshowosd(int shown)
 
 static int osdcmd_osdvars(const osdfuncparm_t *parm)
 {
-	int showval = (parm->numparms < 1);
+	const int showval = (parm->numparms < 1);
 
 	if (!Bstrcasecmp(parm->name, "osdrows")) {
 		if (showval) { OSD_Printf("osdrows is %d\n", osdrows); return OSDCMD_OK; }
@@ -365,10 +365,12 @@ void OSD_SetParameters(
 //
 int OSD_CaptureKey(int sc)
 {
-	int prev = osdkey;
+	const int prev{ osdkey };
+
 	if (sc >= 0) {
 		osdkey = sc;
 	}
+
 	return prev;
 }
 

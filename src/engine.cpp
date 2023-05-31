@@ -432,7 +432,8 @@ static inline int msqrtasm(unsigned int c)
 
 static inline int krecipasm(int i)
 { // Ken did this
-	float f = (float)i; i = *(int *)&f;
+	const float f = (float)i;
+	i = *(int *)&f;
 	return((reciptable[(i>>12)&2047]>>(((i-0x3f800000)>>23)&31))^(i>>31));
 }
 
@@ -7594,7 +7595,7 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 	strcpy(&kensmessage[0],"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI.  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
 
 #if USE_POLYMOST && USE_OPENGL
-	int oldbpp = bpp;
+	const int oldbpp{ bpp };
 #endif
 	//bytesperline is set in this function
 	if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return(-1);
@@ -7620,7 +7621,7 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 	if ((xdim == 320 && ydim == 200) || (xdim == 640 && ydim == 400)) {
 		pixelaspect = 65536;
 	} else {
-		int ratio = divscale16(ydim*320, xdim*240);
+		const int ratio = divscale16(ydim * 320, xdim * 240);
 		pixelaspect = divscale16(240*320L,320*200L);
 
 		if (ratio < 65536) {
@@ -9645,7 +9646,7 @@ void setview(int x1, int y1, int x2, int y2)
 //
 void setaspect(int daxrange, int daaspect)
 {
-    int ys = mulscale16(200, pixelaspect);
+    const int ys = mulscale16(200, pixelaspect);
 
     viewingrange = daxrange;
     viewingrangerecip = divscale32(1L,daxrange);
@@ -9869,7 +9870,7 @@ void setbrightness(int dabrightness, unsigned char *dapal, char noapply)
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode == 3) {
 		static unsigned int lastpalettesum = 0;
-		unsigned int newpalettesum = crc32once((unsigned char *)curpalettefaded, sizeof(curpalettefaded));
+		const unsigned int newpalettesum = crc32once((unsigned char *)curpalettefaded, sizeof(curpalettefaded));
 
 		// only reset the textures if the preserve flag (bit 1 of noapply) is clear and
 		// either (a) the new palette is different to the last, or (b) the brightness
@@ -10543,7 +10544,7 @@ static int screencapture_writeframe(BFILE *fil, char mode, void *v,
 
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode >= 3 && qsetmode == 200) {
-		char bgr = (mode & 4);
+		const char bgr = (mode & 4);
 
 		// OpenGL returns bottom-to-top ordered lines.
 		if (bottotop) {
@@ -10821,11 +10822,11 @@ static int screencapture_png(char mode)
 }
 #define SET_PNG_CHUNK_LEN(fore) { \
 	/* Accumulated and forecast, minus length and type fields. */ \
-	int len = B_BIG32(acclen + fore - 8); \
+	const int len = B_BIG32(acclen + fore - 8); \
 	memcpy(&buf[0], &len, 4); \
 }
 #define END_PNG_CHUNK(ccrc) { \
-	unsigned int crc = B_BIG32(ccrc); \
+	const unsigned int crc = B_BIG32(ccrc); \
 	memcpy(&buf[acclen], &crc, 4); \
 	acclen += 4; \
 	Bfwrite(buf, acclen, 1, fil); \

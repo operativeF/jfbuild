@@ -202,7 +202,7 @@ static TokenType getatoken(scriptfile *sf, std::span<const tokenlist> tl)
 		return TokenType::T_EOF;
 	}
 
-	for(const auto token : tl) {
+	for(const auto& token : tl) {
 		if (!Bstrcasecmp(tok, token.text.data()))
 			return token.tokenid;
 	}
@@ -225,7 +225,7 @@ static constexpr auto skyfaces = std::to_array<std::string_view>({
 static int defsparser(scriptfile *script)
 {
 	while (1) {
-		auto tokn = getatoken(script, basetokens);
+		const auto tokn = getatoken(script, basetokens);
 		char* cmdtokptr = script->ltextptr;
 		switch (tokn) {
 			case TokenType::T_ERROR:
@@ -958,7 +958,7 @@ static int defsparser(scriptfile *script)
 					if (tokn == TokenType::T_UNDEFMODELRANGE) {
 						if (scriptfile_getsymbol(script,&r1)) break;
 						if (r1 < r0) {
-							int t = r1;
+							const int t{ r1 };
 							r1 = r0;
 							r0 = t;
 							buildprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -994,7 +994,7 @@ static int defsparser(scriptfile *script)
 					}
 
 #if USE_POLYMOST && USE_OPENGL
-					int mid = md_tilehasmodel(r0);
+					const int mid = md_tilehasmodel(r0);
 					if (mid < 0) break;
 
 					md_undefinemodel(mid);
@@ -1009,9 +1009,9 @@ static int defsparser(scriptfile *script)
 
 					if (scriptfile_getsymbol(script,&r0)) break;
 					if (tokn == TokenType::T_UNDEFTEXTURERANGE) {
-						if (scriptfile_getsymbol(script,&r1)) break;
+						if (scriptfile_getsymbol(script, &r1)) break;
 						if (r1 < r0) {
-							int t = r1;
+							const int t{ r1 };
 							r1 = r0;
 							r0 = t;
 							buildprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));

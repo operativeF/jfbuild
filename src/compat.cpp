@@ -196,7 +196,7 @@ char *Bgetsupportdir(int global)
 int Bcorrectfilename(char *filename, int removefn)
 {
 	char *fn;
-	const int MAXTOKARR = 64;
+	constexpr int MAXTOKARR{ 64 };
 	char *tokarr[64], *first, *next, *token;
 	int i, ntok = 0, leadslash = 0, trailslash = 0;
 	
