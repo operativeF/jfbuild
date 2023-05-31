@@ -275,16 +275,18 @@ static int defsparser(scriptfile *script)
 				// OLD (DEPRECATED) DEFINITION SYNTAX
 			case TokenType::T_DEFINETEXTURE:
 				{
-					int tile,pal,fnoo;
+					int tile;
+					int pal;
+					int fnoo;
 					char *fn;
 
-					if (scriptfile_getsymbol(script,&tile)) break;
-					if (scriptfile_getsymbol(script,&pal))  break;
-					if (scriptfile_getnumber(script,&fnoo)) break; //x-center
-					if (scriptfile_getnumber(script,&fnoo)) break; //y-center
-					if (scriptfile_getnumber(script,&fnoo)) break; //x-size
-					if (scriptfile_getnumber(script,&fnoo)) break; //y-size
-					if (scriptfile_getstring(script,&fn))  break;
+					if (scriptfile_getsymbol(script, &tile)) break;
+					if (scriptfile_getsymbol(script, &pal))  break;
+					if (scriptfile_getnumber(script, &fnoo)) break; //x-center
+					if (scriptfile_getnumber(script, &fnoo)) break; //y-center
+					if (scriptfile_getnumber(script, &fnoo)) break; //x-size
+					if (scriptfile_getnumber(script, &fnoo)) break; //y-size
+					if (scriptfile_getstring(script, &fn))  break;
 #if USE_POLYMOST && USE_OPENGL
 					hicsetsubsttex(tile,pal,fn,-1.0,0);
 #endif
@@ -292,12 +294,14 @@ static int defsparser(scriptfile *script)
 				break;
 			case TokenType::T_DEFINESKYBOX:
 				{
-					int tile,pal,i;
+					int tile;
+					int pal;
+					int i;
 					char *fn[6];
 
-					if (scriptfile_getsymbol(script,&tile)) break;
-					if (scriptfile_getsymbol(script,&pal)) break;
-					if (scriptfile_getsymbol(script,&i)) break; //future expansion
+					if (scriptfile_getsymbol(script, &tile)) break;
+					if (scriptfile_getsymbol(script, &pal)) break;
+					if (scriptfile_getsymbol(script, &i)) break; //future expansion
 					for (i=0;i<6;i++) if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
 					if (i < 6) break;
 #if USE_POLYMOST && USE_OPENGL

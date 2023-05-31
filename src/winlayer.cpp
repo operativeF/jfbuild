@@ -2402,13 +2402,11 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 				::GetRawInputData((HRAWINPUT)lParam, RID_INPUT, (LPVOID)&raw, &dwSize, sizeof(RAWINPUTHEADER));
 
 				if (raw.header.dwType == RIM_TYPEMOUSE) {
-					int but;
-
 					if (!mousegrab) {
 						return 0;
 					}
 
-					for (but = 0; but < 4; but++) {  // Sorry XBUTTON2, I didn't plan for you.
+					for (int but{ 0 }; but < 4; but++) {  // Sorry XBUTTON2, I didn't plan for you.
 						switch ((raw.data.mouse.usButtonFlags >> (but << 1)) & 3) {
 							case 1:		// press
 								mouseb |= (1 << but);

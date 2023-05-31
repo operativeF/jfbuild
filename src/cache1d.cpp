@@ -96,9 +96,9 @@ static void reportandexit(const char* errormessage);
 
 void initcache(void *dacachestart, size_t dacachesize)
 {
-	int i;
-
-	for(i=1;i<200;i++) lockrecip[i] = (1<<28)/(200-i);
+	for(int i{1}; i < 200; i++) {
+		lockrecip[i] = (1<<28)/(200-i);
+	}
 
 	cachestart = ((intptr_t)dacachestart + 15) & ~15;
 	cachesize = (dacachesize - ((-(intptr_t)dacachestart) & 15)) & ~15;
@@ -195,10 +195,8 @@ void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
 
 void suckcache(void *suckptr)
 {
-	int i;
-
-		//Can't exit early, because invalid pointer might be same even though lock = 0
-	for(i=0;i<cacnum;i++)
+	//Can't exit early, because invalid pointer might be same even though lock = 0
+	for(int i{0}; i < cacnum; i++)
 		if (*cac[i].hand == suckptr)
 		{
 			if (*cac[i].lock) *cac[i].hand = nullptr;
@@ -221,43 +219,54 @@ void suckcache(void *suckptr)
 
 void agecache()
 {
-	int cnt;
-	unsigned char ch;
+	if (agecount >= cacnum) {
+		agecount = cacnum - 1;
+	}
 
-	if (agecount >= cacnum) agecount = cacnum-1;
-	if (agecount < 0) return;
-	for(cnt=(cacnum>>4);cnt>=0;cnt--)
+	if (agecount < 0) {
+		return;
+	}
+	
+	for(int cnt = (cacnum >> 4); cnt >= 0; cnt--)
 	{
-		ch = (*cac[agecount].lock);
+		unsigned char ch = (*cac[agecount].lock);
 		if (((ch-2)&255) < 198)
-			(*cac[agecount].lock) = ch-1;
+			(*cac[agecount].lock) = ch - 1;
 
-		agecount--; if (agecount < 0) agecount = cacnum-1;
+		agecount--;
+		if (agecount < 0) {
+			agecount = cacnum-1;
+		}
 	}
 }
 
 static void reportandexit(const char* errormessage)
 {
-    int i;
-    size_t j;
+    size_t j{0};
 
-    j = 0;
-    for(i=0;i<cacnum;i++)
+    for(int i{0}; i < cacnum; i++)
     {
-        buildprintf("%d- ",i);
+        buildprintf("%d- ", i);
+
         if (cac[i].hand) {
             buildprintf("ptr: 0x%p, ",*cac[i].hand);
-        } else {
+        }
+		else {
             buildprintf("ptr: nullptr, ");
         }
+
         buildprintf("leng: %zu, ",cac[i].leng);
+
         if (cac[i].lock) {
             buildprintf("lock: %d\n",*cac[i].lock);
-        } else {
+        }
+		else {
             buildprintf("lock: nullptr\n");
         }
+
         j += cac[i].leng;
     }
+
 	buildprintf("Cachesize = %zu\n",cachesize);
 	buildprintf("Cacnum = %d\n",cacnum);
 	buildprintf("Cache length sum = %zu\n",j);
@@ -281,7 +290,6 @@ int addsearchpath(const char *p)
 {
 	struct stat st;
 	char *s;
-	searchpath_t *srch;
 
 	if (Bstat(p, &st) < 0) {
 		if (errno == ENOENT) return -2;
@@ -289,12 +297,16 @@ int addsearchpath(const char *p)
 	}
 	if (!(st.st_mode & BS_IFDIR)) return -1;
 
-	srch = (searchpath_t*)malloc(sizeof(searchpath_t));
-	if (!srch) return -1;
+	auto* srch = static_cast<searchpath_t*>(malloc(sizeof(searchpath_t)));
+
+	if (!srch) {
+		return -1;
+	}
 
 	srch->next    = searchpathhead;
 	srch->pathlen = strlen(p)+1;
 	srch->path    = (char*)malloc(srch->pathlen + 1);
+
 	if (!srch->path) {
 		free(srch);
 		return -1;
@@ -314,7 +326,6 @@ int addsearchpath(const char *p)
 int findfrompath(const char *fn, char **where)
 {
 	searchpath_t *sp;
-	char *pfn, *ffn;
 	size_t allocsiz;
 
 	// pathsearchmode == 0: tests current dir and then the dirs of the path stack
@@ -329,7 +340,7 @@ int findfrompath(const char *fn, char **where)
 	}
 
 	for (; toupperlookup[(int)(unsigned char)*fn] == '/'; fn++);
-	ffn = strdup(fn);
+	char* ffn = strdup(fn);
 	if (!ffn) return -1;
 	Bcorrectfilename(ffn,0);	// compress relative paths
 	
@@ -337,8 +348,12 @@ int findfrompath(const char *fn, char **where)
 	allocsiz += strlen(ffn);
 	allocsiz += 1;	// a nul
 	
-	pfn = (char *)malloc(allocsiz);
-	if (!pfn) { free(ffn); return -1; }
+	auto* pfn = static_cast<char *>(malloc(allocsiz));
+
+	if (!pfn) {
+		free(ffn);
+		return -1;
+	}
 
 	strcpy(pfn, "./");
 	strcat(pfn, ffn);
@@ -358,17 +373,18 @@ int findfrompath(const char *fn, char **where)
 			return 0;
 		}
 	}
-	free(pfn); free(ffn);
+
+	free(pfn);
+	free(ffn);
+
 	return -1;
 }
 
 int openfrompath(const char *fn, int flags, int mode)
 {
-	char *pfn;
-	int h;
-
+	char *pfn{};
 	if (findfrompath(fn, &pfn) < 0) return -1;
-	h = Bopen(pfn, flags, mode);
+	int h = Bopen(pfn, flags, mode);
 	free(pfn);
 
 	return h;

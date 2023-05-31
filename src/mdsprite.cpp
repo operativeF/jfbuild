@@ -644,10 +644,8 @@ static md2model *md2load (int fil, const char *filnam)
 static int md2draw (md2model *m, spritetype *tspr, int method)
 {
 	point3d m0, m1, a0;
-	md2frame_t *f0, *f1;
-	md2vert_t *c0, *c1;
 	int i, j, vbi;
-	float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], pc[4];
+	float k2, k3, k4, k5, k6, k7, mat[16], pc[4];
 	PTMHead *ptmh = 0;
 	struct polymostdrawpolycall draw;
 
@@ -656,43 +654,74 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 // -------- Unnecessarily clean (lol) code to generate translation/rotation matrix for MD2 ---------
 
 		//create current&next frame's vertex list from whole list
-	f0 = (md2frame_t *)&m->frames[m->cframe*m->framebytes];
-	f1 = (md2frame_t *)&m->frames[m->nframe*m->framebytes];
-	f = m->interpol; g = 1-f;
-	m0.x = f0->mul.x*m->scale*g; m1.x = f1->mul.x*m->scale*f;
-	m0.y = f0->mul.y*m->scale*g; m1.y = f1->mul.y*m->scale*f;
-	m0.z = f0->mul.z*m->scale*g; m1.z = f1->mul.z*m->scale*f;
-	a0.x = f0->add.x*m->scale; a0.x = (f1->add.x*m->scale-a0.x)*f+a0.x;
-	a0.y = f0->add.y*m->scale; a0.y = (f1->add.y*m->scale-a0.y)*f+a0.y;
-	a0.z = f0->add.z*m->scale; a0.z = (f1->add.z*m->scale-a0.z)*f+a0.z + m->zadd*m->scale;
-	c0 = &f0->verts[0]; c1 = &f1->verts[0];
+	auto* f0 = (md2frame_t *)&m->frames[m->cframe*m->framebytes];
+	auto* f1 = (md2frame_t *)&m->frames[m->nframe*m->framebytes];
+
+	float f = m->interpol;
+	float g = 1 - f;
+
+	m0.x = f0->mul.x*m->scale*g;
+	m1.x = f1->mul.x*m->scale*f;
+	m0.y = f0->mul.y*m->scale*g;
+	m1.y = f1->mul.y*m->scale*f;
+	m0.z = f0->mul.z*m->scale*g;
+	m1.z = f1->mul.z*m->scale*f;
+	a0.x = f0->add.x*m->scale;
+	a0.x = (f1->add.x*m->scale-a0.x)*f+a0.x;
+	a0.y = f0->add.y*m->scale;
+	a0.y = (f1->add.y*m->scale-a0.y)*f+a0.y;
+	a0.z = f0->add.z*m->scale;
+	a0.z = (f1->add.z*m->scale-a0.z)*f+a0.z + m->zadd*m->scale;
+	
+	md2vert_t* c0 = &f0->verts[0];
+	md2vert_t* c1 = &f1->verts[0];
 
 	// Parkar: Moved up to be able to use k0 for the y-flipping code
-	k0 = tspr->z;
-	if ((globalorientation&128) && !((globalorientation&48)==32)) k0 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<1);
+	float k0 = tspr->z;
+
+	if ((globalorientation & 128) && !((globalorientation & 48) == 32)) {
+		k0 += static_cast<float>((tilesizy[tspr->picnum] * tspr->yrepeat) << 1);
+	}
 
 	// Parkar: Changed to use the same method as centeroriented sprites
 	if (globalorientation&8) //y-flipping
 	{
-		m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
-		k0 -= (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<2);
+		m0.z = -m0.z;
+		m1.z = -m1.z;
+		a0.z = -a0.z;
+		k0 -= static_cast<float>((tilesizy[tspr->picnum] * tspr->yrepeat) << 2);
 	}
+
 	if (globalorientation&4) { m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y; } //x-flipping
 
 	f = ((float)tspr->xrepeat)/64*m->bscale;
-	m0.x *= f; m1.x *= f; a0.x *= f; f = -f;   // 20040610: backwards models aren't cool
-	m0.y *= f; m1.y *= f; a0.y *= f;
-	f = ((float)tspr->yrepeat)/64*m->bscale;
-	m0.z *= f; m1.z *= f; a0.z *= f;
+	m0.x *= f;
+	m1.x *= f;
+	a0.x *= f;
+	f = -f;   // 20040610: backwards models aren't cool
+	m0.y *= f;
+	m1.y *= f;
+	a0.y *= f;
+	f = (static_cast<float>(tspr->yrepeat))/64 * m->bscale;
+	m0.z *= f;
+	m1.z *= f;
+	a0.z *= f;
 
 	// floor aligned
-	k1 = tspr->y;
+	float k1 = tspr->y;
+
 	if((globalorientation&48)==32)
 	{
-		m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
-		m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y;
-		f = a0.x; a0.x = a0.z; a0.z = f;
-		k1 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)>>3);
+		m0.z = -m0.z;
+		m1.z = -m1.z;
+		a0.z = -a0.z;
+		m0.y = -m0.y;
+		m1.y = -m1.y;
+		a0.y = -a0.y;
+		f = a0.x;
+		a0.x = a0.z;
+		a0.z = f;
+		k1 += static_cast<float>((tilesizy[tspr->picnum]*tspr->yrepeat)>>3);
 	}
 
 	f = (65536.0*512.0)/((float)xdimen*viewingrange);
@@ -1579,13 +1608,22 @@ skindidntfit:;
 
 static int loadvox (const char *filnam)
 {
-	int i, j, k, x, y, z, pal[256], fil;
+	int i, j, k, x, y, z, pal[256];
 	unsigned char c[3], *tbuf;
 
-	fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
-	kread(fil,&xsiz,4); xsiz = B_LITTLE32(xsiz);
-	kread(fil,&ysiz,4); ysiz = B_LITTLE32(ysiz);
-	kread(fil,&zsiz,4); zsiz = B_LITTLE32(zsiz);
+	const int fil = kopen4load(filnam, 0);
+
+	if (fil < 0) {
+		return -1;
+	}
+
+	kread(fil, &xsiz, 4);
+	xsiz = B_LITTLE32(xsiz);
+	kread(fil, &ysiz, 4);
+	ysiz = B_LITTLE32(ysiz);
+	kread(fil, &zsiz, 4);
+	zsiz = B_LITTLE32(zsiz);
+
 	xpiv = ((float)xsiz)*.5;
 	ypiv = ((float)ysiz)*.5;
 	zpiv = ((float)zsiz)*.5;
@@ -1698,20 +1736,25 @@ static int loadkvx (const char *filnam)
 
 static int loadkv6 (const char *filnam)
 {
-	int i, j, x, y, numvoxs, z0, z1, fil;
+	int i, j, x, y, numvoxs, z0, z1;
 	float f;
 	unsigned short *ylen;
 	unsigned char c[8];
 
-	fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
-	kread(fil,&i,4); if (B_LITTLE32(i) != 0x6c78764b) { kclose(fil); return(-1); } //Kvxl
-	kread(fil,&xsiz,4);    xsiz = B_LITTLE32(xsiz);
-	kread(fil,&ysiz,4);    ysiz = B_LITTLE32(ysiz);
-	kread(fil,&zsiz,4);    zsiz = B_LITTLE32(zsiz);
-    kread(fil,&f,4);       xpiv = B_LITTLEFLOAT(f);
-    kread(fil,&f,4);       ypiv = B_LITTLEFLOAT(f);
-    kread(fil,&f,4);       zpiv = B_LITTLEFLOAT(f);
-	kread(fil,&numvoxs,4); numvoxs = B_LITTLE32(numvoxs);
+	const int fil = kopen4load(filnam, 0);
+
+	if (fil < 0) {
+		return -1;
+	}
+
+	kread(fil, &i, 4); if (B_LITTLE32(i) != 0x6c78764b) { kclose(fil); return(-1); } //Kvxl
+	kread(fil, &xsiz, 4);    xsiz = B_LITTLE32(xsiz);
+	kread(fil, &ysiz, 4);    ysiz = B_LITTLE32(ysiz);
+	kread(fil, &zsiz, 4);    zsiz = B_LITTLE32(zsiz);
+    kread(fil, &f, 4);       xpiv = B_LITTLEFLOAT(f);
+    kread(fil, &f, 4);       ypiv = B_LITTLEFLOAT(f);
+    kread(fil, &f, 4);       zpiv = B_LITTLEFLOAT(f);
+	kread(fil, &numvoxs, 4); numvoxs = B_LITTLE32(numvoxs);
 
 	ylen = (unsigned short *)malloc(xsiz*ysiz*sizeof(unsigned short));
 	if (!ylen) { kclose(fil); return(-1); }

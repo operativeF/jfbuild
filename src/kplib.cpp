@@ -2710,19 +2710,40 @@ static int wildmatch (const char *i, const char *j)
 	//Same as: stricmp(st0,st1) except: '/' == '\'
 static int filnamcmp (const char *st0, const char *st1)
 {
-	int i;
-	char ch0, ch1;
+	int i{ 0 };
 
-	for(i=0;st0[i];i++)
+	for(; st0[i]; i++)
 	{
-		ch0 = st0[i]; if ((ch0 >= 'a') && (ch0 <= 'z')) ch0 -= 32;
-		ch1 = st1[i]; if ((ch1 >= 'a') && (ch1 <= 'z')) ch1 -= 32;
-		if (ch0 == '/') ch0 = '\\';
-		if (ch1 == '/') ch1 = '\\';
-		if (ch0 != ch1) return(-1);
+		char ch0 = st0[i];
+
+		if ((ch0 >= 'a') && (ch0 <= 'z')) {
+			ch0 -= 32;
+		}
+
+		char ch1 = st1[i];
+
+		if ((ch1 >= 'a') && (ch1 <= 'z')) {
+			ch1 -= 32;
+		}
+
+		if (ch0 == '/') {
+			ch0 = '\\';
+		}
+
+		if (ch1 == '/') {
+			ch1 = '\\';
+		}
+
+		if (ch0 != ch1) {
+			return -1;
+		}
 	}
-	if (!st1[i]) return(0);
-	return(-1);
+
+	if (!st1[i]) {
+		return 0;
+	}
+
+	return -1;
 }
 
 //===================== ZIP decompression code begins ========================
