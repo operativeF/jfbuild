@@ -3728,7 +3728,7 @@ inline void copybuf(void *s, void *d, int c)
 inline void clearbufbyte(void *D, int c, int a)
 {
 	char *p = (char*)D;
-	int m[4] = { 0xffl,0xff00l,0xff0000l,0xff000000l };
+	int m[4] = { 0xFFL, 0xFF00L, 0xFF0000L, static_cast<int>(0xFF000000L) }; // FIXME: ? Narrowing
 	int n[4] = { 0,8,16,24 };
 	int z=0;
 	while ((c--) > 0) {

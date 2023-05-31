@@ -107,7 +107,7 @@ static void updatejoystick();
 static void UninitDIB();
 static int SetupDIB(int width, int height);
 static void UninitOpenGL();
-static int SetupOpenGL(int width, int height, int bitspp);
+static int SetupOpenGL(int width, int height, unsigned char bitspp);
 static BOOL RegisterWindowClass();
 static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refresh);
 static void DestroyAppWindow();
@@ -1762,7 +1762,7 @@ static void EnumWGLExts(HDC hdc)
 //
 // SetupOpenGL() -- sets up opengl rendering
 //
-static int SetupOpenGL(int width, int height, int bitspp)
+static int SetupOpenGL(int width, int height, unsigned char bitspp)
 {
 	int err, pixelformat;
 
@@ -1896,7 +1896,7 @@ static int SetupOpenGL(int width, int height, int bitspp)
 			1,                             //Version Number
 			PFD_DRAW_TO_WINDOW|PFD_SUPPORT_OPENGL|PFD_DOUBLEBUFFER, //Must Support these
 			PFD_TYPE_RGBA,                 //Request An RGBA Format
-			bitspp,                        //Color Depth // FIXME: Narrowing conversion.
+			bitspp,                        //Color Depth
 			0,0,0,0,0,0,                   //Color Bits Ignored
 			0,                             //No Alpha Buffer
 			0,                             //Shift Bit Ignored
