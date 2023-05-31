@@ -247,8 +247,10 @@ int Bcorrectfilename(char *filename, int removefn)
 
 int Bcanonicalisefilename(char *filename, int removefn)
 {
-	char cwd[BMAX_PATH], fn[BMAX_PATH], *p;
-	char *fnp = filename;
+	char cwd[BMAX_PATH];
+	char fn[BMAX_PATH];
+	char* p{ nullptr };
+	char* fnp{ filename };
 #ifdef _WIN32
 	int drv = 0;
 #endif

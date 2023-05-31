@@ -94,7 +94,11 @@ void crc32init(unsigned int *crcvar)
 void crc32block(unsigned int *crcvar, unsigned char *blk, unsigned int len)
 {
 	unsigned int crc = *crcvar;
-	while (len--) crc = crc32table[(crc ^ *(blk++)) & 0xffl] ^ (crc >> 8);
+  
+	while (len--) {
+    crc = crc32table[(crc ^ *(blk++)) & 0xffl] ^ (crc >> 8);
+  }
+
 	*crcvar = crc;
 }
 

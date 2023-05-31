@@ -1553,9 +1553,9 @@ static void ceilscan(int x1, int x2, int sectnum)
 static void florscan(int x1, int x2, int sectnum)
 {
 	int i, j, ox, oy, x, y1, y2, twall, bwall;
-	sectortype *sec;
 
-	sec = &sector[sectnum];
+	sectortype* sec = &sector[sectnum];
+
 	if (palookup[sec->floorpal] != globalpalwritten)
 	{
 		globalpalwritten = palookup[sec->floorpal];
@@ -5905,25 +5905,29 @@ void drawmapview(int dax, int day, int zoome, short ang)
 	spritetype *spr;
 	int tilenum, xoff, yoff, i, j, k, l, cosang, sinang, xspan, yspan;
 	int xrepeat, yrepeat, x, y, x1, y1, x2, y2, x3, y3, x4, y4, bakx1, baky1;
-	int s, w, ox, oy, startwall, cx1, cy1, cx2, cy2;
-	int bakgxvect, bakgyvect, sortnum, gap, npoints;
-	int xvect, yvect, xvect2, yvect2, daslope;
+	int s, w, ox, oy, startwall;
+	int npoints;
+	int daslope;
 
 	beforedrawrooms = 0;
 
 	clearbuf(&gotsector[0],(int)((numsectors+31)>>5),0L);
 
-	cx1 = (windowx1<<12); cy1 = (windowy1<<12);
-	cx2 = ((windowx2+1)<<12)-1; cy2 = ((windowy2+1)<<12)-1;
-	zoome <<= 8;
-	bakgxvect = divscale28(sintable[(1536-ang)&2047],zoome);
-	bakgyvect = divscale28(sintable[(2048-ang)&2047],zoome);
-	xvect = mulscale8(sintable[(2048-ang)&2047],zoome);
-	yvect = mulscale8(sintable[(1536-ang)&2047],zoome);
-	xvect2 = mulscale16(xvect,yxaspect);
-	yvect2 = mulscale16(yvect,yxaspect);
+	const int cx1 = windowx1 << 12;
+	const int cy1 = windowy1 << 12;
+	const int cx2 = ((windowx2 + 1) << 12) - 1;
+	const int cy2 = ((windowy2 + 1) << 12) - 1;
 
-	sortnum = 0;
+	zoome <<= 8;
+
+	const int bakgxvect = divscale28(sintable[(1536-ang)&2047],zoome);
+	const int bakgyvect = divscale28(sintable[(2048-ang)&2047],zoome);
+	const int xvect = mulscale8(sintable[(2048-ang)&2047],zoome);
+	const int yvect = mulscale8(sintable[(1536-ang)&2047],zoome);
+	const int xvect2 = mulscale16(xvect,yxaspect);
+	const int yvect2 = mulscale16(yvect,yxaspect);
+
+	int sortnum{ 0 };
 
 	for(s=0,sec=&sector[s];s<numsectors;s++,sec++)
 		if (show2dsector[s>>3] & pow2char[s & 7])
@@ -6051,7 +6055,12 @@ void drawmapview(int dax, int day, int zoome, short ang)
 		}
 
 		//Sort sprite list
-	gap = 1; while (gap < sortnum) gap = (gap<<1)+1;
+	int gap{ 1 };
+
+	while (gap < sortnum) {
+		gap = (gap << 1) + 1;
+	}
+
 	for(gap>>=1;gap>0;gap>>=1)
 		for(i=0;i<sortnum-gap;i++)
 			for(j=i;j>=0;j-=gap)
@@ -9422,9 +9431,9 @@ void getzrange(int x, int y, int z, short sectnum,
 	walltype *wal, *wal2;
 	spritetype *spr;
 	int clipsectcnt, startwall, endwall, tilenum, xoff, yoff, dax, day;
-	int xmin, ymin, xmax, ymax, i, j, k, l, daz, daz2, dx, dy;
+	int j, k, l, daz, daz2, dx, dy;
 	int x1, y1, x2, y2, x3, y3, x4, y4, ang, cosang, sinang;
-	int xspan, yspan, xrepeat, yrepeat, dasprclipmask, dawalclipmask;
+	int xspan, yspan, xrepeat, yrepeat;
 	short cstat;
 	unsigned char clipyou;
 
@@ -9436,18 +9445,21 @@ void getzrange(int x, int y, int z, short sectnum,
 	}
 
 		//Extra walldist for sprites on sector lines
-	i = walldist+MAXCLIPDIST+1;
-	xmin = x-i; ymin = y-i;
-	xmax = x+i; ymax = y+i;
+	int i = walldist + MAXCLIPDIST + 1;
+	const int xmin = x - i;
+	const int ymin = y - i;
+	const int xmax = x + i;
+	const int ymax = y + i;
 
 	getzsofslope(sectnum,x,y,ceilz,florz);
 	*ceilhit = sectnum+16384; *florhit = sectnum+16384;
 
-	dawalclipmask = (cliptype&65535);
-	dasprclipmask = (cliptype>>16);
+	const int dawalclipmask = cliptype & 65535;
+	const int dasprclipmask = cliptype >> 16;
 
 	clipsectorlist[0] = sectnum;
-	clipsectcnt = 0; clipsectnum = 1;
+	clipsectcnt = 0;
+	clipsectnum = 1;
 
 	do  //Collect sectors inside your square first
 	{

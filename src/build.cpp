@@ -2710,7 +2710,7 @@ void overheadeditor()
 	short splitsect=0, danumwalls, secondstartwall, joinsector[2], joinsectnum;
 	short splitstartwall=0, splitendwall, loopnum;
 	int mousx, mousy, bstatus;
-	int centerx, centery, circlerad;
+	int circlerad;
 	short circlewall, circlepoints, circleang1, circleang2;
 	int sectorhighlightx=0, sectorhighlighty=0;
 	short cursectorhighlight, sectorhighlightstat;
@@ -4210,8 +4210,8 @@ void overheadeditor()
 			templong2 = dmulscale4(y1-y2,x1-x3,y1-y3,x2-x1);
 			if (templong2 != 0)
 			{
-				centerx = (((x1+x2) + scale(y1-y2,templong1,templong2))>>1);
-				centery = (((y1+y2) + scale(x2-x1,templong1,templong2))>>1);
+				const int centerx = (((x1+x2) + scale(y1-y2,templong1,templong2))>>1);
+				const int centery = (((y1+y2) + scale(x2-x1,templong1,templong2))>>1);
 
 				dax = mulscale14(centerx-posx,zoom);
 				day = mulscale14(centery-posy,zoom);

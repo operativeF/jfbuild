@@ -234,27 +234,38 @@ static inline void dtol (double d, int *a)
 
 #else
 
-static inline void dtol (double d, int *a)
+static inline void dtol(double d, int *a)
 {
-	*a = (int)d;
+	*a = static_cast<int>(d);
 }
 #endif
 
-static inline int imod (int a, int b)
+static inline int imod(int a, int b)
 {
-	if (a >= 0) return(a%b);
-	return(((a+1)%b)+b-1);
+	if (a >= 0) {
+		return a % b;
+	}
+
+	return ((a + 1) % b) + b - 1;
 }
 
 static void drawline2d (float x0, float y0, float x1, float y1, unsigned char col)
 {
-	float f, dx, dy, fxres, fyres;
+	float f;
 	int e, inc, x, y;
 	unsigned int up16;
 
-	dx = x1-x0; dy = y1-y0; if ((dx == 0) && (dy == 0)) return;
-	fxres = (float)xdimen; fyres = (float)ydimen;
-		  if (x0 >= fxres) { if (x1 >= fxres) return; y0 += (fxres-x0)*dy/dx; x0 = fxres; }
+	float dx = x1 - x0;
+	float dy = y1 - y0;
+
+	if ((dx == 0) && (dy == 0)) {
+		return;
+	}
+
+	auto fxres = static_cast<float>(xdimen);
+	auto fyres = static_cast<float>(ydimen);
+
+	if (x0 >= fxres) { if (x1 >= fxres) return; y0 += (fxres-x0)*dy/dx; x0 = fxres; }
 	else if (x0 <      0) { if (x1 <      0) return; y0 += (    0-x0)*dy/dx; x0 =     0; }
 		  if (x1 >= fxres) {                          y1 += (fxres-x1)*dy/dx; x1 = fxres; }
 	else if (x1 <      0) {                          y1 += (    0-x1)*dy/dx; x1 =     0; }
@@ -291,9 +302,8 @@ static int drawingskybox = 0;
 
 int polymost_texmayhavealpha (int dapicnum, int dapalnum)
 {
-	PTHead * pth;
+	const PTHead* pth = PT_GetHead(dapicnum, dapalnum, 0, 1);
 
-	pth = PT_GetHead(dapicnum, dapalnum, 0, 1);
 	if (!pth) {
 		return 1;
 	}
@@ -305,15 +315,14 @@ int polymost_texmayhavealpha (int dapicnum, int dapalnum)
 		return 1;
 	}
 
-	return ((pth->pic[PTHPIC_BASE]->flags & PTH_HASALPHA) == PTH_HASALPHA);
+	return (pth->pic[PTHPIC_BASE]->flags & PTH_HASALPHA) == PTH_HASALPHA;
 }
 
 void polymost_texinvalidate (int dapicnum, int dapalnum, int dameth)
 {
-	PTIter iter;
-	PTHead * pth;
+	PTHead * pth; // FIXME: Move to while loop?
 
-	iter = PTIterNewMatch(
+	PTIter iter = PTIterNewMatch(
 		PTITER_PICNUM | PTITER_PALNUM | PTITER_FLAGS,
 		dapicnum, dapalnum, PTH_CLAMPED, (dameth & METH_CLAMPED) ? PTH_CLAMPED : 0
 		);
@@ -332,12 +341,11 @@ void polymost_texinvalidate (int dapicnum, int dapalnum, int dameth)
 	//Make all textures "dirty" so they reload, but not re-allocate
 	//This should be much faster than polymost_glreset()
 	//Use this for palette effects ... but not ones that change every frame!
-void polymost_texinvalidateall ()
+void polymost_texinvalidateall()
 {
-	PTIter iter;
-	PTHead * pth;
+	PTHead * pth; // FIXME: Move to while loop?
 
-	iter = PTIterNew();
+	PTIter iter = PTIterNew();
 	while ((pth = PTIterNext(iter)) != 0) {
 		if (pth->pic[PTHPIC_BASE]) {
 			pth->pic[PTHPIC_BASE]->flags |= PTH_DIRTY;
@@ -351,21 +359,24 @@ void polymost_texinvalidateall ()
 
 void gltexapplyprops ()
 {
-	int i;
-	PTIter iter;
-	PTHead * pth;
-
 	if (glinfo.maxanisotropy > 1.0)
 	{
-		if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy) glanisotropy = (int)glinfo.maxanisotropy;
+		if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy) {
+			glanisotropy = (int)glinfo.maxanisotropy;
+		}
 	}
 
-	if (gltexfiltermode < 0) gltexfiltermode = 0;
-	else if (gltexfiltermode >= (int)numglfiltermodes) gltexfiltermode = numglfiltermodes-1;
+	if (gltexfiltermode < 0) {
+		gltexfiltermode = 0;
+	}
+	else if (gltexfiltermode >= (int)numglfiltermodes) {
+		gltexfiltermode = numglfiltermodes - 1;
+	}
 
-	iter = PTIterNew();
+	PTIter iter = PTIterNew();
+	PTHead * pth; // FIXME: Move to while loop?
 	while ((pth = PTIterNext(iter)) != 0) {
-		for (i = 0; i < PTHPIC_SIZE; i++) {
+		for (int i{0}; i < PTHPIC_SIZE; i++) {
 			if (pth->pic[i] == 0 || pth->pic[i]->glpic == 0) {
 				continue;
 			}
@@ -379,17 +390,20 @@ void gltexapplyprops ()
 #endif
 		}
 	}
+
 	PTIterFree(iter);
 
 	{
 		int j;
 		mdskinmap_t *sk;
-		md2model *m;
 
-		for (i=0;i<nextmodelid;i++)
-		{
-			m = (md2model *)models[i];
-			if (m->mdnum < 2) continue;
+		for(int i{0}; i < nextmodelid; i++) {
+			auto* m = (md2model *)models[i]; // FIXME: C-style cast requires conversion
+
+			if (m->mdnum < 2) {
+				continue;
+			}
+
 			for (j=0;j<m->numskins*(HICEFFECTMASK+1);j++)
 			{
 				if (!m->tex[j] || !m->tex[j]->glpic) continue;
@@ -420,10 +434,14 @@ void gltexapplyprops ()
 
 //--------------------------------------------------------------------------------------------------
 
-float glox1, gloy1, glox2, gloy2;
+float glox1;
+float gloy1;
+float glox2;
+float gloy2;
 
 	//Use this for both initialization and uninitialization of OpenGL.
 static int gltexcacnum = -1;
+
 void polymost_glreset ()
 {
 	//Reset if this is -1 (meaning 1st texture call ever), or > 0 (textures in memory)
@@ -519,26 +537,26 @@ static GLint polymost_get_attrib(GLuint program, const GLchar *name)
 static GLint polymost_get_uniform(GLuint program, const GLchar *name)
 {
 	const GLint uniformloc = glfunc.glGetUniformLocation(program, name);
+	
 	if (uniformloc < 0) {
 		buildprintf("polymost_get_uniform: could not get location of uniform \"%s\"\n", name);
 	}
+
 	return uniformloc;
 }
 
 static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, const char *filename)
 {
-	const GLchar *shadersrc = defaultsrc;
-	GLuint shader = 0;
+	const GLchar *shadersrc{defaultsrc};
 
 #ifdef SHADERDEV
-	GLchar *fileshadersrc = nullptr;
-	long shadersrclen = 0;
-	BFILE *shaderfh = nullptr;
+	GLchar *fileshadersrc{nullptr};
 
-	shaderfh = fopen(filename, "rb");
+	BFILE* shaderfh = fopen(filename, "rb");
+	
 	if (shaderfh) {
 		fseek(shaderfh, 0, SEEK_END);
-		shadersrclen = ftell(shaderfh);
+		auto shadersrclen = ftell(shaderfh);
 		fseek(shaderfh, 0, SEEK_SET);
 
 		fileshadersrc = (GLchar *)malloc(shadersrclen + 1);
@@ -553,7 +571,7 @@ static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, co
 	}
 #endif
 
-	shader = glbuild_compile_shader(shadertype, shadersrc);
+	const GLuint shader = glbuild_compile_shader(shadertype, shadersrc);
 
 #ifdef SHADERDEV
 	if (fileshadersrc) {
@@ -990,17 +1008,22 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 	polymostcallcounts.drawpoly++;
 #endif
 
-	if (method == -1) return;
-
-	if (n == 3)
-	{
-		if ((dpx[0]-dpx[1])*(dpy[2]-dpy[1]) >= (dpx[2]-dpx[1])*(dpy[0]-dpy[1])) return; //for triangle
+	if (method == -1) {
+		return;
 	}
-	else
-	{
+
+	if (n == 3) {
+		if ((dpx[0]-dpx[1])*(dpy[2]-dpy[1]) >= (dpx[2]-dpx[1])*(dpy[0]-dpy[1])) {
+			return; //for triangle
+		}
+	}
+	else {
 		f = 0; //f is area of polygon / 2
 		for(i=n-2,j=n-1,k=0;k<n;i=j,j=k,k++) f += (dpx[i]-dpx[k])*dpy[j];
-		if (f <= 0) return;
+		
+		if (f <= 0) {
+			return;
+		}
 	}
 
 		//Load texture (globalpicnum)
@@ -1071,10 +1094,9 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 
 	if (rendmode == 3)
 	{
-		float hackscx, hackscy;
-		unsigned short ptflags = 0;
-		int picidx = PTHPIC_BASE;
-		PTHead * pth = 0;
+		unsigned short ptflags{0};
+		int picidx{PTHPIC_BASE};
+		PTHead * pth{nullptr};
 		struct polymostdrawpolycall draw;
 		struct polymostvboitem vboitem[MINVBOINDEXES];
 
@@ -1086,6 +1108,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 
 		// Base texture.
 		draw.texture0 = 0;
+
 		if (pth) {
 			if (drawingskybox) {
 				picidx = drawingskybox - 1;
@@ -1097,6 +1120,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 
 		// Glow texture.
 		draw.texture1 = nulltexture;
+
 		if ((method & METH_LAYERS) && pth && !drawingskybox) {
 			if (pth->pic[ PTHPIC_GLOW ]) {
 				draw.texture1 = pth->pic[ PTHPIC_GLOW ]->glpic;
@@ -1106,26 +1130,34 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 		if (!(method & (METH_MASKED | METH_TRANS))) {
 			glfunc.glDisable(GL_BLEND);
 			draw.alphacut = 0.f;
-		} else {
+		}
+		else {
 			float alphac = 0.32;
 			if (pth && pth->repldef && pth->repldef->alphacut >= 0.0) {
 				alphac = pth->repldef->alphacut;
 			}
-			if (usegoodalpha) alphac = 0.0;
-			if (!waloff[globalpicnum]) alphac = 0.0;	// invalid textures ignore the alpha cutoff settings
+
+			if (usegoodalpha) {
+				alphac = 0.0;
+			}
+
+			if (!waloff[globalpicnum]) {
+				alphac = 0.0;	// invalid textures ignore the alpha cutoff settings
+			}
 
 			glfunc.glEnable(GL_BLEND);
 			draw.alphacut = alphac;
 		}
 
-		draw.fogcolour.r = (float)palookupfog[gfogpalnum].r / 63.f;
-		draw.fogcolour.g = (float)palookupfog[gfogpalnum].g / 63.f;
-		draw.fogcolour.b = (float)palookupfog[gfogpalnum].b / 63.f;
+		draw.fogcolour.r = static_cast<float>(palookupfog[gfogpalnum].r) / 63.f;
+		draw.fogcolour.g = static_cast<float>(palookupfog[gfogpalnum].g) / 63.f;
+		draw.fogcolour.b = static_cast<float>(palookupfog[gfogpalnum].b) / 63.f;
 		draw.fogcolour.a = 1.f;
+
 		draw.fogdensity = gfogdensity;
 
-		hackscx = pth->scalex;
-		hackscy = pth->scaley;
+		const float hackscx = pth->scalex;
+		const float hackscy = pth->scaley;
 		tsizx   = pth->pic[picidx]->tsizx;
 		tsizy   = pth->pic[picidx]->tsizy;
 		xx      = pth->pic[picidx]->sizx;
@@ -1722,49 +1754,51 @@ static void initmosts (const double *px, const double *py, int n)
 	vsp[VSPMAX-1].n = vcnt; vsp[vcnt].p = VSPMAX-1;
 }
 
-static void vsdel (int i)
-{
-	int pi, ni;
-		//Delete i
-	pi = vsp[i].p;
-	ni = vsp[i].n;
+static void vsdel(int i) {
+	//Delete i
+	const int pi = vsp[i].p;
+	const int ni = vsp[i].n;
 	vsp[ni].p = pi;
 	vsp[pi].n = ni;
 
-		//Add i to empty list
-	vsp[i].n = vsp[VSPMAX-1].n;
-	vsp[i].p = VSPMAX-1;
-	vsp[vsp[VSPMAX-1].n].p = i;
-	vsp[VSPMAX-1].n = i;
+	//Add i to empty list
+	vsp[i].n = vsp[VSPMAX - 1].n;
+	vsp[i].p = VSPMAX - 1;
+	vsp[vsp[VSPMAX - 1].n].p = i;
+	vsp[VSPMAX - 1].n = i;
 }
 
 static int vsinsaft (int i)
 {
-	int r;
-		//i = next element from empty list
-	r = vsp[VSPMAX-1].n;
-	vsp[vsp[r].n].p = VSPMAX-1;
+	//i = next element from empty list
+	const int r = vsp[VSPMAX-1].n;
+	vsp[vsp[r].n].p = VSPMAX - 1;
 	vsp[VSPMAX-1].n = vsp[r].n;
 
 	vsp[r] = vsp[i]; //copy i to r
 
-		//insert r after i
-	vsp[r].p = i; vsp[r].n = vsp[i].n;
-	vsp[vsp[i].n].p = r; vsp[i].n = r;
+	//insert r after i
+	vsp[r].p = i;
+	vsp[r].n = vsp[i].n;
+	vsp[vsp[i].n].p = r;
+	vsp[i].n = r;
 
-	return(r);
+	return r;
 }
 
 static int testvisiblemost (float x0, float x1)
 {
-	int i, newi;
+	int newi;
 
-	for(i=vsp[0].n;i;i=newi)
-	{
+	for(int i = vsp[0].n; i; i = newi) { // TODO: Is this right?
 		newi = vsp[i].n;
-		if ((x0 < vsp[newi].x) && (vsp[i].x < x1) && (vsp[i].ctag >= 0)) return(1);
+
+		if ((x0 < vsp[newi].x) && (vsp[i].x < x1) && (vsp[i].ctag >= 0)) {
+			return 1;
+		}
 	}
-	return(0);
+
+	return 0;
 }
 
 static void domost (float x0, float y0, float x1, float y1, int polymethod)
@@ -1794,6 +1828,7 @@ static void domost (float x0, float y0, float x1, float y1, int polymethod)
 	}
 
 	slop = (y1-y0)/(x1-x0);
+	
 	for(i=vsp[0].n;i;i=newi)
 	{
 		newi = vsp[i].n; nx0 = vsp[i].x; nx1 = vsp[newi].x;
@@ -1950,8 +1985,8 @@ static void domost (float x0, float y0, float x1, float y1, int polymethod)
 		//Combine neighboring vertical strips with matching collinear top&bottom edges
 		//This prevents x-splits from propagating through the entire scan
 	i = vsp[0].n;
-	while (i)
-	{
+	
+	while (i) {
 		ni = vsp[i].n;
 		if ((vsp[i].cy[0] >= vsp[i].fy[0]) && (vsp[i].cy[1] >= vsp[i].fy[1])) { vsp[i].ctag = vsp[i].ftag = -1; }
 		if ((vsp[i].ctag == vsp[ni].ctag) && (vsp[i].ftag == vsp[ni].ftag))
@@ -2861,19 +2896,34 @@ static void polymost_drawalls (int bunch)
 
 static int polymost_bunchfront (int b1, int b2)
 {
-	double x1b1, x1b2, x2b1, x2b2;
-	int b1f, b2f, i;
+	const int b1f = bunchfirst[b1];
+	const double x1b1 = dxb1[b1f];
+	const double x2b2 = dxb2[bunchlast[b2]];
 
-	b1f = bunchfirst[b1]; x1b1 = dxb1[b1f]; x2b2 = dxb2[bunchlast[b2]]; if (x1b1 >= x2b2) return(-1);
-	b2f = bunchfirst[b2]; x1b2 = dxb1[b2f]; x2b1 = dxb2[bunchlast[b1]]; if (x1b2 >= x2b1) return(-1);
+	if (x1b1 >= x2b2) {
+		return -1;
+	}
+
+	const int b2f = bunchfirst[b2];
+	const double x1b2 = dxb1[b2f];
+	const double x2b1 = dxb2[bunchlast[b1]];
+	
+	if (x1b2 >= x2b1) {
+		return(-1);
+	}
 
 	if (x1b1 >= x1b2)
 	{
-		for(i=b2f;dxb2[i]<=x1b1;i=p2[i]);
-		return(wallfront(b1f,i));
+		int i{b2f};
+		for(; dxb2[i] <= x1b1; i = p2[i]);
+		
+		return wallfront(b1f, i);
 	}
-	for(i=b1f;dxb2[i]<=x1b2;i=p2[i]);
-	return(wallfront(i,b2f));
+
+	int i{b1f};
+	for(; dxb2[i] <= x1b2; i = p2[i]);
+
+	return wallfront(i, b2f);
 }
 
 static void polymost_scansector (int sectnum)
@@ -4307,13 +4357,16 @@ int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 int polymost_printext256(int xpos, int ypos, short col, short backcol, const  char *name, char fontsize)
 {
 	GLfloat tx, ty, txc, tyc, txg, tyg, tyoff, cx, cy;
-	int c, indexcnt, vbocnt;
+	int indexcnt;
+	int vbocnt;
 	palette_t colour;
 	struct polymostdrawauxcall draw;
 	struct polymostvboitem vboitem[80*4];
 	GLushort vboindexes[80*6];
 
-	if ((rendmode != 3) || (qsetmode != 200)) return(-1);
+	if ((rendmode != 3) || (qsetmode != 200)) {
+		return -1;
+	}
 
 	polymost_preparetext();
 	setpolymost2dview();	// disables blending, texturing, and depth testing
@@ -4325,22 +4378,26 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, const  ch
 	draw.texture0 = texttexture;
 
 	colour = curpalette[col];
+
 	if (!gammabrightness) {
 		colour.r = britable[curbrightness][ colour.r ];
 		colour.g = britable[curbrightness][ colour.g ];
 		colour.b = britable[curbrightness][ colour.b ];
 	}
+
 	draw.colour.r = colour.r / 255.f;
 	draw.colour.g = colour.g / 255.f;
 	draw.colour.b = colour.b / 255.f;
 	draw.colour.a = 1.f;
 
 	colour = curpalette[min(0, backcol)];
+
 	if (!gammabrightness) {
 		colour.r = britable[curbrightness][ colour.r ];
 		colour.g = britable[curbrightness][ colour.g ];
 		colour.b = britable[curbrightness][ colour.b ];
 	}
+
 	draw.bgcolour.r = colour.r / 255.f;
 	draw.bgcolour.g = colour.g / 255.f;
 	draw.bgcolour.b = colour.b / 255.f;
@@ -4362,7 +4419,8 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, const  ch
 	draw.indexes = vboindexes;
 	draw.elementvbo = vboitem;
 
-	c = 0;
+	int c{ 0 };
+
 	indexcnt = vbocnt = 0;
 	while (name[c]) {
 		for (; name[c] && indexcnt < 80*6; c++) {

@@ -60,11 +60,10 @@ static void enumerate_configure(const char *ext) {
 			// supports sample shading extension
 		glinfo.sampleshading = 1;
 	} else if (!strcmp(ext, "GL_ARB_shading_language_100")) {
-		const char *ver;
 
 		// Clear the error queue, then query the version string.
 		while (glfunc.glGetError() != GL_NO_ERROR) { }
-		ver = (const char *) glfunc.glGetString(GL_SHADING_LANGUAGE_VERSION);
+		auto* ver = (const char *) glfunc.glGetString(GL_SHADING_LANGUAGE_VERSION);
 
 		if (!ver && glfunc.glGetError() == GL_INVALID_ENUM) {
 			// GLSL 1.00 (1.051).

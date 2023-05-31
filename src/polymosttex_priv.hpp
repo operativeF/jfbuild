@@ -63,7 +63,8 @@ struct PTHead {
 
 	hicreplctyp *repldef;
 
-	float scalex, scaley;		// scale factor between texture and ART tile dimensions
+	float scalex;
+	float scaley;		// scale factor between texture and ART tile dimensions
 };
 
 enum {

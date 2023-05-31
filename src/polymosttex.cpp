@@ -1026,20 +1026,20 @@ static void ptm_applyeffects(PTTexture * tex, int effects)
  */
 static void ptm_mipscale(PTTexture * tex)
 {
-	GLsizei newx, newy;
-	GLsizei x, y;
-	coltype *wpptr, *rpptr;
-	int r, g, b, a, k;
+	const GLsizei newx = max(1, (tex->sizx >> 1));
+	const GLsizei newy = max(1, (tex->sizy >> 1));
 
-	newx = max(1, (tex->sizx >> 1));
-	newy = max(1, (tex->sizy >> 1));
+	for (GLsizei y{ 0 }; y < newy; y++) {
+		coltype* wpptr = &tex->pic[y * newx];
+		coltype* rpptr = &tex->pic[(y << 1) * tex->sizx];
 
-	for (y = 0; y < newy; y++) {
-		wpptr = &tex->pic[y * newx];
-		rpptr = &tex->pic[(y << 1) * tex->sizx];
+		for (GLsizei x{ 0 }; x < newx; x++, wpptr++, rpptr += 2) {
+			int r{ 0 };
+			int g{ 0 };
+			int b{ 0 };
+			int a{ 0 };
+			int k{ 0 };
 
-		for (x = 0; x < newx; x++, wpptr++, rpptr += 2) {
-			r = g = b = a = k = 0;
 			if (rpptr[0].a) {
 				r += (int)rpptr[0].r;
 				g += (int)rpptr[0].g;

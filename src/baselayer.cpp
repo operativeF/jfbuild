@@ -167,9 +167,6 @@ void bflushkeys()
 #if USE_POLYMOST
 static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 {
-	int m;
-	char *p;
-
 	const char* const modestrs[] = {
 		"classic software",
 		"polygonal flat-shaded software",
@@ -178,7 +175,9 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 	};
 
 	if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-	m = (int)strtol(parm->parms[0], &p, 10);
+
+	char* p{nullptr};
+	int m = (int)strtol(parm->parms[0], &p, 10);
 
 	if (m < 0 || m > 3 || *p) return OSDCMD_SHOWHELP;
 

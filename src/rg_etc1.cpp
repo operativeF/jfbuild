@@ -1887,13 +1887,19 @@ done:
          
    static uint etc1_decode_value(uint diff, uint inten, uint selector, uint packed_c)
    {
-      const uint limit = diff ? 32 : 16; (void)limit;   //JonoF
+      const uint limit = diff ? 32 : 16;
+      (void)limit;   //JonoF
       RG_ETC1_ASSERT((diff < 2) && (inten < 8) && (selector < 4) && (packed_c < limit));
-      int c;
-      if (diff)
-         c = (packed_c >> 2) | (packed_c << 3);
-      else 
-         c = packed_c | (packed_c << 4);
+      
+      int c{ 0 };
+
+      if (diff) {
+          c = (packed_c >> 2) | (packed_c << 3);
+      }
+      else {
+          c = packed_c | (packed_c << 4);
+      }
+
       c += g_etc1_inten_tables[inten][selector];
       c = rg_etc1::clamp<int>(c, 0, 255);
       return c;
