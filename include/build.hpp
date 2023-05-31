@@ -390,9 +390,9 @@ int    initengine();
 void   uninitengine();
 void   initspritelists();
 int   loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
-int   loadmaphack(char *filename);
-int   saveboard(char *filename, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
-int   saveoldboard(char *filename, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
+int   loadmaphack(const char *filename);
+int   saveboard(const char *filename, const int *daposx, const int *daposy, const int *daposz, const short *daang, const short *dacursectnum);
+int   saveoldboard(const char *filename, const int *daposx, const int *daposy, const int *daposz, const short *daang, const short *dacursectnum);
 int   loadpics(const char* filename, int askedsize);
 void   loadtile(short tilenume);
 int   qloadkvx(int voxindex, const char* filename);
@@ -400,7 +400,7 @@ intptr_t allocatepermanenttile(short tilenume, int xsiz, int ysiz);
 void   copytilepiece(int tilenume1, int sx1, int sy1, int xsiz, int ysiz, int tilenume2, int sx2, int sy2);
 int    makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char g, signed char b, unsigned char dastat);
 void   setvgapalette();
-void   setbrightness(int dabrightness, unsigned char *dapal, char noapply);
+void   setbrightness(int dabrightness, const unsigned char *dapal, char noapply);
 void   setpalettefade(unsigned char r, unsigned char g, unsigned char b, unsigned char offset);
 void   squarerotatetile(short tilenume);
 
@@ -426,10 +426,10 @@ void   rotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 void   drawline256(int x1, int y1, int x2, int y2, unsigned char col);
 void   printext256(int xpos, int ypos, short col, short backcol, const char *name, char fontsize);
 
-int   clipmove(int *x, int *y, int *z, short *sectnum, int xvect, int yvect, int walldist, int ceildist, int flordist, unsigned int cliptype);
+int   clipmove(int *x, int *y, const int *z, short *sectnum, int xvect, int yvect, int walldist, int ceildist, int flordist, unsigned int cliptype);
 int   clipinsidebox(int x, int y, short wallnum, int walldist);
 int   clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist);
-int   pushmove(int *x, int *y, int *z, short *sectnum, int walldist, int ceildist, int flordist, unsigned int cliptype);
+int   pushmove(int *x, int *y, const int *z, short *sectnum, int walldist, int ceildist, int flordist, unsigned int cliptype);
 void   getzrange(int x, int y, int z, short sectnum, int *ceilz, int *ceilhit, int *florz, int *florhit, int walldist, unsigned int cliptype);
 int    hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz, short *hitsect, short *hitwall, short *hitsprite, int *hitx, int *hity, int *hitz, unsigned int cliptype);
 int   neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsector, short *neartagwall, short *neartagsprite, int *neartaghitdist, int neartagrange, unsigned char tagsearch);
@@ -517,8 +517,8 @@ extern int polymosttexfullbright;	// set to the first index of the fullbright pa
 // effect bitset: 1 = greyscale, 2 = invert
 void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect);
 // flags bitset: 1 = don't compress
-int hicsetsubsttex(int picnum, int palnum, char *filen, float alphacut, unsigned char flags);
-int hicsetskybox(int picnum, int palnum, char *faces[6]);
+int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, unsigned char flags);
+int hicsetskybox(int picnum, int palnum, const char* const faces[6]);
 int hicclearsubst(int picnum, int palnum);
 
 int md_loadmodel(const char *fn);

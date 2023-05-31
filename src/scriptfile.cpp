@@ -30,7 +30,7 @@ char *scriptfile_gettoken(scriptfile *sf)
 	return start;
 }
 
-char *scriptfile_peektoken(scriptfile *sf)
+char *scriptfile_peektoken(const scriptfile *sf)
 {
 	scriptfile dupe;
 

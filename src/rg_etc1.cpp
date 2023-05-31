@@ -2152,7 +2152,7 @@ found_perfect_match:
    static void dither_block_555(color_quad_u8* dest, const color_quad_u8* block)
    {
       int err[8],*ep1 = err,*ep2 = err+4;
-      uint8 *quant = g_quant5_tab+8;
+      const uint8 *quant = g_quant5_tab + 8;
 
       memset(dest, 0xFF, sizeof(color_quad_u8)*16);
 

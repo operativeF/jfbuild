@@ -193,7 +193,7 @@ static int framename2index (mdmodel *vm, const char *nam)
 			break;
 		case 3:
 			{
-			md3model *m = (md3model *)vm;
+			const auto* m = (md3model *)vm;
 			for(i=0;i<m->numframes;i++)
 				if (!Bstrcmp(m->head.frames[i].nam,nam)) break;
 			}
@@ -768,7 +768,7 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 	if (m->usesalpha || (tspr->cstat&2)) glfunc.glEnable(GL_BLEND); else glfunc.glDisable(GL_BLEND); //Sprites with alpha in texture
 
 	for (i=0, vbi=0; i<m->numtris; i++, vbi+=3) {
-		md2tri_t *tri = &m->tris[i];
+		const md2tri_t* tri = &m->tris[i];
 		for (j=2; j>=0; j--) {
 			elementvbo[vbi+j].v.x = vertlist[ tri->ivert[j] ].x;
 			elementvbo[vbi+j].v.y = vertlist[ tri->ivert[j] ].y;
@@ -1838,7 +1838,7 @@ voxmodel *voxload (const char *filnam)
 static int voxloadbufs(voxmodel *m);
 
 	//Draw voxel model as perfect cubes
-int voxdraw (voxmodel *m, spritetype *tspr, int method)
+int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 {
 	point3d m0, a0;
 	float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], omat[16], pc[4];

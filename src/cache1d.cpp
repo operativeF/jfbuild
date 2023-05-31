@@ -1058,7 +1058,7 @@ constexpr auto LZWSIZE{16384};           //Watch out for shorts!
 static unsigned char *lzwbuf1, *lzwbuf4, *lzwbuf5, lzwbuflock[5];
 static short *lzwbuf2, *lzwbuf3;
 
-static int lzwcompress(unsigned char *lzwinbuf, int uncompleng, unsigned char *lzwoutbuf);
+static int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned char *lzwoutbuf);
 static int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *lzwoutbuf);
 
 static void lzwallocate()
@@ -1236,7 +1236,7 @@ unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
 	return count;
 }
 
-static int lzwcompress(unsigned char *lzwinbuf, int uncompleng, unsigned char *lzwoutbuf)
+static int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned char *lzwoutbuf)
 {
 	int i, addr, newaddr, addrcnt, zx;
 	int *intptr;

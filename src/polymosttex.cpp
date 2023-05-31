@@ -112,7 +112,7 @@ static void detect_texture_size()
  * @param id the PTMIdent to initialise using...
  * @param pth the PTHead structure
  */
-void PTM_InitIdent(PTMIdent *id, PTHead *pth)
+void PTM_InitIdent(PTMIdent *id, const PTHead *pth)
 {
     memset(id, 0, sizeof(PTMIdent));
 
@@ -562,7 +562,7 @@ static void pt_unload(PTHash * pth)
 
 static int pt_load_art(PTHead * pth);
 static int pt_load_hightile(PTHead * pth);
-static void pt_load_applyparameters(PTHead * pth);
+static void pt_load_applyparameters(const PTHead * pth);
 
 /**
  * Loads a texture into memory from disk
@@ -840,7 +840,7 @@ static int pt_load_hightile(PTHead * pth)
  * Applies the global texture filter parameters to the given texture
  * @param pth the cache header
  */
-static void pt_load_applyparameters(PTHead * pth)
+static void pt_load_applyparameters(const PTHead * pth)
 {
 	int i;
 
@@ -986,7 +986,7 @@ static void ptm_applyeffects(PTTexture * tex, int effects)
 			}
 		}
 	} else {
-		unsigned char *brit = &britable[gammabrightness ? 0 : curbrightness][0];
+		const unsigned char *brit = &britable[gammabrightness ? 0 : curbrightness][0];
 		coltype tcol;
 
 		for (y = tex->tsizy - 1; y >= 0; y--, tptr += tex->sizx) {
@@ -1454,7 +1454,7 @@ PTHead * PT_GetHead(int picnum, int palnum, unsigned short flags, int peek)
 
 
 
-static inline int ptiter_matches(PTIter iter)
+static inline int ptiter_matches(const PTIter iter)
 {
 	if (iter->match == 0) {
 		return 1;	// matching every item

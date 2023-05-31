@@ -574,7 +574,7 @@ GLuint glbuild_compile_shader(GLuint type, const GLchar *source)
 	return shader;
 }
 
-GLuint glbuild_link_program(int shadercount, GLuint *shaders)
+GLuint glbuild_link_program(int shadercount, const GLuint *shaders)
 {
 	GLuint program;
 	GLint status;
@@ -792,14 +792,14 @@ void glbuild_delete_8bit_shader(glbuild8bit *state)
 	}
 }
 
-void glbuild_update_8bit_palette(glbuild8bit *state, const GLvoid *pal)
+void glbuild_update_8bit_palette(const glbuild8bit *state, const GLvoid *pal)
 {
 	glfunc.glActiveTexture(GL_TEXTURE1);
 	glfunc.glBindTexture(GL_TEXTURE_2D, state->paltex);
 	glfunc.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pal);
 }
 
-void glbuild_update_8bit_frame(glbuild8bit *state, const GLvoid *frame, int resx, int resy, int stride)
+void glbuild_update_8bit_frame(const glbuild8bit *state, const GLvoid *frame, int resx, int resy, int stride)
 {
 #if (USE_OPENGL == USE_GLES2)
 	constexpr GLenum extfmt{ GL_LUMINANCE };
@@ -814,7 +814,7 @@ void glbuild_update_8bit_frame(glbuild8bit *state, const GLvoid *frame, int resx
 	glfunc.glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, stride, resy, extfmt, GL_UNSIGNED_BYTE, frame);
 }
 
-void glbuild_draw_8bit_frame(glbuild8bit *state)
+void glbuild_draw_8bit_frame(const glbuild8bit *state)
 {
 	(void)state;
 

@@ -146,7 +146,7 @@ int gettile(int tilenum);
 
 char *findfilename(char *path);
 int menuselect(int newpathmode);
-int getfilenames(char *path, const char* kind);
+int getfilenames(const char *path, const char* kind);
 void clearfilenames();
 
 void clearkeys() { memset(keystatus,0,sizeof(keystatus)); }
@@ -6148,7 +6148,7 @@ void clearfilenames()
 	numfiles = numdirs = 0;
 }
 
-int getfilenames(char *path, const char* kind)
+int getfilenames(const char *path, const char* kind)
 {
 	CACHE1D_FIND_REC *r;
 	int type = 0;

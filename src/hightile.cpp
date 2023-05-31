@@ -113,7 +113,7 @@ void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned ch
 // hicsetsubsttex(picnum,pal,filen,alphacut)
 //   Specifies a replacement graphic file for an ART tile.
 //
-int hicsetsubsttex(int picnum, int palnum, char *filen, float alphacut, unsigned char flags)
+int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, unsigned char flags)
 {
 	hicreplctyp *hr, *hrn;
 
@@ -160,7 +160,7 @@ int hicsetsubsttex(int picnum, int palnum, char *filen, float alphacut, unsigned
 // hicsetskybox(picnum,pal,faces[6])
 //   Specifies a graphic files making up a skybox.
 //
-int hicsetskybox(int picnum, int palnum, char *faces[6])
+int hicsetskybox(int picnum, int palnum, const char* const faces[6])
 {
 	hicreplctyp *hr, *hrn;
 	int j;
