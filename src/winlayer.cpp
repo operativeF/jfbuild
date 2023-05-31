@@ -16,12 +16,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <xinput.h>
-#include <math.h>
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <signal.h>
-#include <stdarg.h>
 #include <commdlg.h>
 
 #if USE_OPENGL
@@ -35,6 +29,11 @@
 #include "a.hpp"
 #include "osd.hpp"
 
+#include <cmath>
+#include <cstdarg>
+#include <csignal>
+#include <cstdio>
+#include <cstdlib>
 
 static char *argvbuf = nullptr;
 

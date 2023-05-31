@@ -4,9 +4,10 @@ kmd2tool.exe: kmd2tool.c; cl kmd2tool.c /Ox /G6fy /MD /link /opt:nowin98
 !if 0
 #endif
 
-#include <stdio.h>
 #include <io.h>
-#include <math.h>
+
+#include <cstdio>
+#include <cmath>
 
 struct point3d { float x, y, z; };
 

@@ -8,10 +8,10 @@
 #include "baselayer_priv.hpp"
 #include "glbuild_fs_vs.hpp"
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 struct glbuild_funcs glfunc;
 

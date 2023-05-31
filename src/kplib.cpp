@@ -33,13 +33,14 @@ credits.
 #define _DEFAULT_SOURCE
 #endif
 
-#include <string.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
+
+#include <cstdio>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
 
 #if defined(__BIG_ENDIAN__)
 # define BIGENDIAN 1

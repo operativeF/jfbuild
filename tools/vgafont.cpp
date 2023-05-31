@@ -9,8 +9,9 @@
 
 
 #include <dos.h>
-#include <string.h>
-#include <stdio.h>
+
+#include <cstdio>
+#include <cstring>
 
 struct spec {
 	const char *descr;

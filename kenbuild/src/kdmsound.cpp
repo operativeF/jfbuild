@@ -6,14 +6,15 @@
 
 #include "compat.hpp"
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 #define KDMSOUND_INTERNAL
 #include "kdmsound.hpp"
 
 #include "pragmas.hpp"
 #include "cache1d.hpp"
+
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <numbers>
 
 constexpr auto NUMCHANNELS{16};
 constexpr auto MAXWAVES{256};
@@ -593,7 +594,7 @@ static void fsin(int *eax)
     const float oneshl14 = 16384.f;
     const float oneshr10 = 0.0009765625f;
 
-    *eax = sinf(M_PI * (*eax) * oneshr10) * oneshl14;
+    *eax = sinf(std::numbers::pi_v<float> * (*eax) * oneshr10) * oneshl14;
 }
 
 static inline int msqrtasm(unsigned int c)

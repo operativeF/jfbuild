@@ -1,6 +1,7 @@
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+
+#include <cmath>
+#include <cstdio>
+#include <cstring>
 
 struct hsv {
 	float h, s, v;

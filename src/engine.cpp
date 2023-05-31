@@ -35,10 +35,9 @@
 # endif
 #endif
 
-#include <math.h>
-#include <assert.h>
-
 #include <array>
+#include <cassert>
+#include <cmath>
 #include <numbers>
 
 void *kmalloc(bsize_t size) { return(Bmalloc(size)); }
@@ -5325,7 +5324,7 @@ static int raytrace(int x3, int y3, int *x4, int *y4)
 //
 
 #if !defined _WIN32 && defined DEBUGGINGAIDS
-#include <signal.h>
+#include <csignal>
 static void sighandler(int sig, siginfo_t *info, void *ctx)
 {
 	const char *s;

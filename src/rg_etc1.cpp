@@ -11,11 +11,10 @@
 // v1.03 - 5/12/13 - Initial public release
 #include "rg_etc1.hpp"
 
-#include <stdlib.h>
-#include <memory.h>
-#include <assert.h>
-//#include <stdio.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <memory>
 
 #ifdef _MSC_VER
 #pragma warning (disable: 4201) //  nonstandard extension used : nameless struct/union
