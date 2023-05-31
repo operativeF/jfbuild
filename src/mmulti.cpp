@@ -108,8 +108,8 @@ static struct in6_addr replyfrom6[MAXPLAYERS], snatchreplyfrom6;	// our IPV6 add
 static int netready = 0;
 
 static int lookuphost(const char *name, struct sockaddr *host, int warnifmany);
-static int issameaddress(struct sockaddr *a, struct sockaddr *b);
-static const char *presentaddress(struct sockaddr *a);
+static int issameaddress(struct sockaddr const *a, struct sockaddr const *b);
+static const char *presentaddress(struct sockaddr const *a);
 static void savesnatchhost(int other);
 
 void netuninit ()
@@ -515,39 +515,39 @@ int netread (int *other, void *dabuf, int bufsiz) //0:no packets in buffer
 	return(1);
 }
 
-static int issameaddress(struct sockaddr *a, struct sockaddr *b) {
+static int issameaddress(struct sockaddr const *a, struct sockaddr const *b) {
 	if (a->sa_family != b->sa_family) {
 		// Different families.
 		return 0;
 	}
 	if (a->sa_family == AF_INET) {
 		// IPV4.
-		struct sockaddr_in *a4 = (struct sockaddr_in *)a;
-		struct sockaddr_in *b4 = (struct sockaddr_in *)b;
+		struct sockaddr_in const *a4 = (struct sockaddr_in *)a;
+		struct sockaddr_in const *b4 = (struct sockaddr_in *)b;
 		return a4->sin_addr.s_addr == b4->sin_addr.s_addr &&
 			a4->sin_port == b4->sin_port;
 	}
 	if (a->sa_family == AF_INET6) {
 		// IPV6.
-		struct sockaddr_in6 *a6 = (struct sockaddr_in6 *)a;
-		struct sockaddr_in6 *b6 = (struct sockaddr_in6 *)b;
+		struct sockaddr_in6 const *a6 = (struct sockaddr_in6 *)a;
+		struct sockaddr_in6 const *b6 = (struct sockaddr_in6 *)b;
 		return IN6_ARE_ADDR_EQUAL(&a6->sin6_addr, &b6->sin6_addr) &&
 			a6->sin6_port == b6->sin6_port;
 	}
 	return 0;
 }
 
-static const char *presentaddress(struct sockaddr *a) {
+static const char *presentaddress(struct sockaddr const *a) {
 	static char str[128+32];
 	char addr[128];
 	int port;
 
 	if (a->sa_family == AF_INET) {
-		struct sockaddr_in *s = (struct sockaddr_in *)a;
+		struct sockaddr_in const *s = (struct sockaddr_in *)a;
 		inet_ntop(AF_INET, &s->sin_addr, addr, sizeof(addr));
 		port = ntohs(s->sin_port);
 	} else if (a->sa_family == AF_INET6) {
-		struct sockaddr_in6 *s = (struct sockaddr_in6 *)a;
+		struct sockaddr_in6 const *s = (struct sockaddr_in6 *)a;
 		strcpy(addr, "[");
 		inet_ntop(AF_INET6, &s->sin6_addr, addr+1, sizeof(addr)-2);
 		strcat(addr, "]");
@@ -566,7 +566,7 @@ static const char *presentaddress(struct sockaddr *a) {
 //---------------------------------- Obsolete variables&functions ----------------------------------
 unsigned char syncstate = 0;
 void setpackettimeout (int datimeoutcount, int daresendagaincount) { (void)datimeoutcount; (void)daresendagaincount; }
-void genericmultifunction (int other, unsigned char *bufptr, int messleng, int command) { (void)other; (void)bufptr; (void)messleng; (void)command; }
+void genericmultifunction (int other, const unsigned char *bufptr, int messleng, int command) { (void)other; (void)bufptr; (void)messleng; (void)command; }
 int getoutputcirclesize () { return(0); }
 void setsocket (int newsocket) { (void)newsocket; }
 void sendlogon () {}
@@ -588,7 +588,7 @@ static void initcrc16 ()
 	}
 }
 #define updatecrc16(crc,dat) crc = (((crc<<8)&65535)^crctab16[((((unsigned short)crc)>>8)&65535)^dat])
-static unsigned short getcrc16 (unsigned char *buffer, int bufleng)
+static unsigned short getcrc16 (const unsigned char *buffer, int bufleng)
 {
 	int i, j;
 
@@ -992,7 +992,7 @@ void dosendpackets (int other)
 	netsend(other,pakbuf,k);
 }
 
-void sendpacket (int other, unsigned char *bufptr, int messleng)
+void sendpacket (int other, const unsigned char *bufptr, int messleng)
 {
 	if (numplayers < 2) return;
 

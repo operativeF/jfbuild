@@ -383,7 +383,7 @@ static inline int bitrev (int b, int c)
 
 static inline int testflag (int c) { (void)c; return(0); }
 
-static inline void cpuid (int a, int *s) { (void)a; (void)s; }
+static inline void cpuid (int a, const int *s) { (void)a; (void)s; }
 
 #endif
 
@@ -450,7 +450,7 @@ static inline int peekbits (int n) { return((LSWAPIB(*(int *)&filptr[bitpos>>3])
 static inline void suckbits (int n) { bitpos += n; if (bitpos >= 0) suckbitsnextblock(); }
 static inline int getbits (int n) { const int i = peekbits(n); suckbits(n); return(i); }
 
-static int hufgetsym (int *hitab, int *hbmax)
+static int hufgetsym (const int *hitab, const int *hbmax)
 {
 	int v, n;
 
@@ -469,7 +469,7 @@ static int hufgetsym (int *hitab, int *hbmax)
 //   return(hitab[hbmax[n]+v]);
 //}
 
-static void qhufgencode (int *hitab, int *hbmax, int *qhval, unsigned char *qhbit, int numbits)
+static void qhufgencode (const int *hitab, const int *hbmax, int *qhval, unsigned char *qhbit, int numbits)
 {
 	int i, j, k, n, r;
 
@@ -2560,7 +2560,7 @@ int kpgetdim (const char *buf, int leng, int *xsiz, int *ysiz)
 {
 	int *lptr;
 	const unsigned char *cptr;
-	unsigned char *ubuf = (unsigned char *)buf;
+	const unsigned char *ubuf = (unsigned char *)buf;
 
 	(*xsiz) = (*ysiz) = 0; if (leng < 16) return(-1);
 	if ((ubuf[0] == 0x89) && (ubuf[1] == 0x50)) //.PNG
@@ -2642,7 +2642,7 @@ int kpgetdim (const char *buf, int leng, int *xsiz, int *ysiz)
 int kprender (const char *buf, int leng, intptr_t frameptr, int bpl,
 					int xdim, int ydim, int xoff, int yoff)
 {
-	unsigned char *ubuf = (unsigned char *)buf;
+	const unsigned char *ubuf = (unsigned char *)buf;
 
 	paleng = 0; bakcol = 0; numhufblocks = zlibcompflags = 0; filtype = -1;
 

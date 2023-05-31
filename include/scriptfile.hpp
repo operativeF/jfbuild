@@ -17,7 +17,7 @@ struct scriptfile {
 };
 
 char *scriptfile_gettoken(scriptfile *sf);
-char *scriptfile_peektoken(scriptfile *sf);
+char *scriptfile_peektoken(const scriptfile *sf);
 int scriptfile_getnumber(scriptfile *sf, int *num);
 int scriptfile_gethex(scriptfile *sf, int *num);    // For reading specifically hex without requiring an 0x prefix
 int scriptfile_getdouble(scriptfile *sf, double *num);

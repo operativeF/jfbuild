@@ -77,7 +77,7 @@ PTCacheTile * PTCacheAllocNewTile(int nummipmaps);
  * @param tdef a PTCacheTile entry fully completed
  * @return !0 on success
  */
-int PTCacheWriteTile(PTCacheTile * tdef);
+int PTCacheWriteTile(const PTCacheTile * tdef);
 
 /**
  * Forces the cache to be rebuilt.

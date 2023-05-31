@@ -107,7 +107,7 @@ struct polymostdrawauxcall {
     struct polymostvboitem *elementvbo;
 };
 
-void polymost_drawpoly_glcall(GLenum mode, struct polymostdrawpolycall *draw);
+void polymost_drawpoly_glcall(GLenum mode, struct polymostdrawpolycall const *draw);
 
 int polymost_texmayhavealpha (int dapicnum, int dapalnum);
 void polymost_texinvalidate (int dapicnum, int dapalnum, int dameth);

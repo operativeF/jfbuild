@@ -777,7 +777,7 @@ void polymost_setview()
 	gorthoprojmat[3][1] = 1.0;
 }
 
-void polymost_drawpoly_glcall(GLenum mode, struct polymostdrawpolycall *draw)
+void polymost_drawpoly_glcall(GLenum mode, struct polymostdrawpolycall const *draw)
 {
 #ifdef DEBUGGINGAIDS
 	polymostcallcounts.drawpoly_glcall++;
@@ -846,7 +846,7 @@ void polymost_drawpoly_glcall(GLenum mode, struct polymostdrawpolycall *draw)
 #endif
 }
 
-static void polymost_drawaux_glcall(GLenum mode, struct polymostdrawauxcall *draw)
+static void polymost_drawaux_glcall(GLenum mode, struct polymostdrawauxcall const *draw)
 {
 #ifdef DEBUGGINGAIDS
 	polymostcallcounts.drawaux_glcall++;
@@ -976,7 +976,7 @@ void polymost_nextpage()
 	//    n must be <= 8 (assume clipping can double number of vertices)
 	//method: 0:solid, 1:masked(255 is transparent), 2:transluscent #1, 3:transluscent #2
 	//    +4 means it's a sprite, so wraparound isn't needed
-void drawpoly (double *dpx, double *dpy, int n, int method)
+void drawpoly (const double *dpx, const double *dpy, int n, int method)
 {
 	double ngdx = 0.0, ngdy = 0.0, ngdo = 0.0, ngux = 0.0, nguy = 0.0, nguo = 0.0;
 	double ngvx = 0.0, ngvy = 0.0, ngvo = 0.0, dp, up, vp, rdp;
@@ -1645,7 +1645,7 @@ void drawpoly (double *dpx, double *dpy, int n, int method)
 	//                /          \
 	// (px[3],py[3]).--------------.(px[2],py[2])
 	*/
-static void initmosts (double *px, double *py, int n)
+static void initmosts (const double *px, const double *py, int n)
 {
 	int i, j, k, imin;
 
@@ -4009,7 +4009,7 @@ static void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1
 	draw->elementvbo = nullptr;
 }
 
-static void tessectrap (float *px, float *py, int *point2, int numpoints,
+static void tessectrap (const float *px, const float *py, const int *point2, int numpoints,
 	struct polymostdrawpolycall *draw)
 {
 	float x0, x1, m0, m1;

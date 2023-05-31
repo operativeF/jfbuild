@@ -223,7 +223,7 @@ void freeallmodels ();
 void clearskins ();
 void voxfree (voxmodel *m);
 voxmodel *voxload (const char *filnam);
-int voxdraw (voxmodel *m, spritetype *tspr, int method);
+int voxdraw (voxmodel *m, const spritetype *tspr, int method);
 
 void mdinit ();
 PTMHead * mdloadskin (md2model *m, int number, int pal, int surf);

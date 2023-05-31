@@ -157,7 +157,7 @@ PTHead * PT_GetHead(int picnum, int palnum, unsigned short flags, int peek);
  * @param id the PTMIdent to initialise from...
  * @param pth the PTHead structure
  */
-void PTM_InitIdent(PTMIdent *id, PTHead *pth);
+void PTM_InitIdent(PTMIdent *id, const PTHead *pth);
 
 /**
  * Returns a PTMHead pointer for the given texture id

@@ -750,7 +750,7 @@ skipitaddwall:
 //
 // maskwallscan (internal)
 //
-static void maskwallscan(int x1, int x2, short *uwal, short *dwal, int *swal, int *lwal)
+static void maskwallscan(int x1, int x2, const short *uwal, const short *dwal, const int *swal, const int *lwal)
 {
 	int x, startx, xnice, ynice;
 	intptr_t i, fpalookup, p;
@@ -946,7 +946,7 @@ int wallfront(int l1, int l2)
 //
 // spritewallfront (internal)
 //
-static int spritewallfront(spritetype *s, int w)
+static int spritewallfront(const spritetype *s, int w)
 {
 	walltype *wal;
 	int x1, y1;
@@ -1024,7 +1024,7 @@ static void slowhline(int xr, int yp)
 //
 // prepwall (internal)
 //
-static void prepwall(int z, walltype *wal)
+static void prepwall(int z, const walltype *wal)
 {
 	int i, l=0, ol=0, splc, sinc, x, topinc, top, botinc, bot, walxrepeat;
 
@@ -1721,7 +1721,7 @@ static void florscan(int x1, int x2, int sectnum)
 //
 // wallscan (internal)
 //
-static void wallscan(int x1, int x2, short *uwal, short *dwal, int *swal, int *lwal)
+static void wallscan(int x1, int x2, const short *uwal, const short *dwal, const int *swal, const int *lwal)
 {
 	int x, xnice, ynice;
 	intptr_t i, fpalookup;
@@ -2755,7 +2755,7 @@ static void drawalls(int bunch)
 //
 static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 		  int daxscale, int dayscale, unsigned char daindex,
-		  signed char dashade, unsigned char dapal, int *daumost, int *dadmost)
+		  signed char dashade, unsigned char dapal, const int *daumost, const int *dadmost)
 {
 	int i, j, k, x, y, syoff, ggxstart, ggystart, nxoff;
 	int cosang, sinang, sprcosang, sprsinang, backx, backy, gxinc, gyinc;
@@ -6447,7 +6447,7 @@ static int readv5sect(int fil, struct sectortypev5 *sect)
 	return 0;
 }
 
-static int writev5sect(int fil, struct sectortypev5 *sect)
+static int writev5sect(int fil, struct sectortypev5 const *sect)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -6478,7 +6478,7 @@ static int writev5sect(int fil, struct sectortypev5 *sect)
 	return 0;
 }
 
-static void convertv5sectv6(struct sectortypev5 *from, struct sectortypev6 *to)
+static void convertv5sectv6(struct sectortypev5 const *from, struct sectortypev6 *to)
 {
 	to->wallptr = from->wallptr;
 	to->wallnum = from->wallnum;
@@ -6504,7 +6504,7 @@ static void convertv5sectv6(struct sectortypev5 *from, struct sectortypev6 *to)
 	to->extra = from->extra;
 }
 
-static void convertv6sectv5(struct sectortypev6 *from, struct sectortypev5 *to)
+static void convertv6sectv5(struct sectortypev6 const *from, struct sectortypev5 *to)
 {
 	to->wallptr = from->wallptr;
 	to->wallnum = from->wallnum;
@@ -6568,7 +6568,7 @@ static int readv5wall(int fil, struct walltypev5 *wall)
 	return 0;
 }
 
-static int writev5wall(int fil, struct walltypev5 *wall)
+static int writev5wall(int fil, struct walltypev5 const *wall)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -6595,7 +6595,7 @@ static int writev5wall(int fil, struct walltypev5 *wall)
 	return 0;
 }
 
-static void convertv5wallv6(struct walltypev5 *from, struct walltypev6 *to, int i)
+static void convertv5wallv6(struct walltypev5 const *from, struct walltypev6 *to, int i)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -6616,7 +6616,7 @@ static void convertv5wallv6(struct walltypev5 *from, struct walltypev6 *to, int 
 	to->extra = from->extra;
 }
 
-static void convertv6wallv5(struct walltypev6 *from, struct walltypev5 *to)
+static void convertv6wallv5(struct walltypev6 const *from, struct walltypev5 *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -6677,7 +6677,7 @@ static int readv5sprite(int fil, struct spritetypev5 *spr)
 	return 0;
 }
 
-static int writev5sprite(int fil, struct spritetypev5 *spr)
+static int writev5sprite(int fil, struct spritetypev5 const *spr)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -6704,7 +6704,7 @@ static int writev5sprite(int fil, struct spritetypev5 *spr)
 	return 0;
 }
 
-static void convertv5sprv6(struct spritetypev5 *from, struct spritetypev6 *to)
+static void convertv5sprv6(struct spritetypev5 const *from, struct spritetypev6 *to)
 {
 	short j;
 	to->x = from->x;
@@ -6737,7 +6737,7 @@ static void convertv5sprv6(struct spritetypev5 *from, struct spritetypev6 *to)
 	to->extra = from->extra;
 }
 
-static void convertv6sprv5(struct spritetypev6 *from, struct spritetypev5 *to)
+static void convertv6sprv5(struct spritetypev6 const *from, struct spritetypev5 *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -6799,7 +6799,7 @@ static int readv6sect(int fil, struct sectortypev6 *sect)
 	return 0;
 }
 
-static int writev6sect(int fil, struct sectortypev6 *sect)
+static int writev6sect(int fil, struct sectortypev6 const *sect)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -6830,7 +6830,7 @@ static int writev6sect(int fil, struct sectortypev6 *sect)
 	return 0;
 }
 
-static void convertv6sectv7(struct sectortypev6 *from, sectortype *to)
+static void convertv6sectv7(struct sectortypev6 const *from, sectortype *to)
 {
 	to->ceilingz = from->ceilingz;
 	to->floorz = from->floorz;
@@ -6859,7 +6859,7 @@ static void convertv6sectv7(struct sectortypev6 *from, sectortype *to)
 	to->extra = from->extra;
 }
 
-static void convertv7sectv6(sectortype *from, struct sectortypev6 *to)
+static void convertv7sectv6(const sectortype *from, struct sectortypev6 *to)
 {
 	to->ceilingz = from->ceilingz;
 	to->floorz = from->floorz;
@@ -6922,7 +6922,7 @@ static int readv6wall(int fil, struct walltypev6 *wall)
 	return 0;
 }
 
-static int writev6wall(int fil, struct walltypev6 *wall)
+static int writev6wall(int fil, struct walltypev6 const *wall)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -6948,7 +6948,7 @@ static int writev6wall(int fil, struct walltypev6 *wall)
 	return 0;
 }
 
-static void convertv6wallv7(struct walltypev6 *from, walltype *to)
+static void convertv6wallv7(struct walltypev6 const *from, walltype *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -6969,7 +6969,7 @@ static void convertv6wallv7(struct walltypev6 *from, walltype *to)
 	to->extra = from->extra;
 }
 
-static void convertv7wallv6(walltype *from, struct walltypev6 *to)
+static void convertv7wallv6(const walltype *from, struct walltypev6 *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -7034,7 +7034,7 @@ static int readv6sprite(int fil, struct spritetypev6 *spr)
 	return 0;
 }
 
-static int writev6sprite(int fil, struct spritetypev6 *spr)
+static int writev6sprite(int fil, struct spritetypev6 const *spr)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -7065,7 +7065,7 @@ static int writev6sprite(int fil, struct spritetypev6 *spr)
 	return 0;
 }
 
-static void convertv6sprv7(struct spritetypev6 *from, spritetype *to)
+static void convertv6sprv7(struct spritetypev6 const *from, spritetype *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -7092,7 +7092,7 @@ static void convertv6sprv7(struct spritetypev6 *from, spritetype *to)
 	to->extra = from->extra;
 }
 
-static void convertv7sprv6(spritetype *from, struct spritetypev6 *to)
+static void convertv7sprv6(const spritetype *from, struct spritetypev6 *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -7250,7 +7250,7 @@ readerror:
 // loadmaphack
 //
 #include "scriptfile.hpp"
-int loadmaphack(char *filename)
+int loadmaphack(const char *filename)
 {
 #if USE_POLYMOST && USE_OPENGL
 	static constexpr struct {
@@ -7347,8 +7347,8 @@ int loadmaphack(char *filename)
 //
 // saveboard
 //
-int saveboard(char *filename, int *daposx, int *daposy, int *daposz,
-			 short *daang, short *dacursectnum)
+int saveboard(const char *filename, const int *daposx, const int *daposy, const int *daposz,
+			 const short *daang, const short *dacursectnum)
 {
 	short fil, i, j, numsprites, ts;
 	int tl;
@@ -7455,8 +7455,8 @@ writeerror:
 }
 
 
-int saveoldboard(char *filename, int *daposx, int *daposy, int *daposz,
-			 short *daang, short *dacursectnum)
+int saveoldboard(const char *filename, const int *daposx, const int *daposy, const int *daposz,
+			 const short *daang, const short *dacursectnum)
 {
 	short fil, i, j, numsprites, ts;
 	int tl;
@@ -8842,7 +8842,7 @@ int clipmoveboxtracenum = 3;
 //
 // clipmove
 //
-int clipmove (int *x, int *y, int *z, short *sectnum,
+int clipmove (int *x, int *y, const int *z, short *sectnum,
 		 int xvect, int yvect,
 		 int walldist, int ceildist, int flordist, unsigned int cliptype)
 {
@@ -9165,7 +9165,7 @@ int clipmove (int *x, int *y, int *z, short *sectnum,
 //
 // pushmove
 //
-int pushmove (int *x, int *y, int *z, short *sectnum,
+int pushmove (int *x, int *y, const int *z, short *sectnum,
 		 int walldist, int ceildist, int flordist, unsigned int cliptype)
 {
 	sectortype *sec, *sec2;
@@ -9840,7 +9840,7 @@ void setvgapalette()
 //
 // setbrightness
 //
-void setbrightness(int dabrightness, unsigned char *dapal, char noapply)
+void setbrightness(int dabrightness, const unsigned char *dapal, char noapply)
 {
 	int i, k, j;
 

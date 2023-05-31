@@ -27,10 +27,10 @@ void sendlogon();
 void sendlogoff();
 int getoutputcirclesize();
 void setsocket(int newsocket);
-void sendpacket(int other, unsigned char *bufptr, int messleng);
+void sendpacket(int other, const unsigned char *bufptr, int messleng);
 int getpacket(int *other, unsigned char *bufptr);
 void flushpackets();
-void genericmultifunction(int other, unsigned char *bufptr, int messleng, int command);
+void genericmultifunction(int other, const unsigned char *bufptr, int messleng, int command);
 
 #ifdef __cplusplus
 }

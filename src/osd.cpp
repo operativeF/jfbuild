@@ -27,7 +27,7 @@ static int palmap256[4] = { -1, -1, -1, -1 };
 static int palmap16[4] = { 0, 15, 7, 9 };
 
 static void _internal_drawosdchar(int, int, char, int, int);
-static void _internal_drawosdstr(int, int, char*, int, int, int);
+static void _internal_drawosdstr(int, int, const char*, int, int, int);
 static void _internal_drawosdcursor(int,int,int,int);
 static int _internal_getcolumnwidth(int);
 static int _internal_getrowheight(int);
@@ -87,7 +87,7 @@ static int  osdtextpal=2;	// light grey
 
 // application callbacks
 static void (*drawosdchar)(int, int, char, int, int) = _internal_drawosdchar;
-static void (*drawosdstr)(int, int, char*, int, int, int) = _internal_drawosdstr;
+static void (*drawosdstr)(int, int, const char*, int, int, int) = _internal_drawosdstr;
 static void (*drawosdcursor)(int, int, int, int) = _internal_drawosdcursor;
 static int (*getcolumnwidth)(int) = _internal_getcolumnwidth;
 static int (*getrowheight)(int) = _internal_getrowheight;
@@ -126,7 +126,7 @@ static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 	printext256(4+(x*8),4+(y*14), colour, -1, st, 2);
 }
 
-static void _internal_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
+static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shade, int pal)
 {
 	char st[1024];
 	int colour, shadow;
@@ -313,7 +313,7 @@ void OSD_Init()
 //
 void OSD_SetFunctions(
 		void (*drawchar)(int,int,char,int,int),
-		void (*drawstr)(int,int,char*,int,int,int),
+		void (*drawstr)(int,int,const char*,int,int,int),
 		void (*drawcursor)(int,int,int,int),
 		int (*colwidth)(int),
 		int (*rowheight)(int),

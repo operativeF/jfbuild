@@ -370,7 +370,7 @@ static void SignalHandler(int signum)
 //
 // WinMain() -- main Windows entry point
 //
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, int nCmdShow)
 {
 	(void)lpCmdLine;
 	(void)nCmdShow;
