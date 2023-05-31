@@ -278,7 +278,7 @@ extern int usevoxels, voxscale[MAXVOXELS];
 extern int usemodels, usehightile;
 #endif
 
-extern char *engineerrstr;
+extern const char* engineerrstr;
 
 inline constexpr auto MAXVOXMIPS{5};
 inline intptr_t voxoff[MAXVOXELS][MAXVOXMIPS];
@@ -393,9 +393,9 @@ int   loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *d
 int   loadmaphack(char *filename);
 int   saveboard(char *filename, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
 int   saveoldboard(char *filename, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
-int   loadpics(char *filename, int askedsize);
+int   loadpics(const char* filename, int askedsize);
 void   loadtile(short tilenume);
-int   qloadkvx(int voxindex, char *filename);
+int   qloadkvx(int voxindex, const char* filename);
 intptr_t allocatepermanenttile(short tilenume, int xsiz, int ysiz);
 void   copytilepiece(int tilenume1, int sx1, int sy1, int xsiz, int ysiz, int tilenume2, int sx2, int sy2);
 int    makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char g, signed char b, unsigned char dastat);
@@ -462,7 +462,7 @@ int   changespritestat(short spritenum, short newstatnum);
 int   setsprite(short spritenum, int newx, int newy, int newz);
 int   setspritez(short spritenum, int newx, int newy, int newz);
 
-int   screencapture(char *filename, char mode);	// mode&1 == invert, mode&2 == wait for nextpage
+int   screencapture(const char* filename, char mode);	// mode&1 == invert, mode&2 == wait for nextpage
 
 #if USE_POLYMOST
 int   setrendermode(int renderer);

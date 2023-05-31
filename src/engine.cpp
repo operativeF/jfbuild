@@ -111,8 +111,8 @@ int fpuasm;
 unsigned char britable[16][256];
 
 static std::array<char, 128> kensmessage;
-char *engineerrstr = nullptr;
-static BFILE *logfile = nullptr;		// log filehandle
+const char* engineerrstr{nullptr};
+static BFILE *logfile{nullptr};		// log filehandle
 
 const struct textfontspec textfonts[3] = {
 	{	//8x8
@@ -7252,7 +7252,10 @@ readerror:
 int loadmaphack(char *filename)
 {
 #if USE_POLYMOST && USE_OPENGL
-	static struct { char *text; int tokenid; } legaltokens[] = {
+	static constexpr struct {
+		const char *text;
+		int tokenid;
+	} legaltokens[] = {
 		{ "sprite", 0 },
 		{ "angleoff", 1 },
 		{ "angoff", 1 },
@@ -7778,7 +7781,7 @@ void nextpage()
 //
 // loadpics
 //
-int loadpics(char *filename, int askedsize)
+int loadpics(const char* filename, int askedsize)
 {
 	int offscount, localtilestart, localtileend, dasiz;
 	short fil, i, j, k;
@@ -7990,7 +7993,7 @@ void copytilepiece(int tilenume1, int sx1, int sy1, int xsiz, int ysiz,
 //
 // qloadkvx
 //
-int qloadkvx(int voxindex, char *filename)
+int qloadkvx(int voxindex, const char* filename)
 {
 	int i, fil, dasiz, lengcnt, lengtot;
 	unsigned char *ptr;
@@ -10913,7 +10916,7 @@ static int screencapture_png(char mode)
 	return(0);
 }
 
-int screencapture(char *filename, char mode)
+int screencapture(const char* filename, char mode)
 {
 	int ret;
 

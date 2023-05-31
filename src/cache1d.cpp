@@ -92,7 +92,7 @@ static unsigned char toupperlookup[256] =
 extern void *kmalloc(size_t);
 extern void kfree(void *);
 
-static void reportandexit(char *errormessage);
+static void reportandexit(const char* errormessage);
 
 void initcache(void *dacachestart, size_t dacachesize)
 {
@@ -236,7 +236,7 @@ void agecache()
 	}
 }
 
-static void reportandexit(char *errormessage)
+static void reportandexit(const char* errormessage)
 {
     int i;
     size_t j;
@@ -795,7 +795,7 @@ void kclose(int handle)
 	filehan[handle] = -1;
 }
 
-static int klistaddentry(CACHE1D_FIND_REC **rec, char *name, int type, int source)
+static int klistaddentry(CACHE1D_FIND_REC **rec, const char* name, int type, int source)
 {
 	CACHE1D_FIND_REC *r = nullptr, *attach = nullptr;
 

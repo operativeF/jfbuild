@@ -280,9 +280,9 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
                 // Add tabs to the tab control
                 ZeroMemory(&tab, sizeof(tab));
                 tab.mask = TCIF_TEXT;
-                tab.pszText = TEXT("Configuration");
+                tab.pszText = const_cast<TCHAR*>(TEXT("Configuration")); // TODO: Valid use of const_cast?
                 TabCtrl_InsertItem(hwnd, TAB_CONFIG, &tab);
-                tab.pszText = TEXT("Messages");
+                tab.pszText = const_cast<TCHAR*>(TEXT("Messages")); // TODO: Valid use of const_cast?
                 TabCtrl_InsertItem(hwnd, TAB_MESSAGES, &tab);
 
                 // Work out the position and size of the area inside the tab control for the pages.
@@ -445,7 +445,7 @@ int startwin_puts(const char *buf)
 int startwin_settitle(const char *str)
 {
     if (startupdlg) {
-        SetWindowText(startupdlg, str);
+        ::SetWindowText(startupdlg, str);
     }
     return 0;
 }

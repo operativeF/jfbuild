@@ -46,9 +46,11 @@ extern int gfogpalnum;
 extern float gfogdensity;
 
 struct glfiltermodes {
-	char *name;
-	int min,mag;
+	const char* name;
+	int min;
+    int mag;
 };
+
 inline constexpr auto numglfiltermodes{6};
 extern struct glfiltermodes glfiltermodes[numglfiltermodes];
 

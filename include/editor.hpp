@@ -71,8 +71,8 @@ void drawcircle16(int x1, int y1, int r, unsigned char col);
 void printext16(int xpos, int ypos, short col, short backcol, const char *name, char fontsize);
 short getnumber256(char *namestart, short num, int maxnumber, char sign);
 short getnumber16(char *namestart, short num, int maxnumber, char sign);
-void printmessage256(char *name);
-void printmessage16(char *name);
+void printmessage256(const char* name);
+void printmessage16(const char* name);
 
 void getpoint(int searchxe, int searchye, int *x, int *y);
 int getpointhighlight(int xplc, int yplc);

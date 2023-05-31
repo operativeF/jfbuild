@@ -177,7 +177,7 @@ void setears(int daposx, int daposy, int daxvect, int dayvect)
     unlockkdm();
 }
 
-void wsayfollow(char *dafilename, int dafreq, int davol, int *daxplc, int *dayplc, char followstat)
+void wsayfollow(const char *dafilename, int dafreq, int davol, int *daxplc, int *dayplc, char followstat)
 {
     char ch1, ch2, bad;
     int i, wavnum, chanum;
@@ -235,7 +235,7 @@ void wsayfollow(char *dafilename, int dafreq, int davol, int *daxplc, int *daypl
     }
 }
 
-void wsay(char *dafilename, int dafreq, int volume1, int volume2)
+void wsay(const char* dafilename, int dafreq, int volume1, int volume2)
 {
     char ch1, ch2;
     int i, j, bad;
@@ -322,7 +322,7 @@ void loadwaves(char *wavename)
     snd[totsndbytes] = snd[totsndbytes+1] = 128;
 }
 
-int loadsong(char *filename)
+int loadsong(const char* filename)
 {
     int i, fil;
     int kdmversionum;
