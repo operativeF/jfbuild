@@ -598,7 +598,7 @@ int app_main(int argc, char const * const argv[])
 
 	pskyoff[0] = 0; pskyoff[1] = 0; pskybits = 1;
 
-	loadpics("tiles000.art",1048576);                      //Load artwork
+	loadpics("tiles000.art", 1048576);                      //Load artwork
 	if (!qloadkvx(nextvoxid,"voxel000.kvx"))
 		tiletovox[PLAYER] = nextvoxid++;
 	if (!qloadkvx(nextvoxid,"voxel001.kvx"))
@@ -3488,7 +3488,7 @@ void processinput(short snum)
 					i = wall[neartagwall].point2;
 					dax = ((wall[neartagwall].x+wall[i].x)>>1);
 					day = ((wall[neartagwall].y+wall[i].y)>>1);
-					wsayfollow("switch.wav",4096L+(krand()&255)-128,256L,&dax,&day,0);
+					wsayfollow("switch.wav", 4096L + (krand() & 255) - 128, 256L, &dax, &day, 0);
 				}
 
 			if (neartagsprite >= 0)
@@ -3528,7 +3528,7 @@ void processinput(short snum)
 
 					dax = sprite[neartagsprite].x;
 					day = sprite[neartagsprite].y;
-					wsayfollow("switch.wav",4096L+(krand()&255)-128,256L,&dax,&day,0);
+					wsayfollow("switch.wav", 4096L + (krand() & 255) - 128, 256L, &dax, &day, 0);
 				}
 			}
 		}
@@ -4177,7 +4177,7 @@ void drawscreen(short snum, int dasmoothratio)
 	if (keystatus[0x58])   //F12
 	{
 		keystatus[0x58] = 0;
-		screencapture("captxxxx.tga",keystatus[0x2a]|keystatus[0x36]);
+		screencapture("captxxxx.tga", keystatus[0x2a]|keystatus[0x36]);
 	}
 	if (keystatus[0x3e])  //F4 - screen re-size
 	{
@@ -5820,10 +5820,10 @@ void getpackets()
 				getmessageleng = packbufleng-1;
 				for(j=getmessageleng-1;j>=0;j--) getmessage[j] = packbuf[j+1];
 				getmessagetimeoff = totalclock+360+(getmessageleng<<4);
-				wsay("getstuff.wav",8192L,63L,63L); //Added 12/2004
+				wsay("getstuff.wav", 8192L, 63L, 63L); //Added 12/2004
 				break;
 			case 3:
-				wsay("getstuff.wav",4096L,63L,63L);
+				wsay("getstuff.wav", 4096L, 63L, 63L);
 				break;
 				/*
 			case 5:

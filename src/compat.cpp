@@ -479,7 +479,7 @@ int Bclosedir(BDIR *dir)
 }
 
 
-char *Bstrtoken(char *s, char *delim, char **ptrptr, int chop)
+char *Bstrtoken(char *s, const char* delim, char **ptrptr, int chop)
 {
 	char *p, *start;
 

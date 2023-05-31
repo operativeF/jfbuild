@@ -146,7 +146,7 @@ int gettile(int tilenum);
 
 char *findfilename(char *path);
 int menuselect(int newpathmode);
-int getfilenames(char *path, char *kind);
+int getfilenames(char *path, const char* kind);
 void clearfilenames();
 
 void clearkeys() { memset(keystatus,0,sizeof(keystatus)); }
@@ -283,7 +283,7 @@ int app_main(int argc, char const * const argv[])
 				grps[grpstoadd++] = argv[i];
 			}
 			else if (!strcmp(argv[i], "-help") || !strcmp(argv[i], "--help") || !strcmp(argv[i], "-?")) {
-				char *s =
+				const char* s =
 					"BUILD by Ken Silverman\n"
 					"Syntax: build [options] mapname\n"
 					"Options:\n"
@@ -5146,15 +5146,16 @@ void overheadeditor()
 					if (ch == 'g' || ch == 'G') {
 						i = menuselect(PATHSEARCH_GAME);
 					} else {
-						char * filename = nullptr, *initialdir = nullptr, *initialfile = nullptr;
+						char * filename = nullptr;
+						const char* initialdir = nullptr;
 						int filer;
 
-						initialfile = findfilename(&selectedboardfilename[0]);
+						char* initialfile = findfilename(&selectedboardfilename[0]);
 						if (pathsearchmode == PATHSEARCH_GAME || initialfile == &selectedboardfilename[0]) {
 							initialdir = "";
 						} else {
 							initialdir = &selectedboardfilename[0];
-							*(initialfile-1) = 0;
+							*(initialfile - 1) = 0;
 						}
 						while (1) {
 							filer = wm_filechooser(initialdir, initialfile, "map", 1, &filename);
@@ -5346,7 +5347,10 @@ void overheadeditor()
 				}
 				else if (ch == 'a' || ch == 'A')  //A
 				{
-					char *filename = nullptr, *initialdir = nullptr, *initialfile = nullptr, *curs;
+					char *filename = nullptr;
+					const char* initialdir = nullptr;
+					char *initialfile = nullptr;
+					char *curs;
 					int filer;
 
 					bad = 0;
@@ -6144,7 +6148,7 @@ void clearfilenames()
 	numfiles = numdirs = 0;
 }
 
-int getfilenames(char *path, char *kind)
+int getfilenames(char *path, const char* kind)
 {
 	CACHE1D_FIND_REC *r;
 	int type = 0;
@@ -6155,7 +6159,7 @@ int getfilenames(char *path, char *kind)
 
 	clearfilenames();
 	finddirs = klistpath(path,"*",CACHE1D_FIND_DIR|CACHE1D_FIND_DRIVE|type);
-	findfiles = klistpath(path,kind,CACHE1D_FIND_FILE|type);
+	findfiles = klistpath(path, kind, CACHE1D_FIND_FILE | type);
 	for (r = finddirs; r; r=r->next) numdirs++;
 	for (r = findfiles; r; r=r->next) numfiles++;
 
@@ -7457,7 +7461,7 @@ void keytimerstuff()
 	if (vel > 0) vel = max(vel-2,0);
 }
 
-void printmessage16(char *name)
+void printmessage16(const char* name)
 {
 	char snotbuf[60];
 	int i;
@@ -7480,7 +7484,7 @@ void printmessage16(char *name)
 	restoreviewport();
 }
 
-void printmessage256(char *name)
+void printmessage256(const char *name)
 {
 	char snotbuf[40];
 	int i;

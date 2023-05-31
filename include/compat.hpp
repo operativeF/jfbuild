@@ -308,7 +308,7 @@ int Bcorrectfilename(char *filename, int removefn);
 int Bcanonicalisefilename(char *filename, int removefn);
 char *Bgetsystemdrives();
 off_t Bfilelength(int fd);
-char *Bstrtoken(char *s, char *delim, char **ptrptr, int chop);
+char *Bstrtoken(char *s, const char* delim, char **ptrptr, int chop);
 int Bwildmatch (const char *i, const char *j);
 
 // One day, when all these are flushed from existence, this can be removed.
