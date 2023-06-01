@@ -197,11 +197,21 @@ EXTERN spritetype tsprite[MAXSPRITESONSCREEN];
 
 //numpages==127 means no persistence. Permanent rotatesprites will be retained until flushed.
 //The initial frame contents will be invalid after each swap.
-EXTERN int xdim, ydim, ylookup[MAXYDIM+1], numpages;
-EXTERN int yxaspect, xyaspect, pixelaspect, widescreen, tallscreen, viewingrange;
+EXTERN int xdim;
+EXTERN int ydim;
+EXTERN int ylookup[MAXYDIM + 1];
+EXTERN int numpages;
+EXTERN int yxaspect;
+EXTERN int xyaspect;
+EXTERN int pixelaspect;
+EXTERN int widescreen;
+EXTERN int tallscreen;
+EXTERN int viewingrange;
 
 inline constexpr auto MAXVALIDMODES{256};
+
 EXTERN int validmodecnt;
+
 struct validmode_t {
 	int xdim,ydim;
 	unsigned char bpp;
@@ -209,32 +219,46 @@ struct validmode_t {
 	char filler[2];
 	int extra;	// internal use
 };
+
 EXTERN struct validmode_t validmode[MAXVALIDMODES];
 
-EXTERN short numsectors, numwalls;
+EXTERN short numsectors;
+EXTERN short numwalls;
 EXTERN /*volatile*/ int totalclock;
-EXTERN int numframes, randomseed;
+EXTERN int numframes;
+EXTERN int randomseed;
 EXTERN short sintable[2048];
 EXTERN unsigned char palette[768];
 EXTERN short numpalookups;
 EXTERN unsigned char *palookup[MAXPALOOKUPS];
-EXTERN unsigned char parallaxtype, showinvisibility;
-EXTERN int parallaxyoffs, parallaxyscale;
-EXTERN int visibility, parallaxvisibility;
+EXTERN unsigned char parallaxtype;
+EXTERN unsigned char showinvisibility;
+EXTERN int parallaxyoffs;
+EXTERN int parallaxyscale;
+EXTERN int visibility;
+EXTERN int parallaxvisibility;
 
-EXTERN int windowx1, windowy1, windowx2, windowy2;
-EXTERN short startumost[MAXXDIM], startdmost[MAXXDIM];
+EXTERN int windowx1;
+EXTERN int windowy1;
+EXTERN int windowx2;
+EXTERN int windowy2;
+EXTERN short startumost[MAXXDIM];
+EXTERN short startdmost[MAXXDIM];
 
 EXTERN short pskyoff[MAXPSKYTILES], pskybits;
 
 EXTERN short headspritesect[MAXSECTORS + 1];
 EXTERN short headspritestat[MAXSTATUS + 1];
-EXTERN short prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
-EXTERN short nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
+EXTERN short prevspritesect[MAXSPRITES];
+EXTERN short prevspritestat[MAXSPRITES];
+EXTERN short nextspritesect[MAXSPRITES];
+EXTERN short nextspritestat[MAXSPRITES];
 
-EXTERN short tilesizx[MAXTILES], tilesizy[MAXTILES];
+EXTERN short tilesizx[MAXTILES];
+EXTERN short tilesizy[MAXTILES];
 EXTERN unsigned char walock[MAXTILES];
-EXTERN int numtiles, picanm[MAXTILES];
+EXTERN int numtiles;
+EXTERN int picanm[MAXTILES];
 EXTERN intptr_t waloff[MAXTILES];
 
 	//These variables are for auto-mapping with the draw2dscreen function.
@@ -266,17 +290,26 @@ extern unsigned int drawlinepat;
 extern void faketimerhandler();
 
 struct palette_t {
-	unsigned char r,g,b,f;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char f;
 };
-extern palette_t curpalette[256], curpalettefaded[256], palfadergb;
+extern palette_t curpalette[256];
+extern palette_t curpalettefaded[256];
+extern palette_t palfadergb;
 extern unsigned char palfadedelta;
 
-extern int dommxoverlay, novoxmips;
+extern int dommxoverlay;
+extern int novoxmips;
 
 extern int tiletovox[MAXTILES];
-extern int usevoxels, voxscale[MAXVOXELS];
+extern int usevoxels;
+extern int voxscale[MAXVOXELS];
+
 #if USE_POLYMOST && USE_OPENGL
-extern int usemodels, usehightile;
+extern int usemodels;
+extern int usehightile;
 #endif
 
 extern const char* engineerrstr;

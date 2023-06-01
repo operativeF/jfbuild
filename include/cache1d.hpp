@@ -55,7 +55,8 @@ enum {
 
 struct CACHE1D_FIND_REC {
 	char *name;
-	int type, source;
+	int type;
+	int source;
 	CACHE1D_FIND_REC* next;
 	CACHE1D_FIND_REC* prev;
 	CACHE1D_FIND_REC* usera;
