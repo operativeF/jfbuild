@@ -86,16 +86,18 @@ Low priority:
 #endif
 
 #include <cmath>
+#include <span>
 
 int rendmode = 0;
 int usemodels=1, usehightile=1, usegoodalpha=0;
 
 struct vsptyp { float x, cy[2], fy[2]; int n, p, tag, ctag, ftag; };
 constexpr auto VSPMAX{4096}; //<- careful!
-static vsptyp vsp[VSPMAX];
+static std::array<vsptyp, VSPMAX> vsp;
 static int vcnt, gtag;
 
-double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
+double dxb1[MAXWALLSB];
+double dxb2[MAXWALLSB];
 
 constexpr auto SCISDIST{1.0}; //1.0: Close plane clipping distance
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
@@ -108,7 +110,7 @@ static double gyxscale, gviewxrange, ghalfx, grhalfxdown10, ghoriz;
 double gcosang, gsinang, gcosang2, gsinang2;
 double gchang, gshang, gctang, gstang;
 static double gvisibility;
-float gtang = 0.0;
+float gtang{0.0F};
 double guo, gux, guy; //Screen-based texture mapping parameters
 double gvo, gvx, gvy;
 double gdo, gdx, gdy;
@@ -4069,7 +4071,7 @@ static void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1
 	draw->elementvbo = nullptr;
 }
 
-static void tessectrap (const float *px, const float *py, const int *point2, int numpoints,
+static void tessectrap (const float *px, const float *py, std::span<const int> point2, int numpoints,
 	struct polymostdrawpolycall *draw)
 {
 	float x0, x1, m0, m1;
@@ -4079,7 +4081,7 @@ static void tessectrap (const float *px, const float *py, const int *point2, int
 	struct raster { float x, y, xi; int i; };
 	static raster *rst = 0;
 	static struct polymostvboitem *vboitem = nullptr;
-	if (numpoints+16 > allocpoints) //16 for safety
+	if (numpoints + 16 > allocpoints) //16 for safety
 	{
 		allocpoints = numpoints+16;
 		rst = (raster*)realloc(rst,allocpoints*sizeof(raster));
@@ -4270,7 +4272,7 @@ void polymost_fillpolygon (int npoints)
 
 	draw.indexbuffer = 0;
 	draw.elementbuffer = 0;
-	tessectrap((float *)rx1,(float *)ry1,xb1,npoints,&draw);
+	tessectrap((float *)rx1, (float *)ry1, xb1, npoints, &draw);
 }
 
 int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)

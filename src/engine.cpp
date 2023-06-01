@@ -39,6 +39,7 @@
 #include <cassert>
 #include <cmath>
 #include <numbers>
+#include <span>
 
 void *kmalloc(bsize_t size) { return(Bmalloc(size)); }
 void kfree(void *buffer) { Bfree(buffer); }
@@ -67,14 +68,16 @@ static int nytoofar;
 static std::array<unsigned int, 65536> distrecip;
 
 static int* lookups{nullptr};
-int dommxoverlay = 1, beforedrawrooms = 1;
+int dommxoverlay{1};
+int beforedrawrooms{1};
 
 static int oxdimen{-1};
 static int oviewingrange{-1};
 static int oxyaspect{-1};
 
-int curbrightness = 0, gammabrightness = 0;
-float curgamma = 1.0;
+int curbrightness{0};
+int gammabrightness{0};
+float curgamma{1.0F};
 
 	//Textured Map variables
 static unsigned char globalpolytype;
@@ -83,9 +86,11 @@ static std::array<short*, MAXYDIM> dotp2;
 
 static std::array<unsigned char, MAXWALLS> tempbuf;
 
-int ebpbak, espbak;
+int ebpbak;
+int espbak;
 constexpr auto SLOPALOOKUPSIZ = MAXXDIM << 1;
 intptr_t slopalookup[SLOPALOOKUPSIZ];
+
 #if USE_POLYMOST && USE_OPENGL
 palette_t palookupfog[MAXPALOOKUPS];
 #endif
@@ -448,53 +453,107 @@ static inline int getclipmask(int a, int b, int c, int d)
 #endif
 
 
-int xb1[MAXWALLSB];
-static int yb1[MAXWALLSB], xb2[MAXWALLSB], yb2[MAXWALLSB];
-int rx1[MAXWALLSB], ry1[MAXWALLSB];
-static int rx2[MAXWALLSB], ry2[MAXWALLSB];
+std::array<int, MAXWALLSB> xb1;
+
+static std::array<int, MAXWALLSB> yb1;
+static std::array<int, MAXWALLSB> xb2;
+static std::array<int, MAXWALLSB> yb2;
+
+int rx1[MAXWALLSB];
+int ry1[MAXWALLSB];
+static std::array<int, MAXWALLSB> rx2;
+static std::array<int, MAXWALLSB> ry2;
 short p2[MAXWALLSB];
-short thesector[MAXWALLSB], thewall[MAXWALLSB];
+short thesector[MAXWALLSB];
+short thewall[MAXWALLSB];
 
-short bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
+short bunchfirst[MAXWALLSB];
+short bunchlast[MAXWALLSB];
 
-static short smost[MAXYSAVES], smostcnt;
-static short smoststart[MAXWALLSB];
-static unsigned char smostwalltype[MAXWALLSB];
-static int smostwall[MAXWALLSB], smostwallcnt = -1L;
+static std::array<short, MAXYSAVES> smost;
+static short smostcnt;
+static std::array<short, MAXWALLSB> smoststart;
+static std::array<unsigned char, MAXWALLSB> smostwalltype;
+static std::array<int, MAXWALLSB> smostwall;
+static int smostwallcnt{-1L};
 
-short maskwall[MAXWALLSB], maskwallcnt;
-static int spritesx[MAXSPRITESONSCREEN];
-static int spritesy[MAXSPRITESONSCREEN+1];
-static int spritesz[MAXSPRITESONSCREEN];
+short maskwall[MAXWALLSB];
+short maskwallcnt;
+static std::array<int, MAXSPRITESONSCREEN> spritesx;
+static std::array<int, MAXSPRITESONSCREEN + 1> spritesy;
+static std::array<int, MAXSPRITESONSCREEN> spritesz;
 spritetype *tspriteptr[MAXSPRITESONSCREEN];
 
-short umost[MAXXDIM], dmost[MAXXDIM];
-static short bakumost[MAXXDIM], bakdmost[MAXXDIM];
-short uplc[MAXXDIM], dplc[MAXXDIM];
-static short uwall[MAXXDIM], dwall[MAXXDIM];
-static int swplc[MAXXDIM], lplc[MAXXDIM];
-static int swall[MAXXDIM], lwall[MAXXDIM+4];
-int xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
-int wx1, wy1, wx2, wy2, ydimen, ydimenscale;
+std::array<short, MAXXDIM> umost;
+std::array<short, MAXXDIM> dmost;
+static short bakumost[MAXXDIM];
+static short bakdmost[MAXXDIM];
+short uplc[MAXXDIM];
+short dplc[MAXXDIM];
+static std::array<short, MAXXDIM> uwall;
+static std::array<short, MAXXDIM> dwall;
+static std::array<int, MAXXDIM> swplc;
+static std::array<int, MAXXDIM> lplc;
+static std::array<int, MAXXDIM> swall;
+static std::array<int, MAXXDIM + 4> lwall;
+int xdimen{-1};
+int xdimenrecip;
+int halfxdimen;
+int xdimenscale;
+int xdimscale;
+int wx1;
+int wy1;
+int wx2;
+int wy2;
+int ydimen;
+int ydimenscale;
 intptr_t frameoffset;
 
-static int nrx1[8], nry1[8], nrx2[8], nry2[8];	// JBF 20031206: Thanks Ken
+static std::array<int, 8> nrx1;
+static std::array<int, 8> nry1;
+static std::array<int, 8> nrx2;
+static std::array<int, 8> nry2;	// JBF 20031206: Thanks Ken
 
-static int rxi[8], ryi[8], rzi[8], rxi2[8], ryi2[8], rzi2[8];
-static int xsi[8], ysi[8], *horizlookup=nullptr, *horizlookup2=nullptr, horizycent;
+static std::array<int, 8> rxi;
+static std::array<int, 8> ryi;
+static std::array<int, 8> rzi;
+static std::array<int, 8> rxi2;
+static std::array<int, 8> ryi2;
+static std::array<int, 8> rzi2;
 
-int globalposx, globalposy, globalposz, globalhoriz;
-short globalang, globalcursectnum;
-int globalpal, cosglobalang, singlobalang;
-int cosviewingrangeglobalang, sinviewingrangeglobalang;
+static std::array<int, 8> xsi;
+static std::array<int, 8> ysi;
+static int* horizlookup{nullptr};
+static int* horizlookup2{nullptr};
+static int horizycent;
+
+int globalposx;
+int globalposy;
+int globalposz;
+int globalhoriz;
+short globalang;
+short globalcursectnum;
+int globalpal;
+int cosglobalang;
+int singlobalang;
+int cosviewingrangeglobalang;
+int sinviewingrangeglobalang;
 unsigned char *globalpalwritten;
-int globaluclip, globaldclip, globvis;
-int globalvisibility, globalhisibility, globalpisibility, globalcisibility;
-unsigned char globparaceilclip, globparaflorclip;
+int globaluclip;
+int globaldclip;
+int globvis;
+int globalvisibility;
+int globalhisibility;
+int globalpisibility;
+int globalcisibility;
+unsigned char globparaceilclip;
+unsigned char globparaflorclip;
 
 int viewingrangerecip;
 
-int asm1, asm2, asm4;
+int asm1;
+int asm2;
+int asm4;
 intptr_t asm3;
 int vplce[4], vince[4];
 intptr_t palookupoffse[4], bufplce[4];
@@ -755,7 +814,7 @@ skipitaddwall:
 //
 // maskwallscan (internal)
 //
-static void maskwallscan(int x1, int x2, const short *uwal, const short *dwal, const int *swal, const int *lwal)
+static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<const short> dwal, std::span<const int> swal, std::span<const int> lwal)
 {
 	intptr_t i, fpalookup, p;
 	int y1ve[4], y2ve[4], u4, d4, dax, z;
@@ -1185,7 +1244,7 @@ int animateoffs(short tilenum, short fakevar)
 //
 // owallmost (internal)
 //
-static int owallmost(short* mostbuf, int w, int z)
+static int owallmost(std::span<short> mostbuf, int w, int z)
 {
 	int inty, xcross, y, yinc;
 	int t;
@@ -1273,7 +1332,7 @@ static int owallmost(short* mostbuf, int w, int z)
 //
 // wallmost (internal)
 //
-int wallmost(short *mostbuf, int w, int sectnum, unsigned char dastat)
+int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 {
 	int bad, i, j, t, y, z, inty, intz, xcross, yinc, fw;
 	int x1, y1, z1, x2, y2, z2, xv, yv, dx, dy, dasqr, oz1, oz2;
@@ -1772,7 +1831,7 @@ static void florscan(int x1, int x2, int sectnum)
 //
 // wallscan (internal)
 //
-static void wallscan(int x1, int x2, const short *uwal, const short *dwal, const int *swal, const int *lwal)
+static void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short> dwal, std::span<const int> swal, std::span<const int> lwal)
 {
 	int x, xnice, ynice;
 	intptr_t i, fpalookup;
@@ -2303,7 +2362,8 @@ static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int 
 {
 	sectortype *sec;
 	int j, k, l, m, n, x, z, wallnum, nextsectnum, globalhorizbak;
-	short *topptr, *botptr;
+	std::span<short> topptr;
+	std::span<short> botptr;
 
 	(void)dax1; (void)dax2;
 
@@ -2387,7 +2447,7 @@ static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int 
 			globalpicnum = l+pskyoff[lplc[x]>>m];
 
 			if (((lplc[x]^lplc[xb1[z]-1])>>m) == 0)
-				wallscan(x,xb1[z]-1,topptr,botptr,swplc,lplc);
+				wallscan(x, xb1[z] - 1, topptr, botptr, swplc, lplc);
 			else
 			{
 				j = x;
@@ -2808,7 +2868,7 @@ static void drawalls(int bunch)
 //
 static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 		  int daxscale, int dayscale, unsigned char daindex,
-		  signed char dashade, unsigned char dapal, const int *daumost, const int *dadmost)
+		  signed char dashade, unsigned char dapal, std::span<const int> daumost, std::span<const int> dadmost)
 {
 	int i, j, k, x, y, syoff, ggxstart, ggystart, nxoff;
 	int cosang, sinang, sprcosang, sprsinang, backx, backy, gxinc, gyinc;
@@ -4052,7 +4112,7 @@ static void drawmaskwall(short damaskwallcnt)
 		}
 
 	if ((globalorientation&128) == 0)
-		maskwallscan(xb1[z],xb2[z],uwall,dwall,swall,lwall);
+		maskwallscan(xb1[z],xb2[z],uwall,dwall, swall, lwall);
 	else
 	{
 		if (globalorientation&128)
@@ -4084,7 +4144,7 @@ static void fillpolygon(int npoints)
 	miny = (miny>>12); maxy = (maxy>>12);
 	if (miny < 0) miny = 0;
 	if (maxy >= ydim) maxy = ydim-1;
-	ptr = smost;    //They're pointers! - watch how you optimize this thing
+	ptr = &smost[0];    //They're pointers! - watch how you optimize this thing
 	for(y=miny;y<=maxy;y++)
 	{
 		dotp1[y] = ptr; dotp2[y] = ptr+(MAXNODESPERLINE>>1);
@@ -4122,7 +4182,7 @@ static void fillpolygon(int npoints)
 
 	setuphlineasm4(asm1,asm2);
 
-	ptr = smost;
+	ptr = &smost[0];
 	for(y=miny;y<=maxy;y++)
 	{
 		cnt = (int)(dotp1[y]-ptr); ptr2 = ptr+(MAXNODESPERLINE>>1);

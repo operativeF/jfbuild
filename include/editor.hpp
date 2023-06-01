@@ -12,24 +12,49 @@ extern "C" {
 inline constexpr auto NUMBUILDKEYS{20};
 
 extern int qsetmode;
-extern short searchsector, searchwall, searchstat;
-extern int zmode, kensplayerheight, kenswalldist;
+extern short searchsector;
+extern short searchwall;
+extern short searchstat;
+extern int zmode;
+extern int kensplayerheight;
+extern int kenswalldist;
 extern short defaultspritecstat;
-extern int posx, posy, posz, horiz;
-extern short ang, cursectnum;
-extern short ceilingheinum, floorheinum;
+extern int posx;
+extern int posy;
+extern int posz;
+extern int horiz;
+extern short ang;
+extern short cursectnum;
+extern short ceilingheinum;
+extern short floorheinum;
 extern int zlock;
-extern short editstatus, searchit;
+extern short editstatus;
+extern short searchit;
 extern int searchx, searchy;                          //search input
 
-extern short temppicnum, tempcstat, templotag, temphitag, tempextra;
-extern unsigned char tempshade, temppal, tempxrepeat, tempyrepeat;
+extern short temppicnum;
+extern short tempcstat;
+extern short templotag;
+extern short temphitag;
+extern short tempextra;
+extern unsigned char tempshade;
+extern unsigned char temppal;
+extern unsigned char tempxrepeat;
+extern unsigned char tempyrepeat;
 extern unsigned char somethingintab;
 extern char names[MAXTILES][25];
 
-extern int buildkeys[NUMBUILDKEYS];
+extern std::array<int, NUMBUILDKEYS> buildkeys;
 
-extern int ydim16, halfxdim16, midydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
+extern int ydim16;
+extern int halfxdim16;
+extern int midydim16;
+extern int xdimgame;
+extern int ydimgame;
+extern int bppgame;
+extern int xdim2d;
+extern int ydim2d;
+extern int forcesetup;
 
 struct startwin_settings {
     int fullscreen;

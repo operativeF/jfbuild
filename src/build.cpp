@@ -23,23 +23,31 @@
 constexpr auto TIMERINTSPERSECOND{120};
 
 #define updatecrc16(crc,dat) (crc = (((crc<<8)&65535)^crctable[((((unsigned short)crc)>>8)&65535)^dat]))
+
 static std::array<int, 256> crctable;
 static std::array<char, 24> kensig;
 
-int vel, svel, angvel;
+int vel;
+int svel;
+int angvel;
 
-int buildkeys[NUMBUILDKEYS] = {
+std::array<int, NUMBUILDKEYS> buildkeys = {
 	0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
 	0x1e,0x2c,0xd1,0xc9,0x33,0x34,
 	0x9c,0x1c,0xd,0xc,0xf,0x45
 };
 
-int posx, posy, posz, horiz = 100;
-int mousexsurp = 0, mouseysurp = 0;
-short ang, cursectnum;
+int posx;
+int posy;
+int posz;
+int horiz{100};
+int mousexsurp{0};
+int mouseysurp{0};
+short ang;
+short cursectnum;
 int hvel;
 
-int grponlymode = 0;
+int grponlymode{0};
 extern int editorgridextent;	// in engine.c
 int msens = 1 << 16;
 
@@ -47,21 +55,36 @@ static int synctics{0};
 static int lockclock{0};
 
 extern unsigned char picsiz[MAXTILES];
-extern int startposx, startposy, startposz;
-extern short startang, startsectnum;
+extern int startposx;
+extern int startposy;
+extern int startposz;
+extern short startang;
+extern short startsectnum;
 extern intptr_t frameplace;
-int ydim16, ytop16, halfxdim16, midydim16;
+int ydim16;
+int ytop16;
+int halfxdim16;
+int midydim16;
 static int bakydim16;
 static int bakytop16;
-int xdim2d = 640, ydim2d = 480, xdimgame = 640, ydimgame = 480, bppgame = 8;
-int forcesetup = 1;
+int xdim2d{640};
+int ydim2d{480};
+int xdimgame{640};
+int ydimgame{480};
+int bppgame{8};
+int forcesetup{1};
 
 extern int cachesize, artsize;
 
 static short oldmousebstatus{0};
-short brightness = 0;
-int zlock = 0x7fffffff, zmode = 0, whitecol, blackcol, kensplayerheight = 32, kenswalldist = 128;
-short defaultspritecstat = 0;
+short brightness{0};
+int zlock{0x7fffffff};
+int zmode{0};
+int whitecol;
+int blackcol;
+int kensplayerheight{32};
+int kenswalldist{128};
+short defaultspritecstat{0};
 
 static std::array<short, MAXTILES> localartfreq;
 static std::array<short, MAXTILES> localartlookup;
@@ -71,26 +94,45 @@ unsigned char tempbuf[4096];
 
 char names[MAXTILES][25];
 
-short asksave = 0;
-extern short editstatus, searchit;
-extern int searchx, searchy;                          //search input
-extern short searchsector, searchwall, searchstat;     //search output
+short asksave{0};
+extern short editstatus;
+extern short searchit;
+extern int searchx;
+extern int searchy;                          //search input
+extern short searchsector;
+extern short searchwall;
+extern short searchstat;     //search output
 
-extern short pointhighlight, linehighlight, highlightcnt;
-short grid = 3, gridlock = 1, showtags = 1, showspriteextents = 0;
-int zoom = 768, gettilezoom = 1;
+extern short pointhighlight;
+extern short linehighlight;
+extern short highlightcnt;
+short grid{3};
+short gridlock{1};
+short showtags{1};
+short showspriteextents{0};
+int zoom{768};
+int gettilezoom{1};
 
 int numsprites;
 extern int mapversion;
 
 short highlight[MAXWALLS];
-short highlightsector[MAXSECTORS], highlightsectorcnt = -1;
+short highlightsector[MAXSECTORS];
+short highlightsectorcnt{-1};
 
 static std::array<unsigned char, MAXSECTORS> pskysearch;
 
-short temppicnum, tempcstat, templotag, temphitag, tempextra;
-unsigned char tempshade, temppal, tempvis, tempxrepeat, tempyrepeat;
-unsigned char somethingintab = 255;
+short temppicnum;
+short tempcstat;
+short templotag;
+short temphitag;
+short tempextra;
+unsigned char tempshade;
+unsigned char temppal;
+unsigned char tempvis;
+unsigned char tempxrepeat;
+unsigned char tempyrepeat;
+unsigned char somethingintab{255};
 
 static std::array<char, BMAX_PATH> boardfilename;
 static std::array<char, BMAX_PATH> selectedboardfilename;

@@ -2,6 +2,7 @@
 #define ENGINE_PRIV_H
 
 #include <array>
+#include <span>
 
 inline constexpr auto MAXCLIPNUM{1024};
 inline constexpr auto MAXPERMS{1024};
@@ -60,7 +61,7 @@ extern short sectorborder[256], sectorbordercnt;
 extern int qsetmode;
 extern int hitallsprites;
 
-extern int xb1[MAXWALLSB];
+extern std::array<int, MAXWALLSB> xb1;
 extern int rx1[MAXWALLSB], ry1[MAXWALLSB];
 extern short p2[MAXWALLSB];
 extern short numscans, numhits, numbunches;
@@ -77,7 +78,7 @@ extern const struct textfontspec textfonts[3];
 extern palette_t palookupfog[MAXPALOOKUPS];
 #endif
 
-int wallmost(short *mostbuf, int w, int sectnum, unsigned char dastat);
+int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat);
 int wallfront(int l1, int l2);
 int animateoffs(short tilenum, short fakevar);
 
