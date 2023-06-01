@@ -227,7 +227,8 @@ EXTERN short startumost[MAXXDIM], startdmost[MAXXDIM];
 
 EXTERN short pskyoff[MAXPSKYTILES], pskybits;
 
-EXTERN short headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
+EXTERN short headspritesect[MAXSECTORS + 1];
+EXTERN short headspritestat[MAXSTATUS + 1];
 EXTERN short prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN short nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 

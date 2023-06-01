@@ -524,10 +524,14 @@ static void updateanimation (md2model *m, spritetype *tspr)
 
 static void md2free (md2model *m)
 {
-	mdanim_t *anim, *nanim = nullptr;
-	mdskinmap_t *sk, *nsk = nullptr;
+	mdanim_t* anim;
+	mdanim_t* nanim{ nullptr };
+	mdskinmap_t* sk;
+	mdskinmap_t* nsk{ nullptr };
 
-	if (!m) return;
+	if (!m) {
+		return;
+	}
 
 	for(anim=m->animations; anim; anim=nanim)
 	{
@@ -825,6 +829,7 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 	} else {
 		draw.projection = &gdrawroomsprojmat[0][0];
 	}
+
 	draw.modelview = mat;
 
 	draw.indexcount = 3 * m->numtris;
