@@ -856,15 +856,24 @@ static void md3free (md3model *m);
 
 static md3model *md3load (int fil)
 {
-	int surfi, ofsurf, offs[4], leng[4];
-	md3model *m;
+	int surfi;
+	int ofsurf;
+	int offs[4];
+	int leng[4];
 	md3surf_t *s;
 
 	md3filehead_t filehead;
 	md3filesurf_t filesurf;
 
-	m = (md3model *)calloc(1,sizeof(md3model)); if (!m) return(0);
-	m->mdnum = 3; m->tex = 0; m->scale = .01;
+	auto* m = (md3model *)calloc(1,sizeof(md3model));
+
+	if (!m) {
+		return 0;
+	}
+
+	m->mdnum = 3;
+	m->tex = 0;
+	m->scale = .01F;
 
 	kread(fil,&filehead,sizeof(md3filehead_t));
 	m->head.id = B_LITTLE32(filehead.id);
@@ -880,7 +889,10 @@ static md3model *md3load (int fil)
 	filehead.surfs = B_LITTLE32(filehead.surfs);
 	m->head.eof = B_LITTLE32(filehead.eof);
 
-	if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { md3free(m); return(0); } //"IDP3"
+	if ((m->head.id != 0x33504449) && (m->head.vers != 15)) {
+		md3free(m);
+		return 0;
+	}//"IDP3"
 
 	m->numskins = m->head.numskins; //<- dead code?
 	m->numframes = m->head.numframes;
@@ -1003,11 +1015,17 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 
 		//create current&next frame's vertex list from whole list
 
-	f = m->interpol; g = 1-f;
-	m0.x = (1.0/64.0)*m->scale*g; m1.x = (1.0/64.0)*m->scale*f;
-	m0.y = (1.0/64.0)*m->scale*g; m1.y = (1.0/64.0)*m->scale*f;
-	m0.z = (1.0/64.0)*m->scale*g; m1.z = (1.0/64.0)*m->scale*f;
-	a0.x = a0.y = 0; a0.z = m->zadd*m->scale;
+	f = m->interpol;
+	g = 1 - f;
+	m0.x = (1.0/64.0) * m->scale * g;
+	m1.x = (1.0/64.0) * m->scale * f;
+	m0.y = (1.0/64.0) * m->scale * g;
+	m1.y = (1.0/64.0) * m->scale * f;
+	m0.z = (1.0/64.0) * m->scale * g;
+	m1.z = (1.0/64.0) * m->scale * f;
+	a0.x = 0;
+	a0.y = 0;
+	a0.z = m->zadd * m->scale;
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
 	k0 = tspr->z;
@@ -1091,7 +1109,7 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 	glfunc.glEnable(GL_CULL_FACE);
 	glfunc.glCullFace(GL_BACK);
 
-	pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max(globalshade+m->shadeoff,0),numpalookups)))/((float)numpalookups);
+	pc[0] = pc[1] = pc[2] = ((float)(numpalookups - min(max(globalshade + m->shadeoff, 0), numpalookups)))/((float)numpalookups);
 	pc[0] *= (float)hictinting[globalpal].r / 255.0;
 	pc[1] *= (float)hictinting[globalpal].g / 255.0;
 	pc[2] *= (float)hictinting[globalpal].b / 255.0;
@@ -1326,10 +1344,13 @@ static int isrectfree (int x0, int y0, int dx, int dy)
 	for(dy=0;dy;dy--,i+=gvox->mytexx)
 		for(x=0;x<dx;x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
 #else
-	int i, c, m, m1, x;
+	int x;
 
-	i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
-	m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
+	int i = y0 * mytexo5 + (x0 >> 5);
+	dx += x0 - 1;
+	const int c = (dx >> 5) - (x0 >> 5);
+	int m = ~pow2m1[x0 & 31];
+	const int m1 = pow2m1[(dx & 31) + 1];
 	if (!c) { for(m&=m1;dy;dy--,i+=mytexo5) if (zbit[i]&m) return(0); }
 	else
 	{  for(;dy;dy--,i+=mytexo5)
@@ -1340,7 +1361,7 @@ static int isrectfree (int x0, int y0, int dx, int dy)
 		}
 	}
 #endif
-	return(1);
+	return 1;
 }
 
 static void setrect (int x0, int y0, int dx, int dy)
@@ -1351,17 +1372,29 @@ static void setrect (int x0, int y0, int dx, int dy)
 	for(y=0;y<dy;y++,i+=gvox->mytexx)
 		for(x=0;x<dx;x++) { j = i+x; zbit[j>>5] |= (1<<SHIFTMOD32(j)); }
 #else
-	int i, c, m, m1, x;
+	int x;
 
-	i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
-	m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
-	if (!c) { for(m&=m1;dy;dy--,i+=mytexo5) zbit[i] |= m; }
+	int i = y0 * mytexo5 + (x0 >> 5);
+	dx += x0 - 1;
+	const int c = (dx >> 5) - (x0 >> 5);
+	int m = ~pow2m1[x0&31];
+	const int m1 = pow2m1[(dx & 31) + 1];
+
+	if (!c) {
+		for (m &= m1; dy; dy--, i += mytexo5) {
+			zbit[i] |= m;
+		}
+	}
 	else
-	{  for(;dy;dy--,i+=mytexo5)
+	{  for(; dy; dy--, i += mytexo5)
 		{
 			zbit[i] |= m;
-			for(x=1;x<c;x++) zbit[i+x] = -1;
-			zbit[i+x] |= m1;
+
+			for (x = 1; x < c; x++) {
+				zbit[i + x] = -1;
+			}
+
+			zbit[i + x] |= m1;
 		}
 	}
 #endif
@@ -1369,16 +1402,38 @@ static void setrect (int x0, int y0, int dx, int dy)
 
 static void cntquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
 {
-	int x, y, z;
-	(void)x1; (void)y1; (void)z1; (void)face;
+	(void)x1;
+	(void)y1;
+	(void)z1;
+	(void)face;
 
-	x = abs(x2-x0); y = abs(y2-y0); z = abs(z2-z0);
-	if (!x) x = z; else if (!y) y = z;
-	if (x < y) { z = x; x = y; y = z; }
-	shcnt[y*shcntp+x]++;
-	if (x > gmaxx) gmaxx = x;
-	if (y > gmaxy) gmaxy = y;
-	garea += (x+(VOXBORDWIDTH<<1))*(y+(VOXBORDWIDTH<<1));
+	int x = std::abs(x2 - x0);
+	int y = std::abs(y2 - y0);
+	int z = std::abs(z2 - z0);
+
+	if (!x) {
+		x = z;
+	}
+	else if (!y) {
+		y = z;
+	}
+
+	if (x < y) {
+		z = x;
+		x = y;
+		y = z;
+	}
+
+	shcnt[y * shcntp + x]++;
+
+	if (x > gmaxx) {
+		gmaxx = x;
+	}
+	if (y > gmaxy) {
+		gmaxy = y;
+	}
+
+	garea += (x + (VOXBORDWIDTH << 1)) * (y + (VOXBORDWIDTH << 1));
 	gvox->qcnt++;
 }
 

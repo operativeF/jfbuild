@@ -149,7 +149,9 @@ int menuselect(int newpathmode);
 int getfilenames(const char *path, const char* kind);
 void clearfilenames();
 
-void clearkeys() { memset(keystatus,0,sizeof(keystatus)); }
+void clearkeys() {
+	memset(keystatus, 0, sizeof(keystatus));
+}
 
 static int osdcmd_restartvid(const osdfuncparm_t *parm)
 {
@@ -157,21 +159,30 @@ static int osdcmd_restartvid(const osdfuncparm_t *parm)
 
 	(void)parm;
 
-	if (qsetmode != 200) return OSDCMD_OK;
+	if (qsetmode != 200) {
+		return OSDCMD_OK;
+	}
 
 	resetvideomode();
-	if (setgamemode(fullscreen,xdim,ydim,bpp))
+	if (setgamemode(fullscreen, xdim, ydim, bpp)) {
 		buildputs("restartvid: Reset failed...\n");
+	}
 
 	return OSDCMD_OK;
 }
 
 static int osdcmd_vidmode(const osdfuncparm_t *parm)
 {
-	int newx = xdim, newy = ydim, newbpp = bpp, newfullscreen = fullscreen;
+	int newx{ xdim };
+	int newy{ ydim };
+	int newbpp{ bpp };
+	int newfullscreen{ fullscreen };
+
 	extern int qsetmode;
 
-	if (qsetmode != 200) return OSDCMD_OK;
+	if (qsetmode != 200) {
+		return OSDCMD_OK;
+	}
 
 	if (parm->numparms < 1 || parm->numparms > 4) {
 		return OSDCMD_SHOWHELP;
@@ -179,40 +190,42 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 
 	if (parm->numparms == 4) {
 		// fs, res, bpp switch
-		newfullscreen = (atoi(parm->parms[3]) != 0);
+		newfullscreen = (std::atoi(parm->parms[3]) != 0);
 	}
 	if (parm->numparms >= 3) {
 		// res & bpp switch
-		newbpp = atoi(parm->parms[2]);
+		newbpp = std::atoi(parm->parms[2]);
 	}
 	if (parm->numparms >= 2) {
 		// res switch
-		newy = atoi(parm->parms[1]);
-		newx = atoi(parm->parms[0]);
+		newy = std::atoi(parm->parms[1]);
+		newx = std::atoi(parm->parms[0]);
 	}
 	if (parm->numparms == 1) {
 		// bpp switch
-		newbpp = atoi(parm->parms[0]);
+		newbpp = std::atoi(parm->parms[0]);
 	}
 
-	if (setgamemode(newfullscreen,newx,newy,newbpp))
+	if (setgamemode(newfullscreen, newx, newy, newbpp)) {
 		buildputs("vidmode: Mode change failed!\n");
+	}
+
 	xdimgame = newx;
 	ydimgame = newy;
 	bppgame = newbpp;
 	fullscreen = newfullscreen;
+
 	return OSDCMD_OK;
 }
 
 static int osdcmd_mapversion(const osdfuncparm_t *parm)
 {
-	int newversion;
-
 	if (parm->numparms < 1) {
 		buildprintf("mapversion is %d\n", mapversion);
 		return OSDCMD_OK;
 	}
-	newversion = atoi(parm->parms[0]);
+	const int newversion = std::atoi(parm->parms[0]);
+
 	if (newversion < 5 || newversion > 8) {
 		return OSDCMD_SHOWHELP;
 	}
@@ -225,13 +238,13 @@ static int osdcmd_mapversion(const osdfuncparm_t *parm)
 
 static int osdcmd_showspriteextents(const osdfuncparm_t *parm)
 {
-	int newval;
-
 	if (parm->numparms != 1) {
 		buildprintf("showspriteextents is %d\n", showspriteextents);
 		return OSDCMD_OK;
 	}
-	newval = atoi(parm->parms[0]);
+	
+	const int newval = std::atoi(parm->parms[0]);
+
 	if (newval < 0 || newval > 2) {
 		return OSDCMD_SHOWHELP;
 	}
@@ -249,9 +262,10 @@ extern char *defsfilename;	// set in bstub.c
 int app_main(int argc, char const * const argv[])
 {
 	char quitflag;
-	int grpstoadd = 0;
-	char const ** grps = nullptr;
-	int i, j;
+	int grpstoadd{ 0 };
+	char const** grps{ nullptr };
+	int i;
+	int j;
 
 #ifdef HAVE_STARTWIN
 	char cmdsetup = 0;
@@ -306,8 +320,8 @@ int app_main(int argc, char const * const argv[])
 			continue;
 		}
 		if (!boardfilename[0]) {
-			strncpy(&boardfilename[0], argv[i], BMAX_PATH-4-1);
-			boardfilename[BMAX_PATH-4-1] = 0;
+			strncpy(&boardfilename[0], argv[i], BMAX_PATH - 4 - 1);
+			boardfilename[BMAX_PATH - 4 - 1] = 0;
 		}
 	}
 	if (boardfilename[0] == 0) {
@@ -375,7 +389,7 @@ int app_main(int argc, char const * const argv[])
 		buildprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
 		exit(0);
 	}
-	setbrightness(brightness,palette,0);
+	setbrightness(brightness, palette, 0);
 
 	int dark = INT_MAX;
 	int light = 0;
@@ -6350,18 +6364,24 @@ int menuselect(int newpathmode)
 int fillsector(short sectnum, unsigned char fillcolor)
 {
 	int x1, x2, y1, y2, sy, y, templong;
-	int lborder, rborder, uborder, dborder, miny, maxy, dax;
-	short z, zz, startwall, endwall, fillcnt;
+	int dax;
+	short z, zz, fillcnt;
 
-	lborder = 0; rborder = xdim;
-	uborder = 0; dborder = ydim16;
+	int lborder{ 0 };
+	int rborder{ xdim };
+	constexpr int uborder{ 0 };
+	const int dborder{ ydim16 };
 
-	if (sectnum == -1)
-		return(0);
-	miny = dborder-1;
-	maxy = uborder;
-	startwall = sector[sectnum].wallptr;
-	endwall = startwall + sector[sectnum].wallnum - 1;
+	if (sectnum == -1) {
+		return 0;
+	}
+
+	int miny = dborder - 1;
+	int maxy{ uborder };
+
+	const int startwall = sector[sectnum].wallptr;
+	const int endwall = startwall + sector[sectnum].wallnum - 1;
+
 	for(z=startwall;z<=endwall;z++)
 	{
 		y1 = (((wall[z].y-posy)*zoom)>>14)+midydim16;
@@ -6415,21 +6435,24 @@ int fillsector(short sectnum, unsigned char fillcolor)
 			}
 		}
 	}
-	return(0);
+
+	return 0;
 }
 
 short whitelinescan(short dalinehighlight)
 {
-	int i, j, k;
-	short sucksect, newnumwalls;
+	int j, k;
 
-	sucksect = sectorofwall(dalinehighlight);
+	const short sucksect = sectorofwall(dalinehighlight);
 
 	Bmemcpy(&sector[numsectors],&sector[sucksect],sizeof(sectortype));
 	sector[numsectors].wallptr = numwalls;
 	sector[numsectors].wallnum = 0;
-	i = dalinehighlight;
-	newnumwalls = numwalls;
+	
+	int i = dalinehighlight;
+
+	short newnumwalls = numwalls;
+
 	do
 	{
 		j = lastwall((short)i);
@@ -6457,26 +6480,34 @@ short whitelinescan(short dalinehighlight)
 		sector[numsectors].wallnum++;
 
 		i = j;
-	}
-	while (i != dalinehighlight);
+	} while (i != dalinehighlight);
 
 	for(i=numwalls;i<newnumwalls-1;i++)
 		wall[i].point2 = i+1;
 	wall[newnumwalls-1].point2 = numwalls;
 
-	if (clockdir(numwalls) == 1)
-		return(-1);
-	else
-		return(newnumwalls);
+	if (clockdir(numwalls) == 1) {
+		return -1;
+	}
+	else {
+		return newnumwalls;
+	}
 }
 
 int loadnames()
 {
-	char buffer[1024], *p, *name, *number, *endptr;
-	int num, syms=0, line=0, a;
-	BFILE *fp;
+	char buffer[1024];
+	char* p;
+	char* name;
+	char* number;
+	char* endptr;
+	int num;
+	int syms{ 0 };
+	int line{ 0 };
+	int a;
 
-	fp = fopenfrompath("NAMES.HPP","r");
+	BFILE* fp = fopenfrompath("NAMES.HPP", "r");
+
 	if (!fp) {
 		if ((fp = fopenfrompath("names.hpp","r")) == nullptr) {
 			buildprintf("Failed to open NAMES.H\n");
@@ -6839,7 +6870,12 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
 void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 {
 	walltype *wal;
-	int i, j, xp1, yp1, xp2, yp2;
+	int i;
+	int j;
+	int xp1;
+	int yp1;
+	int xp2;
+	int yp2;
 	intptr_t templong;
 	unsigned char col;
 
