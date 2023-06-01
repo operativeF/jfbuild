@@ -617,13 +617,17 @@ static void scansector(short sectnum)
 	spritetype *spr;
 	int xs, ys, x1, y1, x2, y2, xp1, yp1, xp2=0, yp2=0, templong;
 	short z, zz, startwall, endwall, numscansbefore, scanfirst, bunchfrst;
-	short nextsectnum;
 
-	if (sectnum < 0) return;
+	if (sectnum < 0) {
+		return;
+	}
 
-	if (automapping) show2dsector[sectnum>>3] |= pow2char[sectnum & 7];
+	if (automapping) {
+		show2dsector[sectnum>>3] |= pow2char[sectnum & 7];
+	}
 
 	sectorborder[0] = sectnum, sectorbordercnt = 1;
+
 	do
 	{
 		sectnum = sectorborder[--sectorbordercnt];
@@ -654,7 +658,7 @@ static void scansector(short sectnum)
 		scanfirst = numscans;
 		for(z=startwall,wal=&wall[z];z<endwall;z++,wal++)
 		{
-			nextsectnum = wal->nextsector;
+			const short nextsectnum = wal->nextsector;
 
 			wal2 = &wall[wal->point2];
 			x1 = wal->x-globalposx; y1 = wal->y-globalposy;
@@ -752,26 +756,44 @@ skipitaddwall:
 //
 static void maskwallscan(int x1, int x2, const short *uwal, const short *dwal, const int *swal, const int *lwal)
 {
-	int x, startx, xnice, ynice;
 	intptr_t i, fpalookup, p;
-	int y1ve[4], y2ve[4], u4, d4, dax, z, tsizx, tsizy;
+	int y1ve[4], y2ve[4], u4, d4, dax, z;
 	char bad;
 
-	tsizx = tilesizx[globalpicnum];
-	tsizy = tilesizy[globalpicnum];
+	int tsizx = tilesizx[globalpicnum];
+	int tsizy = tilesizy[globalpicnum];
+
 	setgotpic(globalpicnum);
-	if ((tsizx <= 0) || (tsizy <= 0)) return;
-	if ((uwal[x1] > ydimen) && (uwal[x2] > ydimen)) return;
-	if ((dwal[x1] < 0) && (dwal[x2] < 0)) return;
 
-	if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+	if ((tsizx <= 0) || (tsizy <= 0)) {
+		return;
+	}
 
-	startx = x1;
+	if ((uwal[x1] > ydimen) && (uwal[x2] > ydimen)) {
+		return;
+	}
 
-	xnice = (pow2long[picsiz[globalpicnum] & 15] == tsizx);
-	if (xnice) tsizx = (tsizx-1);
-	ynice = (pow2long[picsiz[globalpicnum] >> 4] == tsizy);
-	if (ynice) tsizy = (picsiz[globalpicnum]>>4);
+	if ((dwal[x1] < 0) && (dwal[x2] < 0)) {
+		return;
+	}
+
+	if (waloff[globalpicnum] == 0) {
+		loadtile(globalpicnum);
+	}
+
+	int startx{x1};
+
+	const bool xnice = pow2long[picsiz[globalpicnum] & 15] == tsizx;
+	
+	if(xnice) {
+		tsizx = tsizx - 1;
+	}
+	
+	const bool ynice = pow2long[picsiz[globalpicnum] >> 4] == tsizy;
+	
+	if(ynice) {
+		tsizy = picsiz[globalpicnum] >> 4;
+	}
 
 	fpalookup = (intptr_t)palookup[globalpal];
 
@@ -881,7 +903,7 @@ static void maskwallscan(int x1, int x2, const short *uwal, const short *dwal, c
 	(void)i; (void)u4; (void)d4; (void)dax; (void)z; (void)bad;
 
 	p = startx+frameoffset;
-	for(x=startx;x<=x2;x++,p++)
+	for(int x{startx}; x <= x2; x++, p++)
 	{
 		y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
 		y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
@@ -962,20 +984,34 @@ static int spritewallfront(const spritetype *s, int w)
 //
 static int bunchfront(int b1, int b2)
 {
-	int x1b1, x2b1, x1b2, x2b2, b1f, b2f, i;
+	const int b1f = bunchfirst[b1];
+	const int x1b1 = xb1[b1f];
+	const int x2b2 = xb2[bunchlast[b2]] + 1;
 
-	b1f = bunchfirst[b1]; x1b1 = xb1[b1f]; x2b2 = xb2[bunchlast[b2]]+1;
-	if (x1b1 >= x2b2) return(-1);
-	b2f = bunchfirst[b2]; x1b2 = xb1[b2f]; x2b1 = xb2[bunchlast[b1]]+1;
-	if (x1b2 >= x2b1) return(-1);
+	if (x1b1 >= x2b2) {
+		return -1;
+	}
+
+	const int b2f = bunchfirst[b2];
+	const int x1b2 = xb1[b2f];
+	const int x2b1 = xb2[bunchlast[b1]]+1;
+
+	if (x1b2 >= x2b1) {
+		return -1;
+	}
 
 	if (x1b1 >= x1b2)
 	{
-		for(i=b2f;xb2[i]<x1b1;i=p2[i]);
-		return(wallfront(b1f,i));
+		int i{b2f};
+		for(; xb2[i] < x1b1; i = p2[i]);
+
+		return wallfront(b1f, i);
 	}
-	for(i=b1f;xb2[i]<x1b2;i=p2[i]);
-	return(wallfront(i,b2f));
+
+	int i{b1f};
+	for(; xb2[i] < x1b2; i=p2[i]);
+
+	return wallfront(i, b2f);
 }
 
 
@@ -984,15 +1020,18 @@ static int bunchfront(int b1, int b2)
 //
 static void hline(int xr, int yp)
 {
-	int xl, r, s;
+	const int xl = lastx[yp];
 
-	xl = lastx[yp]; if (xl > xr) return;
-	r = horizlookup2[yp-globalhoriz+horizycent];
-	asm1 = globalx1*r;
-	asm2 = globaly2*r;
-	s = ((int)getpalookup((int)mulscale16(r,globvis),globalshade)<<8);
+	if (xl > xr) {
+		return;
+	}
 
-	hlineasm4(xr-xl,0L,s,globalx2*r+globalypanning,globaly1*r+globalxpanning,
+	const int r = horizlookup2[yp - globalhoriz + horizycent];
+	asm1 = globalx1 * r;
+	asm2 = globaly2 * r;
+	const int s = ((int)getpalookup((int)mulscale16(r,globvis),globalshade)<<8);
+
+	hlineasm4(xr - xl, 0L, s, globalx2 * r + globalypanning, globaly1 * r + globalxpanning,
 		(void *)(ylookup[yp]+xr+frameoffset));
 }
 
@@ -1002,20 +1041,25 @@ static void hline(int xr, int yp)
 //
 static void slowhline(int xr, int yp)
 {
-	int xl, r;
+	const int xl = lastx[yp];
 
-	xl = lastx[yp]; if (xl > xr) return;
-	r = horizlookup2[yp-globalhoriz+horizycent];
-	asm1 = globalx1*r;
-	asm2 = globaly2*r;
+	if (xl > xr) {
+		return;
+	}
+
+	const int r = horizlookup2[yp-globalhoriz+horizycent];
+
+	asm1 = globalx1 * r;
+	asm2 = globaly2 * r;
 
 	asm3 = (intptr_t)globalpalwritten + ((int)getpalookup((int)mulscale16(r,globvis),globalshade)<<8);
-	if (!(globalorientation&256))
+	if ((globalorientation & 256) == 0)
 	{
 		mhline((void *)globalbufplc,globaly1*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
 			globalx2*r+globalypanning-asm2*(xr-xl),(void *)(ylookup[yp]+xl+frameoffset));
 		return;
 	}
+
 	thline((void *)globalbufplc,globaly1*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
 		globalx2*r+globalypanning-asm2*(xr-xl),(void *)(ylookup[yp]+xl+frameoffset));
 }
@@ -1107,66 +1151,72 @@ static void prepwall(int z, const walltype *wal)
 //
 int animateoffs(short tilenum, short fakevar)
 {
-	int i, k, offs;
-
 	(void)fakevar;
 
-	offs = 0;
-	i = (totalclocklock>>((picanm[tilenum]>>24)&15));
-	if ((picanm[tilenum]&63) > 0)
+	const int i = (totalclocklock >> ((picanm[tilenum] >> 24) & 15));
+
+	if ((picanm[tilenum] & 63) > 0)
 	{
 		switch(picanm[tilenum]&192)
 		{
-			case 64:
-				k = (i%((picanm[tilenum]&63)<<1));
-				if (k < (picanm[tilenum]&63))
-					offs = k;
-				else
-					offs = (((picanm[tilenum]&63)<<1)-k);
-				break;
-			case 128:
-				offs = (i%((picanm[tilenum]&63)+1));
-					break;
-			case 192:
-				offs = -(i%((picanm[tilenum]&63)+1));
+			case 64: {
+				const int k = (i%((picanm[tilenum]&63)<<1));
+				if (k < (picanm[tilenum] & 63)) {
+					return k;
+		}
+				else {
+					return (((picanm[tilenum] & 63) << 1) - k);
+	}
+			}
+			case 128: {
+				return (i % ((picanm[tilenum] & 63) + 1));
+			}
+			case 192: {
+				return -(i % ((picanm[tilenum] & 63) + 1));
+			}
 		}
 	}
-	return(offs);
+
+	return 0;
 }
 
 
 //
 // owallmost (internal)
 //
-static int owallmost(short *mostbuf, int w, int z)
+static int owallmost(short* mostbuf, int w, int z)
 {
-	int bad, inty, xcross, y, yinc;
-	int s1, s2, s3, s4, ix1, ix2, iy1, iy2, t;
+	int inty, xcross, y, yinc;
+	int t;
 	int i;
 
 	z <<= 7;
-	s1 = mulscale20(globaluclip,yb1[w]); s2 = mulscale20(globaluclip,yb2[w]);
-	s3 = mulscale20(globaldclip,yb1[w]); s4 = mulscale20(globaldclip,yb2[w]);
-	bad = (z<s1)+((z<s2)<<1)+((z>s3)<<2)+((z>s4)<<3);
+	const int s1 = mulscale20(globaluclip,yb1[w]);
+	const int s2 = mulscale20(globaluclip,yb2[w]);
+	const int s3 = mulscale20(globaldclip,yb1[w]);
+	const int s4 = mulscale20(globaldclip,yb2[w]);
+	const int bad = (z < s1) + ((z < s2) << 1) + ((z > s3) << 2) + ((z > s4) << 3);
 
-	ix1 = xb1[w]; iy1 = yb1[w];
-	ix2 = xb2[w]; iy2 = yb2[w];
+	int ix1 = xb1[w];
+	int iy1 = yb1[w];
+	int ix2 = xb2[w];
+	int iy2 = yb2[w];
 
-	if ((bad&3) == 3)
+	if ((bad & 3) == 3)
 	{
 		//clearbufbyte(&mostbuf[ix1],(ix2-ix1+1)*sizeof(mostbuf[0]),0L);
 		for (i=ix1; i<=ix2; i++) mostbuf[i] = 0;
-		return(bad);
+		return bad;
 	}
 
-	if ((bad&12) == 12)
+	if ((bad & 12) == 12)
 	{
 		//clearbufbyte(&mostbuf[ix1],(ix2-ix1+1)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
 		for (i=ix1; i<=ix2; i++) mostbuf[i] = ydimen;
-		return(bad);
+		return bad;
 	}
 
-	if (bad&3)
+	if (bad & 3)
 	{
 		t = divscale30(z-s1,s2-s1);
 		inty = yb1[w] + mulscale30(yb2[w]-yb1[w],t);
@@ -1215,7 +1265,7 @@ static int owallmost(short *mostbuf, int w, int z)
 	if (mostbuf[ix2] < 0) mostbuf[ix2] = 0;
 	if (mostbuf[ix2] > ydimen) mostbuf[ix2] = ydimen;
 
-	return(bad);
+	return bad;
 }
 
 
@@ -2395,24 +2445,26 @@ static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int 
 //
 static void drawalls(int bunch)
 {
-	sectortype *sec, *nextsec;
+	sectortype *nextsec;
 	walltype *wal;
 	int i, x, x1, x2, cz[5], fz[5];
-	int z, wallnum, sectnum, nextsectnum;
+	int wallnum, nextsectnum;
 	int startsmostwallcnt, startsmostcnt, gotswall;
-	unsigned char andwstat1, andwstat2;
 
-	z = bunchfirst[bunch];
-	sectnum = thesector[z]; sec = &sector[sectnum];
+	int z = bunchfirst[bunch];
+	const int sectnum = thesector[z];
+	const sectortype* sec = &sector[sectnum];
 
-	andwstat1 = 0xff; andwstat2 = 0xff;
-	for(;z>=0;z=p2[z])  //uplc/dplc calculation
+	unsigned char andwstat1{ 0xff };
+	unsigned char andwstat2{ 0xff };
+
+	for(; z >= 0; z = p2[z])  //uplc/dplc calculation
 	{
 		andwstat1 &= wallmost(uplc,z,sectnum,(char)0);
 		andwstat2 &= wallmost(dplc,z,sectnum,(char)1);
 	}
 
-	if ((andwstat1&3) != 3)     //draw ceilings
+	if ((andwstat1 & 3) != 3)     //draw ceilings
 	{
 		if ((sec->ceilingstat&3) == 2)
 			grouscan(xb1[bunchfirst[bunch]],xb2[bunchlast[bunch]],sectnum,0);
@@ -2981,16 +3033,15 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 //
 static void drawsprite(int snum)
 {
-	spritetype *tspr;
 	sectortype *sec;
-	int startum, startdm, sectnum, xb, yp, cstat;
+	int startum, startdm, sectnum;
 	int siz, xsiz, ysiz, xoff, yoff, xspan, yspan;
 	int x1, y1, x2, y2, lx, rx, dalx2, darx2, i, j, k, x, linum, linuminc;
 	int yinc, z, z1, z2, xp1, yp1, xp2, yp2;
 	int xv, yv, top, topinc, bot, botinc, hplc, hinc;
 	int cosang, sinang, dax, day, lpoint, lmax, rpoint, rmax, dax1, dax2, y;
 	int npoints, npoints2, zz, t, zsgn, zzsgn, *longptr;
-	int tilenum, vtilenum = 0, spritenum;
+	int vtilenum{ 0 };
 	unsigned char swapped, daclip;
 
 	//============================================================================= //POLYMOST BEGINS
@@ -2999,15 +3050,17 @@ static void drawsprite(int snum)
 #endif
 	//============================================================================= //POLYMOST ENDS
 
-	tspr = tspriteptr[snum];
+	spritetype* tspr = tspriteptr[snum];
 
-	xb = spritesx[snum];
-	yp = spritesy[snum];
-	tilenum = tspr->picnum;
-	spritenum = tspr->owner;
-	cstat = tspr->cstat;
+	const int xb = spritesx[snum];
+	const int yp = spritesy[snum];
+	int tilenum = tspr->picnum;
+	int spritenum = tspr->owner;
+	int cstat = tspr->cstat;
 
-	if ((cstat&48)==48) vtilenum = tilenum;	// if the game wants voxels, it gets voxels
+	if ((cstat & 48) == 48) {
+		vtilenum = tilenum;	// if the game wants voxels, it gets voxels
+	}
 	else if ((cstat&48)!=48 && (usevoxels) && (tiletovox[tilenum] != -1)
 #if USE_POLYMOST && USE_OPENGL
 		 && (!(spriteext[tspr->owner].flags&SPREXT_NOTMD))
@@ -3017,17 +3070,26 @@ static void drawsprite(int snum)
 		cstat |= 48;
 	}
 
-	if ((cstat&48) != 48)
+	if ((cstat & 48) != 48)
 	{
-		if (picanm[tilenum]&192) tilenum += animateoffs(tilenum,spritenum+32768);
-		if ((tilesizx[tilenum] <= 0) || (tilesizy[tilenum] <= 0) || (spritenum < 0))
+		if (picanm[tilenum] & 192) {
+			tilenum += animateoffs(tilenum, spritenum + 32768);
+		}
+
+		if ((tilesizx[tilenum] <= 0) || (tilesizy[tilenum] <= 0) || (spritenum < 0)) {
 			return;
+	}
 	}
 	if ((tspr->xrepeat <= 0) || (tspr->yrepeat <= 0)) return;
 
-	sectnum = tspr->sectnum; sec = &sector[sectnum];
+	sectnum = tspr->sectnum;
+	sec = &sector[sectnum];
 	globalpal = tspr->pal;
-	if (palookup[globalpal] == nullptr) globalpal = 0;	// JBF: fixes null-pointer crash
+	
+	if (palookup[globalpal] == nullptr) {
+		globalpal = 0;	// JBF: fixes null-pointer crash
+	}
+
 	globalshade = tspr->shade;
 	if (cstat&2)
 	{
@@ -5204,29 +5266,59 @@ static int deletespritestat(short deleteme)
 static int lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 		  int y3, int x4, int y4, int *intx, int *inty, int *intz)
 {     //p1 to p2 is a line segment
-	int x21, y21, x34, y34, x31, y31, bot, topt, topu, t;
+	const int x21 = x2 - x1;
+	const int x34 = x3 - x4;
+	const int y21 = y2 - y1;
+	const int y34 = y3 - y4;
+	const int bot = x21 * y34 - y21 * x34;
 
-	x21 = x2-x1; x34 = x3-x4;
-	y21 = y2-y1; y34 = y3-y4;
-	bot = x21*y34 - y21*x34;
+	int topt{0};
+
 	if (bot >= 0)
 	{
-		if (bot == 0) return(0);
-		x31 = x3-x1; y31 = y3-y1;
-		topt = x31*y34 - y31*x34; if ((topt < 0) || (topt >= bot)) return(0);
-		topu = x21*y31 - y21*x31; if ((topu < 0) || (topu >= bot)) return(0);
+		if (bot == 0) {
+			return 0;
+		}
+
+		const int x31 = x3 - x1;
+		const int y31 = y3 - y1;
+
+		topt = x31 * y34 - y31 * x34;
+
+		if ((topt < 0) || (topt >= bot)) {
+			return 0;
+		}
+
+		const int topu = x21 * y31 - y21 * x31;
+
+		if ((topu < 0) || (topu >= bot)) {
+			return 0;
+		}
 	}
 	else
 	{
-		x31 = x3-x1; y31 = y3-y1;
-		topt = x31*y34 - y31*x34; if ((topt > 0) || (topt <= bot)) return(0);
-		topu = x21*y31 - y21*x31; if ((topu > 0) || (topu <= bot)) return(0);
+		const int x31 = x3 - x1;
+		const int y31 = y3 - y1;
+		topt = x31 * y34 - y31 * x34;
+
+		if ((topt > 0) || (topt <= bot)) {
+			return 0;
+		}
+		
+		const int topu = x21 * y31 - y21 * x31;
+		
+		if ((topu > 0) || (topu <= bot)) {
+			return 0;
+		}
 	}
-	t = divscale24(topt,bot);
-	*intx = x1 + mulscale24(x21,t);
-	*inty = y1 + mulscale24(y21,t);
-	*intz = z1 + mulscale24(z2-z1,t);
-	return(1);
+
+	const int t = divscale24(topt, bot);
+
+	*intx = x1 + mulscale24(x21, t);
+	*inty = y1 + mulscale24(y21, t);
+	*intz = z1 + mulscale24(z2 - z1, t);
+	
+	return 1;
 }
 
 
@@ -7278,18 +7370,20 @@ int loadmaphack(const char *filename)
 		{ nullptr, -1 }
 	};
 
-	scriptfile *script;
-	char *tok, *cmdtokptr;
+	char *cmdtokptr;
 	int i;
 	int whichsprite = -1;
 
-	script = scriptfile_fromfile(filename);
-	if (!script) return -1;
+	auto* script = scriptfile_fromfile(filename);
+	
+	if (!script) {
+		return -1;
+	}
 
 	memset(spriteext, 0, sizeof(spriteext));
 
 	while (1) {
-		tok = scriptfile_gettoken(script);
+		auto* tok = scriptfile_gettoken(script);
 		if (!tok) break;
 		for (i=0;legaltokens[i].text;i++) if (!Bstrcasecmp(tok,legaltokens[i].text)) break;
 		cmdtokptr = script->ltextptr;
@@ -9389,14 +9483,12 @@ void updatesectorz(int x, int y, int z, short *sectnum)
 //
 void rotatepoint(int xpivot, int ypivot, int x, int y, short daang, int *x2, int *y2)
 {
-	int dacos, dasin;
-
-	dacos = sintable[(daang+2560)&2047];
-	dasin = sintable[(daang+2048)&2047];
+	const int dacos = sintable[(daang + 2560) & 2047];
+	const int dasin = sintable[(daang + 2048) & 2047];
 	x -= xpivot;
 	y -= ypivot;
-	*x2 = dmulscale14(x,dacos,-y,dasin) + xpivot;
-	*y2 = dmulscale14(y,dacos,x,dasin) + ypivot;
+	*x2 = dmulscale14(x, dacos, -y, dasin) + xpivot;
+	*y2 = dmulscale14(y, dacos, x, dasin) + ypivot;
 }
 
 
@@ -9626,26 +9718,38 @@ void getzrange(int x, int y, int z, short sectnum,
 //
 void setview(int x1, int y1, int x2, int y2)
 {
-	int i;
-	float xfov;
+	const float xfov = ((float)xdim / (float)ydim) / (4.f / 3.f);
 
-	xfov = ((float)xdim / (float)ydim) / (4.f / 3.f);
+	windowx1 = x1;
+	wx1 = (x1<<12);
+	windowy1 = y1;
+	wy1 = (y1<<12);
+	windowx2 = x2;
+	wx2 = ((x2+1)<<12);
+	windowy2 = y2;
+	wy2 = ((y2+1)<<12);
 
-	windowx1 = x1; wx1 = (x1<<12);
-	windowy1 = y1; wy1 = (y1<<12);
-	windowx2 = x2; wx2 = ((x2+1)<<12);
-	windowy2 = y2; wy2 = ((y2+1)<<12);
-
-	xdimen = (x2-x1)+1; halfxdimen = (xdimen>>1);
-	xdimenrecip = divscale32(1L,xdimen);
-	ydimen = (y2-y1)+1;
+	xdimen = (x2 - x1) + 1;
+	halfxdimen = xdimen >> 1;
+	xdimenrecip = divscale32(1L, xdimen);
+	ydimen = (y2 - y1) + 1;
 
 	setaspect((int)(65536.f * xfov), pixelaspect);
 
-	for(i=0;i<windowx1;i++) { startumost[i] = 1, startdmost[i] = 0; }
-	for(i=windowx1;i<=windowx2;i++)
-		{ startumost[i] = windowy1, startdmost[i] = windowy2+1; }
-	for(i=windowx2+1;i<xdim;i++) { startumost[i] = 1, startdmost[i] = 0; }
+	for(int i{0}; i < windowx1; i++) {
+		startumost[i] = 1;
+		startdmost[i] = 0;
+	}
+
+	for(int i{windowx1}; i <= windowx2; i++) {
+		startumost[i] = windowy1,
+		startdmost[i] = windowy2 + 1;
+	}
+
+	for(int i = windowx2 + 1; i < xdim; i++) {
+		startumost[i] = 1,
+		startdmost[i] = 0;
+	}
 
 #if USE_POLYMOST && USE_OPENGL
 	polymost_setview();
@@ -9677,7 +9781,8 @@ void setaspect(int daxrange, int daaspect)
 //
 void flushperms()
 {
-	permhead = permtail = 0;
+	permhead = 0;
+	permtail = 0;
 }
 
 
@@ -9839,9 +9944,7 @@ int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char
 
 void setvgapalette()
 {
-	int i;
-
-	for (i=0;i<256;i++) {
+	for (int i{0}; i < 256; i++) {
 		curpalettefaded[i].b = curpalette[i].b = vgapal16[4 * i] << 2;
 		curpalettefaded[i].g = curpalette[i].g = vgapal16[4 * i + 1] << 2;
 		curpalettefaded[i].r = curpalette[i].r = vgapal16[4 * i + 2] << 2;
@@ -9854,20 +9957,24 @@ void setvgapalette()
 //
 void setbrightness(int dabrightness, const unsigned char *dapal, char noapply)
 {
-	int i, k, j;
+	if ((noapply & 4) == 0) {
+		curbrightness = min(max((int)dabrightness, 0), 15);
+	}
 
-	if (!(noapply&4))
-		curbrightness = min(max((int)dabrightness,0),15);
+	curgamma = 1.0F + (static_cast<float>(curbrightness) / 10.0F);
 
-	curgamma = 1.0 + ((float)curbrightness / 10.0);
-	if (setgamma(curgamma)) j = curbrightness; else j = 0;
+	int j{0};
 
-	for(k=i=0;i<256;i++)
+	if (setgamma(curgamma)) {
+		j = curbrightness;
+	}
+
+	for(int k{0}, i{0}; i < 256; i++)
 	{
 		// save palette without any brightness adjustment
-		curpalette[i].r = dapal[i*3+0] << 2;
-		curpalette[i].g = dapal[i*3+1] << 2;
-		curpalette[i].b = dapal[i*3+2] << 2;
+		curpalette[i].r = dapal[i * 3 + 0] << 2;
+		curpalette[i].g = dapal[i * 3 + 1] << 2;
+		curpalette[i].b = dapal[i * 3 + 2] << 2;
 		curpalette[i].f = 0;
 
 		// brightness adjust the palette
@@ -9877,24 +9984,29 @@ void setbrightness(int dabrightness, const unsigned char *dapal, char noapply)
 		curpalettefaded[i].f = tempbuf[k++] = 0;
 	}
 
-	if ((noapply&1) == 0) setpalette(0,256,(unsigned char*)&tempbuf[0]);
+	if ((noapply & 1) == 0) {
+		setpalette(0, 256, (unsigned char*)&tempbuf[0]);
+	}
 
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode == 3) {
-		static unsigned int lastpalettesum = 0;
+		static unsigned int lastpalettesum{0};
 		const unsigned int newpalettesum = crc32once((unsigned char *)curpalettefaded, sizeof(curpalettefaded));
 
 		// only reset the textures if the preserve flag (bit 1 of noapply) is clear and
 		// either (a) the new palette is different to the last, or (b) the brightness
 		// changed and we couldn't set it using hardware gamma
-		if (!(noapply&2) && (newpalettesum != lastpalettesum))
+		if (((noapply & 2) == 0) && (newpalettesum != lastpalettesum)) {
 			polymost_texinvalidateall();
+		}
 
 		lastpalettesum = newpalettesum;
 	}
 #endif
 
-	palfadergb.r = palfadergb.g = palfadergb.b = 0;
+	palfadergb.r = 0;
+	palfadergb.g = 0;
+	palfadergb.b = 0;
 	palfadedelta = 0;
 }
 
@@ -9904,17 +10016,19 @@ void setbrightness(int dabrightness, const unsigned char *dapal, char noapply)
 //
 void setpalettefade(unsigned char r, unsigned char g, unsigned char b, unsigned char offset)
 {
-	int i,k;
-	palette_t p;
-
 	palfadergb.r = min(63,r) << 2;
 	palfadergb.g = min(63,g) << 2;
 	palfadergb.b = min(63,b) << 2;
 	palfadedelta = min(63,offset) << 2;
 
-	k = 0;
-	for (i=0;i<256;i++) {
-		if (gammabrightness) p = curpalette[i];
+	int k{0};
+
+	for (int i{0}; i < 256; i++) {
+	palette_t p;
+
+		if (gammabrightness) {
+			p = curpalette[i];
+		}
 		else {
 			p.b = britable[curbrightness][ curpalette[i].b ];
 			p.g	= britable[curbrightness][ curpalette[i].g ];
@@ -9933,7 +10047,7 @@ void setpalettefade(unsigned char r, unsigned char g, unsigned char b, unsigned 
 		tempbuf[k++] = curpalettefaded[i].f = 0;
 	}
 
-	setpalette(0,256,(unsigned char*)&tempbuf[0]);
+	setpalette(0, 256, (unsigned char*)&tempbuf[0]);
 }
 
 
@@ -9942,20 +10056,22 @@ void setpalettefade(unsigned char r, unsigned char g, unsigned char b, unsigned 
 //
 void clearview(int dacol)
 {
-	int y, dx;
-	intptr_t p;
-
-	if (qsetmode != 200) return;
+	if (qsetmode != 200) {
+		return;
+	}
 
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode == 3) {
 		palette_t p;
-		if (gammabrightness) p = curpalette[dacol];
+		if (gammabrightness) {
+			p = curpalette[dacol];
+		}
 		else {
 			p.r = britable[curbrightness][ curpalette[dacol].r ];
 			p.g = britable[curbrightness][ curpalette[dacol].g ];
 			p.b = britable[curbrightness][ curpalette[dacol].b ];
 		}
+
 		glfunc.glClearColor(((float)p.r)/255.0,
 					  ((float)p.g)/255.0,
 					  ((float)p.b)/255.0,
@@ -9968,11 +10084,13 @@ void clearview(int dacol)
 	}
 #endif
 
-	dx = windowx2-windowx1+1;
-	dacol += (dacol<<8); dacol += (dacol<<16);
-	p = frameplace+ylookup[windowy1]+windowx1;
-	for(y=windowy1;y<=windowy2;y++) {
-		clearbufbyte((void*)p,dx,dacol);
+	const int dx = windowx2 - windowx1 + 1;
+	dacol += (dacol << 8);
+	dacol += (dacol << 16);
+	intptr_t p = frameplace+ylookup[windowy1] + windowx1;
+
+	for(int y{windowy1}; y <= windowy2; y++) {
+		clearbufbyte((void*)p, dx, dacol);
 		p += ylookup[1];
 	}
 
@@ -9985,7 +10103,9 @@ void clearview(int dacol)
 //
 void clearallviews(int dacol)
 {
-	if (qsetmode != 200) return;
+	if (qsetmode != 200) {
+		return;
+	}
 
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode == 3) {
@@ -10117,7 +10237,8 @@ void squarerotatetile(short tilenume)
 	int i, j, k, xsiz, ysiz;
 	unsigned char *ptr1, *ptr2;
 
-	xsiz = tilesizx[tilenume]; ysiz = tilesizy[tilenume];
+	xsiz = tilesizx[tilenume];
+	ysiz = tilesizy[tilenume];
 
 		//supports square tiles only for rotation part
 	if (xsiz == ysiz)
@@ -10291,19 +10412,25 @@ void alignceilslope(short dasect, int x, int y, int z)
 //
 void alignflorslope(short dasect, int x, int y, int z)
 {
-	int i, dax, day;
-	walltype *wal;
+	const walltype* wal = &wall[sector[dasect].wallptr];
+	const int dax = wall[wal->point2].x-wal->x;
+	const int day = wall[wal->point2].y-wal->y;
 
-	wal = &wall[sector[dasect].wallptr];
-	dax = wall[wal->point2].x-wal->x;
-	day = wall[wal->point2].y-wal->y;
+	const int i = (y - wal->y) * dax - (x - wal->x) * day;
 
-	i = (y-wal->y)*dax - (x-wal->x)*day; if (i == 0) return;
-	sector[dasect].floorheinum = scale((z-sector[dasect].floorz)<<8,
-	  nsqrtasm(dax*dax+day*day),i);
+	if (i == 0) {
+		return;
+	}
 
-	if (sector[dasect].floorheinum == 0) sector[dasect].floorstat &= ~2;
-	else sector[dasect].floorstat |= 2;
+	sector[dasect].floorheinum = scale((z - sector[dasect].floorz) << 8,
+	  nsqrtasm(dax * dax + day * day), i);
+
+	if (sector[dasect].floorheinum == 0) {
+		sector[dasect].floorstat &= ~2;
+	}
+	else {
+		sector[dasect].floorstat |= 2;
+	}
 }
 
 
@@ -10312,17 +10439,22 @@ void alignflorslope(short dasect, int x, int y, int z)
 //
 int loopnumofsector(short sectnum, short wallnum)
 {
-	int i, numloops, startwall, endwall;
+	int numloops{0};
+	const int startwall = sector[sectnum].wallptr;
+	const int endwall = startwall + sector[sectnum].wallnum;
 
-	numloops = 0;
-	startwall = sector[sectnum].wallptr;
-	endwall = startwall + sector[sectnum].wallnum;
-	for(i=startwall;i<endwall;i++)
+	for(int i{startwall}; i < endwall; i++)
 	{
-		if (i == wallnum) return(numloops);
-		if (wall[i].point2 < i) numloops++;
+		if (i == wallnum) {
+			return numloops;
 	}
-	return(-1);
+
+		if (wall[i].point2 < i) {
+			numloops++;
+		}
+	}
+
+	return -1;
 }
 
 

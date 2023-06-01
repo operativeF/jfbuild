@@ -143,7 +143,7 @@ int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, un
 		return -1;
 	}
 	hrn->ignore = 0;
-	hrn->alphacut = min(alphacut,1.0);
+	hrn->alphacut = min(alphacut, 1.0);
 	hrn->flags = flags;
 	if (hr == nullptr) {
 		hrn->next = hicreplc[picnum];

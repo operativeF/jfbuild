@@ -16,7 +16,7 @@ option(USE_POLYMOST "Enable usage of Polymost rendering." TRUE)
 option(USE_ASM "Enable usage of assembly code." TRUE)
 
 if(WIN32)
-  set(BUILD_ENGINE_CXXFLAGS "/nologo /Zl /EHsc /std:c++latest /Zc:__cplusplus /utf-8")
+  set(BUILD_ENGINE_CXXFLAGS "/nologo /Zl /EHsc /std:c++latest /Zc:__cplusplus /utf-8 /DNOMINMAX")
   set(CMAKE_CXX_FLAGS "${BUILD_ENGINE_CXXFLAGS}")
 endif()
 
