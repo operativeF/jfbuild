@@ -46,30 +46,41 @@ extern int globalx1, globaly2;
 extern int globalorientation;
 
 extern short searchit;
-extern int searchx, searchy;
-extern short searchsector, searchwall, searchstat;
+extern int searchx;
+extern int searchy;
+extern short searchsector;
+extern short searchwall;
+extern short searchstat;
 
 extern char inpreparemirror;
 
-extern int curbrightness, gammabrightness;
+extern int curbrightness;
+extern int gammabrightness;
 extern float curgamma;
 extern unsigned char britable[16][256];
-extern unsigned char picsiz[MAXTILES];
+extern std::array<unsigned char, MAXTILES> picsiz;
 extern int lastx[MAXYDIM];
 extern unsigned char *transluc;
-extern short sectorborder[256], sectorbordercnt;
+extern short sectorborder[256];
+extern short sectorbordercnt;
 extern int qsetmode;
 extern int hitallsprites;
 
 extern std::array<int, MAXWALLSB> xb1;
-extern int rx1[MAXWALLSB], ry1[MAXWALLSB];
+extern int rx1[MAXWALLSB];
+extern int ry1[MAXWALLSB];
 extern short p2[MAXWALLSB];
-extern short numscans, numhits, numbunches;
+extern short numscans;
+extern short numhits;
+extern short numbunches;
 
 struct textfontspec {
 	const unsigned char *font;
-	int charxsiz, charysiz;
-	int cellh, cellxoff, cellyoff;
+	int charxsiz;
+	int charysiz;
+	int cellh;
+	int cellxoff;
+	int cellyoff;
 };
 
 extern const struct textfontspec textfonts[3];

@@ -54,7 +54,7 @@ int msens = 1 << 16;
 static int synctics{0};
 static int lockclock{0};
 
-extern unsigned char picsiz[MAXTILES];
+extern std::array<unsigned char, MAXTILES> picsiz;
 extern int startposx;
 extern int startposy;
 extern int startposz;
@@ -90,7 +90,7 @@ static std::array<short, MAXTILES> localartfreq;
 static std::array<short, MAXTILES> localartlookup;
 static short localartlookupnum;
 
-unsigned char tempbuf[4096];
+std::array<unsigned char, 4096> tempbuf;
 
 char names[MAXTILES][25];
 
@@ -116,8 +116,8 @@ int gettilezoom{1};
 int numsprites;
 extern int mapversion;
 
-short highlight[MAXWALLS];
-short highlightsector[MAXSECTORS];
+std::array<short, MAXWALLS> highlight;
+std::array<short, MAXSECTORS> highlightsector;
 short highlightsectorcnt{-1};
 
 static std::array<unsigned char, MAXSECTORS> pskysearch;

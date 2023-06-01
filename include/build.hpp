@@ -295,17 +295,18 @@ struct palette_t {
 	unsigned char b;
 	unsigned char f;
 };
-extern palette_t curpalette[256];
-extern palette_t curpalettefaded[256];
+
+extern std::array<palette_t, 256> curpalette;
+extern std::array<palette_t, 256> curpalettefaded;
 extern palette_t palfadergb;
 extern unsigned char palfadedelta;
 
 extern int dommxoverlay;
 extern int novoxmips;
 
-extern int tiletovox[MAXTILES];
+extern std::array<int, MAXTILES> tiletovox;
 extern int usevoxels;
-extern int voxscale[MAXVOXELS];
+extern std::array<int, MAXVOXELS> voxscale;
 
 #if USE_POLYMOST && USE_OPENGL
 extern int usemodels;

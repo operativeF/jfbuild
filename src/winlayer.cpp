@@ -576,7 +576,7 @@ int initsystem()
 	desktopydim = desktopmode.dmPelsHeight;
 	desktopbpp  = desktopmode.dmBitsPerPel;
 
-	memset(curpalette, 0, sizeof(palette_t) * 256);
+	memset(&curpalette[0], 0, sizeof(palette_t) * 256);
 
 	atexit(uninitsystem);
 
@@ -1497,7 +1497,7 @@ int setpalette(int start, int num, const unsigned char* dapal)
 
 #if USE_OPENGL
 	if (!glunavailable && bpp == 8) {
-		glbuild_update_8bit_palette(&gl8bit, curpalettefaded);
+		glbuild_update_8bit_palette(&gl8bit, &curpalettefaded[0]);
 		return 0;
 	}
 #endif

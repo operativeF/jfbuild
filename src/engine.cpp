@@ -45,7 +45,7 @@ void *kmalloc(bsize_t size) { return(Bmalloc(size)); }
 void kfree(void *buffer) { Bfree(buffer); }
 
 void loadvoxel(int voxindex) { (void)voxindex; }
-int tiletovox[MAXTILES];
+std::array<int, MAXTILES> tiletovox;
 int usevoxels = 1;
 
 #define kloadvoxel loadvoxel
@@ -58,7 +58,7 @@ constexpr auto MAXYSIZ{256};
 constexpr auto MAXZSIZ{255};
 
 unsigned char voxlock[MAXVOXELS][MAXVOXMIPS];
-int voxscale[MAXVOXELS];
+std::array<int, MAXVOXELS> voxscale;
 
 static std::array<int, MAXXSIZ + 1> ggxinc;
 static std::array<int, MAXXSIZ + 1> ggyinc;
@@ -89,18 +89,19 @@ static std::array<unsigned char, MAXWALLS> tempbuf;
 int ebpbak;
 int espbak;
 constexpr auto SLOPALOOKUPSIZ = MAXXDIM << 1;
-intptr_t slopalookup[SLOPALOOKUPSIZ];
+std::array<intptr_t, SLOPALOOKUPSIZ> slopalookup;
 
 #if USE_POLYMOST && USE_OPENGL
 palette_t palookupfog[MAXPALOOKUPS];
 #endif
 
-int artversion, mapversion=7L;	// JBF 20040211: default mapversion to 7
-void *pic = nullptr;
-unsigned char picsiz[MAXTILES];
-unsigned char tilefilenum[MAXTILES];
+int artversion;
+int mapversion{7L};	// JBF 20040211: default mapversion to 7
+void *pic{nullptr};
+std::array<unsigned char, MAXTILES> picsiz;
+std::array<unsigned char, MAXTILES> tilefilenum;
 int lastageclock;
-int tilefileoffs[MAXTILES];
+std::array<int, MAXTILES> tilefileoffs;
 
 int artsize = 0;
 size_t cachesize = 0;
@@ -647,8 +648,8 @@ static int bakrendmode,baktile;
 
 int totalclocklock;
 
-palette_t curpalette[256];			// the current palette, unadjusted for brightness or tint
-palette_t curpalettefaded[256];		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
+std::array<palette_t, 256> curpalette;			// the current palette, unadjusted for brightness or tint
+std::array<palette_t, 256> curpalettefaded;		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
 palette_t palfadergb = { 0,0,0,0 };
 unsigned char palfadedelta = 0;
 
@@ -10331,7 +10332,7 @@ void setbrightness(int dabrightness, const unsigned char *dapal, char noapply)
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode == 3) {
 		static unsigned int lastpalettesum{0};
-		const unsigned int newpalettesum = crc32once((unsigned char *)curpalettefaded, sizeof(curpalettefaded));
+		const unsigned int newpalettesum = crc32once((unsigned char *)&curpalettefaded[0], sizeof(curpalettefaded));
 
 		// only reset the textures if the preserve flag (bit 1 of noapply) is clear and
 		// either (a) the new palette is different to the last, or (b) the brightness
