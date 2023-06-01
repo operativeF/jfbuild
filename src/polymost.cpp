@@ -3269,22 +3269,27 @@ void polymost_drawmaskwall (int damaskwallcnt)
 	double dpx[8], dpy[8], dpx2[8], dpy2[8];
 	float fy, x0, x1, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1;
 	float r, t, t0, t1, csy[4], fsy[4];
-	int i, j, n, n2, z, sectnum, z1, z2, cz[4], fz[4], method;
-	sectortype *sec, *nsec;
-	walltype *wal, *wal2;
+	int i, j, n, n2, cz[4], fz[4], method;
 
 #ifdef DEBUGGINGAIDS
 	polymostcallcounts.drawmaskwall++;
 #endif
 
-	z = maskwall[damaskwallcnt];
-	wal = &wall[thewall[z]]; wal2 = &wall[wal->point2];
-	sectnum = thesector[z]; sec = &sector[sectnum];
-	nsec = &sector[wal->nextsector];
-	z1 = max(nsec->ceilingz,sec->ceilingz);
-	z2 = min(nsec->floorz,sec->floorz);
+	const int z = maskwall[damaskwallcnt];
+	const walltype* wal = &wall[thewall[z]];
+	const walltype* wal2 = &wall[wal->point2];
+	const int sectnum = thesector[z];
+	const sectortype* sec = &sector[sectnum];
+	const sectortype* nsec = &sector[wal->nextsector];
+	const int z1 = max(nsec->ceilingz, sec->ceilingz);
+	const int z2 = min(nsec->floorz, sec->floorz);
 
-	globalpicnum = wal->overpicnum; if ((unsigned int)globalpicnum >= MAXTILES) globalpicnum = 0;
+	globalpicnum = wal->overpicnum;
+	
+	if ((unsigned int)globalpicnum >= MAXTILES) {
+		globalpicnum = 0;
+	}
+	
 	if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,(short)thewall[z]+16384);
 	globalshade = (int)wal->shade;
 	globalpal = (int)((unsigned char)wal->pal);
@@ -3410,7 +3415,11 @@ void polymost_drawmaskwall (int damaskwallcnt)
 	n = 0; t1 = -((dpx2[0]-x1)*(fsy[0]-fsy[2]) - (dpy2[0]-fsy[2])*(x0-x1));
 	for(i=0;i<n2;i++)
 	{
-		j = i+1; if (j >= n2) j = 0;
+		j = i + 1;
+		
+		if (j >= n2) {
+			j = 0;
+		}
 
 		t0 = t1; t1 = -((dpx2[j]-x1)*(fsy[0]-fsy[2]) - (dpy2[j]-fsy[2])*(x0-x1));
 		if (t0 >= 0) { dpx[n] = dpx2[i]; dpy[n] = dpy2[i]; n++; }
@@ -3429,7 +3438,8 @@ void polymost_drawmaskwall (int damaskwallcnt)
 
 void polymost_drawsprite (int snum)
 {
-	double px[6], py[6];
+	double px[6];
+	double py[6];
 	float f, c, s, fx, fy, sx0, sy0, sx1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1, ft[4];
 	float x0, y0, x1, y1, sc0, sf0, sc1, sf1, px2[6], py2[6], xv, yv, t0, t1;
 	int i, j, spritenum, xoff=0, yoff=0, method, npoints;
