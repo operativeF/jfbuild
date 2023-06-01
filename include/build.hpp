@@ -284,7 +284,6 @@ EXTERN unsigned char gotpic[(MAXTILES+7)>>3];
 EXTERN unsigned char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN int captureformat;
-extern unsigned char vgapalette[5*256];
 extern unsigned int drawlinepat;
 
 extern void faketimerhandler();
