@@ -11,6 +11,9 @@
 #include "cache1d.hpp"
 #include "pragmas.hpp"
 
+#include <algorithm>
+#include <array>
+
 #ifdef WITHKPLIB
 #include "kplib.hpp"
 
@@ -60,14 +63,21 @@ static int kzipopen(const char *filnam)
 
 constexpr auto MAXCACHEOBJECTS{9216};
 
-static size_t cachesize = 0;
-int cachecount = 0;
-unsigned char zerochar = 0;
-intptr_t cachestart = 0;
-int cacnum = 0, agecount = 0;
-struct cactype { void **hand; size_t leng; unsigned char *lock; };
-cactype cac[MAXCACHEOBJECTS];
-static int lockrecip[200];
+static size_t cachesize{0};
+int cachecount{0};
+unsigned char zerochar{0};
+intptr_t cachestart{0};
+int cacnum{0};
+int agecount{0};
+
+struct cactype {
+	void **hand;
+	size_t leng;
+	unsigned char *lock;
+};
+
+std::array<cactype, MAXCACHEOBJECTS> cac;
+static std::array<int, 200> lockrecip;
 
 static unsigned char toupperlookup[256] =
 {
@@ -131,7 +141,9 @@ void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
 	}
 
 		//Find best place
-	bestval = SIZE_MAX; o1 = cachesize;
+	bestval = SIZE_MAX;
+	o1 = cachesize;
+	
 	for(z=cacnum-1;z>=0;z--)
 	{
 		o1 -= cac[z].leng;
@@ -1028,16 +1040,16 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 	
 	// then, grp files
 	if (!pathsearchmode && !*path && (type & CACHE1D_FIND_FILE)) {
-		char buf[13];
+		std::array<char, 13> buf;
 		int i,j;
 		buf[12] = 0;
 		for (i=0;i<MAXGROUPFILES;i++) {
 			if (groupfil[i] == -1) continue;
 			for(j=gnumfiles[i]-1;j>=0;j--)
 			{
-				Bmemcpy(buf,&gfilelist[i][j<<4],12);
-				if (!Bwildmatch(buf,mask)) continue;
-				switch (klistaddentry(&rec, buf, CACHE1D_FIND_FILE, CACHE1D_SOURCE_GRP)) {
+				Bmemcpy(&buf[0], &gfilelist[i][j << 4], 12);
+				if (!Bwildmatch(&buf[0], mask)) continue;
+				switch (klistaddentry(&rec, &buf[0], CACHE1D_FIND_FILE, CACHE1D_SOURCE_GRP)) {
 					case -1: goto failure;
 					//case 1: buildprintf("<GRP>:%s dropped for lower priority\n", workspace); break;
 					//case 0: buildprintf("<GRP>:%s accepted\n", workspace); break;
@@ -1048,8 +1060,9 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 	}
 	
 	if (pathsearchmode && (type & CACHE1D_FIND_DRIVE)) {
-		char *drives, *drp;
-		drives = Bgetsystemdrives();
+		char* drp;
+		char* drives = Bgetsystemdrives();
+
 		if (drives) {
 			for (drp=drives; *drp; drp+=strlen(drp)+1) {
 				if (klistaddentry(&rec, drp, CACHE1D_FIND_DRIVE, CACHE1D_SOURCE_DRIVE) < 0) {
@@ -1071,7 +1084,8 @@ failure:
 
 	//Internal LZW variables
 constexpr auto LZWSIZE{16384};           //Watch out for shorts!
-static unsigned char *lzwbuf1, *lzwbuf4, *lzwbuf5, lzwbuflock[5];
+static std::array<unsigned char, 5> lzwbuflock;
+static unsigned char *lzwbuf1, *lzwbuf4, *lzwbuf5;
 static short *lzwbuf2, *lzwbuf3;
 
 static int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned char *lzwoutbuf);
@@ -1079,7 +1093,8 @@ static int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *l
 
 static void lzwallocate()
 {
-	lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 200;
+	std::ranges::fill(lzwbuflock, 200);
+
 	if (lzwbuf1 == nullptr) allocache((void **)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
 	if (lzwbuf2 == nullptr) allocache((void **)&lzwbuf2,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[1]);
 	if (lzwbuf3 == nullptr) allocache((void **)&lzwbuf3,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[2]);
@@ -1089,7 +1104,7 @@ static void lzwallocate()
 
 static void lzwrelease()
 {
-	lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 1;
+	std::ranges::fill(lzwbuflock, 1);
 }
 
 unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
@@ -1097,19 +1112,28 @@ unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
 	size_t i, j;
 	int k, kgoal;
 	unsigned short leng;
-	unsigned char *ptr;
 
 	lzwallocate();
 
-	if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
-	ptr = (unsigned char *)buffer;
+	if (dasizeof > LZWSIZE) {
+		count *= dasizeof;
+		dasizeof = 1;
+	}
 
-	if (kread(fil,&leng,2) != 2) { lzwrelease(); return 0; }
+	auto* ptr = (unsigned char *)buffer;
+
+	if (kread(fil,&leng,2) != 2) {
+		lzwrelease();
+		return 0;
+	}
+
 	leng = B_LITTLE16(leng);
+
 	if (kread(fil,lzwbuf5,(int)leng) != leng) { lzwrelease(); return 0; }
 	k = 0; kgoal = lzwuncompress(lzwbuf5,(int)leng,lzwbuf4);
 
 	copybufbyte(lzwbuf4,ptr,(int)dasizeof);
+	
 	k += (int)dasizeof;
 
 	for(i=1;i<count;i++)
@@ -1134,12 +1158,15 @@ unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
 	size_t i, j;
 	int k, kgoal;
 	unsigned short leng;
-	unsigned char *ptr;
 
 	lzwallocate();
 
-	if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
-	ptr = (unsigned char *)buffer;
+	if (dasizeof > LZWSIZE) {
+		count *= dasizeof;
+		dasizeof = 1;
+	}
+	
+	auto* ptr = (unsigned char *)buffer;
 
 	if (Bfread(&leng,2,1,fil) != 1) { lzwrelease(); return -1; }
 	leng = B_LITTLE16(leng);

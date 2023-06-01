@@ -29,6 +29,8 @@
 #include "a.hpp"
 #include "osd.hpp"
 
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdarg>
 #include <csignal>
@@ -42,7 +44,7 @@ static HINSTANCE hInstance{nullptr};
 static HWND hWindow{nullptr};
 static HDC hDCWindow{nullptr};
 #define WINDOW_CLASS "buildapp"
-static BOOL window_class_registered = FALSE;
+static BOOL window_class_registered{FALSE};
 static HANDLE instanceflag{nullptr};
 
 static int backgroundidle{0};
@@ -55,14 +57,14 @@ extern float curgamma;
 
 #if USE_OPENGL
 // OpenGL stuff
-static HGLRC hGLRC = 0;
+static HGLRC hGLRC{nullptr};
 static HANDLE hGLDLL;
 static glbuild8bit gl8bit;
-static unsigned char *frame = nullptr;
+static unsigned char *frame{nullptr};
 
-static HWND hGLWindow = nullptr;
-static HWND dummyhGLwindow = nullptr;
-static HDC hDCGLWindow = nullptr;
+static HWND hGLWindow{nullptr};
+static HWND dummyhGLwindow{nullptr};
+static HDC hDCGLWindow{nullptr};
 
 using wglExtStringARB_t = const char* (WINAPI *)(HDC);
 using wglChoosePixelFmtARB_t = BOOL (WINAPI *)(HDC, const int *, const FLOAT *, UINT, int *, UINT *);
@@ -94,6 +96,7 @@ static struct winlayer_glfuncs {
 	int have_EXT_swap_control;
 	int have_EXT_swap_control_tear;
 } wglfunc;
+
 #endif
 
 static LPTSTR GetWindowsErrorMsg(DWORD code);
@@ -122,14 +125,14 @@ static unsigned modeschecked=0;
 static unsigned maxrefreshfreq=60;
 
 // input and events
-static unsigned int mousewheel[2] = { 0,0 };
+static std::array<unsigned int, 2> mousewheel = { 0, 0 };
 constexpr auto MouseWheelFakePressTime{100};	// getticks() is a 1000Hz timer, and the button press is faked for 100ms
 
 static char taskswitching=1;
 
 static char keynames[256][24];
 
-static const int wscantable[256] = {
+static constexpr std::array<int, 256> wscantable = {
 /*         x0    x1    x2    x3    x4    x5    x6    x7    x8    x9    xA    xB    xC    xD    xE    xF */
 /* 0y */ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 /* 1y */ 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
@@ -149,7 +152,7 @@ static const int wscantable[256] = {
 /* Fy */ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
 };
 
-static const int wxscantable[256] = {
+static constexpr std::array<int, 256> wxscantable = {
 /*         x0    x1    x2    x3    x4    x5    x6    x7    x8    x9    xA    xB    xC    xD    xE    xF */
 /* 0y */ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
 /* 1y */ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0x9c, 0x9d, 0,    0,
@@ -511,7 +514,7 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 		return OSDCMD_SHOWHELP;
 	}
 
-	const int freq = atoi(parm->parms[0]);
+	const int freq = std::atoi(parm->parms[0]);
 
 	if (freq < 0) {
 		return OSDCMD_SHOWHELP;
@@ -541,7 +544,7 @@ static int set_glswapinterval(const osdfuncparm_t *parm)
 		return OSDCMD_SHOWHELP;
 	}
 
-	const int interval = atoi(parm->parms[0]);
+	const int interval = std::atoi(parm->parms[0]);
 
 	if (interval < -1 || interval > 2) {
 		return OSDCMD_SHOWHELP;
@@ -576,15 +579,17 @@ int initsystem()
 	desktopydim = desktopmode.dmPelsHeight;
 	desktopbpp  = desktopmode.dmBitsPerPel;
 
-	memset(&curpalette[0], 0, sizeof(palette_t) * 256);
+	std::memset(&curpalette[0], 0, sizeof(palette_t) * 256);
 
 	atexit(uninitsystem);
 
 	frameplace = 0;
 
 #if USE_OPENGL
-	memset(&wglfunc, 0, sizeof(wglfunc));
+	std::memset(&wglfunc, 0, sizeof(wglfunc));
+	
 	glunavailable = loadgldriver(getenv("BUILD_GLDRV"));
+
 	if (!glunavailable) {
 		// Load the core WGL functions.
 		wglfunc.wglGetProcAddress = static_cast<wglGetProcAddr_t>(getglprocaddress("wglGetProcAddress", 0));
@@ -600,7 +605,7 @@ int initsystem()
 	}
 	if (glunavailable) {
 		buildputs("Failed loading OpenGL driver. GL modes will be unavailable.\n");
-		memset(&wglfunc, 0, sizeof(wglfunc));
+		std::memset(&wglfunc, 0, sizeof(wglfunc));
 	} else {
 		OSD_RegisterFunction("glswapinterval", "glswapinterval: frame swap interval for OpenGL modes. 0 = no vsync, -1 = adaptive, max 2", set_glswapinterval);
 	}
@@ -628,7 +633,7 @@ void uninitsystem()
 	shutdownvideo();
 #if USE_OPENGL
 	glbuild_unloadfunctions();
-	memset(&wglfunc, 0, sizeof(wglfunc));
+	std::memset(&wglfunc, 0, sizeof(wglfunc));
 	unloadgldriver();
 #endif
 }
@@ -731,7 +736,7 @@ static int xinputusernum{-1};
 int initinput()
 {
 	moustat = 0;
-	memset(keystatus, 0, sizeof(keystatus));
+	std::memset(&keystatus[0], 0, sizeof(keystatus));
 	keyfifoplc = 0;
 	keyfifoend = 0;
 	keyasciififoplc = 0;
@@ -954,7 +959,7 @@ static void updatejoystick()
 	if (::XInputGetState(xinputusernum, &state) != ERROR_SUCCESS) {
 		buildputs("Joystick error, disabling.\n");
 		joyb = 0;
-		memset(joyaxis, 0, sizeof(joyaxis));
+		std::memset(&joyaxis[0], 0, sizeof(joyaxis));
 		xinputusernum = -1;
 		return;
 	}
@@ -1013,7 +1018,7 @@ static void putkeyname(int vsc, int ex, int scan) {
 
 static void fetchkeynames()
 {
-	memset(keynames, 0, sizeof(keynames));
+	std::memset(keynames, 0, sizeof(keynames));
 
 	for (int i{0}; i < 256; ++i) {
 		const int scan = wscantable[i];
@@ -1589,10 +1594,11 @@ static int SetupDIB(int width, int height)
 		BITMAPINFOHEADER header;
 		RGBQUAD colours[256];
 	} dibsect;
+
 	int i;
 
 	// create the new DIB section
-	memset(&dibsect, 0, sizeof(dibsect));
+	std::memset(&dibsect, 0, sizeof(dibsect));
 	numpages = 1;	// KJS 20031225
 	dibsect.header.biSize = sizeof(dibsect.header);
 	dibsect.header.biWidth = width|1;	// Ken did this
@@ -1615,7 +1621,7 @@ static int SetupDIB(int width, int height)
 		return TRUE;
 	}
 
-	memset(lpPixels, 0, (((width|1) + 4) & ~3)*height);
+	std::memset(lpPixels, 0, (((width|1) + 4) & ~3)*height);
 
 	// create a compatible memory DC
 	hDCSection = ::CreateCompatibleDC(hDCWindow);
@@ -2523,7 +2529,7 @@ static LPTSTR GetWindowsErrorMsg(DWORD code)
 static const char *getwindowserrorstr(DWORD code)
 {
 	static char msg[1024];
-	memset(msg, 0, sizeof(msg));
+	std::memset(msg, 0, sizeof(msg));
 	::OemToCharBuff(GetWindowsErrorMsg(code), msg, sizeof(msg)-1);
 	return msg;
 }

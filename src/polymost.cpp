@@ -4366,7 +4366,7 @@ int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 	return(0);
 }
 
-int polymost_printext256(int xpos, int ypos, short col, short backcol, const  char *name, char fontsize)
+int polymost_printext256(int xpos, int ypos, short col, short backcol, std::span<const char> name, char fontsize)
 {
 	GLfloat tx, ty, txc, tyc, txg, tyg, tyoff, cx, cy;
 	int indexcnt;

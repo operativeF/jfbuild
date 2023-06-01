@@ -113,7 +113,7 @@ int polymost_texmayhavealpha (int dapicnum, int dapalnum);
 void polymost_texinvalidate (int dapicnum, int dapalnum, int dameth);
 void polymost_texinvalidateall ();
 void polymost_glinit();
-int polymost_printext256(int xpos, int ypos, short col, short backcol, const char *name, char fontsize);
+int polymost_printext256(int xpos, int ypos, short col, short backcol, std::span<const char> name, char fontsize);
 int polymost_drawline256(int x1, int y1, int x2, int y2, unsigned char col);
 int polymost_plotpixel(int x, int y, unsigned char col);
 void polymost_fillpolygon (int npoints);

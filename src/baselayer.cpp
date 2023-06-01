@@ -22,34 +22,45 @@ int glunavailable;
 #endif //USE_OPENGL
 
 int   _buildargc = 0;
-const char **_buildargv = nullptr;
+const char **_buildargv{nullptr};
 
-char quitevent=0, appactive=1;
+char quitevent{0};
+char appactive{1};
 
-int xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline, imageSize;
-intptr_t frameplace=0;
-char modechange=1;
-char offscreenrendering=0;
-char videomodereset = 0;
+int xres{-1};
+int yres{-1};
+int bpp{0};
+int fullscreen{0};
+int bytesperline;
+int imageSize;
+intptr_t frameplace{0};
+char modechange{1};
+char offscreenrendering{0};
+char videomodereset{0};
 void (*baselayer_videomodewillchange)() = nullptr;
 void (*baselayer_videomodedidchange)() = nullptr;
 
-int inputdevices=0;
+int inputdevices{0};
 
 // keys
-char keystatus[256];
-int keyfifo[KEYFIFOSIZ];
-unsigned char keyasciififo[KEYFIFOSIZ];
-int keyfifoplc, keyfifoend;
-int keyasciififoplc, keyasciififoend;
+std::array<char, 256> keystatus;
+std::array<int, KEYFIFOSIZ> keyfifo;
+std::array<unsigned char, KEYFIFOSIZ> keyasciififo;
+int keyfifoplc;
+int keyfifoend;
+int keyasciififoplc;
+int keyasciififoend;
 
 // mouse
-int mousex=0, mousey=0, mouseb=0;
+int mousex{0};
+int mousey{0};
+int mouseb{0};
 
 // joystick
-int joyaxis[8], joyb=0;
-char joynumaxes=0, joynumbuttons=0;
-
+std::array<int, 8> joyaxis;
+int joyb{0};
+char joynumaxes{0};
+char joynumbuttons{0};
 
 
 //

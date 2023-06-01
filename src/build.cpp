@@ -74,7 +74,8 @@ int ydimgame{480};
 int bppgame{8};
 int forcesetup{1};
 
-extern int cachesize, artsize;
+extern int cachesize;
+extern int artsize;
 
 static short oldmousebstatus{0};
 short brightness{0};
@@ -192,7 +193,7 @@ int getfilenames(const char *path, const char* kind);
 void clearfilenames();
 
 void clearkeys() {
-	memset(keystatus, 0, sizeof(keystatus));
+	std::memset(&keystatus[0], 0, sizeof(keystatus));
 }
 
 static int osdcmd_restartvid(const osdfuncparm_t *parm)

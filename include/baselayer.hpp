@@ -41,19 +41,24 @@ extern int inputdevices;
 
 // keys
 inline constexpr auto KEYFIFOSIZ{64};
-extern char keystatus[256];
-extern int keyfifo[KEYFIFOSIZ];
-extern unsigned char keyasciififo[KEYFIFOSIZ];
-extern int keyfifoplc, keyfifoend;
-extern int keyasciififoplc, keyasciififoend;
+extern std::array<char, 256> keystatus;
+extern std::array<int, KEYFIFOSIZ> keyfifo;
+extern std::array<unsigned char, KEYFIFOSIZ> keyasciififo;
+extern int keyfifoplc;
+extern int keyfifoend;
+extern int keyasciififoplc;
+extern int keyasciififoend;
 
 // mouse
-extern int mousex, mousey, mouseb;
+extern int mousex;
+extern int mousey;
+extern int mouseb;
 
 // joystick
-extern int joyaxis[8], joyb;
-extern char joynumaxes, joynumbuttons;
-
+extern std::array<int, 8> joyaxis;
+extern int joyb;
+extern char joynumaxes;
+extern char joynumbuttons;
 
 
 void initputs(const char *);
