@@ -38,6 +38,7 @@ credits.
 #include <sys/stat.h>
 
 #include <algorithm>
+#include <array>
 #include <cstdio>
 #include <cstdint>
 #include <cstdlib>
@@ -90,7 +91,7 @@ static inline int _filelength (int h)
 static int bytesperline, xres, yres, globxoffs, globyoffs;
 static intptr_t frameplace;
 
-static constexpr int pow2mask[32] =
+static constexpr std::array<int, 32> pow2mask =
 {
 	0x00000000,0x00000001,0x00000003,0x00000007,
 	0x0000000f,0x0000001f,0x0000003f,0x0000007f,
@@ -102,7 +103,7 @@ static constexpr int pow2mask[32] =
 	0x0fffffff,0x1fffffff,0x3fffffff,0x7fffffff,
 };
 
-static constexpr int pow2long[32] =
+static constexpr std::array<int, 32> pow2long =
 {
 	0x00000001,0x00000002,0x00000004,0x00000008,
 	0x00000010,0x00000020,0x00000040,0x00000080,
@@ -174,8 +175,10 @@ static int ccind[19] = {16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15};
 static int hxbit[59][2], ibuf0[288], nbuf0[32], ibuf1[32], nbuf1[32];
 static const unsigned char *filptr;
 static unsigned char slidebuf[32768], opixbuf0[4], opixbuf1[4];
-static unsigned char pnginited = 0, olinbuf[65536]; //WARNING:max xres is: 65536/bpp-1
-static int gotcmov = -2, abstab10[1024];
+static unsigned char pnginited{0};
+static std::array<unsigned char, 65536> olinbuf; //WARNING:max xres is: 65536/bpp-1
+static int gotcmov = -2;
+static std::array<int, 1024> abstab10;
 
 	//Variables to speed up dynamic Huffman decoding:
 constexpr auto LOGQHUFSIZ0{9};
@@ -553,7 +556,7 @@ static int initpass () //Interlaced images have 7 "passes", non-interlaced have 
 		case 4: xsizbpl = ((xsizbpl+1)>>1); break;
 	}
 
-	std::memset(olinbuf, 0, (xsizbpl+1) * sizeof(olinbuf[0]));
+	std::memset(&olinbuf[0], 0, (xsizbpl+1) * sizeof(olinbuf[0]));
 	*(int *)&opixbuf0[0] = *(int *)&opixbuf1[0] = 0;
 	xplc = xsizbpl; yplc = globyoffs+iyoff; xm = 0; filt = -1;
 
@@ -1266,18 +1269,41 @@ kpngrend_goodret:;
 	//   All non 32-bit color drawing was removed
 	//   "Motion" JPG code was removed
 	//   A lot of parameters were added to kpeg() for library usage
-static int kpeginited = 0;
-static int clipxdim, clipydim;
+static int kpeginited{0};
+static int clipxdim;
+static int clipydim;
 
-static int hufmaxatbit[8][20], hufvalatbit[8][20], hufcnt[8];
+static int hufmaxatbit[8][20], hufvalatbit[8][20];
+static std::array<int, 8> hufcnt;
 static unsigned char hufnumatbit[8][20], huftable[8][256];
-static int hufquickval[8][1024], hufquickbits[8][1024], hufquickcnt[8];
-static int quantab[4][64], dct[12][64], lastdc[4], unzig[64], zigit[64]; //dct:10=MAX (says spec);+2 for hacks
-static unsigned char gnumcomponents, dcflagor[64];
-static int gcompid[4], gcomphsamp[4], gcompvsamp[4], gcompquantab[4], gcomphsampshift[4], gcompvsampshift[4];
-static int lnumcomponents, lcompid[4], lcompdc[4], lcompac[4], lcomphsamp[4], lcompvsamp[4], lcompquantab[4];
-static int lcomphvsamp0, lcomphsampshift0, lcompvsampshift0;
-static int colclip[1024], colclipup8[1024], colclipup16[1024];
+static int hufquickval[8][1024], hufquickbits[8][1024];
+static std::array<int, 8> hufquickcnt;
+static int quantab[4][64];
+static int dct[12][64];
+static std::array<int, 4> lastdc;
+static std::array<int, 64> unzig;
+static std::array<int, 64> zigit; //dct:10=MAX (says spec);+2 for hacks
+static unsigned char gnumcomponents;
+static std::array<unsigned char, 64> dcflagor;
+static std::array<int, 4> gcompid;
+static std::array<int, 4> gcomphsamp;
+static std::array<int, 4> gcompvsamp;
+static std::array<int, 4> gcompquantab;
+static std::array<int, 4> gcomphsampshift;
+static std::array<int, 4> gcompvsampshift;
+static int lnumcomponents;
+static std::array<int, 4> lcompid;
+static std::array<int, 4> lcompdc;
+static std::array<int, 4> lcompac;
+static std::array<int, 4> lcomphsamp;
+static std::array<int, 4> lcompvsamp;
+static std::array<int, 4> lcompquantab;
+static int lcomphvsamp0;
+static int lcomphsampshift0;
+static int lcompvsampshift0;
+static std::array<int, 1024> colclip;
+static std::array<int, 1024> colclipup8;
+static std::array<int, 1024> colclipup16;
 
 #if defined(__WATCOMC__) && USE_ASM
 

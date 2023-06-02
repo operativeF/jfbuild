@@ -15,6 +15,8 @@
 #include "polymosttex_priv.hpp"
 #include "mdsprite_priv.hpp"
 
+#include <array>
+
 #if defined(_M_IX86) || defined(_M_AMD64) || defined(__i386) || defined(__x86_64)
 #define SHIFTMOD32(a) (a)
 #else
@@ -22,25 +24,28 @@
 #endif
 
 #define VOXBORDWIDTH 1 //use 0 to save memory, but has texture artifacts; 1 looks better...
-voxmodel *voxmodels[MAXVOXELS];
+std::array<voxmodel*, MAXVOXELS> voxmodels;
 
-tile2model_t tile2model[MAXTILES];
+std::array<tile2model_t, MAXTILES> tile2model;
 
 	//Move this to appropriate place!
 hudtyp hudmem[2][MAXTILES]; //~320KB ... ok for now ... could replace with dynamic alloc
 
-char mdinited=0;
-int mdtims, omdtims;
+char mdinited{0};
+int mdtims;
+int omdtims;
 
 constexpr auto MODELALLOCGROUP{256};
 static int nummodelsalloced = 0;
 int nextmodelid = 0;
 mdmodel **models = nullptr;
 
-static int maxmodelverts = 0, allocmodelverts = 0;
-static int maxelementvbo = 0, allocelementvbo = 0;
-static point3d *vertlist = nullptr; //temp array to store interpolated vertices for drawing
-static struct polymostvboitem *elementvbo = nullptr;	 // 3 per triangle.
+static int maxmodelverts{0};
+static int allocmodelverts{0};
+static int maxelementvbo{0};
+static int allocelementvbo{0};
+static point3d *vertlist{nullptr}; //temp array to store interpolated vertices for drawing
+static struct polymostvboitem *elementvbo{nullptr};	 // 3 per triangle.
 
 mdmodel *mdload (const char *);
 void mdfree (mdmodel *);
@@ -57,7 +62,8 @@ void freeallmodels ()
 		nextmodelid = 0;
 	}
 
-	std::memset(tile2model,-1,sizeof(tile2model));
+	// TODO: Is this really necessary?
+	std::memset(&tile2model[0], -1, sizeof(tile2model));
 
 	if (vertlist)
 	{
@@ -863,8 +869,8 @@ static md3model *md3load (int fil)
 {
 	int surfi;
 	int ofsurf;
-	int offs[4];
-	int leng[4];
+	std::array<int, 4> offs;
+	std::array<int, 4> leng;
 	md3surf_t *s;
 
 	md3filehead_t filehead;
@@ -1008,12 +1014,30 @@ static md3model *md3load (int fil)
 
 static int md3draw (md3model *m, spritetype *tspr, int method)
 {
-	point3d m0, m1, a0;
-	md3xyzn_t *v0, *v1;
-	int i, j, k, vbi, surfi;
-	float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], pc[4];
+	point3d m0;
+	point3d m1;
+	point3d a0;
+	md3xyzn_t* v0;
+	md3xyzn_t* v1;
+	int i;
+	int j;
+	int k;
+	int vbi;
+	int surfi;
+	float f;
+	float g;
+	float k0;
+	float k1;
+	float k2;
+	float k3;
+	float k4;
+	float k5;
+	float k6;
+	float k7;
+	std::array<float, 16> mat;
+	std::array<float, 4> pc;
 	md3surf_t *s;
-	PTMHead * ptmh = 0;
+	PTMHead * ptmh{nullptr};
 	struct polymostdrawpolycall draw;
 
 	updateanimation((md2model *)m,tspr);
@@ -1142,7 +1166,7 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 	} else {
 		draw.projection = &gdrawroomsprojmat[0][0];
 	}
-	draw.modelview = mat;
+	draw.modelview = mat.data();
 
 	for(surfi=0;surfi<m->head.numsurfs;surfi++)
 	{
@@ -1250,16 +1274,43 @@ static void md3free (md3model *m)
 //--------------------------------------- VOX LIBRARY BEGINS ---------------------------------------
 
 	//For loading/conversion only
-static int xsiz, ysiz, zsiz, yzsiz, *vbit = 0; //vbit: 1 bit per voxel: 0=air,1=solid
-static float xpiv, ypiv, zpiv; //Might want to use more complex/unique names!
-static int *vcolhashead = 0, vcolhashsizm1;
-struct voxcol_t { int p, c, n; };
-static voxcol_t *vcol = 0; int vnum = 0, vmax = 0;
-struct spoint2d { short x, y; };
-static spoint2d *shp;
-static int *shcntmal, *shcnt = 0, shcntp;
-static int mytexo5, *zbit, gmaxx, gmaxy, garea, pow2m1[33];
-static voxmodel *gvox;
+static int xsiz;
+static int ysiz;
+static int zsiz;
+static int yzsiz;
+static int* vbit{0}; //vbit: 1 bit per voxel: 0=air,1=solid
+static float xpiv;
+static float ypiv;
+static float zpiv; //Might want to use more complex/unique names!
+static int* vcolhashead{nullptr};
+static int vcolhashsizm1;
+
+struct voxcol_t {
+	int p;
+	int c;
+	int n;
+};
+
+static voxcol_t* vcol{nullptr};
+int vnum{0};
+int vmax{0};
+
+struct spoint2d {
+	short x;
+	short y;
+};
+
+static spoint2d* shp;
+static int* shcntmal;
+static int* shcnt{nullptr};
+static int shcntp;
+static int mytexo5;
+static int* zbit;
+static int gmaxx;
+static int gmaxy;
+static int garea;
+static std::array<int, 33> pow2m1;
+static voxmodel* gvox;
 
 	//pitch must equal xsiz*4
 unsigned gloadtex (int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
@@ -1948,7 +1999,19 @@ static int voxloadbufs(voxmodel *m);
 int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 {
 	point3d m0, a0;
-	float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], omat[16], pc[4];
+	float f;
+	float g;
+	float k0;
+	float k1;
+	float k2;
+	float k3;
+	float k4;
+	float k5;
+	float k6;
+	float k7;
+	std::array<float, 16> mat;
+	std::array<float, 16> omat;
+	std::array<float, 4> pc;
 	struct polymostdrawpolycall draw;
 
 	//updateanimation((md2model *)m,tspr);
@@ -2029,7 +2092,7 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 //------------
 
 		//transform to Build coords
-	std::memcpy(omat,mat,sizeof(omat));
+	std::memcpy(&omat[0], &mat[0], sizeof(omat));
 	f = 1.f/64.f;
 	g = m0.x*f; mat[0] *= g; mat[1] *= g; mat[2] *= g;
 	g = m0.y*f; mat[4] = omat[8]*g; mat[5] = omat[9]*g; mat[6] = omat[10]*g;
@@ -2061,7 +2124,7 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 	} else {
 		draw.projection = &gdrawroomsprojmat[0][0];
 	}
-	draw.modelview = mat;
+	draw.modelview = mat.data();
 
 	if (!m->vertexbuf || !m->indexbuf) {
 		voxloadbufs(m);

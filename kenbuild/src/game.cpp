@@ -15,6 +15,8 @@
 
 #include "baselayer.hpp"
 
+#include <array>
+
 constexpr auto TIMERINTSPERSECOND{140}; //280
 constexpr auto MOVESPERSECOND{40};
 constexpr auto TICSPERFRAME{3};
@@ -109,7 +111,7 @@ static int screentilt = 0, oscreentilt = 0;
 static int fvel, svel, avel;
 static int fvel2, svel2, avel2;
 
-char option[NUMOPTIONS] = {1,1,1,0,0,0,1,(4<<4)|1|2|4};
+std::array<char, NUMOPTIONS> option = {1, 1, 1, 0, 0, 0, 1, (4 << 4) | 1 | 2 | 4};
 
 int xdimgame = 640, ydimgame = 480, bppgame = 8;
 int forcesetup = 1;
@@ -5266,7 +5268,7 @@ int loadgame()
 {
 	int i;
 	int fil;
-	int tmpanimateptr[MAXANIMATES];
+	std::array<int, MAXANIMATES> tmpanimateptr;
 
 	if ((fil = kopen4load("save0000.gam",0)) == -1) return(-1);
 
@@ -5401,7 +5403,7 @@ int loadgame()
 	kdfread(slimesoundcnt,2,MAXPLAYERS,fil);
 
 		//Warning: only works if all pointers are in sector structures!
-	kdfread(tmpanimateptr,4,MAXANIMATES,fil);
+	kdfread(&tmpanimateptr[0], 4, MAXANIMATES, fil);
 	for(i=MAXANIMATES-1;i>=0;i--)
 		animateptr[i] = (int *)(tmpanimateptr[i]+(intptr_t)&sector[0]);
 

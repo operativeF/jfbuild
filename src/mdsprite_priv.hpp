@@ -180,7 +180,7 @@ struct tile2model_t
 	int framenum;   // calculate the number from the name when declaring
 };
 
-extern tile2model_t tile2model[MAXTILES];
+extern std::array<tile2model_t, MAXTILES> tile2model;
 
 struct hudtyp { float xadd, yadd, zadd; short angadd, flags; };
 extern hudtyp hudmem[2][MAXTILES];
@@ -212,7 +212,7 @@ struct voxmodel
 	unsigned int indexcount;
 };
 
-extern voxmodel *voxmodels[MAXVOXELS];
+extern std::array<voxmodel*, MAXVOXELS> voxmodels;
 extern mdmodel **models;
 
 extern char mdinited;

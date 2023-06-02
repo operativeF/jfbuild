@@ -20,8 +20,13 @@
 static std::array<unsigned char, 256> tempbuf;
 
 constexpr auto NUMOPTIONS{9};
-unsigned char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
-int keys[NUMBUILDKEYS] =
+
+std::array<unsigned char, NUMOPTIONS> option = {
+	0, 0, 0, 0,
+	0, 0, 1, 0, 0
+};
+
+std::array<int, NUMBUILDKEYS> keys =
 {
 	0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
 	0x1e,0x2c,0xd1,0xc9,0x33,0x34,
@@ -54,8 +59,8 @@ int keys[NUMBUILDKEYS] =
 
 int averagefps;
 constexpr auto AVERAGEFRAMES{32};
-static unsigned int frameval[AVERAGEFRAMES];
-static int framecnt = 0;
+static std::array<unsigned int, AVERAGEFRAMES> frameval;
+static int framecnt{0};
 
 char *defsfilename = "kenbuild.def";
 int nextvoxid = 0;

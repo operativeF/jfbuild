@@ -22,12 +22,12 @@
 static int kzipopen(const char *filnam)
 {
 	unsigned int i;
-	char newst[BMAX_PATH+4];
+	std::array<char, BMAX_PATH + 4> newst;
 
 	newst[0] = '|';
 	for(i=0;filnam[i] && (i < sizeof(newst)-2);i++) newst[i+1] = filnam[i];
 	newst[i+1] = 0;
-	return(kzopen(newst));
+	return(kzopen(&newst[0]));
 }
 
 #endif
@@ -434,29 +434,30 @@ constexpr auto MAXGROUPFILES{4};     //Warning: Fix groupfil if this is changed
 constexpr auto MAXOPENFILES{64};     //Warning: Fix filehan if this is changed
 
 static int numgroupfiles = 0;
-static int gnumfiles[MAXGROUPFILES];
-static int groupfil[MAXGROUPFILES] = {-1,-1,-1,-1};
-static int groupfilpos[MAXGROUPFILES];
-static char *gfilelist[MAXGROUPFILES];
-static unsigned *gfileoffs[MAXGROUPFILES];
+static std::array<int, MAXGROUPFILES> gnumfiles;
+static std::array<int, MAXGROUPFILES> groupfil = {-1,-1,-1,-1};
+static std::array<int, MAXGROUPFILES> groupfilpos;
+static std::array<char*, MAXGROUPFILES> gfilelist;
+static std::array<unsigned*, MAXGROUPFILES> gfileoffs;
 
-static unsigned char filegrp[MAXOPENFILES];
-static int filepos[MAXOPENFILES];
-static int filehan[MAXOPENFILES] =
-{
+static std::array<unsigned char, MAXOPENFILES> filegrp;
+static std::array<int, MAXOPENFILES> filepos;
+
+static std::array<int, MAXOPENFILES> filehan = {
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
 };
+
 #ifdef WITHKPLIB
 static char filenamsav[MAXOPENFILES][260];
-static int kzcurhand = -1;
+static int kzcurhand{-1};
 #endif
 
 int initgroupfile(const char *filename)
 {
-	char buf[16];
+	std::array<char, 16> buf;
 	int i, j, k;
 #ifdef WITHKPLIB
 	char *zfn;
@@ -474,7 +475,7 @@ int initgroupfile(const char *filename)
 	i = Bopen(zfn,BO_BINARY|BO_RDONLY,BS_IREAD);
 	if (i < 0) { free(zfn); return -1; }
 
-	if (Bread(i, buf, 4) == 4)
+	if (Bread(i, &buf[0], 4) == 4)
 		if (buf[0] == 0x50 && buf[1] == 0x4B && buf[2] == 0x03 && buf[3] == 0x04) {
 			close(i);
 			i = kzaddstack(zfn);
@@ -493,7 +494,7 @@ int initgroupfile(const char *filename)
 #endif
 	{
 		groupfilpos[numgroupfiles] = 0;
-		if (Bread(groupfil[numgroupfiles],buf,16) != 16 ||
+		if (Bread(groupfil[numgroupfiles], &buf[0], 16) != 16 ||
 			 (buf[0] != 'K') || (buf[1] != 'e') || (buf[2] != 'n') ||
 			 (buf[3] != 'S') || (buf[4] != 'i') || (buf[5] != 'l') ||
 			 (buf[6] != 'v') || (buf[7] != 'e') || (buf[8] != 'r') ||

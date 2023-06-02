@@ -554,7 +554,7 @@ int Bwildmatch (const char *i, const char *j)
 size_t Bgetsysmemsize()
 {
 #ifdef _WIN32
-	size_t siz = 0x7fffffff;
+	size_t siz{0x7fffffff};
 	
         MEMORYSTATUSEX memst;
         memst.dwLength = sizeof(MEMORYSTATUSEX);

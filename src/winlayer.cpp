@@ -1592,7 +1592,7 @@ static int SetupDIB(int width, int height)
 {
 	struct binfo {
 		BITMAPINFOHEADER header;
-		RGBQUAD colours[256];
+		std::array<RGBQUAD, 256> colours;
 	} dibsect;
 
 	int i;
@@ -2239,13 +2239,15 @@ static void DestroyAppWindow()
 //
 static void UpdateAppWindowTitle()
 {
-	char tmp[256+3+256+1];		//sizeof(wintitle) + " - " + sizeof(apptitle) + '\0'
+	if (!hWindow) {
+		return;
+	}
 
-	if (!hWindow) return;
+	std::array<char, 256 + 3 + 256 + 1> tmp;		//sizeof(wintitle) + " - " + sizeof(apptitle) + '\0'
 
 	if (wintitle[0]) {
-		snprintf(tmp, sizeof(tmp), "%s - %s", wintitle, apptitle);
-		::SetWindowText(hWindow, tmp);
+		snprintf(&tmp[0], sizeof(tmp), "%s - %s", wintitle, apptitle);
+		::SetWindowText(hWindow, &tmp[0]);
 	} else {
 		::SetWindowText(hWindow, apptitle);
 	}
@@ -2260,10 +2262,10 @@ static void UpdateAppWindowTitle()
 //
 static void ShowErrorBox(const char *m)
 {
-	TCHAR msg[1024];
+	std::array<TCHAR, 1024> msg;
 
-	::wsprintf(msg, "%s: %s", m, ::GetWindowsErrorMsg(::GetLastError()));
-	::MessageBox(nullptr, msg, apptitle, MB_OK|MB_ICONSTOP);
+	::wsprintf(&msg[0], "%s: %s", m, ::GetWindowsErrorMsg(::GetLastError()));
+	::MessageBox(nullptr, &msg[0], apptitle, MB_OK|MB_ICONSTOP);
 }
 
 
@@ -2516,20 +2518,20 @@ static BOOL RegisterWindowClass()
 //
 static LPTSTR GetWindowsErrorMsg(DWORD code)
 {
-	static TCHAR lpMsgBuf[1024];
+	static std::array<TCHAR, 1024> lpMsgBuf;
 
 	::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		nullptr, code,
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)lpMsgBuf, 1024, nullptr);
+		(LPTSTR)&lpMsgBuf[0], lpMsgBuf.size(), nullptr);
 
-	return lpMsgBuf;
+	return &lpMsgBuf[0];
 }
 
 static const char *getwindowserrorstr(DWORD code)
 {
-	static char msg[1024];
-	std::memset(msg, 0, sizeof(msg));
-	::OemToCharBuff(GetWindowsErrorMsg(code), msg, sizeof(msg)-1);
-	return msg;
+	static std::array<char, 1024> msg;
+	std::ranges::fill(msg, 0);
+	::OemToCharBuff(GetWindowsErrorMsg(code), &msg[0], msg.size() - 1);
+	return &msg[0];
 }

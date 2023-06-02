@@ -8,6 +8,8 @@
 #ifndef HIGHTILE_PRIV_H
 #define HIGHTILE_PRIV_H
 
+#include <array>
+
 enum {
 	HICEFFECT_NONE = 0,
 	HICEFFECT_GREYSCALE = 1,
@@ -32,8 +34,8 @@ struct hicreplctyp {
 	struct hicskybox_t *skybox;
 };
 
-extern palette_t hictinting[MAXPALOOKUPS];
-extern hicreplctyp *hicreplc[MAXTILES];
+extern std::array<palette_t, MAXPALOOKUPS> hictinting;
+extern std::array<hicreplctyp*, MAXTILES> hicreplc;
 extern int hicfirstinit;
 
 void hicinit();

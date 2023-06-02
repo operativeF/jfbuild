@@ -3,9 +3,9 @@
 constexpr auto NUMOPTIONS{8};
 constexpr auto NUMKEYS{20};
 
-extern char option[NUMOPTIONS];
+extern std::array<char, NUMOPTIONS> option;
 
-inline int keys[NUMKEYS] =
+inline std::array<int, NUMKEYS> keys =
 {
 	0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
 	0x1e,0x2c,0xd1,0xc9,0x33,0x34,

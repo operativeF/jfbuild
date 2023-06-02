@@ -11,10 +11,13 @@
 #include "kplib.hpp"
 #include "hightile_priv.hpp"
 
-palette_t hictinting[MAXPALOOKUPS];
+#include <algorithm>
+#include <array>
 
-hicreplctyp *hicreplc[MAXTILES];
-int hicfirstinit = 0;
+std::array<palette_t, MAXPALOOKUPS> hictinting;
+std::array<hicreplctyp*, MAXTILES> hicreplc;
+
+int hicfirstinit{0};
 
 /**
  * Find a substitute definition which satisfies the given parameters.
@@ -85,7 +88,8 @@ void hicinit()
 			}
 		}
 	}
-	std::memset(hicreplc, 0, sizeof(hicreplc));
+
+	std::ranges::fill(hicreplc, nullptr);
 
 	hicfirstinit = 1;
 }

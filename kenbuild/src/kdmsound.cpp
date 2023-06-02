@@ -13,6 +13,7 @@
 #include "cache1d.hpp"
 
 #define _USE_MATH_DEFINES
+#include <array>
 #include <cmath>
 #include <numbers>
 
@@ -23,37 +24,53 @@ constexpr auto MAXNOTES{8192};
 constexpr auto MAXEFFECTS{16};
 
     //Actual sound parameters after initsb was called
-static int samplerate, numspeakers, bytespersample;
+static int samplerate;
+static int numspeakers;
+static int bytespersample;
 
     //KWV wave variables
 static int numwaves;
 static char instname[MAXWAVES][16];
-static int wavleng[MAXWAVES];
-static int repstart[MAXWAVES], repleng[MAXWAVES];
-static int finetune[MAXWAVES];
+static std::array<int, MAXWAVES> wavleng;
+static std::array<int, MAXWAVES> repstart;
+static std::array<int, MAXWAVES> repleng;
+static std::array<int, MAXWAVES> finetune;
 
     //Other useful wave variables
-static int wavoffs[MAXWAVES];
+static std::array<int, MAXWAVES> wavoffs;
 
     //Effects array
 static int eff[MAXEFFECTS][256];
 
     //KDM song variables:
-static int numnotes, numtracks;
-static unsigned char trinst[MAXTRACKS], trquant[MAXTRACKS];
-static unsigned char trvol1[MAXTRACKS], trvol2[MAXTRACKS];
-static int nttime[MAXNOTES];
-static unsigned char nttrack[MAXNOTES], ntfreq[MAXNOTES];
-static unsigned char ntvol1[MAXNOTES], ntvol2[MAXNOTES];
-static unsigned char ntfrqeff[MAXNOTES], ntvoleff[MAXNOTES], ntpaneff[MAXNOTES];
+static int numnotes;
+static int numtracks;
+static unsigned char trinst[MAXTRACKS];
+static unsigned char trquant[MAXTRACKS];
+static unsigned char trvol1[MAXTRACKS];
+static unsigned char trvol2[MAXTRACKS];
+static std::array<int, MAXNOTES> nttime;
+static unsigned char nttrack[MAXNOTES];
+static unsigned char ntfreq[MAXNOTES];
+static unsigned char ntvol1[MAXNOTES];
+static unsigned char ntvol2[MAXNOTES];
+static unsigned char ntfrqeff[MAXNOTES];
+static unsigned char ntvoleff[MAXNOTES];
+static unsigned char ntpaneff[MAXNOTES];
 
     //Other useful song variables:
-static int timecount, notecnt, musicstatus, musicrepeat;
+static int timecount;
+static int notecnt;
+static int musicstatus;
+static int musicrepeat;
 
-static int kdmasm1, kdmasm2, kdmasm3, kdmasm4;
+static int kdmasm1;
+static int kdmasm2;
+static int kdmasm3;
+static int kdmasm4;
 
 constexpr auto MAXBYTESPERTIC{2048};
-static int stemp[MAXBYTESPERTIC*2];
+static std::array<int, MAXBYTESPERTIC * 2> stemp;
 
     //Sound reading information
 static int splc[NUMCHANNELS], sinc[NUMCHANNELS], soff[NUMCHANNELS];
@@ -118,7 +135,7 @@ int initkdm(char dadigistat, char damusistat, int dasamplerate, char danumspeake
 
     timecount = notecnt = musicstatus = musicrepeat = 0;
 
-    clearbuf(stemp,sizeof(stemp)>>2,32768L);
+    clearbuf(&stemp[0], sizeof(stemp) >> 2, 32768L);
     for(i=0;i<256;i++)
         for(j=0;j<16;j++)
         {
@@ -349,7 +366,7 @@ int loadsong(const char* filename)
     kread(fil,trquant,numtracks);
     kread(fil,trvol1,numtracks);
     kread(fil,trvol2,numtracks);
-    kread(fil,nttime,numnotes<<2);
+    kread(fil,&nttime[0],numnotes<<2);
     for (i=numnotes-1; i>=0; i--) nttime[i] = B_LITTLE32(nttime[i]);
     kread(fil,nttrack,numnotes);
     kread(fil,ntfreq,numnotes);
@@ -513,9 +530,9 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
             kdmasm3 = (repleng[daswave]<<12); //repsplcoff
             kdmasm4 = soff[i];
             if (numspeakers == 1)
-                { splc[i] = monohicomb(0L,volptr,bytespertic,dasinc,splc[i],stemp); }
+                { splc[i] = monohicomb(0L,volptr,bytespertic,dasinc,splc[i], &stemp[0]); }
             else
-                { splc[i] = stereohicomb(0L,volptr,bytespertic,dasinc,splc[i],stemp); }
+                { splc[i] = stereohicomb(0L,volptr,bytespertic,dasinc,splc[i], &stemp[0]); }
             soff[i] = kdmasm4;
 
             if ((splc[i] >= 0)) continue;
@@ -548,13 +565,13 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
 
         if (numspeakers == 1)
         {
-            if (bytespersample == 1) bound2char(bytespertic>>1,stemp,(unsigned char *)&sndoffsplc[dacnt]);
-            else bound2short(bytespertic>>1,stemp,(short*)&sndoffsplc[dacnt<<1]);
+            if (bytespersample == 1) bound2char(bytespertic>>1, &stemp[0],(unsigned char *)&sndoffsplc[dacnt]);
+            else bound2short(bytespertic>>1, &stemp[0],(short*)&sndoffsplc[dacnt<<1]);
         }
         else
         {
-            if (bytespersample == 1) bound2char(bytespertic,stemp,(unsigned char *)&sndoffsplc[dacnt<<1]);
-            else bound2short(bytespertic,stemp,(short*)&sndoffsplc[dacnt<<2]);
+            if (bytespersample == 1) bound2char(bytespertic, &stemp[0], (unsigned char *)&sndoffsplc[dacnt<<1]);
+            else bound2short(bytespertic, &stemp[0], (short*)&sndoffsplc[dacnt<<2]);
         }
     }
 }

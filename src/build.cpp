@@ -2457,7 +2457,7 @@ unsigned char changechar(unsigned char dachar, int dadir, unsigned char smooshya
 
 int gettile(int tilenum)
 {
-	char snotbuf[80];
+	std::array<char, 80> snotbuf;
 	int i, j, otilenum, topleft, gap, temp, templong, ch;
 	int xtiles, ytiles, tottiles;
 
@@ -2612,7 +2612,7 @@ int gettile(int tilenum)
 				ch = bgetchar();
 
 				//drawtilescreen(topleft,tilenum);
-				Bsprintf(snotbuf,"Goto tile: %d_ ",j);
+				Bsprintf(&snotbuf[0],"Goto tile: %d_ ",j);
 				printext256(0,0,whitecol,blackcol,snotbuf,0);
 				showframe();
 
@@ -2660,7 +2660,7 @@ int drawtilescreen(int pictopleft, int picbox)
 	int i, j, wallnum, xdime, ydime, cnt, pinc;
 	int dax, day, scaledown, xtiles, ytiles, tottiles;
 	unsigned char *picptr;
-	char snotbuf[80];
+	std::array<char, 80> snotbuf;
 
 	xtiles = (xdim>>6); ytiles = (ydim>>6); tottiles = xtiles*ytiles;
 
@@ -2728,7 +2728,7 @@ int drawtilescreen(int pictopleft, int picbox)
 				{
 					dax = ((cnt%(xtiles<<gettilezoom))<<(6-gettilezoom));
 					day = ((cnt/(xtiles<<gettilezoom))<<(6-gettilezoom));
-					Bsprintf(snotbuf,"%d",localartfreq[cnt+pictopleft]);
+					Bsprintf(&snotbuf[0], "%d", localartfreq[cnt+pictopleft]);
 					printext256(dax,day,whitecol,-1,snotbuf,1);
 				}
 			}
@@ -2746,11 +2746,11 @@ int drawtilescreen(int pictopleft, int picbox)
 	drawline256((dax  )<<12, (day+i)<<12, (dax  )<<12, (day  )<<12, whitecol);
 
 	i = localartlookup[picbox];
-	Bsprintf(snotbuf,"%d",i);
+	Bsprintf(&snotbuf[0],"%d",i);
 	printext256(0L,ydim-8,whitecol,-1,snotbuf,0);
 	printext256(xdim-((int)strlen(names[i])<<3),ydim-8,whitecol,-1,names[i],0);
 
-	Bsprintf(snotbuf,"%dx%d",tilesizx[i],tilesizy[i]);
+	Bsprintf(&snotbuf[0],"%dx%d",tilesizx[i],tilesizy[i]);
 	printext256(xdim>>2,ydim-8,whitecol,-1,snotbuf,0);
 
 	return(0);
@@ -2765,7 +2765,8 @@ void overheadeditor()
 	int startwall, endwall, dax, day, daz, x1, y1, x2, y2, x3, y3, x4, y4;
 	int highlightx1, highlighty1, highlightx2, highlighty2, xvect, yvect;
 	short suckwall=0, sucksect, newnumwalls, newnumsectors, split=0, bad;
-	short splitsect=0, danumwalls, secondstartwall, joinsector[2], joinsectnum;
+	short splitsect=0, danumwalls, secondstartwall, joinsectnum;
+	std::array<short, 2> joinsector;
 	short splitstartwall=0, splitendwall, loopnum;
 	int mousx, mousy, bstatus;
 	int circlerad;
@@ -6249,7 +6250,8 @@ int menuselect(int newpathmode)
 {
 	int listsize;
 	int i;
-	char ch, buffer[90];
+	char ch;
+	std::array<char, 90> buffer;
 	CACHE1D_FIND_REC *dir;
 
 	const int bakpathsearchmode{ pathsearchmode };
@@ -6274,33 +6276,33 @@ int menuselect(int newpathmode)
 		clearbuf((unsigned char *)frameplace, (bytesperline*ydim16) >> 2, 0l);
 
 		if (pathsearchmode == PATHSEARCH_SYSTEM) {
-			strcpy(buffer,"Local filesystem mode. Press F for game filesystem.");
+			strcpy(&buffer[0],"Local filesystem mode. Press F for game filesystem.");
 		} else {
-			strcpy(buffer,"Game filesystem");
-			if (grponlymode) strcat(buffer, " GRP-only");
-			strcat(buffer, " mode. Press F for local filesystem, G for ");
-			if (grponlymode) strcat(buffer, "all files.");
-			else strcat(buffer, "GRP files only.");
+			strcpy(&buffer[0], "Game filesystem");
+			if (grponlymode) strcat(&buffer[0], " GRP-only");
+			strcat(&buffer[0], " mode. Press F for local filesystem, G for ");
+			if (grponlymode) strcat(&buffer[0], "all files.");
+			else strcat(&buffer[0], "GRP files only.");
 		}
-		printext16(halfxdim16-(8*(int)strlen(buffer)/2), 4, 14,0,buffer,0);
+		printext16(halfxdim16-(8*(int)strlen(&buffer[0])/2), 4, 14, 0, &buffer[0], 0);
 
-		snprintf(buffer,sizeof(buffer),"(%d dirs, %d files) %s",numdirs,numfiles, &selectedboardfilename[0]);
-		printext16(1,ydim16-8-1,8,0,buffer,0);
+		snprintf(&buffer[0], sizeof(buffer),"(%d dirs, %d files) %s",numdirs,numfiles, &selectedboardfilename[0]);
+		printext16(1,ydim16-8-1,8,0, &buffer[0], 0);
 
 		if (finddirshigh) {
 			dir = finddirshigh;
 			for(i=listsize/2-1; i>=0; i--) if (!dir->prev) break; else dir=dir->prev;
 			for(i=0; i<listsize && dir; i++, dir=dir->next) {
 				const int c = dir->type == CACHE1D_FIND_DIR ? 4 : 3;
-				std::memset(buffer,0,sizeof(buffer));
-				strncpy(buffer,dir->name,25);
-				if (strlen(buffer) == 25)
+				std::ranges::fill(buffer, 0);
+				strncpy(&buffer[0], dir->name, 25);
+				if (strlen(&buffer[0]) == 25)
 					buffer[21] = buffer[22] = buffer[23] = '.', buffer[24] = 0;
 				if (dir == finddirshigh) {
 					if (currentlist == 0) printext16(8,16+8*i,c|8,0,"->",0);
-					printext16(32,16+8*i,c|8,0,buffer,0);
+					printext16(32, 16 + 8 * i, c | 8, 0, &buffer[0], 0);
 				} else {
-					printext16(32,16+8*i,c,0,buffer,0);
+					printext16(32, 16 + 8 * i, c, 0, &buffer[0], 0);
 				}
 			}
 		}
@@ -6540,7 +6542,7 @@ short whitelinescan(short dalinehighlight)
 
 int loadnames()
 {
-	char buffer[1024];
+	std::array<char, 1024> buffer;
 	char* p;
 	char* name;
 	char* number;
@@ -6564,15 +6566,15 @@ int loadnames()
 
 	buildprintf("Loading NAMES.H\n");
 
-	while (Bfgets(buffer, 1024, fp)) {
-		a = (int)strlen(buffer);
+	while (Bfgets(&buffer[0], 1024, fp)) {
+		a = (int)strlen(&buffer[0]);
 		if (a >= 1) {
 			if (a > 1)
 				if (buffer[a-2] == '\r') buffer[a-2] = 0;
 			if (buffer[a-1] == '\n') buffer[a-1] = 0;
 		}
 
-		p = buffer;
+		p = &buffer[0];
 		line++;
 		while (*p == 32) p++;
 		if (*p == 0) continue;	// blank line
@@ -6635,7 +6637,7 @@ int loadnames()
 			if (*(p+1) == '/') continue;	// comment
 		}
 badline:
-		buildprintf("Error: Invalid statement found at character %d on line %d\n", (int)(p-buffer), line-1);
+		buildprintf("Error: Invalid statement found at character %d on line %d\n", (int)(p - &buffer[0]), line-1);
 	}
 	buildprintf("Read %d lines, loaded %d names.\n", line, syms);
 
@@ -7071,8 +7073,10 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 							if (showspriteextents && (sprite[j].cstat&(32|16))) {
 								int np, p;
 								int xoff, yoff, dax, day;
-								int rxi[4], ryi[4];
-								int clipx[4] = {0}, clipy[4] = {0};
+								std::array<int, 4> rxi;
+								std::array<int, 4> ryi;
+								std::array<int, 4> clipx{0};
+								std::array<int, 4> clipy{0};
 
 								const int tilenum = sprite[j].picnum;
 								const int ang = sprite[j].ang;
@@ -7210,12 +7214,15 @@ void printext16(int xpos, int ypos, short col, short backcol, const char *name, 
 
 void printcoords16(int posxe, int posye, short ange)
 {
-	char snotbuf[80];
-	int i, maxsect = 0, maxwall = 0, maxspri = 0;
+	std::array<char, 80> snotbuf;
+	int i;
+	int maxsect{0};
+	int maxwall{0};
+	int maxspri{0};
 
 	setstatusbarviewport();
 
-	Bsprintf(snotbuf,"x=%d y=%d ang=%d",posxe,posye,ange);
+	Bsprintf(&snotbuf[0],"x=%d y=%d ang=%d",posxe,posye,ange);
 	i = 0;
 	while ((snotbuf[i] != 0) && (i < 30))
 		i++;
@@ -7249,9 +7256,9 @@ void printcoords16(int posxe, int posye, short ange)
 			break;
 	}
 
-	printext16(8,128, 11, 6, snotbuf,0);
+	printext16(8,128, 11, 6, &snotbuf[0],0);
 
-	Bsprintf(snotbuf,"v%d %d/%d sect %d/%d wall %d/%d spri",
+	Bsprintf(&snotbuf[0],"v%d %d/%d sect %d/%d wall %d/%d spri",
 					mapversion,
 					numsectors, maxsect,
 					numwalls, maxwall,
@@ -7266,7 +7273,7 @@ void printcoords16(int posxe, int posye, short ange)
 	}
 	snotbuf[46] = 0;
 
-	printext16(264,128, 14, 6, snotbuf,0);
+	printext16(264,128, 14, 6, &snotbuf[0],0);
 
 	restoreviewport();
 }
@@ -7337,120 +7344,122 @@ void copysector(short soursector, short destsector, short deststartwall, unsigne
 
 void showsectordata(short sectnum)
 {
-	char snotbuf[80];
+	std::array<char, 80> snotbuf;
 
 	setstatusbarviewport();
 
-	Bsprintf(snotbuf,"Sector %d",sectnum);
-	printext16(8,32,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Firstwall: %d",sector[sectnum].wallptr);
-	printext16(8,48,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Numberofwalls: %d",sector[sectnum].wallnum);
-	printext16(8,56,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Firstsprite: %d",headspritesect[sectnum]);
-	printext16(8,64,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Tags: %d, %d",sector[sectnum].hitag,sector[sectnum].lotag);
-	printext16(8,72,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"     (0x%x), (0x%x)",sector[sectnum].hitag,sector[sectnum].lotag);
-	printext16(8,80,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Extra: %d",sector[sectnum].extra);
-	printext16(8,88,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Visibility: %d",sector[sectnum].visibility);
-	printext16(8,96,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Pixel height: %d",(sector[sectnum].floorz-sector[sectnum].ceilingz)>>8);
-	printext16(8,104,11,-1,snotbuf,0);
+	Bsprintf(&snotbuf[0],"Sector %d",sectnum);
+	printext16(8,32,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Firstwall: %d",sector[sectnum].wallptr);
+	printext16(8,48,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Numberofwalls: %d",sector[sectnum].wallnum);
+	printext16(8,56,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Firstsprite: %d",headspritesect[sectnum]);
+	printext16(8,64,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Tags: %d, %d",sector[sectnum].hitag,sector[sectnum].lotag);
+	printext16(8,72,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"     (0x%x), (0x%x)",sector[sectnum].hitag,sector[sectnum].lotag);
+	printext16(8,80,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Extra: %d",sector[sectnum].extra);
+	printext16(8,88,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Visibility: %d",sector[sectnum].visibility);
+	printext16(8,96,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Pixel height: %d",(sector[sectnum].floorz-sector[sectnum].ceilingz)>>8);
+	printext16(8,104,11,-1,&snotbuf[0],0);
 
 	printext16(200,32,11,-1,"CEILINGS:",0);
-	Bsprintf(snotbuf,"Flags (hex): %x",sector[sectnum].ceilingstat);
-	printext16(200,48,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning);
-	printext16(200,56,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Shade byte: %d",sector[sectnum].ceilingshade);
-	printext16(200,64,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Z-coordinate: %d",sector[sectnum].ceilingz);
-	printext16(200,72,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Tile number: %d",sector[sectnum].ceilingpicnum);
-	printext16(200,80,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Ceiling heinum: %d",sector[sectnum].ceilingheinum);
-	printext16(200,88,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Palookup number: %d",sector[sectnum].ceilingpal);
-	printext16(200,96,11,-1,snotbuf,0);
+	Bsprintf(&snotbuf[0],"Flags (hex): %x",sector[sectnum].ceilingstat);
+	printext16(200,48,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning);
+	printext16(200,56,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Shade byte: %d",sector[sectnum].ceilingshade);
+	printext16(200,64,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Z-coordinate: %d",sector[sectnum].ceilingz);
+	printext16(200,72,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Tile number: %d",sector[sectnum].ceilingpicnum);
+	printext16(200,80,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Ceiling heinum: %d",sector[sectnum].ceilingheinum);
+	printext16(200,88,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Palookup number: %d",sector[sectnum].ceilingpal);
+	printext16(200,96,11,-1,&snotbuf[0],0);
 
 	printext16(400,32,11,-1,"FLOORS:",0);
-	Bsprintf(snotbuf,"Flags (hex): %x",sector[sectnum].floorstat);
-	printext16(400,48,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning);
-	printext16(400,56,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Shade byte: %d",sector[sectnum].floorshade);
-	printext16(400,64,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Z-coordinate: %d",sector[sectnum].floorz);
-	printext16(400,72,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Tile number: %d",sector[sectnum].floorpicnum);
-	printext16(400,80,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Floor heinum: %d",sector[sectnum].floorheinum);
-	printext16(400,88,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Palookup number: %d",sector[sectnum].floorpal);
-	printext16(400,96,11,-1,snotbuf,0);
+	Bsprintf(&snotbuf[0],"Flags (hex): %x",sector[sectnum].floorstat);
+	printext16(400,48,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning);
+	printext16(400,56,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Shade byte: %d",sector[sectnum].floorshade);
+	printext16(400,64,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Z-coordinate: %d",sector[sectnum].floorz);
+	printext16(400,72,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Tile number: %d",sector[sectnum].floorpicnum);
+	printext16(400,80,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Floor heinum: %d",sector[sectnum].floorheinum);
+	printext16(400,88,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Palookup number: %d",sector[sectnum].floorpal);
+	printext16(400,96,11,-1,&snotbuf[0],0);
 
 	restoreviewport();
 }
 
 void showwalldata(short wallnum)
 {
-	int dax, day, dist;
-	char snotbuf[80];
+	int dax;
+	int day;
+	int dist;
+	std::array<char, 80> snotbuf;
 
 	setstatusbarviewport();
 
-	Bsprintf(snotbuf,"Wall %d",wallnum);
-	printext16(8,32,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"X-coordinate: %d",wall[wallnum].x);
-	printext16(8,48,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Y-coordinate: %d",wall[wallnum].y);
-	printext16(8,56,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Point2: %d",wall[wallnum].point2);
-	printext16(8,64,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Sector: %d",sectorofwall(wallnum));
-	printext16(8,72,11,-1,snotbuf,0);
+	Bsprintf(&snotbuf[0],"Wall %d",wallnum);
+	printext16(8,32,11,-1, &snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"X-coordinate: %d",wall[wallnum].x);
+	printext16(8,48,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Y-coordinate: %d",wall[wallnum].y);
+	printext16(8,56,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Point2: %d",wall[wallnum].point2);
+	printext16(8,64,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Sector: %d",sectorofwall(wallnum));
+	printext16(8,72,11,-1,&snotbuf[0],0);
 
-	Bsprintf(snotbuf,"Tags: %d, %d",wall[wallnum].hitag,wall[wallnum].lotag);
-	printext16(8,88,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"     (0x%x), (0x%x)",wall[wallnum].hitag,wall[wallnum].lotag);
-	printext16(8,96,11,-1,snotbuf,0);
+	Bsprintf(&snotbuf[0],"Tags: %d, %d",wall[wallnum].hitag,wall[wallnum].lotag);
+	printext16(8,88,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"     (0x%x), (0x%x)",wall[wallnum].hitag,wall[wallnum].lotag);
+	printext16(8,96,11,-1,&snotbuf[0],0);
 
 	printext16(200,32,11,-1,names[wall[wallnum].picnum],0);
-	Bsprintf(snotbuf,"Flags (hex): %x",wall[wallnum].cstat);
-	printext16(200,48,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Shade: %d",wall[wallnum].shade);
-	printext16(200,56,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Pal: %d",wall[wallnum].pal);
-	printext16(200,64,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat);
-	printext16(200,72,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning);
-	printext16(200,80,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"Tile number: %d",wall[wallnum].picnum);
-	printext16(200,88,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"OverTile number: %d",wall[wallnum].overpicnum);
-	printext16(200,96,11,-1,snotbuf,0);
+	Bsprintf(&snotbuf[0],"Flags (hex): %x",wall[wallnum].cstat);
+	printext16(200,48,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Shade: %d",wall[wallnum].shade);
+	printext16(200,56,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Pal: %d",wall[wallnum].pal);
+	printext16(200,64,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat);
+	printext16(200,72,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning);
+	printext16(200,80,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"Tile number: %d",wall[wallnum].picnum);
+	printext16(200,88,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"OverTile number: %d",wall[wallnum].overpicnum);
+	printext16(200,96,11,-1,&snotbuf[0],0);
 
-	Bsprintf(snotbuf,"nextsector: %d",wall[wallnum].nextsector);
-	printext16(400,48,11,-1,snotbuf,0);
-	Bsprintf(snotbuf,"nextwall: %d",wall[wallnum].nextwall);
-	printext16(400,56,11,-1,snotbuf,0);
+	Bsprintf(&snotbuf[0],"nextsector: %d",wall[wallnum].nextsector);
+	printext16(400,48,11,-1,&snotbuf[0],0);
+	Bsprintf(&snotbuf[0],"nextwall: %d",wall[wallnum].nextwall);
+	printext16(400,56,11,-1,&snotbuf[0],0);
 
-	Bsprintf(snotbuf,"Extra: %d",wall[wallnum].extra);
-	printext16(400,72,11,-1,snotbuf,0);
+	Bsprintf(&snotbuf[0],"Extra: %d",wall[wallnum].extra);
+	printext16(400,72,11,-1,&snotbuf[0],0);
 
 	dax = wall[wallnum].x-wall[wall[wallnum].point2].x;
 	day = wall[wallnum].y-wall[wall[wallnum].point2].y;
 	dist = ksqrt(dax*dax+day*day);
-	Bsprintf(snotbuf,"Wall length: %d",dist>>4);
-	printext16(400,96,11,-1,snotbuf,0);
+	Bsprintf(&snotbuf[0],"Wall length: %d",dist>>4);
+	printext16(400,96,11,-1,&snotbuf[0],0);
 
 	dax = (int)sectorofwall(wallnum);
-	Bsprintf(snotbuf,"Pixel height: %d",(sector[dax].floorz-sector[dax].ceilingz)>>8);
-	printext16(400,104,11,-1,snotbuf,0);
+	Bsprintf(&snotbuf[0],"Pixel height: %d",(sector[dax].floorz-sector[dax].ceilingz)>>8);
+	printext16(400,104,11,-1,&snotbuf[0],0);
 
 	restoreviewport();
 }
@@ -7623,7 +7632,7 @@ void initcrc()
 	}
 }
 
-static char visited[8192];
+static std::array<char, 8192> visited;
 
 int GetWallZPeg(int nWall)
 {
@@ -7678,7 +7687,7 @@ void AutoAlignWalls(int nWall0, int ply)
 	if (ply == 0)
 	{
 			//clear visited bits
-		std::memset(visited,0,sizeof(visited));
+	    std::ranges::fill(visited, 0);
 		visited[nWall0] = 1;
 	}
 
