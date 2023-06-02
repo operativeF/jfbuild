@@ -215,12 +215,12 @@ void ExtPreCheckKeys()
 #if 0
 	if (keystatus[0x2a]|keystatus[0x36])
 	{
-		if (keystatus[0xcf]) hang = max(hang-1,-182);
+		if (keystatus[0xcf]) hang = std::max(hang - 1,-182);
 		if (keystatus[0xc7]) hang = min(hang+1,182);
 	}
 	else
 	{
-		if (keystatus[0xcf]) hang = max(hang-8,-182);
+		if (keystatus[0xcf]) hang = std::max(hang - 8,-182);
 		if (keystatus[0xc7]) hang = min(hang+8,182);
 	}
 	if (keystatus[0x4c]) { hang = 0; horiz = 100; }

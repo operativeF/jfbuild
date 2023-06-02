@@ -258,7 +258,7 @@ int loadsetup(const char *fn)
 	win_setmaxrefreshfreq(tmpmaxrefreshfreq);
 #endif
 	if (tmpbrightness >= 0) {
-		brightness = min(max(tmpbrightness,0),15);
+		brightness = min(std::max(tmpbrightness, 0),15);
 	}
 	OSD_CaptureKey(keys[19]);
 

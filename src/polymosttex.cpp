@@ -256,7 +256,7 @@ incompatible:
 	if (! (flags & PTH_NOMIPLEVEL)) {
 		// if we aren't instructed to preserve all mipmap levels,
 		// immediately throw away gltexmiplevel mipmaps
-		mipmap = max(0, gltexmiplevel);
+		mipmap = std::max(0, gltexmiplevel);
 	}
 	while (tdef->mipmap[mipmap].sizx > (1 << gltexmaxsize) ||
 		   tdef->mipmap[mipmap].sizy > (1 << gltexmaxsize)) {
@@ -400,8 +400,8 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 
 	if (writetocache) {
 		int nmips = 0;
-		while (max(1, (tex.sizx >> nmips)) > 1 ||
-			   max(1, (tex.sizy >> nmips)) > 1) {
+		while (std::max(1, (tex.sizx >> nmips)) > 1 ||
+			   std::max(1, (tex.sizy >> nmips)) > 1) {
 			nmips++;
 		}
 		nmips++;
@@ -1002,7 +1002,7 @@ static void ptm_applyeffects(PTTexture * tex, int effects)
 					y  = 0.3  * (float)tcol.r;
 					y += 0.59 * (float)tcol.g;
 					y += 0.11 * (float)tcol.b;
-					tcol.b = (unsigned char)max(0.0, min(255.0, y));
+					tcol.b = (unsigned char)std::max(0.0F, min(255.0F, y));
 					tcol.g = tcol.r = tcol.b;
 				}
 				if (effects & HICEFFECT_INVERT) {
@@ -1026,8 +1026,8 @@ static void ptm_applyeffects(PTTexture * tex, int effects)
  */
 static void ptm_mipscale(PTTexture * tex)
 {
-	const GLsizei newx = max(1, (tex->sizx >> 1));
-	const GLsizei newy = max(1, (tex->sizy >> 1));
+	const GLsizei newx = std::max(1, (tex->sizx >> 1));
+	const GLsizei newy = std::max(1, (tex->sizy >> 1));
 
 	for (GLsizei y{ 0 }; y < newy; y++) {
 		coltype* wpptr = &tex->pic[y * newx];
@@ -1165,7 +1165,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 	if (! (flags & PTH_NOMIPLEVEL)) {
 		// if we aren't instructed to preserve all mipmap levels,
 		// immediately throw away gltexmiplevel mipmaps
-		mipmap = max(0, gltexmiplevel);
+		mipmap = std::max(0, gltexmiplevel);
 	}
 	while ((tex->sizx >> mipmap) > (1 << gltexmaxsize) ||
 	       (tex->sizy >> mipmap) > (1 << gltexmaxsize)) {

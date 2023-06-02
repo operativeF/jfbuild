@@ -35,6 +35,7 @@
 # endif
 #endif
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -665,7 +666,7 @@ unsigned char palfadedelta = 0;
 //
 static inline int getpalookup(int davis, int dashade)
 {
-	return(min(max(dashade+(davis>>8),0),numpalookups-1));
+	return(min(std::max(dashade + (davis >> 8), 0),numpalookups-1));
 }
 
 
@@ -869,7 +870,7 @@ static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<
 
 	for(;(x<=x2)&&(p&3);x++,p++)
 	{
-		y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
+		y1ve[0] = std::max(static_cast<int>(uwal[x]), static_cast<int>(startumost[x + windowx1]) - windowy1);
 		y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
 		if (y2ve[0] <= y1ve[0]) continue;
 
@@ -889,7 +890,7 @@ static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<
 		bad = 0;
 		for(z=3,dax=x+3;z>=0;z--,dax--)
 		{
-			y1ve[z] = max(uwal[dax],startumost[dax+windowx1]-windowy1);
+			y1ve[z] = std::max(static_cast<int>(uwal[dax]), static_cast<int>(startumost[dax + windowx1]) - windowy1);
 			y2ve[z] = min(dwal[dax],startdmost[dax+windowx1]-windowy1)-1;
 			if (y2ve[z] < y1ve[z]) { bad += pow2char[z]; continue; }
 
@@ -917,7 +918,7 @@ static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<
 			palookupoffse[2] = fpalookup+(getpalookup((int)mulscale16(swal[x+2],globvis),globalshade)<<8);
 		}
 
-		u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
+		u4 = std::max(std::max(y1ve[0], y1ve[1]), std::max(y1ve[2], y1ve[3]));
 		d4 = min(min(y2ve[0],y2ve[1]),min(y2ve[2],y2ve[3]));
 
 		if ((bad > 0) || (u4 >= d4))
@@ -944,7 +945,7 @@ static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<
 	}
 	for(;x<=x2;x++,p++)
 	{
-		y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
+		y1ve[0] = std::max(static_cast<int>(uwal[x]), static_cast<int>(startumost[x + windowx1]) - windowy1);
 		y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
 		if (y2ve[0] <= y1ve[0]) continue;
 
@@ -966,7 +967,7 @@ static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<
 	p = startx+frameoffset;
 	for(int x{startx}; x <= x2; x++, p++)
 	{
-		y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
+		y1ve[0] = std::max(static_cast<int>(uwal[x]), static_cast<int>(startumost[x+windowx1]) - windowy1);
 		y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
 		if (y2ve[0] <= y1ve[0]) continue;
 
@@ -1750,10 +1751,12 @@ static void florscan(int x1, int x2, int sectnum)
 
 	if (!(globalorientation&0x180))
 	{
-		y1 = max(dplc[x1],umost[x1]); y2 = y1;
+		y1 = std::max(dplc[x1], umost[x1]);
+		y2 = y1;
 		for(x=x1;x<=x2;x++)
 		{
-			twall = max(dplc[x],umost[x])-1; bwall = dmost[x];
+			twall = std::max(dplc[x], umost[x]) - 1;
+			bwall = dmost[x];
 			if (twall < bwall-1)
 			{
 				if (twall >= y2)
@@ -1773,7 +1776,8 @@ static void florscan(int x1, int x2, int sectnum)
 			{
 				while (y1 < y2-1) hline(x-1,++y1);
 				if (x == x2) { globalx2 += globaly2; globaly1 += globalx1; break; }
-				y1 = max(dplc[x+1],umost[x+1]); y2 = y1;
+				y1 = std::max(dplc[x + 1], umost[x + 1]);
+				y2 = y1;
 			}
 			globalx2 += globaly2; globaly1 += globalx1;
 		}
@@ -1797,10 +1801,12 @@ static void florscan(int x1, int x2, int sectnum)
 			break;
 	}
 
-	y1 = max(dplc[x1],umost[x1]); y2 = y1;
+	y1 = std::max(dplc[x1], umost[x1]);
+	y2 = y1;
 	for(x=x1;x<=x2;x++)
 	{
-		twall = max(dplc[x],umost[x])-1; bwall = dmost[x];
+		twall = std::max(dplc[x], umost[x]) - 1;
+		bwall = dmost[x];
 		if (twall < bwall-1)
 		{
 			if (twall >= y2)
@@ -1820,7 +1826,8 @@ static void florscan(int x1, int x2, int sectnum)
 		{
 			while (y1 < y2-1) slowhline(x-1,++y1);
 			if (x == x2) { globalx2 += globaly2; globaly1 += globalx1; break; }
-			y1 = max(dplc[x+1],umost[x+1]); y2 = y1;
+			y1 = std::max(dplc[x + 1], umost[x + 1]);
+			y2 = y1;
 		}
 		globalx2 += globaly2; globaly1 += globalx1;
 	}
@@ -1866,7 +1873,7 @@ static void wallscan(int x1, int x2, std::span<const short> uwal, std::span<cons
 
 	for(;(x<=x2)&&((x+frameoffset)&3);x++)
 	{
-		y1ve[0] = max(uwal[x],umost[x]);
+		y1ve[0] = std::max(uwal[x], umost[x]);
 		y2ve[0] = min(dwal[x],dmost[x]);
 		if (y2ve[0] <= y1ve[0]) continue;
 
@@ -1886,7 +1893,7 @@ static void wallscan(int x1, int x2, std::span<const short> uwal, std::span<cons
 		bad = 0;
 		for(z=3;z>=0;z--)
 		{
-			y1ve[z] = max(uwal[x+z],umost[x+z]);
+			y1ve[z] = std::max(uwal[x + z], umost[x + z]);
 			y2ve[z] = min(dwal[x+z],dmost[x+z])-1;
 			if (y2ve[z] < y1ve[z]) { bad += pow2char[z]; continue; }
 
@@ -1914,7 +1921,7 @@ static void wallscan(int x1, int x2, std::span<const short> uwal, std::span<cons
 			palookupoffse[2] = fpalookup+(getpalookup((int)mulscale16(swal[x+2],globvis),globalshade)<<8);
 		}
 
-		u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
+		u4 = std::max(std::max(y1ve[0], y1ve[1]), std::max(y1ve[2], y1ve[3]));
 		d4 = min(min(y2ve[0],y2ve[1]),min(y2ve[2],y2ve[3]));
 
 		if ((bad != 0) || (u4 >= d4))
@@ -1941,7 +1948,7 @@ static void wallscan(int x1, int x2, std::span<const short> uwal, std::span<cons
 	}
 	for(;x<=x2;x++)
 	{
-		y1ve[0] = max(uwal[x],umost[x]);
+		y1ve[0] = std::max(uwal[x], umost[x]);
 		y2ve[0] = min(dwal[x],dmost[x]);
 		if (y2ve[0] <= y1ve[0]) continue;
 
@@ -1962,7 +1969,7 @@ static void wallscan(int x1, int x2, std::span<const short> uwal, std::span<cons
 
 	for(x=x1;x<=x2;x++)
 	{
-		y1ve[0] = max(uwal[x],umost[x]);
+		y1ve[0] = std::max(uwal[x], umost[x]);
 		y2ve[0] = min(dwal[x],dmost[x]);
 		if (y2ve[0] <= y1ve[0]) continue;
 
@@ -1995,7 +2002,7 @@ static void transmaskvline(int x)
 
 	if ((x < 0) || (x >= xdimen)) return;
 
-	y1v = max(uwall[x],startumost[x+windowx1]-windowy1);
+	y1v = std::max(static_cast<int>(uwall[x]), static_cast<int>(startumost[x+windowx1]) - windowy1);
 	y2v = min(dwall[x],startdmost[x+windowx1]-windowy1);
 	y2v--;
 	if (y2v < y1v) return;
@@ -2030,10 +2037,10 @@ static void transmaskvline2(int x)
 
 	x2 = x+1;
 
-	y1ve[0] = max(uwall[x],startumost[x+windowx1]-windowy1);
+	y1ve[0] = std::max(static_cast<int>(uwall[x]), static_cast<int>(startumost[x + windowx1]) - windowy1);
 	y2ve[0] = min(dwall[x],startdmost[x+windowx1]-windowy1)-1;
 	if (y2ve[0] < y1ve[0]) { transmaskvline(x2); return; }
-	y1ve[1] = max(uwall[x2],startumost[x2+windowx1]-windowy1);
+	y1ve[1] = std::max(static_cast<int>(uwall[x2]), static_cast<int>(startumost[x2 + windowx1]) - windowy1);
 	y2ve[1] = min(dwall[x2],startdmost[x2+windowx1]-windowy1)-1;
 	if (y2ve[1] < y1ve[1]) { transmaskvline(x); return; }
 
@@ -2055,7 +2062,7 @@ static void transmaskvline2(int x)
 	if (i >= tilesizx[globalpicnum]) i %= tilesizx[globalpicnum];
 	bufplce[1] = waloff[globalpicnum]+i*tilesizy[globalpicnum];
 
-	y1 = max(y1ve[0],y1ve[1]);
+	y1 = std::max(y1ve[0], y1ve[1]);
 	y2 = min(y2ve[0],y2ve[1]);
 
 	i = x+frameoffset;
@@ -2307,7 +2314,7 @@ static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 
 	shinc = mulscale16(globalz,xdimenscale);
 	if (shinc > 0) shoffs = (4<<15); else shoffs = ((SLOPALOOKUPSIZ-4-ydimen)<<15);
-	if (dastat == 0) y1 = umost[dax1]; else y1 = max(umost[dax1],dplc[dax1]);
+	if (dastat == 0) y1 = umost[dax1]; else y1 = std::max(umost[dax1], dplc[dax1]);
 	m1 = mulscale16(y1,globalzd) + (globalzx>>6);
 		//Avoid visibility overflow by crossing horizon
 	if (globalzd > 0) m1 += (globalzd>>16); else m1 -= (globalzd>>16);
@@ -2320,7 +2327,7 @@ static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 	for(x=dax1;x<=dax2;x++)
 	{
 		if (dastat == 0) { y1 = umost[x]; y2 = min(dmost[x],uplc[x])-1; }
-		else { y1 = max(umost[x],dplc[x]); y2 = dmost[x]-1; }
+		else { y1 = std::max(umost[x], dplc[x]); y2 = dmost[x]-1; }
 		if (y1 <= y2)
 		{
 			assert(y1+(shoffs>>15) >= 0);
@@ -2660,7 +2667,7 @@ static void drawalls(int bunch)
 						for(x=x1;x<=x2;x++)
 							if (umost[x] <= dmost[x])
 							{
-								i = max(uplc[x],dwall[x]);
+								i = std::max(uplc[x], dwall[x]);
 								if (i > umost[x])
 								{
 									umost[x] = i;
@@ -2931,8 +2938,8 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	y = mulscale16(globalposy-daspry,daxscalerecip);
 	backx = ((dmulscale10(x,sprcosang,y,sprsinang)+daxpivot)>>8);
 	backy = ((dmulscale10(y,sprcosang,x,-sprsinang)+daypivot)>>8);
-	cbackx = min(max(backx,0),daxsiz-1);
-	cbacky = min(max(backy,0),daysiz-1);
+	cbackx = min(std::max(backx, 0),daxsiz-1);
+	cbacky = min(std::max(backy, 0),daysiz-1);
 
 	sprcosang = mulscale14(daxscale,sprcosang);
 	sprsinang = mulscale14(daxscale,sprsinang);
@@ -2948,7 +2955,7 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	gxinc = dmulscale10(sprsinang,cosang,sprcosang,-sinang);
 	gyinc = dmulscale10(sprcosang,cosang,sprsinang,sinang);
 
-	x = 0; y = 0; j = max(daxsiz,daysiz);
+	x = 0; y = 0; j = std::max(daxsiz, daysiz);
 	for(i=0;i<=j;i++)
 	{
 		ggxinc[i] = x; x += gxinc;
@@ -3234,7 +3241,7 @@ static void drawsprite(int snum)
 
 		for(x=lx;x<=rx;x++)
 		{
-			uwall[x] = max(startumost[x+windowx1]-windowy1,(short)startum);
+			uwall[x] = std::max(static_cast<int>(startumost[x+windowx1] - windowy1), startum);
 			dwall[x] = min(startdmost[x+windowx1]-windowy1,(short)startdm);
 		}
 		daclip = 0;
@@ -3246,7 +3253,8 @@ static void drawsprite(int snum)
 			if ((yp <= yb1[j]) && (yp <= yb2[j])) continue;
 			if (spritewallfront(tspr,(int)thewall[j]) && ((yp <= yb1[j]) || (yp <= yb2[j]))) continue;
 
-			dalx2 = max(xb1[j],lx); darx2 = min(xb2[j],rx);
+			dalx2 = std::max(xb1[j], lx);
+			darx2 = min(xb2[j],rx);
 
 			switch(smostwalltype[i])
 			{
@@ -3474,9 +3482,9 @@ static void drawsprite(int snum)
 			if ((xb1[j] > xb2[MAXWALLSB-1]) || (xb2[j] < xb1[MAXWALLSB-1])) continue;
 
 			dalx2 = xb1[j]; darx2 = xb2[j];
-			if (max(yb1[MAXWALLSB-1],yb2[MAXWALLSB-1]) > min(yb1[j],yb2[j]))
+			if (std::max(yb1[MAXWALLSB-1], yb2[MAXWALLSB-1]) > min(yb1[j],yb2[j]))
 			{
-				if (min(yb1[MAXWALLSB-1],yb2[MAXWALLSB-1]) > max(yb1[j],yb2[j]))
+				if (min(yb1[MAXWALLSB-1],yb2[MAXWALLSB-1]) > std::max(yb1[j],yb2[j]))
 				{
 					x = 0x80000000;
 				}
@@ -3796,7 +3804,7 @@ static void drawsprite(int snum)
 		rx = ((rmax+65535)>>16);
 		for(x=lx;x<=rx;x++)
 		{
-			uwall[x] = max(uwall[x],startumost[x+windowx1]-windowy1);
+			uwall[x] = std::max(static_cast<int>(uwall[x]), static_cast<int>(startumost[x + windowx1]) - windowy1);
 			dwall[x] = min(dwall[x],startdmost[x+windowx1]-windowy1);
 		}
 
@@ -3814,7 +3822,8 @@ static void drawsprite(int snum)
 			if ((yp > yb1[j]) && (yp > yb2[j])) x = -1;
 			if ((x >= 0) && ((x != 0) || (wall[thewall[j]].nextsector != tspr->sectnum))) continue;
 
-			dalx2 = max(xb1[j],lx); darx2 = min(xb2[j],rx);
+			dalx2 = std::max(xb1[j], lx);
+			darx2 = min(xb2[j],rx);
 
 			switch(smostwalltype[i])
 			{
@@ -3903,7 +3912,8 @@ static void drawsprite(int snum)
 			if ((yp <= yb1[j]) && (yp <= yb2[j])) continue;
 			if (spritewallfront(tspr,(int)thewall[j]) && ((yp <= yb1[j]) || (yp <= yb2[j]))) continue;
 
-			dalx2 = max(xb1[j],lx); darx2 = min(xb2[j],rx);
+			dalx2 = std::max(xb1[j], lx);
+			darx2 = min(xb2[j],rx);
 
 			switch(smostwalltype[i])
 			{
@@ -4001,7 +4011,7 @@ static void drawsprite(int snum)
 						startdm = 0x7fffffff;
 
 						//sprite
-					if ((searchy >= max(startum,(y1>>8))) && (searchy < min(startdm,(y2>>8))))
+					if ((searchy >= std::max(startum, y1 >> 8)) && (searchy < min(startdm,(y2>>8))))
 					{
 						searchsector = sectnum; searchwall = spritenum;
 						searchstat = 3; searchit = 1;
@@ -4040,7 +4050,7 @@ static void drawmaskwall(short damaskwallcnt)
 	wal = &wall[thewall[z]];
 	sectnum = thesector[z]; sec = &sector[sectnum];
 	nsec = &sector[wal->nextsector];
-	z1 = max(nsec->ceilingz,sec->ceilingz);
+	z1 = std::max(nsec->ceilingz, sec->ceilingz);
 	z2 = min(nsec->floorz,sec->floorz);
 
 	wallmost(uwall,z,sectnum,(char)0);
@@ -4079,7 +4089,8 @@ static void drawmaskwall(short damaskwallcnt)
 		if ((xb1[j] > xb2[z]) || (xb2[j] < xb1[z])) continue;
 		if (wallfront(j,z)) continue;
 
-		lx = max(xb1[j],xb1[z]); rx = min(xb2[j],xb2[z]);
+		lx = std::max(xb1[j], xb1[z]);
+		rx = min(xb2[j],xb2[z]);
 
 		switch(smostwalltype[i])
 		{
@@ -4141,7 +4152,10 @@ static void fillpolygon(int npoints)
 
 	miny = 0x7fffffff; maxy = 0x80000000;
 	for(z=npoints-1;z>=0;z--)
-		{ y = ry1[z]; miny = min(miny,y); maxy = max(maxy,y); }
+		{ y = ry1[z]; miny = min(miny,y);
+		maxy = std::max(maxy, y);
+	}
+
 	miny = (miny>>12); maxy = (maxy>>12);
 	if (miny < 0) miny = 0;
 	if (maxy >= ydim) maxy = ydim-1;
@@ -4690,7 +4704,7 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 
 				p = x+frameplace;
 
-				u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
+				u4 = std::max(std::max(y1ve[0], y1ve[1]), std::max(y1ve[2], y1ve[3]));
 				d4 = min(min(y2ve[0],y2ve[1]),min(y2ve[2],y2ve[3]));
 
 				if (dastat&64)
@@ -5835,7 +5849,7 @@ void drawrooms(int daposx, int daposy, int daposz,
 		bunchlast[0] = bunchlast[numbunches];
 
 		mirrorsy1 = min(umost[mirrorsx1],umost[mirrorsx2]);
-		mirrorsy2 = max(dmost[mirrorsx1],dmost[mirrorsx2]);
+		mirrorsy2 = std::max(dmost[mirrorsx1], dmost[mirrorsx2]);
 	}
 
 	while ((numbunches > 0) && (numhits > 0))
@@ -6187,7 +6201,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			if ((picanm[globalpicnum]&192) != 0) globalpicnum += animateoffs((short)globalpicnum,s);
 			if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 			globalbufplc = waloff[globalpicnum];
-			globalshade = max(min(sec->floorshade,numpalookups-1),0);
+			globalshade = std::max(min(sec->floorshade,numpalookups-1), 0);
 			globvis = globalhisibility;
 			if (sec->visibility != 0) globvis = mulscale4(globvis,(int)((unsigned char)(sec->visibility+16)));
 			globalpolytype = 0;
@@ -6330,7 +6344,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 				globalshade = ((int)sector[spr->sectnum].ceilingshade);
 			else
 				globalshade = ((int)sector[spr->sectnum].floorshade);
-			globalshade = max(min(globalshade+spr->shade+6,numpalookups-1),0);
+			globalshade = std::max(min(globalshade+spr->shade+6,numpalookups-1), 0);
 			asm3 = (intptr_t)palookup[spr->pal]+(globalshade<<8);
 			globvis = globalhisibility;
 			if (sec->visibility != 0) globvis = mulscale4(globvis,(int)((unsigned char)(sec->visibility+16)));
@@ -7057,14 +7071,14 @@ static void convertv6sectv7(struct sectortypev6 const *from, sectortype *to)
 	to->wallptr = from->wallptr;
 	to->wallnum = from->wallnum;
 	to->ceilingpicnum = from->ceilingpicnum;
-	to->ceilingheinum = max(min(((int)from->ceilingheinum)<<5,32767),-32768);
+	to->ceilingheinum = std::max(min(((int)from->ceilingheinum)<<5,32767), -32768);
 	if ((from->ceilingstat&2) == 0) to->ceilingheinum = 0;
 	to->ceilingshade = from->ceilingshade;
 	to->ceilingpal = from->ceilingpal;
 	to->ceilingxpanning = from->ceilingxpanning;
 	to->ceilingypanning = from->ceilingypanning;
 	to->floorpicnum = from->floorpicnum;
-	to->floorheinum = max(min(((int)from->floorheinum)<<5,32767),-32768);
+	to->floorheinum = std::max(min(((int)from->floorheinum)<<5,32767), -32768);
 	if ((from->floorstat&2) == 0) to->floorheinum = 0;
 	to->floorshade = from->floorshade;
 	to->floorpal = from->floorpal;
@@ -8067,7 +8081,7 @@ int loadpics(const char* filename, int askedsize)
 
 	//try dpmi_DETERMINEMAXREALALLOC!
 
-	//cachesize = min((int)((Bgetsysmemsize()/100)*60),max(artsize,askedsize));
+	//cachesize = min((int)((Bgetsysmemsize()/100)*60), std::max(artsize, askedsize));
 	if (Bgetsysmemsize() <= (unsigned int)askedsize)
 		cachesize = (Bgetsysmemsize()/100)*60;
 	else
@@ -10299,7 +10313,7 @@ void setvgapalette()
 void setbrightness(int dabrightness, const unsigned char *dapal, char noapply)
 {
 	if ((noapply & 4) == 0) {
-		curbrightness = min(max((int)dabrightness, 0), 15);
+		curbrightness = min(std::max(dabrightness, 0), 15);
 	}
 
 	curgamma = 1.0F + (static_cast<float>(curbrightness) / 10.0F);
@@ -10566,7 +10580,7 @@ void setviewback()
 	if (setviewcnt == 0)
 		k = bakxsiz[0];
 	else
-		k = max(bakxsiz[setviewcnt-1],bakxsiz[setviewcnt]);
+		k = std::max(bakxsiz[setviewcnt - 1], bakxsiz[setviewcnt]);
 	j = 0; for(i=0;i<=k;i++) ylookup[i] = j, j += bytesperline;
 	setvlinebpl(bytesperline);
 	modechange=1;

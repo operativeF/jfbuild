@@ -209,7 +209,7 @@ int main(int argc, char **argv)
 
 	r = Bread(fil,&s,2);
 	orignumpalookups = B_LITTLE16(s);
-	orignumpalookups = min(max(orignumpalookups,1),256);
+	orignumpalookups = min(std::max(orignumpalookups, 1),256);
 	r += Bread(fil,origpalookup,orignumpalookups<<8);
 	Bclose(fil);
 	if (transonly && r != 2 + (orignumpalookups<<8))

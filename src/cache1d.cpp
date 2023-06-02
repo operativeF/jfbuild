@@ -356,7 +356,7 @@ int findfrompath(const char *fn, char **where)
 	if (!ffn) return -1;
 	Bcorrectfilename(ffn,0);	// compress relative paths
 	
-	allocsiz = max(maxsearchpathlen, 2u);	// "./" (aka. curdir)
+	allocsiz = std::max(maxsearchpathlen, std::size_t{2});	// "./" (aka. curdir)
 	allocsiz += strlen(ffn);
 	allocsiz += 1;	// a nul
 	

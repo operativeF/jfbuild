@@ -1178,7 +1178,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 		}
 
 		draw.colour.r = draw.colour.g = draw.colour.b =
-			((float)(numpalookups-min(max(globalshade,0),numpalookups)))/((float)numpalookups);
+			((float)(numpalookups-min(std::max(globalshade, 0),numpalookups)))/((float)numpalookups);
 		switch(method & (METH_MASKED | METH_TRANS))
 		{
 			case METH_SOLID:   draw.colour.a = 1.0; break;
@@ -1409,7 +1409,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 			nguo = uu[0] - ox*ngux - oy*nguy;
 			ngvo = vv[0] - ox*ngvx - oy*ngvy;
 		}
-		palptr = &palookup[globalpal][min(max(globalshade,0),numpalookups-1)<<8]; //<-need to make shade not static!
+		palptr = &palookup[globalpal][min(std::max(globalshade, 0),numpalookups-1)<<8]; //<-need to make shade not static!
 
 		tsizxm1 = tsizx-1; xmodnice = (!(tsizxm1&tsizx));
 		tsizym1 = tsizy-1; ymulnice = (!(tsizym1&tsizy));
@@ -1420,7 +1420,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 	}
 	else
 	{
-		dacol = palookup[0][(int)(*(unsigned char *)(waloff[globalpicnum]))+(min(max(globalshade,0),numpalookups-1)<<8)];
+		dacol = palookup[0][(int)(*(unsigned char *)(waloff[globalpicnum]))+(min(std::max(globalshade, 0),numpalookups-1)<<8)];
 	}
 
 	if (grhalfxdown10x < 0) //Hack for mirrors
@@ -3283,7 +3283,7 @@ void polymost_drawmaskwall (int damaskwallcnt)
 	const int sectnum = thesector[z];
 	const sectortype* sec = &sector[sectnum];
 	const sectortype* nsec = &sector[wal->nextsector];
-	const int z1 = max(nsec->ceilingz, sec->ceilingz);
+	const int z1 = std::max(nsec->ceilingz, sec->ceilingz);
 	const int z2 = min(nsec->floorz, sec->floorz);
 
 	globalpicnum = wal->overpicnum;
@@ -4057,7 +4057,7 @@ static void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1
 
 	for(i=0;i<n;i++)
 	{
-		px[i] = min(max(px[i],trapextx[0]),trapextx[1]);
+		px[i] = min(std::max(px[i], trapextx[0]),trapextx[1]);
 		vboitem[i].t.s = px[i]*gux + py[i]*guy + guo;
 		vboitem[i].t.t = px[i]*gvx + py[i]*gvy + gvo;
 		vboitem[i].v.x = px[i];
@@ -4880,7 +4880,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 			if (!glmultisample) buildprintf("glmultisample is %d (off)\n", glmultisample);
 			else buildprintf("glmultisample is %d (%dx)\n", glmultisample, 1<<glmultisample);
 		}
-		else glmultisample = min(2,max(0,val));
+		else glmultisample = min(2, std::max(0, val));
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "glnvmultisamplehint")) {

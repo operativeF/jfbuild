@@ -8,6 +8,7 @@
 #include "baselayer_priv.hpp"
 #include "glbuild_fs_vs.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -840,7 +841,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 		if (showval) { buildprintf("gldebuglogseverity is %s (%d)\n", levels[gldebuglogseverity], gldebuglogseverity); }
 		else {
 			gldebuglogseverity = atoi(parm->parms[0]);
-			gldebuglogseverity = max(0, min(4, gldebuglogseverity));
+			gldebuglogseverity = std::max(0, min(4, gldebuglogseverity));
 			buildprintf("gldebuglogseverity is now %s (%d)\n", levels[gldebuglogseverity], gldebuglogseverity);
 		}
 		return OSDCMD_OK;

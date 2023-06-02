@@ -37,6 +37,7 @@ credits.
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdint>
 #include <cstdlib>
@@ -85,9 +86,7 @@ static inline int _filelength (int h)
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
-#if !defined(max)
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#endif
+
 #if !defined(min)
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
@@ -568,7 +567,7 @@ static int initpass () //Interlaced images have 7 "passes", non-interlaced have 
 
 		//Precalculate x-clipping to screen borders (speeds up putbuf)
 		//Equation: (0 <= xr <= ixsiz) && (0 <= xr*ixstp+globxoffs+ixoff <= xres)
-	xr0 = max((-globxoffs-ixoff+(1<<j)-1)>>j,0);
+	xr0 = std::max((-globxoffs - ixoff + (1 << j) - 1) >> j, 0);
 	xr1 = min((xres-globxoffs-ixoff+(1<<j)-1)>>j,ixsiz);
 	xr0 = ixsiz-xr0;
 	xr1 = ixsiz-xr1;
@@ -1740,8 +1739,8 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 				clipxdim = min(xdim+globxoffs,xres);
 				clipydim = min(ydim+globyoffs,yres);
 
-				if ((max(globxoffs,0) >= xres) || (min(globxoffs+xdim,xres) <= 0) ||
-					 (max(globyoffs,0) >= yres) || (min(globyoffs+ydim,yres) <= 0))
+				if ((std::max(globxoffs, 0) >= xres) || (min(globxoffs+xdim,xres) <= 0) ||
+					 (std::max(globyoffs, 0) >= yres) || (min(globyoffs+ydim,yres) <= 0))
 					{ if (dctbuf) free(dctbuf); return(0); }
 
 				Alut[0] = (1<<Al); Alut[1] = -Alut[0];
@@ -1800,8 +1799,13 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 									}
 
 										//Get AC
-									if (!dctbuf) std::memset((void *)&dc[1],0,63*4);
-									z = max(Ss,1); dcflag = 1;
+									if (!dctbuf) {
+										std::memset((void *)&dc[1],0,63*4);
+									}
+
+									z = std::max(Ss, 1);
+									dcflag = 1;
+
 									if (eobrun <= 0)
 									{
 										for(;z<=Se;z++)
@@ -2009,10 +2013,14 @@ static int kgifrend (const char *kfilebuf, int kfilelength,
 		if (kfilebuf[10]&128) backcol = palcol[(unsigned char)kfilebuf[11]]; else backcol = 0;
 
 			//Fill border to backcol
-		xx[0] = max(daglobxoffs           ,     0); yy[0] = max(daglobyoffs           ,     0);
-		xx[1] = min(daglobxoffs+xoff      ,daxres); yy[1] = min(daglobyoffs+yoff      ,dayres);
-		xx[2] = max(daglobxoffs+xoff+xspan,     0); yy[2] = min(daglobyoffs+yoff+yspan,dayres);
-		xx[3] = min(daglobxoffs+xsiz      ,daxres); yy[3] = min(daglobyoffs+ysiz      ,dayres);
+		xx[0] = std::max(daglobxoffs           ,     0);
+		yy[0] = std::max(daglobyoffs           ,     0);
+		xx[1] = min(daglobxoffs+xoff      ,daxres);
+		yy[1] = min(daglobyoffs+yoff      ,dayres);
+		xx[2] = std::max(daglobxoffs+xoff+xspan,     0);
+		yy[2] = min(daglobyoffs+yoff+yspan,dayres);
+		xx[3] = min(daglobxoffs+xsiz      ,daxres); yy[3] =
+		min(daglobyoffs+ysiz      ,dayres);
 
 		lptr = (int *)(yy[0]*dabytesperline+daframeplace);
 		for(y=yy[0];y<yy[1];y++,lptr=(int *)(((intptr_t)lptr)+dabytesperline))
@@ -2386,8 +2394,10 @@ static int kpcxrend (const char *buf, int fleng,
 		coltype = 2;
 
 			//Make sure background is opaque (since 24-bit PCX renderer doesn't do it)
-		x0 = max(daglobxoffs,0); x1 = min(xsiz+daglobxoffs,daxres);
-		y0 = max(daglobyoffs,0); y1 = min(ysiz+daglobyoffs,dayres);
+		x0 = std::max(daglobxoffs, 0);
+		x1 = min(xsiz+daglobxoffs,daxres);
+		y0 = std::max(daglobyoffs, 0);
+		y1 = min(ysiz+daglobyoffs,dayres);
 		p = y0*dabytesperline + daframeplace+3;
 		for(y=y0;y<y1;y++,p+=dabytesperline)
 			for(x=x0;x<x1;x++) *(unsigned char *)((x<<2)+p) = 255;
@@ -3081,11 +3091,10 @@ int kzfindfile (char *filnam)
 static char *gzbufptr;
 static void putbuf4zip (const unsigned char *buf, int uncomp0, int uncomp1)
 {
-	int i0, i1;
 		//              uncomp0 ... uncomp1
 		//  &gzbufptr[kzfs.pos] ... &gzbufptr[kzfs.endpos];
-	i0 = max(uncomp0,kzfs.pos);
-	i1 = min(uncomp1,kzfs.endpos);
+	int i0 = std::max(uncomp0, kzfs.pos);
+	int i1 = min(uncomp1,kzfs.endpos);
 	if (i0 < i1) std::memcpy(&gzbufptr[i0],&buf[i0-uncomp0],i1-i0);
 }
 
@@ -3130,7 +3139,8 @@ int kzread (void *buffer, int leng)
 		}
 		else
 		{
-			i = max(gslidew-32768,0); j = gslider-16384;
+			i = std::max(gslidew - 32768, 0);
+			j = gslider - 16384;
 
 				//HACK: Don't unzip anything until you have to...
 				//   (keeps file pointer as low as possible)

@@ -73,7 +73,7 @@ void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeake
 
     WAVEFORMATEX sourcefmt = {0};
     sourcefmt.wFormatTag = WAVE_FORMAT_PCM;
-    sourcefmt.nChannels = max(1, min(2, danumspeakers));
+    sourcefmt.nChannels = std::max(1, min(2, danumspeakers));
     sourcefmt.nSamplesPerSec = dasamplerate;
     sourcefmt.wBitsPerSample = dabytespersample * 8;
     sourcefmt.nBlockAlign = sourcefmt.nChannels * dabytespersample;

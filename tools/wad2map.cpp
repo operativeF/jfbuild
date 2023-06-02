@@ -8,6 +8,8 @@
 #include "compat.hpp"
 #include "pragmas.hpp"
 
+#include <algorithm>
+
 constexpr auto MAXWADS{4096};
 constexpr auto MAXPOINTS{8192};
 constexpr auto MAXLINES{8192};
@@ -1557,7 +1559,7 @@ int main(int argc, char **argv)
 		else
 		{
 			zx = mulscale10(ksqrtasm(x*x+y*y),wall[z].yrepeat);
-			wall[z].xrepeat = (char)min(max(zx,1),255);
+			wall[z].xrepeat = (char)min(std::max(zx, 1),255);
 		}
 
 		wall[z].picnum = texturelookup[wall[z].picnum];

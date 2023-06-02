@@ -38,6 +38,7 @@
 #  include <libgen.h>
 #endif
 
+#include <algorithm>
 
 #if !defined(_WIN32)
 char *strlwr(char *s)
@@ -222,12 +223,18 @@ int Bcorrectfilename(char *filename, int removefn)
 		if (!token) break;
 		else if (token[0] == 0) continue;
 		else if (token[0] == '.' && token[1] == 0) continue;
-		else if (token[0] == '.' && token[1] == '.' && token[2] == 0) ntok = max(0,ntok-1);
+		else if (token[0] == '.' && token[1] == '.' && token[2] == 0) ntok = std::max(0, ntok - 1);
 		else tokarr[ntok++] = token;
 	} while (ntok < MAXTOKARR);
 	
-	if (!trailslash && removefn) { ntok = max(0,ntok-1); trailslash = 1; }
-	if (ntok == 0 && trailslash && leadslash) trailslash = 0;
+	if (!trailslash && removefn) {
+		ntok = std::max(0, ntok - 1);
+		trailslash = 1;
+	}
+
+	if (ntok == 0 && trailslash && leadslash) {
+		trailslash = 0;
+	}
 	
 	// rebuild the filename
 	first = filename;

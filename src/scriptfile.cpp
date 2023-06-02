@@ -354,7 +354,7 @@ int scriptfile_eof(scriptfile *sf)
 	return 0;
 }
 
-constexpr auto SYMBTABSTARTSIZE{256};
+constexpr std::size_t SYMBTABSTARTSIZE{256};
 static size_t symbtablength=0, symbtaballoclength=0;
 static char *symbtab = nullptr;
 
@@ -365,7 +365,7 @@ static char * getsymbtabspace(size_t reqd)
 
 	if (symbtablength + reqd > symbtaballoclength)
 	{
-		for(i=max(symbtaballoclength,SYMBTABSTARTSIZE);symbtablength+reqd>i;i<<=1);
+		for(i = std::max(symbtaballoclength, SYMBTABSTARTSIZE); symbtablength + reqd > i; i <<= 1);
 		np = (char *)realloc(symbtab, i); if (!np) return nullptr;
 		symbtab = np; symbtaballoclength = i;
 	}

@@ -9,6 +9,7 @@
 #include "baselayer.hpp"
 #include "scriptfile.hpp"
 
+#include <algorithm>
 #include <array>
 #include <span>
 #include <string_view>
@@ -368,7 +369,7 @@ static int defsparser(scriptfile *script)
 #if USE_POLYMOST && USE_OPENGL
 					char happy = 1;
 					for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
-						switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin))) {
+						switch (md_defineframe(lastmodelid, framename, tilex, std::max(0, modelskin))) {
 							case 0: break;
 							case -1: happy = 0; break; // invalid model id!?
 							case -2: buildprintf("Invalid tile number on line %s:%d\n",
@@ -442,7 +443,7 @@ static int defsparser(scriptfile *script)
 					seenframe = 0;
 
 #if USE_POLYMOST && USE_OPENGL
-					switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0)) {
+					switch (md_defineskin(lastmodelid, skinfn, palnum, std::max(0, modelskin), 0)) {
 						case 0: break;
 						case -1: break; // invalid model id!?
 						case -2: buildprintf("Invalid skin filename on line %s:%d\n",
@@ -581,7 +582,7 @@ static int defsparser(scriptfile *script)
 								}
 #if USE_POLYMOST && USE_OPENGL
 								for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
-									switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin))) {
+									switch (md_defineframe(lastmodelid, framename, tilex, std::max(0, modelskin))) {
 										case 0: break;
 										case -1: happy = 0; break; // invalid model id!?
 										case -2: buildprintf("Invalid tile number on line %s:%d\n",
@@ -670,7 +671,7 @@ static int defsparser(scriptfile *script)
 								seenframe = 0;
 
 #if USE_POLYMOST && USE_OPENGL
-								switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum)) {
+								switch (md_defineskin(lastmodelid, skinfn, palnum, std::max(0, modelskin), surfnum)) {
 									case 0: break;
 									case -1: break; // invalid model id!?
 									case -2: buildprintf("Invalid skin filename on line %s:%d\n",
@@ -852,9 +853,9 @@ static int defsparser(scriptfile *script)
 					while (script->textptr < tintend) {
 						switch (getatoken(script, tinttokens)) {
 							case TokenType::T_PAL:   scriptfile_getsymbol(script,&pal);   break;
-							case TokenType::T_RED:   scriptfile_getnumber(script,&red);   red   = min(255,max(0,red));   break;
-							case TokenType::T_GREEN: scriptfile_getnumber(script,&green); green = min(255,max(0,green)); break;
-							case TokenType::T_BLUE:  scriptfile_getnumber(script,&blue);  blue  = min(255,max(0,blue));  break;
+							case TokenType::T_RED:   scriptfile_getnumber(script,&red);   red   = min(255, std::max(0, red));   break;
+							case TokenType::T_GREEN: scriptfile_getnumber(script,&green); green = min(255, std::max(0, green)); break;
+							case TokenType::T_BLUE:  scriptfile_getnumber(script,&blue);  blue  = min(255, std::max(0, blue));  break;
 							case TokenType::T_FLAGS: scriptfile_getsymbol(script,&flags); break;
 						}
 					}

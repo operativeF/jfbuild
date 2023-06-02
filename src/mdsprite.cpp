@@ -639,8 +639,8 @@ static md2model *md2load (int fil, const char *filnam)
 	m->tex = (PTMHead **)calloc(m->numskins, sizeof(PTMHead *) * (HICEFFECTMASK+1));
 	if (!m->tex) { md2free(m); return(0); }
 
-	maxmodelverts = max(maxmodelverts, m->numverts);
-	maxelementvbo = max(maxelementvbo, m->numtris * 3);
+	maxmodelverts = std::max(maxmodelverts, m->numverts);
+	maxelementvbo = std::max(maxelementvbo, m->numtris * 3);
 
 	return(m);
 }
@@ -793,7 +793,7 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 	glfunc.glEnable(GL_CULL_FACE);
 	glfunc.glCullFace(GL_BACK);
 
-	pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max(globalshade+m->shadeoff,0),numpalookups)))/((float)numpalookups);
+	pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(std::max(globalshade + m->shadeoff, 0),numpalookups)))/((float)numpalookups);
 	pc[0] *= (float)hictinting[globalpal].r / 255.0;
 	pc[1] *= (float)hictinting[globalpal].g / 255.0;
 	pc[2] *= (float)hictinting[globalpal].b / 255.0;
@@ -998,8 +998,8 @@ static md3model *md3load (int fil)
 		}
 #endif
 
-		maxmodelverts = max(maxmodelverts, s->numverts);
-		maxelementvbo = max(maxelementvbo, s->numtris * 3);
+		maxmodelverts = std::max(maxmodelverts, s->numverts);
+		maxelementvbo = std::max(maxelementvbo, s->numtris * 3);
 		ofsurf += s->ofsend;
 	}
 
@@ -1114,7 +1114,7 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 	glfunc.glEnable(GL_CULL_FACE);
 	glfunc.glCullFace(GL_BACK);
 
-	pc[0] = pc[1] = pc[2] = ((float)(numpalookups - min(max(globalshade + m->shadeoff, 0), numpalookups)))/((float)numpalookups);
+	pc[0] = pc[1] = pc[2] = ((float)(numpalookups - min(std::max(globalshade + m->shadeoff, 0), numpalookups)))/((float)numpalookups);
 	pc[0] *= (float)hictinting[globalpal].r / 255.0;
 	pc[1] *= (float)hictinting[globalpal].g / 255.0;
 	pc[2] *= (float)hictinting[globalpal].b / 255.0;
@@ -1313,7 +1313,10 @@ static int getvox (int x, int y, int z)
 
 static void putvox (int x, int y, int z, int col)
 {
-	if (vnum >= vmax) { vmax = max(vmax<<1,4096); vcol = (voxcol_t *)realloc(vcol,vmax*sizeof(voxcol_t)); }
+	if (vnum >= vmax) {
+		vmax = std::max(vmax << 1, 4096);
+		vcol = (voxcol_t *)realloc(vcol,vmax*sizeof(voxcol_t));
+	}
 
 	z += x*yzsiz + y*zsiz;
 	vcol[vnum].p = z; z = ((z*214013)&vcolhashsizm1);
@@ -1546,7 +1549,7 @@ static voxmodel *vox2poly ()
 	if (pow2m1[32] != -1) { for(i=0;i<32;i++) pow2m1[i] = (1<<i)-1; pow2m1[32] = -1; }
 	for(i=0;i<7;i++) gvox->qfacind[i] = -1;
 
-	i = ((max(ysiz,zsiz)+1)<<2);
+	i = (std::max(ysiz, zsiz) + 1) << 2;
 	bx0 = (int *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
 	by0 = (int *)(((intptr_t)bx0)+i);
 
@@ -1556,7 +1559,8 @@ static voxmodel *vox2poly ()
 			  else daquad = addquad;
 		gvox->qcnt = 0;
 
-		std::memset(by0,-1,(max(ysiz,zsiz)+1)<<2); v = 0;
+		std::memset(by0,-1, (std::max(ysiz, zsiz) + 1) << 2);
+		v = 0;
 
 		for(i=-1;i<=1;i+=2)
 			for(y=0;y<ysiz;y++)
@@ -2016,7 +2020,7 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 	glfunc.glEnable(GL_CULL_FACE);
 	glfunc.glCullFace(GL_BACK);
 
-	pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max(globalshade+m->shadeoff,0),numpalookups)))/((float)numpalookups);
+	pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(std::max(globalshade + m->shadeoff, 0),numpalookups)))/((float)numpalookups);
 	pc[0] *= (float)hictinting[globalpal].r / 255.0;
 	pc[1] *= (float)hictinting[globalpal].g / 255.0;
 	pc[2] *= (float)hictinting[globalpal].b / 255.0;
