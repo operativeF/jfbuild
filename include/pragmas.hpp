@@ -3675,11 +3675,6 @@ static inline int moddiv(int a, int b) { const unsigned int _a=(unsigned int)a, 
 static inline int klabs(int a) { if (a < 0) return -a; return a; }
 static inline int ksgn(int a)  { if (a > 0) return 1; if (a < 0) return -1; return 0; }
 
-static inline int umin(int a, int b) { if ((unsigned int)a < (unsigned int)b) return a; return b; }
-static inline int umax(int a, int b) { if ((unsigned int)a < (unsigned int)b) return b; return a; }
-static inline int kmin(int a, int b) { if ((signed int)a < (signed int)b) return a; return b; }
-static inline int kmax(int a, int b) { if ((signed int)a < (signed int)b) return b; return a; }
-
 static inline int sqr(int eax) { return (eax) * (eax); }
 static inline int scale(int eax, int edx, int ecx) { return dw((qw(eax) * qw(edx)) / qw(ecx)); }
 static inline int mulscale(int eax, int edx, int ecx) { return dw((qw(eax) * qw(edx)) >> by(ecx)); }
