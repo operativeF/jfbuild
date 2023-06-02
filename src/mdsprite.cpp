@@ -793,7 +793,7 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 	glfunc.glEnable(GL_CULL_FACE);
 	glfunc.glCullFace(GL_BACK);
 
-	pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(std::max(globalshade + m->shadeoff, 0),numpalookups)))/((float)numpalookups);
+	pc[0] = pc[1] = pc[2] = ((float)(numpalookups - std::min(std::max(globalshade + m->shadeoff, 0), static_cast<int>(numpalookups))))/((float)numpalookups);
 	pc[0] *= (float)hictinting[globalpal].r / 255.0;
 	pc[1] *= (float)hictinting[globalpal].g / 255.0;
 	pc[2] *= (float)hictinting[globalpal].b / 255.0;
@@ -1114,7 +1114,7 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 	glfunc.glEnable(GL_CULL_FACE);
 	glfunc.glCullFace(GL_BACK);
 
-	pc[0] = pc[1] = pc[2] = ((float)(numpalookups - min(std::max(globalshade + m->shadeoff, 0), numpalookups)))/((float)numpalookups);
+	pc[0] = pc[1] = pc[2] = ((float)(numpalookups - std::min(std::max(globalshade + m->shadeoff, 0), static_cast<int>(numpalookups))))/((float)numpalookups);
 	pc[0] *= (float)hictinting[globalpal].r / 255.0;
 	pc[1] *= (float)hictinting[globalpal].g / 255.0;
 	pc[2] *= (float)hictinting[globalpal].b / 255.0;
@@ -1628,8 +1628,8 @@ skindidntfit:;
 				do
 				{
 #if (VOXUSECHAR != 0)
-					x0 = (((rand()&32767)*(min(gvox->mytexx,255)-dx))>>15);
-					y0 = (((rand()&32767)*(min(gvox->mytexy,255)-dy))>>15);
+					x0 = (((rand()&32767)*(std::min(gvox->mytexx, 255)-dx))>>15);
+					y0 = (((rand()&32767)*(std::min(gvox->mytexy, 255)-dy))>>15);
 #else
 					x0 = (((rand()&32767)*(gvox->mytexx+1-dx))>>15);
 					y0 = (((rand()&32767)*(gvox->mytexy+1-dy))>>15);
@@ -2020,7 +2020,7 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 	glfunc.glEnable(GL_CULL_FACE);
 	glfunc.glCullFace(GL_BACK);
 
-	pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(std::max(globalshade + m->shadeoff, 0),numpalookups)))/((float)numpalookups);
+	pc[0] = pc[1] = pc[2] = ((float)(numpalookups-std::min(std::max(globalshade + m->shadeoff, 0), static_cast<int>(numpalookups))))/((float)numpalookups);
 	pc[0] *= (float)hictinting[globalpal].r / 255.0;
 	pc[1] *= (float)hictinting[globalpal].g / 255.0;
 	pc[2] *= (float)hictinting[globalpal].b / 255.0;

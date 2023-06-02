@@ -136,7 +136,7 @@ int initkdm(char dadigistat, char damusistat, int dasamplerate, char danumspeake
     {
         j = i*90; fsin(&j);
         eff[0][i] = 65536+j/9;
-        eff[1][i] = min(58386+((i*(65536-58386))/30),65536);
+        eff[1][i] = std::min(58386 + ((i * (65536 - 58386)) / 30), 65536);
         eff[2][i] = std::max(69433 + ((i * (65536 - 69433)) / 30), 65536);
         j = (i*2048)/120; fsin(&j);
         eff[3][i] = 65536+(j<<2);
@@ -148,7 +148,7 @@ int initkdm(char dadigistat, char damusistat, int dasamplerate, char danumspeake
             case 1: eff[5][i] = 65536*330/262; break;
             case 2: eff[5][i] = 65536*392/262; break;
         }
-        eff[6][i] = min((i<<16)/120,65536);
+        eff[6][i] = std::min((i << 16) / 120, 65536);
         eff[7][i] = std::max(65536 - (i << 16) / 120,0);
     }
 
@@ -428,12 +428,12 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
             vdist[i] = msqrtasm(x*x+y*y);
             if (j)
             {
-                j = (sinc[i]<<10)/(min(std::max(vdist[i] - j, -768),768)+1024)-sinc[i];
+                j = (sinc[i] << 10) / (std::min(std::max(vdist[i] - j, -768), 768) + 1024) - sinc[i];
                 sincoffs[i] = ((sincoffs[i]*7+j)>>3);
             }
 
-            voloffs1 = min((vol[i]<<22)/(((x+1536)*(x+1536)+y*y)+1),255);
-            voloffs2 = min((vol[i]<<22)/(((x-1536)*(x-1536)+y*y)+1),255);
+            voloffs1 = std::min((vol[i] << 22) / (((x + 1536) * (x + 1536) + y * y) + 1), 255);
+            voloffs2 = std::min((vol[i] << 22) / (((x - 1536) * (x - 1536) + y * y) + 1), 255);
 
             if (numspeakers == 1)
                 calcvolookupmono(&volookup[i<<9],-(voloffs1+voloffs2)<<6,(voloffs1+voloffs2)>>1);

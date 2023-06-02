@@ -35,8 +35,8 @@ unsigned char getclosestcol(int r, int g, int b)
 	if (closestcol[r][g][b] != 255) return(closestcol[r][g][b]);
 
 	j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(g>>3)*FASTPALGRIDSIZ+(b>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
-	mindist = min(rdist[coldist[r&7]+64+8],gdist[coldist[g&7]+64+8]);
-	mindist = min(mindist,bdist[coldist[b&7]+64+8]);
+	mindist = std::min(rdist[coldist[r & 7] + 64 + 8], gdist[coldist[g & 7] + 64 + 8]);
+	mindist = std::min(mindist, bdist[coldist[b & 7] + 64 + 8]);
 	mindist++;
 
 	rlookup = (int *)&rdist[64-r];
@@ -209,7 +209,7 @@ int main(int argc, char **argv)
 
 	r = Bread(fil,&s,2);
 	orignumpalookups = B_LITTLE16(s);
-	orignumpalookups = min(std::max(orignumpalookups, 1),256);
+	orignumpalookups = std::min(std::max(orignumpalookups, 1), 256);
 	r += Bread(fil,origpalookup,orignumpalookups<<8);
 	Bclose(fil);
 	if (transonly && r != 2 + (orignumpalookups<<8))

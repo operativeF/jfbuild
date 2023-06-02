@@ -62,8 +62,8 @@ static void compressetc1(uint8_t *bgra, int width, int height, uint8_t *out)
 			xyoff = y * stride + x * 4;
 
 			// Copy the block of pixels to encode, byte swizzling to RGBA order.
-			for (t = 0; t < min(4, height - y); t++) {
-				for (s = 0; s < min(4, width - x); s++) {
+			for (t = 0; t < std::min(4, height - y); t++) {
+				for (s = 0; s < std::min(4, width - x); s++) {
 					block[t][s][0] = bgra[xyoff + t * stride + s * 4 + 2];
 					block[t][s][1] = bgra[xyoff + t * stride + s * 4 + 1];
 					block[t][s][2] = bgra[xyoff + t * stride + s * 4 + 0];

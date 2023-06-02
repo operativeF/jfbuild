@@ -898,8 +898,8 @@ static void ptm_fixtransparency(PTTexture * tex, int clamped)
 	dox = daxsiz2-1;
 	doy = daysiz2-1;
 	if (clamped) {
-		dox = min(dox,daxsiz);
-		doy = min(doy,daysiz);
+		dox = std::min(dox, daxsiz);
+		doy = std::min(doy, daysiz);
 	} else {
 		// Make repeating textures duplicate top/left parts
 		daxsiz = daxsiz2;
@@ -1002,7 +1002,7 @@ static void ptm_applyeffects(PTTexture * tex, int effects)
 					y  = 0.3  * (float)tcol.r;
 					y += 0.59 * (float)tcol.g;
 					y += 0.11 * (float)tcol.b;
-					tcol.b = (unsigned char)std::max(0.0F, min(255.0F, y));
+					tcol.b = static_cast<unsigned char>(std::max(0.0F, std::min(255.0F, y)));
 					tcol.g = tcol.r = tcol.b;
 				}
 				if (effects & HICEFFECT_INVERT) {

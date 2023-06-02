@@ -87,10 +87,6 @@ static inline int _filelength (int h)
 #define O_BINARY 0
 #endif
 
-#if !defined(min)
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif
-
 static int bytesperline, xres, yres, globxoffs, globyoffs;
 static intptr_t frameplace;
 
@@ -438,7 +434,7 @@ static void suckbitsnextblock ()
 	{
 			//NOTE: should only read bytes inside compsize, not 64K!!! :/
 		*(int *)&olinbuf[0] = *(int *)&olinbuf[sizeof(olinbuf)-4];
-		n = min((kzfs.compleng-kzfs.comptell),(int)sizeof(olinbuf)-4);
+		n = std::min(static_cast<std::size_t>(kzfs.compleng - kzfs.comptell), sizeof(olinbuf) - 4);
 		n = (int)fread(&olinbuf[4],1,n,kzfs.fil);
 		kzfs.comptell += n;
 		bitpos -= ((sizeof(olinbuf)-4)<<3);
@@ -568,7 +564,7 @@ static int initpass () //Interlaced images have 7 "passes", non-interlaced have 
 		//Precalculate x-clipping to screen borders (speeds up putbuf)
 		//Equation: (0 <= xr <= ixsiz) && (0 <= xr*ixstp+globxoffs+ixoff <= xres)
 	xr0 = std::max((-globxoffs - ixoff + (1 << j) - 1) >> j, 0);
-	xr1 = min((xres-globxoffs-ixoff+(1<<j)-1)>>j,ixsiz);
+	xr1 = std::min((xres - globxoffs - ixoff + (1 << j) - 1) >> j, ixsiz);
 	xr0 = ixsiz-xr0;
 	xr1 = ixsiz-xr1;
 
@@ -1101,7 +1097,7 @@ static int kpngrend (const char *kfilebuf, int kfilength,
 					//else {} //WARNING: PNG docs say: MUST compare all 48 bits :(
 					break;
 				case 3:
-					for(i=min((int)leng,paleng)-1;i>=0;i--)
+					for(i= std::min(static_cast<int>(leng), paleng) - 1; i >= 0; i--)
 						palcol[i] &= LSWAPIB((((int)filptr[i])<<24)|0xffffff);
 					break;
 				default:;
@@ -1479,8 +1475,8 @@ static void yrbrend (int x, int y)
 			p = pp+(xx<<2);
 			dc = odc;
 			if (lnumcomponents > 1) dc2 = &dct[lcomphvsamp0][((yy>>lcompvsampshift0)<<3)+(xx>>lcomphsampshift0)];
-			xxxend = min(clipxdim-ox,8);
-			yyyend = min(clipydim-oy,8);
+			xxxend = std::min(clipxdim - ox, 8);
+			yyyend = std::min(clipydim - oy, 8);
 			if ((lcomphsamp[0] == 1) && (xxxend == 8))
 			{
 				for(yyy=0;yyy<yyyend;yyy++)
@@ -1732,15 +1728,15 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 							if (gcomphsampshift[zz] < glhstep) glhstep = gcomphsampshift[zz];
 							if (gcompvsampshift[zz] < glvstep) glvstep = gcompvsampshift[zz];
 						}
-				glhstep = (ghsampmax>>glhstep); lcomphsamp[0] = min(lcomphsamp[0],glhstep); glhstep <<= 3;
-				glvstep = (gvsampmax>>glvstep); lcompvsamp[0] = min(lcompvsamp[0],glvstep); glvstep <<= 3;
+				glhstep = (ghsampmax>>glhstep); lcomphsamp[0] = std::min(lcomphsamp[0], glhstep); glhstep <<= 3;
+				glvstep = (gvsampmax>>glvstep); lcompvsamp[0] = std::min(lcompvsamp[0], glvstep); glvstep <<= 3;
 				lcomphvsamp0 = lcomphsamp[0]*lcompvsamp[0];
 
-				clipxdim = min(xdim+globxoffs,xres);
-				clipydim = min(ydim+globyoffs,yres);
+				clipxdim = std::min(xdim + globxoffs, xres);
+				clipydim = std::min(ydim + globyoffs, yres);
 
-				if ((std::max(globxoffs, 0) >= xres) || (min(globxoffs+xdim,xres) <= 0) ||
-					 (std::max(globyoffs, 0) >= yres) || (min(globyoffs+ydim,yres) <= 0))
+				if ((std::max(globxoffs, 0) >= xres) || (std::min(globxoffs + xdim, xres) <= 0) ||
+					 (std::max(globyoffs, 0) >= yres) || (std::min(globyoffs + ydim, yres) <= 0))
 					{ if (dctbuf) free(dctbuf); return(0); }
 
 				Alut[0] = (1<<Al); Alut[1] = -Alut[0];
@@ -2015,12 +2011,12 @@ static int kgifrend (const char *kfilebuf, int kfilelength,
 			//Fill border to backcol
 		xx[0] = std::max(daglobxoffs           ,     0);
 		yy[0] = std::max(daglobyoffs           ,     0);
-		xx[1] = min(daglobxoffs+xoff      ,daxres);
-		yy[1] = min(daglobyoffs+yoff      ,dayres);
-		xx[2] = std::max(daglobxoffs+xoff+xspan,     0);
-		yy[2] = min(daglobyoffs+yoff+yspan,dayres);
-		xx[3] = min(daglobxoffs+xsiz      ,daxres); yy[3] =
-		min(daglobyoffs+ysiz      ,dayres);
+		xx[1] = std::min(daglobxoffs + xoff    , daxres);
+		yy[1] = std::min(daglobyoffs + yoff    , dayres);
+		xx[2] = std::max(daglobxoffs + xoff + xspan,     0);
+		yy[2] = std::min(daglobyoffs + yoff + yspan, dayres);
+		xx[3] = std::min(daglobxoffs + xsiz    , daxres);
+		yy[3] = std::min(daglobyoffs + ysiz    , dayres);
 
 		lptr = (int *)(yy[0]*dabytesperline+daframeplace);
 		for(y=yy[0];y<yy[1];y++,lptr=(int *)(((intptr_t)lptr)+dabytesperline))
@@ -2395,9 +2391,9 @@ static int kpcxrend (const char *buf, int fleng,
 
 			//Make sure background is opaque (since 24-bit PCX renderer doesn't do it)
 		x0 = std::max(daglobxoffs, 0);
-		x1 = min(xsiz+daglobxoffs,daxres);
+		x1 = std::min(xsiz + daglobxoffs, daxres);
 		y0 = std::max(daglobyoffs, 0);
-		y1 = min(ysiz+daglobyoffs,dayres);
+		y1 = std::min(ysiz + daglobyoffs, dayres);
 		p = y0*dabytesperline + daframeplace+3;
 		for(y=y0;y<y1;y++,p+=dabytesperline)
 			for(x=x0;x<x1;x++) *(unsigned char *)((x<<2)+p) = 255;
@@ -2467,7 +2463,8 @@ static int kddsrend (const char *buf, int leng,
 
 		p = yoff*bpl + (xoff<<2) + frameptr; xx = (xsiz<<2);
 		if (xoff < 0) { p -= (xoff<<2); buf -= (xoff<<2); xsiz += xoff; }
-		xsiz = (min(xsiz,xdim-xoff)<<2); ysiz = min(ysiz,ydim);
+		xsiz = (std::min(xsiz, xdim - xoff) << 2);
+		ysiz = std::min(ysiz, ydim);
 		for(y=0;y<ysiz;y++,p+=bpl,buf+=xx)
 		{
 			if ((unsigned int)(y+yoff) >= (unsigned int)ydim) continue;
@@ -2549,9 +2546,9 @@ static int kddsrend (const char *buf, int leng,
 					rr = r[j]; gg = g[j]; bb = b[j];
 					if (!(dxt&1))
 					{
-						bb = min((bb*lut[z])>>16,255);
-						gg = min((gg*lut[z])>>16,255);
-						rr = min((rr*lut[z])>>16,255);
+						bb = std::min((bb * lut[z]) >> 16, 255U);
+						gg = std::min((gg * lut[z]) >> 16, 255U);
+						rr = std::min((rr * lut[z]) >> 16, 255U);
 					}
 					wptr[(xx<<2)+0] = bb;
 					wptr[(xx<<2)+1] = gg;
@@ -3094,7 +3091,7 @@ static void putbuf4zip (const unsigned char *buf, int uncomp0, int uncomp1)
 		//              uncomp0 ... uncomp1
 		//  &gzbufptr[kzfs.pos] ... &gzbufptr[kzfs.endpos];
 	int i0 = std::max(uncomp0, kzfs.pos);
-	int i1 = min(uncomp1,kzfs.endpos);
+	int i1 = std::min(uncomp1, kzfs.endpos);
 	if (i0 < i1) std::memcpy(&gzbufptr[i0],&buf[i0-uncomp0],i1-i0);
 }
 
@@ -3109,7 +3106,7 @@ int kzread (void *buffer, int leng)
 	{
 		if (kzfs.pos != kzfs.i) //Seek only when position changes
 			fseek(kzfs.fil,kzfs.seek0+kzfs.pos,SEEK_SET);
-		i = min(kzfs.leng-kzfs.pos,leng);
+		i = std::min(kzfs.leng - kzfs.pos, leng);
 		i = (int)fread(buffer,1,i,kzfs.fil);
 		kzfs.i += i; //kzfs.i is a local copy of ftell(kzfs.fil);
 	}
@@ -3119,7 +3116,7 @@ int kzread (void *buffer, int leng)
 
 			//Initialize for putbuf4zip
 		gzbufptr = (char *)buffer; gzbufptr = &gzbufptr[-kzfs.pos];
-		kzfs.endpos = min(kzfs.pos+leng,kzfs.leng);
+		kzfs.endpos = std::min(kzfs.pos + leng, kzfs.leng);
 		if (kzfs.endpos == kzfs.pos) return(0); //Guard against reading 0 length
 
 		if (kzfs.pos < gslidew-32768) // Must go back to start :(
@@ -3130,7 +3127,7 @@ int kzread (void *buffer, int leng)
 			kzfs.jmpplc = 0;
 
 				//Initialize for suckbits/peekbits/getbits
-			kzfs.comptell = min(kzfs.compleng,(int)sizeof(olinbuf));
+			kzfs.comptell = std::min(static_cast<std::size_t>(kzfs.compleng), sizeof(olinbuf));
 			kzfs.comptell = (int)fread(&olinbuf[0],1,kzfs.comptell,kzfs.fil);
 				//Make it re-load when there are < 32 bits left in FIFO
 			bitpos = -(((int)sizeof(olinbuf)-4)<<3);

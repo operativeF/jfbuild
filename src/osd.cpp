@@ -812,8 +812,8 @@ void OSD_ResizeDisplay(int w, int h)
 	const int newcols = getcolumnwidth(w);
 	const int newmaxlines = TEXTSIZE / newcols;
 
-	const int j = min(newmaxlines, osdmaxlines);
-	const int k = min(newcols, osdcols);
+	const int j = std::min(newmaxlines, osdmaxlines);
+	const int k = std::min(newcols, osdcols);
 
 	char newtext[TEXTSIZE];
 	std::memset(newtext, 0, TEXTSIZE);
@@ -879,7 +879,7 @@ void OSD_Draw()
 
 	unsigned int topoffs = osdhead * osdcols;
 	int row = osdrows - 1;
-	int lines = min(osdlines - osdhead, osdrows);
+	int lines = std::min(osdlines - osdhead, osdrows);
 
 	clearbackground(osdcols, osdrows + 1);
 
@@ -891,7 +891,7 @@ void OSD_Draw()
 	drawosdchar(2,osdrows,'>',osdpromptshade,osdpromptpal);
 	if (osdeditcaps) drawosdchar(0,osdrows,'C',osdpromptshade,osdpromptpal);
 
-	len = min(osdcols-1-3, osdeditlen-osdeditwinstart);
+	len = std::min(osdcols - 1 - 3, osdeditlen - osdeditwinstart);
 	for (x=0; x<len; x++)
 		drawosdchar(3+x,osdrows,osdeditbuf[osdeditwinstart+x],osdeditshade,osdeditpal);
 

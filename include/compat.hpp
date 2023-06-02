@@ -196,10 +196,6 @@ static inline float B_SWAPFLOAT(float f) {
 # define PRINTF_FORMAT(stringindex, firstargindex)
 #endif
 
-#ifndef min
-# define min(a,b) ( ((a) < (b)) ? (a) : (b) )
-#endif
-
 #define Barraylen(s) (sizeof s / sizeof s[0])
 
 // On Windows, _MAX_PATH is 260, null included.

@@ -559,7 +559,7 @@ size_t Bgetsysmemsize()
         MEMORYSTATUSEX memst;
         memst.dwLength = sizeof(MEMORYSTATUSEX);
         if (GlobalMemoryStatusEx(&memst)) {
-            siz = (size_t)min(INT64_C(0x7fffffff), memst.ullTotalPhys);
+            siz = (size_t)std::min(DWORDLONG(0x7fffffff), memst.ullTotalPhys);
         }
 	
 	return siz;
@@ -574,7 +574,7 @@ size_t Bgetsysmemsize()
 #endif
 	scphyspages = sysconf(_SC_PHYS_PAGES);
 	if (scpagesiz >= 0 && scphyspages >= 0)
-		siz = (size_t)min(INT64_C(0x7fffffff), (int64_t)scpagesiz * (int64_t)scphyspages);
+		siz = (size_t)std::min(INT64_C(0x7fffffff), (int64_t)scpagesiz * (int64_t)scphyspages);
 
 	//buildprintf("Bgetsysmemsize(): %d pages of %d bytes, %d bytes of system memory\n",
 	//		scphyspages, scpagesiz, siz);

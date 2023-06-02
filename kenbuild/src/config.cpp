@@ -262,7 +262,7 @@ int loadsetup(const char *fn)
 	win_setmaxrefreshfreq(tmpmaxrefreshfreq);
 #endif
 	if (tmpbrightness >= 0) {
-		brightness = min(std::max(tmpbrightness, 0),15);
+		brightness = std::min(std::max(tmpbrightness, 0), 15);
 	}
 	if (tmpsamplerate >= 0) {
 		option[7] = (tmpsamplerate & 0x0f) << 4;

@@ -216,12 +216,12 @@ void ExtPreCheckKeys()
 	if (keystatus[0x2a]|keystatus[0x36])
 	{
 		if (keystatus[0xcf]) hang = std::max(hang - 1,-182);
-		if (keystatus[0xc7]) hang = min(hang+1,182);
+		if (keystatus[0xc7]) hang = std::min(hang + 1, 182);
 	}
 	else
 	{
 		if (keystatus[0xcf]) hang = std::max(hang - 8,-182);
-		if (keystatus[0xc7]) hang = min(hang+8,182);
+		if (keystatus[0xc7]) hang = std::min(hang + 8, 182);
 	}
 	if (keystatus[0x4c]) { hang = 0; horiz = 100; }
 	if (hang != 0)
@@ -247,7 +247,8 @@ void ExtPreCheckKeys()
 		dy = dmulscale1(-i,cosang,320,sinang);
 		horizval1 = dy*(320>>1)/dx-1;
 
-		dx = dmulscale1(320,cosang,-i,sinang); mindx = min(dx,mindx);
+		dx = dmulscale1(320,cosang,-i,sinang);
+		mindx = std::min(dx, mindx);
 		dy = dmulscale1(i,cosang,320,sinang);
 		horizval2 = dy*(320>>1)/dx+1;
 

@@ -1559,7 +1559,7 @@ int main(int argc, char **argv)
 		else
 		{
 			zx = mulscale10(ksqrtasm(x*x+y*y),wall[z].yrepeat);
-			wall[z].xrepeat = (char)min(std::max(zx, 1),255);
+			wall[z].xrepeat = static_cast<char>(std::min(std::max(zx, 1), 255));
 		}
 
 		wall[z].picnum = texturelookup[wall[z].picnum];

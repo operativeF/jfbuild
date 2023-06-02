@@ -70,10 +70,6 @@ static int GetTickCount()
 
 #define printf buildprintf
 
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif
-
 constexpr auto MAXPAKSIZ{256}; //576
 
 constexpr auto PAKRATE{40};   //Packet rate/sec limit ... necessary?
@@ -1182,7 +1178,7 @@ int getpacket (int *retother, unsigned char *bufptr)
 #endif
 				}
 				if (ocnt0[other] < ic0) ocnt0[other] = ic0;
-				for(i=ic0;i<min(ic0+256,ocnt1[other]);i++)
+				for(i = ic0;i < std::min(ic0 + 256, ocnt1[other]); i++)
 					if (pakbuf[((i-ic0)>>3)+k]&(1<<((i-ic0)&7)))
 						opak[other][i&(FIFSIZ-1)] = 0;
 				k += 32;

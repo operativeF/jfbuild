@@ -458,7 +458,7 @@ int initinput()
 				buildprintf("Using controller %s\n", SDL_GameControllerName(controller));
 
 				inputdevices |= 4;
-				joynumaxes    = min(Barraylen(joyaxis), SDL_CONTROLLER_AXIS_MAX);
+				joynumaxes    = std::min(Barraylen(joyaxis), SDL_CONTROLLER_AXIS_MAX);
 				joynumbuttons = SDL_CONTROLLER_BUTTON_MAX;
 			} else {
 				buildprintf("No controllers are usable\n");

@@ -131,7 +131,7 @@ int main(int argc, char **argv)
         Blseek(fil,fileoffs[i]+((numfiles+1)<<4),SEEK_SET);
         for(j=0;j<fileleng[i];j+=65536)
         {
-            k = min(fileleng[i]-j,65536);
+            k = std::min(fileleng[i] - j, 65536);
             if (Bread(fil,buf,k) < k)
             {
                 printf("Read error\n");

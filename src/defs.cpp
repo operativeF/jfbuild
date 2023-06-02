@@ -853,9 +853,9 @@ static int defsparser(scriptfile *script)
 					while (script->textptr < tintend) {
 						switch (getatoken(script, tinttokens)) {
 							case TokenType::T_PAL:   scriptfile_getsymbol(script,&pal);   break;
-							case TokenType::T_RED:   scriptfile_getnumber(script,&red);   red   = min(255, std::max(0, red));   break;
-							case TokenType::T_GREEN: scriptfile_getnumber(script,&green); green = min(255, std::max(0, green)); break;
-							case TokenType::T_BLUE:  scriptfile_getnumber(script,&blue);  blue  = min(255, std::max(0, blue));  break;
+							case TokenType::T_RED:   scriptfile_getnumber(script,&red);   red   = std::min(255, std::max(0, red));   break;
+							case TokenType::T_GREEN: scriptfile_getnumber(script,&green); green = std::min(255, std::max(0, green)); break;
+							case TokenType::T_BLUE:  scriptfile_getnumber(script,&blue);  blue  = std::min(255, std::max(0, blue));  break;
 							case TokenType::T_FLAGS: scriptfile_getsymbol(script,&flags); break;
 						}
 					}

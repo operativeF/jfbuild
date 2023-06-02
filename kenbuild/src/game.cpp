@@ -2766,7 +2766,7 @@ void statuslistcode()
 						}
 						ox -= sprite[i].xvel; oy -= sprite[i].yvel;
 						dist = ((ox*ox+oy*oy)>>8);
-						wsayfollow("bouncy.wav",4096L+(krand()&127)-64,min(dist,256),&sprite[i].x,&sprite[i].y,1);
+						wsayfollow("bouncy.wav", 4096L + (krand() & 127) - 64, std::min(dist, 256), &sprite[i].x, &sprite[i].y, 1);
 						hitobject = 0;
 						sprite[i].owner = -1;   //Bullet turns evil!
 					}
@@ -2801,7 +2801,7 @@ void statuslistcode()
 						dist = ((ox*ox+oy*oy)>>8);
 					}
 					sprite[i].owner = -1;   //Bullet turns evil!
-					wsayfollow("bouncy.wav",4096L+(krand()&127)-64,min(dist,256),&sprite[i].x,&sprite[i].y,1);
+					wsayfollow("bouncy.wav", 4096L + (krand() & 127) - 64, std::min(dist, 256), &sprite[i].x, &sprite[i].y, 1);
 					hitobject = 0;
 				}
 			}
@@ -3292,7 +3292,7 @@ void processinput(short snum)
 			if (posz[snum] > globloz-(4<<8))
 			{
 				posz[snum] = globloz-(4<<8);
-				horiz[snum] = min(horiz[snum]+5,200);
+				horiz[snum] = std::min(horiz[snum] + 5, 200);
 				hvel[snum] = 0;
 			}
 		}
@@ -3640,7 +3640,7 @@ void drawscreen(short snum, int dasmoothratio)
 	unsigned char ch, *ptr, *ptr2, *ptr3, *ptr4;
 	spritetype *tspr;
 
-	smoothratio = std::max(min(dasmoothratio,65536), 0);
+	smoothratio = std::max(std::min(dasmoothratio, 65536), 0);
 
 	dointerpolations();
 
@@ -3921,9 +3921,9 @@ void drawscreen(short snum, int dasmoothratio)
 						ptr = (unsigned char *)(frameplace+ylookup[y1]);
 						ptr2 = (unsigned char *)(frameplace+ylookup[y2]);
 						ptr3 = palookup[18];
-						ptr3 += (min(std::abs(y1-l)>>2,31)<<8);
+						ptr3 += (std::min(std::abs(y1 - l) >> 2, 31) << 8);
 						ptr4 = palookup[18];
-						ptr4 += (min(std::abs(y2-l)>>2,31)<<8);
+						ptr4 += (std::min(std::abs(y2 - l) >> 2, 31) << 8);
 
 						j = sintable[((y2+totalclock)<<6)&2047];
 						j += sintable[((y2-totalclock)<<7)&2047];
@@ -3934,8 +3934,8 @@ void drawscreen(short snum, int dasmoothratio)
 						//for(x1=windowx1;x1<=windowx2;x1++)
 						//	{ ch = ptr[x1]; ptr[x1] = ptr3[ptr2[x1]]; ptr2[x1] = ptr4[ch]; }
 
-						ox1 = windowx1-min(j,0);
-						ox2 = windowx2 - std::max(j,0);
+						ox1 = windowx1 - std::min(j, 0);
+						ox2 = windowx2 - std::max(j, 0);
 
 						for(x1=windowx1;x1<ox1;x1++)
 							{ ch = ptr[x1]; ptr[x1] = ptr3[ptr2[x1]]; ptr2[x1] = ptr4[ch]; }
@@ -4484,7 +4484,7 @@ void domovethings()
 
 	if (cameradist >= 0)
 	{
-		cameradist = min(cameradist+((totalclock-cameraclock)<<10),65536);
+		cameradist = std::min(cameradist + ((totalclock - cameraclock) << 10), 65536);
 		if (keystatus[0x52])       //0
 			cameraang -= ((totalclock-cameraclock)<<(2+(keystatus[0x2a]|keystatus[0x36])));
 		if (keystatus[0x53])       //.
@@ -4539,23 +4539,23 @@ void getinput()
 	if (!keystatus[keys[5]])
 	{
 		if (keystatus[keys[2]]) avel = std::max(avel - 16 * TICSPERFRAME, -128);
-		if (keystatus[keys[3]]) avel = min(avel+16*TICSPERFRAME,127);
+		if (keystatus[keys[3]]) avel = std::min(avel + 16 * TICSPERFRAME,  127);
 	}
 	else
 	{
-		if (keystatus[keys[2]]) svel = min(svel+8*TICSPERFRAME,127);
+		if (keystatus[keys[2]]) svel = std::min(svel + 8 * TICSPERFRAME,  127);
 		if (keystatus[keys[3]]) svel = std::max(svel - 8 * TICSPERFRAME, -128);
 	}
-	if (keystatus[keys[0]]) fvel = min(fvel+8*TICSPERFRAME,127);
+	if (keystatus[keys[0]]) fvel = std::min(fvel + 8 * TICSPERFRAME,  127);
 	if (keystatus[keys[1]]) fvel = std::max(fvel - 8 * TICSPERFRAME, -128);
-	if (keystatus[keys[12]]) svel = min(svel+8*TICSPERFRAME,127);
+	if (keystatus[keys[12]]) svel = std::min(svel + 8 * TICSPERFRAME,  127);
 	if (keystatus[keys[13]]) svel = std::max(svel - 8 * TICSPERFRAME, -128);
 
-	if (avel < 0) avel = min(avel+12*TICSPERFRAME,0);
+	if (avel < 0) avel = std::min(avel + 12 * TICSPERFRAME, 0);
 	if (avel > 0) avel = std::max(avel - 12 * TICSPERFRAME, 0);
-	if (svel < 0) svel = min(svel+2*TICSPERFRAME,0);
+	if (svel < 0) svel = std::min(svel + 2 * TICSPERFRAME, 0);
 	if (svel > 0) svel = std::max(svel - 2 * TICSPERFRAME, 0);
-	if (fvel < 0) fvel = min(fvel+2*TICSPERFRAME,0);
+	if (fvel < 0) fvel = std::min(fvel + 2 * TICSPERFRAME, 0);
 	if (fvel > 0) fvel = std::max(fvel - 2 * TICSPERFRAME, 0);
 
 	if ((option[4] == 0) && (numplayers >= 2))
@@ -4563,21 +4563,21 @@ void getinput()
 		if (!keystatus[0x4f])
 		{
 			if (keystatus[0x4b]) avel2 = std::max(avel2 - 16 * TICSPERFRAME, -128);
-			if (keystatus[0x4d]) avel2 = min(avel2+16*TICSPERFRAME,127);
+			if (keystatus[0x4d]) avel2 = std::min(avel2 + 16 * TICSPERFRAME,  127);
 		}
 		else
 		{
-			if (keystatus[0x4b]) svel2 = min(svel2+8*TICSPERFRAME,127);
+			if (keystatus[0x4b]) svel2 = std::min(svel2 + 8 * TICSPERFRAME,  127);
 			if (keystatus[0x4d]) svel2 = std::max(svel2 - 8 * TICSPERFRAME, -128);
 		}
-		if (keystatus[0x48]) fvel2 = min(fvel2+8*TICSPERFRAME,127);
+		if (keystatus[0x48]) fvel2 = std::min(fvel2 + 8 * TICSPERFRAME,  127);
 		if (keystatus[0x4c]) fvel2 = std::max(fvel2 - 8 * TICSPERFRAME, -128);
 
-		if (avel2 < 0) avel2 = min(avel2+12*TICSPERFRAME,0);
+		if (avel2 < 0) avel2 = std::min(avel2 + 12 * TICSPERFRAME, 0);
 		if (avel2 > 0) avel2 = std::max(avel2 - 12 * TICSPERFRAME, 0);
-		if (svel2 < 0) svel2 = min(svel2+2*TICSPERFRAME,0);
+		if (svel2 < 0) svel2 = std::min(svel2 + 2 * TICSPERFRAME, 0);
 		if (svel2 > 0) svel2 = std::max(svel2 - 2 * TICSPERFRAME, 0);
-		if (fvel2 < 0) fvel2 = min(fvel2+2*TICSPERFRAME,0);
+		if (fvel2 < 0) fvel2 = std::min(fvel2 + 2 * TICSPERFRAME, 0);
 		if (fvel2 > 0) fvel2 = std::max(fvel2 - 2 * TICSPERFRAME, 0);
 	}
 
@@ -4591,13 +4591,13 @@ void getinput()
 	if (keystatus[0x28]) screentilt = 1536;
 
 
-	loc.fvel = min(std::max(fvel, -128 + 8),127-8);
-	loc.svel = min(std::max(svel, -128 + 8),127-8);
-	loc.avel = min(std::max(avel, -128 + 16),127-16);
+	loc.fvel = std::min(std::max(fvel, -128 + 8), 127 - 8);
+	loc.svel = std::min(std::max(svel, -128 + 8), 127 - 8);
+	loc.avel = std::min(std::max(avel, -128 + 16), 127 - 16);
 
 	getmousevalues(&mousx,&mousy,&bstatus);
-	loc.avel = min(std::max(static_cast<int>(loc.avel) + (mousx << 3),-128),127);
-	loc.fvel = min(std::max(static_cast<int>(loc.fvel) - (mousy << 3),-128),127);
+	loc.avel = std::min(std::max(static_cast<int>(loc.avel) + (mousx << 3), -128), 127);
+	loc.fvel = std::min(std::max(static_cast<int>(loc.fvel) - (mousy << 3), -128), 127);
 
 	loc.bits = (locselectedgun<<13);
 	if (typemode == 0)           //if normal game keys active
@@ -4623,12 +4623,12 @@ void getinput()
 
 	if (option[3] & 2) {
 		if (joynumaxes == 2) {
-			loc.avel = min(std::max(static_cast<int>(loc.avel) + (joyaxis[0] >> 8), -128),127);
-			loc.fvel = min(std::max(static_cast<int>(loc.fvel) - (joyaxis[1] >> 8), -128),127);
+			loc.avel = std::min(std::max(static_cast<int>(loc.avel) + (joyaxis[0] >> 8), -128), 127);
+			loc.fvel = std::min(std::max(static_cast<int>(loc.fvel) - (joyaxis[1] >> 8), -128), 127);
 		} else if (joynumaxes >= 4) {
-			loc.avel = min(std::max(static_cast<int>(loc.avel) + (joyaxis[2] >> 8), -128),127);
-			loc.fvel = min(std::max(static_cast<int>(loc.fvel) - (joyaxis[1] >> 8), -128),127);
-			loc.svel = min(std::max(static_cast<int>(loc.svel) - (joyaxis[0] >> 8), -128),127);
+			loc.avel = std::min(std::max(static_cast<int>(loc.avel) + (joyaxis[2] >> 8), -128), 127);
+			loc.fvel = std::min(std::max(static_cast<int>(loc.fvel) - (joyaxis[1] >> 8), -128), 127);
+			loc.svel = std::min(std::max(static_cast<int>(loc.svel) - (joyaxis[0] >> 8), -128), 127);
 		}
 		if (joynumaxes >= 6) {
 			loc.bits |= (joyaxis[5] > 0) << 11;	// Rtrigger shoot
@@ -4664,7 +4664,7 @@ void getinput()
 		if (keystatus[0x38]|keystatus[0xb8])  //ALT
 		{
 			if (keystatus[0x4a])  // Keypad -
-				visibility = min(visibility+(visibility>>3),16384);
+				visibility = std::min(visibility + (visibility >> 3), 16384);
 			if (keystatus[0x4e])  // Keypad +
 				visibility = std::max(visibility - (visibility >> 3), 128);
 		}
@@ -5050,7 +5050,7 @@ void movelava(unsigned char *dapic)
 	int dalavax, dalavay, *ptr, *ptr2;
 	unsigned char *pi, *pj, *py;
 
-	for(z=min(LAVAMAXDROPS-lavanumdrops-1,3);z>=0;z--)
+	for(z = std::min(LAVAMAXDROPS - lavanumdrops - 1, 3); z >= 0; z--)
 	{
 		lavadropx[lavanumdrops] = (Brand()&(LAVASIZ-1));
 		lavadropy[lavanumdrops] = (Brand()&(LAVASIZ-1));
@@ -5132,7 +5132,7 @@ void doanimations()
 		j = *animateptr[i];
 
 		if (j < animategoal[i])
-			j = min(j+animatevel[i]*TICSPERFRAME,animategoal[i]);
+			j = std::min(j + animatevel[i] * TICSPERFRAME, animategoal[i]);
 		else
 			j = std::max(j - animatevel[i] * TICSPERFRAME, animategoal[i]);
 		animatevel[i] += animateacc[i];
@@ -5630,8 +5630,8 @@ void faketimerhandler()
 		if (i != myconnectindex)
 		{
 			k = (movefifoend[myconnectindex]-1)-movefifoend[i];
-			myminlag[i] = min(myminlag[i],k);
-			mymaxlag = std::max(mymaxlag,k);
+			myminlag[i] = std::min(myminlag[i], k);
+			mymaxlag = std::max(mymaxlag, k);
 		}
 
 	if (((movefifoend[myconnectindex]-1)&(TIMERUPDATESIZ-1)) == 0)
@@ -5725,9 +5725,9 @@ void faketimerhandler()
 			}
 
 				//Second player on 1 computer mode
-			loc2.fvel = min(std::max(fvel2, -128 + 8),127-8);
-			loc2.svel = min(std::max(svel2, -128 + 8),127-8);
-			loc2.avel = min(std::max(avel2, -128 + 16),127-16);
+			loc2.fvel = std::min(std::max(fvel2, -128 + 8), 127 - 8);
+			loc2.svel = std::min(std::max(svel2, -128 + 8), 127 - 8);
+			loc2.avel = std::min(std::max(avel2, -128 + 16), 127 - 16);
 			loc2.bits = (locselectedgun2<<13);
 			loc2.bits |= keystatus[0x45];                  //Stand high
 			loc2.bits |= (keystatus[0x47]<<1);             //Stand low

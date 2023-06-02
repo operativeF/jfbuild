@@ -35,7 +35,7 @@ void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeake
     SDL_memset(&want, 0, sizeof(want));
     want.freq = dasamplerate;
     want.format = dabytespersample == 1 ? AUDIO_U8 : AUDIO_S16SYS;
-    want.channels = std::max(1, min(2, danumspeakers));
+    want.channels = std::max(1, std::min(2, danumspeakers)); // FIXME: Don't use char for counts
     want.samples = (((want.freq/120)+1)&~1);
     want.callback = preparesndbuf;
 

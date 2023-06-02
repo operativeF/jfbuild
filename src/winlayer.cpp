@@ -1545,7 +1545,7 @@ int setgamma(float gamma)
 	for (i=0;i<256;i++) {
 		gt[0][i] =
 		gt[1][i] =
-		gt[2][i] = (WORD)min(65535, std::max(0, static_cast<int>(pow((double)i / 256.0, gamma) * 65535.0 + 0.5)));
+		gt[2][i] = static_cast<WORD>(std::min(65535, std::max(0, static_cast<int>(pow((double)i / 256.0, gamma) * 65535.0 + 0.5))));
 	}
 
 	return setgammaramp(gt);

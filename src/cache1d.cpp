@@ -701,7 +701,7 @@ int kread(int handle, void *buffer, unsigned leng)
 			lseek(groupfil[groupnum],i+((gnumfiles[groupnum]+1)<<4),SEEK_SET);
 			groupfilpos[groupnum] = i;
 		}
-		leng = min(leng,(gfileoffs[groupnum][filenum+1]-gfileoffs[groupnum][filenum])-filepos[handle]);
+		leng = std::min(leng, (gfileoffs[groupnum][filenum+1] - gfileoffs[groupnum][filenum]) - static_cast<unsigned int>(filepos[handle]));
 		i = (int)read(groupfil[groupnum],buffer,leng);
 		if (i > 0) {
 			filepos[handle] += i;

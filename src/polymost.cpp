@@ -101,7 +101,7 @@ double dxb2[MAXWALLSB];
 
 constexpr auto SCISDIST{1.0}; //1.0: Close plane clipping distance
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
-#define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
+constexpr auto LINTERPSIZ{4}; //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
 constexpr auto FOGSCALE{0.0000384};
 
@@ -1178,7 +1178,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 		}
 
 		draw.colour.r = draw.colour.g = draw.colour.b =
-			((float)(numpalookups-min(std::max(globalshade, 0),numpalookups)))/((float)numpalookups);
+			((float)(numpalookups - std::min(std::max(globalshade, 0), static_cast<int>(numpalookups))))/((float)numpalookups);
 		switch(method & (METH_MASKED | METH_TRANS))
 		{
 			case METH_SOLID:   draw.colour.a = 1.0; break;
@@ -1409,7 +1409,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 			nguo = uu[0] - ox*ngux - oy*nguy;
 			ngvo = vv[0] - ox*ngvx - oy*ngvy;
 		}
-		palptr = &palookup[globalpal][min(std::max(globalshade, 0),numpalookups-1)<<8]; //<-need to make shade not static!
+		palptr = &palookup[globalpal][std::min(std::max(globalshade, 0), static_cast<int>(numpalookups) - 1) << 8]; //<-need to make shade not static!
 
 		tsizxm1 = tsizx-1; xmodnice = (!(tsizxm1&tsizx));
 		tsizym1 = tsizy-1; ymulnice = (!(tsizym1&tsizy));
@@ -1420,7 +1420,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 	}
 	else
 	{
-		dacol = palookup[0][(int)(*(unsigned char *)(waloff[globalpicnum]))+(min(std::max(globalshade, 0),numpalookups-1)<<8)];
+		dacol = palookup[0][(int)(*(unsigned char *)(waloff[globalpicnum]))+(std::min(std::max(globalshade, 0), static_cast<int>(numpalookups) - 1) << 8)];
 	}
 
 	if (grhalfxdown10x < 0) //Hack for mirrors
@@ -1497,7 +1497,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 										dtol(   rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
 										dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
 										dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-										rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
+										rdp = 65536.0/dp; vide = &vidp[std::min(ix1 - xx, 1 << LINTERPSIZ)];
 										while (vidp < vide)
 										{
 #if (DEPTHDEBUG == 0)
@@ -1519,7 +1519,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 										dtol(   rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
 										dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
 										dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-										rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
+										rdp = 65536.0/dp; vide = &vidp[std::min(ix1 - xx, 1 << LINTERPSIZ)];
 										while (vidp < vide)
 										{
 #if (DEPTHDEBUG == 0)
@@ -1543,7 +1543,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 										dtol(   rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
 										dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
 										dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-										rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
+										rdp = 65536.0/dp; vide = &vidp[std::min(ix1 - xx, 1 << LINTERPSIZ)];
 										while (vidp < vide)
 										{
 											dacol = walptr[(((u0>>16)&tsizxm1)*tsizy) + ((v0>>16)&tsizym1)];
@@ -1571,7 +1571,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 										dtol(   rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
 										dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
 										dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-										rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
+										rdp = 65536.0/dp; vide = &vidp[std::min(ix1 - xx, 1 << LINTERPSIZ)];
 										while (vidp < vide)
 										{
 											dacol = walptr[imod(u0>>16,tsizx)*tsizy + ((v0>>16)&tsizym1)];
@@ -1599,7 +1599,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 									dtol(   rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
 									dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
 									dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-									rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
+									rdp = 65536.0/dp; vide = &vidp[std::min(ix1 - xx, 1 << LINTERPSIZ)];
 									while (vidp < vide)
 									{
 										dacol = walptr[imod(u0>>16,tsizx)*tsizy + ((v0>>16)&tsizym1)];
@@ -1623,12 +1623,12 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 								}
 								break;
 							case METH_INTRANS: //Transluscence #2
-								for(xx=ix0;xx<ix1;xx+=(1<<LINTERPSIZ))
+								for(xx = ix0; xx < ix1; xx += (1 << LINTERPSIZ))
 								{
 									dtol(   rdp,&d1); dp += ngdx2; d1 = ((d1-d0)>>LINTERPSIZ);
 									dtol(up*rdp,&u1); up += ngux2; u1 = ((u1-u0)>>LINTERPSIZ);
 									dtol(vp*rdp,&v1); vp += ngvx2; v1 = ((v1-v0)>>LINTERPSIZ);
-									rdp = 65536.0/dp; vide = &vidp[min(ix1-xx,1<<LINTERPSIZ)];
+									rdp = 65536.0/dp; vide = &vidp[std::min(ix1 - xx, 1 << LINTERPSIZ)];
 									while (vidp < vide)
 									{
 										dacol = walptr[imod(u0>>16,tsizx)*tsizy + ((v0>>16)&tsizym1)];
@@ -3284,7 +3284,7 @@ void polymost_drawmaskwall (int damaskwallcnt)
 	const sectortype* sec = &sector[sectnum];
 	const sectortype* nsec = &sector[wal->nextsector];
 	const int z1 = std::max(nsec->ceilingz, sec->ceilingz);
-	const int z2 = min(nsec->floorz, sec->floorz);
+	const int z2 = std::min(nsec->floorz, sec->floorz);
 
 	globalpicnum = wal->overpicnum;
 	
@@ -4057,7 +4057,7 @@ static void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1
 
 	for(i=0;i<n;i++)
 	{
-		px[i] = min(std::max(px[i], trapextx[0]),trapextx[1]);
+		px[i] = std::min(std::max(px[i], trapextx[0]), trapextx[1]);
 		vboitem[i].t.s = px[i]*gux + py[i]*guy + guo;
 		vboitem[i].t.t = px[i]*gvx + py[i]*gvy + gvo;
 		vboitem[i].v.x = px[i];
@@ -4253,7 +4253,7 @@ void polymost_fillpolygon (int npoints)
 	draw.fogdensity = 0.f;
 
 	draw.colour.r = draw.colour.g = draw.colour.b =
-		((float)(numpalookups-min(max(globalshade,0),numpalookups)))/((float)numpalookups);
+		((float)(numpalookups - std::min(std::max(globalshade, 0), static_cast<int>(numpalookups))))/((float)numpalookups);
 	switch ((globalorientation>>7)&3) {
 		case 0:
 		case 1: draw.colour.a = 1.0; glfunc.glDisable(GL_BLEND); break;
@@ -4402,7 +4402,7 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, std::span
 	draw.colour.b = colour.b / 255.f;
 	draw.colour.a = 1.f;
 
-	colour = curpalette[min(0, backcol)];
+	colour = curpalette[std::min(0, static_cast<int>(backcol))];
 
 	if (!gammabrightness) {
 		colour.r = britable[curbrightness][ colour.r ];
@@ -4419,7 +4419,7 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, std::span
 		draw.bgcolour.a = 0.f;
 	}
 
-	fontsize = min((unsigned)fontsize, 2);
+	fontsize = std::min(static_cast<int>(fontsize), 2); // FIXME: Don't use char for indexes.
 	tyoff = 64.f * (float)fontsize / 256.f;
 	cx = (float)textfonts[(unsigned)fontsize].charxsiz;
 	cy = (float)textfonts[(unsigned)fontsize].charysiz;
@@ -4880,7 +4880,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 			if (!glmultisample) buildprintf("glmultisample is %d (off)\n", glmultisample);
 			else buildprintf("glmultisample is %d (%dx)\n", glmultisample, 1<<glmultisample);
 		}
-		else glmultisample = min(2, std::max(0, val));
+		else glmultisample = std::min(2, std::max(0, val));
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "glnvmultisamplehint")) {

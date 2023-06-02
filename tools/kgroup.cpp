@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 		}
 		for(j=0;j<fileleng[i];j+=65536)
 		{
-			k = min(fileleng[i]-j,65536);
+			k = std::min(fileleng[i] - j, 65536);
 			if (Bread(fil2,buf,k) < k)
 			{
 				Bclose(fil2);

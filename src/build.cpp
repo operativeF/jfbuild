@@ -706,7 +706,7 @@ void editinput()
 		if (keystatus[buildkeys[9]] > 0)                            //Z (stand low)
 		{
 			if (keystatus[0x1d] > 0)
-				horiz = min(300,horiz+((keystatus[buildkeys[4]]+1)*synctics*2));
+				horiz = std::min(300, horiz + ((keystatus[buildkeys[4]] + 1) * synctics * 2));
 			else
 			{
 				goalz += (12<<8);
@@ -745,7 +745,7 @@ void editinput()
 		if (keystatus[buildkeys[9]] > 0)                            //Z (stand low)
 		{
 			if (keystatus[0x1d] > 0) {
-				horiz = min(300,horiz+((keystatus[buildkeys[4]]+1)*synctics*2));
+				horiz = std::min(300, horiz + ((keystatus[buildkeys[4]] + 1) * synctics * 2));
 			} else {
 				if (zmode != 1)
 					goalz += (8<<8);
@@ -1637,13 +1637,13 @@ void editinput()
 				{
 					if (!(sector[searchsector].ceilingstat&2))
 						sector[searchsector].ceilingheinum = 0;
-					sector[searchsector].ceilingheinum = min(sector[searchsector].ceilingheinum+i,32767);
+					sector[searchsector].ceilingheinum = std::min(static_cast<int>(sector[searchsector].ceilingheinum) + i, 32767);
 				}
 				if (searchstat == 2)
 				{
 					if (!(sector[searchsector].floorstat&2))
 						sector[searchsector].floorheinum = 0;
-					sector[searchsector].floorheinum = min(sector[searchsector].floorheinum+i,32767);
+					sector[searchsector].floorheinum = std::min(static_cast<int>(sector[searchsector].floorheinum) + i, 32767);
 				}
 			}
 
@@ -2360,9 +2360,9 @@ void editinput()
 
 				j = ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
 				if ((sprite[i].cstat&128) == 0)
-					sprite[i].z = min(std::max(hitz, getceilzofslope(hitsect, hitx, hity) + (j << 1)),getflorzofslope(hitsect,hitx,hity));
+					sprite[i].z = std::min(std::max(hitz, getceilzofslope(hitsect, hitx, hity) + (j << 1)), getflorzofslope(hitsect, hitx, hity));
 				else
-					sprite[i].z = min(std::max(hitz, getceilzofslope(hitsect, hitx, hity) + j),getflorzofslope(hitsect,hitx,hity)-j);
+					sprite[i].z = std::min(std::max(hitz, getceilzofslope(hitsect, hitx, hity) + j), getflorzofslope(hitsect, hitx, hity) - j);
 
 				if ((searchstat == 0) || (searchstat == 4))
 				{
@@ -3768,8 +3768,8 @@ void overheadeditor()
 						setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
 
 						templong = ((tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<2);
-						sprite[j].z = std::max(sprite[j].z, getceilzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y) + templong);
-						sprite[j].z = min(sprite[j].z,getflorzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y));
+						sprite[j].z = std::max(sprite[j].z, getceilzofslope(sprite[j].sectnum,sprite[j].x, sprite[j].y) + templong);
+						sprite[j].z = std::min(sprite[j].z, getflorzofslope(sprite[j].sectnum,sprite[j].x, sprite[j].y));
 					}
 				}
 			}
@@ -3781,8 +3781,8 @@ void overheadeditor()
 
 				templong = ((tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<2);
 
-				sprite[j].z = std::max(sprite[j].z, getceilzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y) + templong);
-				sprite[j].z = min(sprite[j].z,getflorzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y));
+				sprite[j].z = std::max(sprite[j].z, getceilzofslope(sprite[j].sectnum,sprite[j].x, sprite[j].y) + templong);
+				sprite[j].z = std::min(sprite[j].z, getflorzofslope(sprite[j].sectnum,sprite[j].x, sprite[j].y));
 			}
 
 			if ((pointhighlight&0xc000) == 0)
@@ -6059,7 +6059,7 @@ void fixrepeats(short i)
 	day = wall[wall[i].point2].y-wall[i].y;
 	dist = ksqrt(dax*dax+day*day);
 	dax = wall[i].xrepeat; day = wall[i].yrepeat;
-	wall[i].xrepeat = (unsigned char)min(std::max(mulscale10(dist,day), 1),255);
+	wall[i].xrepeat = static_cast<unsigned char>(std::min(std::max(mulscale10(dist, day), 1), 255));
 }
 
 void clearmidstatbar16()
@@ -7186,7 +7186,7 @@ void printext16(int xpos, int ypos, short col, short backcol, const char *name, 
 	unsigned char *ptr;
 	const struct textfontspec *f;
 
-	f = &textfonts[min((unsigned)fontsize, 2)];
+	f = &textfonts[std::min(static_cast<int>(fontsize), 2)]; // FIXME: Dumb way to index here.
 	stx = xpos;
 
 	for(i=0;name[i];i++)
@@ -7521,23 +7521,23 @@ void keytimerstuff()
 	if (keystatus[buildkeys[5]] == 0)
 	{
 		if (keystatus[buildkeys[2]] > 0) angvel = std::max(angvel - 16, -128);
-		if (keystatus[buildkeys[3]] > 0) angvel = min(angvel+16,127);
+		if (keystatus[buildkeys[3]] > 0) angvel = std::min(angvel + 16,  127);
 	}
 	else
 	{
-		if (keystatus[buildkeys[2]] > 0) svel = min(svel+8,127);
+		if (keystatus[buildkeys[2]] > 0) svel = std::min(svel + 8,  127);
 		if (keystatus[buildkeys[3]] > 0) svel = std::max(svel - 8, -128);
 	}
-	if (keystatus[buildkeys[0]] > 0) vel = min(vel+8,127);
+	if (keystatus[buildkeys[0]] > 0) vel = std::min(vel + 8,  127);
 	if (keystatus[buildkeys[1]] > 0) vel = std::max(vel - 8, -128);
-	if (keystatus[buildkeys[12]] > 0) svel = min(svel+8,127);
+	if (keystatus[buildkeys[12]] > 0) svel = std::min(svel + 8,  127);
 	if (keystatus[buildkeys[13]] > 0) svel = std::max(svel - 8, -128);
 
-	if (angvel < 0) angvel = min(angvel+12,0);
+	if (angvel < 0) angvel = std::min(angvel + 12, 0);
 	if (angvel > 0) angvel = std::max(angvel - 12, 0);
-	if (svel < 0) svel = min(svel+2,0);
+	if (svel < 0) svel = std::min(svel + 2, 0);
 	if (svel > 0) svel = std::max(svel - 2, 0);
-	if (vel < 0) vel = min(vel+2,0);
+	if (vel < 0) vel = std::min(vel + 2, 0);
 	if (vel > 0) vel = std::max(vel - 2, 0);
 }
 
