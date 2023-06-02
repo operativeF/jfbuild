@@ -5687,7 +5687,7 @@ int getlinehighlight(int xplc, int yplc)
 	for(i=0;i<numwalls;i++)
 	{
 		getclosestpointonwall(xplc,yplc,i,&nx,&ny);
-		dst = klabs(xplc-nx)+klabs(yplc-ny);
+		dst = std::abs(xplc-nx) + std::abs(yplc-ny);
 		if (dst <= dist)
 			dist = dst, closest = i;
 	}
@@ -5719,14 +5719,14 @@ int getpointhighlight(int xplc, int yplc)
 	closest = -1;
 	for(i=0;i<numwalls;i++)
 	{
-		dst = klabs(xplc-wall[i].x) + klabs(yplc-wall[i].y);
+		dst = std::abs(xplc-wall[i].x) + std::abs(yplc-wall[i].y);
 		if (dst <= dist)
 			dist = dst, closest = i;
 	}
 	for(i=0;i<MAXSPRITES;i++)
 		if (sprite[i].statnum < MAXSTATUS)
 		{
-			dst = klabs(xplc-sprite[i].x) + klabs(yplc-sprite[i].y);
+			dst = std::abs(xplc-sprite[i].x) + std::abs(yplc-sprite[i].y);
 			if (dst <= dist)
 				dist = dst, closest = i+16384;
 		}
@@ -5749,7 +5749,7 @@ int adjustmark(int *xplc, int *yplc, short danumwalls)
 	day = *yplc;
 	for(i=0;i<danumwalls;i++)
 	{
-		dst = klabs((*xplc)-wall[i].x) + klabs((*yplc)-wall[i].y);
+		dst = std::abs((*xplc)-wall[i].x) + std::abs((*yplc)-wall[i].y);
 		if (dst < dist)
 		{
 			dist = dst;
@@ -6683,7 +6683,7 @@ void drawline16(int x1, int y1, int x2, int y2, unsigned char col)
 		if (y1 >= ydim16) { if (dx) x1 += scale(ydim16-1-y1,dx,dy); y1 = ydim16-1; if (x1 < 0) x1 = 0; }
 	}
 
-	dx = klabs(x2-x1)+1; dy = klabs(y2-y1)+1;
+	dx = std::abs(x2-x1)+1; dy = std::abs(y2-y1)+1;
 	if (dx >= dy)
 	{
 		if (x2 < x1)
@@ -6970,7 +6970,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 
 		if ((wal->cstat&64) > 0)
 		{
-			if (klabs(xp2-xp1) >= klabs(yp2-yp1))
+			if (std::abs(xp2-xp1) >= std::abs(yp2-yp1))
 			{
 				drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp2,midydim16+yp2+1,col);
 				drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp2,midydim16+yp2-1,col);

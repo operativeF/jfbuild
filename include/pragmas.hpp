@@ -955,11 +955,6 @@ void copybufreverse(void *S, void *D, int c);
 		: "=d" (__d) : "a" (__a), "b" (__b), [dmval] "m" (dmval) : "eax", "memory", "cc"); \
 	 __d; })
 
-#define klabs(a) \
-	({ int __a=(a); \
-	   __asm__ __volatile__ ("testl %%eax, %%eax; jns 0f; negl %%eax; 0:" \
-		: "=a" (__a) : "a" (__a) : "cc"); \
-	 __a; })
 #define ksgn(b) \
 	({ int __b=(b), __r; \
 	   __asm__ __volatile__ ("addl %%ebx, %%ebx; sbbl %%eax, %%eax; cmpl %%ebx, %%eax; adcb $0, %%al" \
@@ -2782,14 +2777,6 @@ int moddiv(int,int);
 	modify exact [eax edx]\
 	value [edx]
 
-int klabs(int);
-#pragma aux klabs =\
-	"test eax, eax",\
-	"jns skipnegate",\
-	"neg eax",\
-	"skipnegate:",\
-	parm nomemory [eax]
-
 int ksgn(int);
 #pragma aux ksgn =\
 	"add ebx, ebx",\
@@ -3453,17 +3440,6 @@ static __inline int moddiv(int a, int b)
 	}
 }
 
-static __inline int klabs(int a)
-{
-	_asm {
-		mov eax, a
-		test eax, eax
-		jns skipnegate
-		neg eax
-	skipnegate:
-	}
-}
-
 static __inline int ksgn(int b)
 {
 	_asm {
@@ -3672,7 +3648,6 @@ static inline int mul9(int a) { return (a<<3)+a; }
 static inline int divmod(int a, int b) { const unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a%_b; return _a/_b; }
 static inline int moddiv(int a, int b) { const unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a/_b; return _a%_b; }
 
-static inline int klabs(int a) { if (a < 0) return -a; return a; }
 static inline int ksgn(int a)  { if (a > 0) return 1; if (a < 0) return -1; return 0; }
 
 static inline int sqr(int eax) { return (eax) * (eax); }

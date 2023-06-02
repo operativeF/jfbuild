@@ -421,7 +421,7 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
             x = dmulscale28(oy,globxvect,-ox,globyvect);
             y = dmulscale28(ox,globxvect,oy,globyvect);
 
-            if ((klabs(x) >= 32768) || (klabs(y) >= 32768))
+            if ((std::abs(x) >= 32768) || (std::abs(y) >= 32768))
                 { splc[i] = 0; continue; }
 
             j = vdist[i];

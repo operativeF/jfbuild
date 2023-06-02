@@ -632,7 +632,7 @@ int app_main(int argc, char const * const argv[])
 
 	initsb(option[1],option[2],digihz[option[7]>>4],((option[7]&4)>0)+1,((option[7]&2)>0)+1,60,option[7]&1);
 	if (Bstrcmp(boardfilename,"klab.map") == 0)
-	    loadsong("klabsong.kdm");
+	    loadsong("std::absong.kdm");
 	else
 		loadsong("neatsong.kdm");
 	musicon();
@@ -1459,7 +1459,7 @@ void prepareboard(char *daboardfilename)
 
 				subwaygoalstop[subwaytrackcnt] = 0;
 				for(j=0;j<subwaystopcnt[subwaytrackcnt];j++)
-					if (klabs(subwaystop[subwaytrackcnt][j]-subwayx[subwaytrackcnt]) < klabs(subwaystop[subwaytrackcnt][subwaygoalstop[subwaytrackcnt]]-subwayx[subwaytrackcnt]))
+					if (std::abs(subwaystop[subwaytrackcnt][j]-subwayx[subwaytrackcnt]) < std::abs(subwaystop[subwaytrackcnt][subwaygoalstop[subwaytrackcnt]]-subwayx[subwaytrackcnt]))
 						subwaygoalstop[subwaytrackcnt] = j;
 
 				subwaytrackx1[subwaytrackcnt] = dax;
@@ -1636,7 +1636,7 @@ void checktouchsprite(short snum, short sectnum)
 	{
 		nexti = nextspritesect[i];
 		if (sprite[i].cstat&0x8000) continue;
-		if ((klabs(posx[snum]-sprite[i].x)+klabs(posy[snum]-sprite[i].y) < 512) && (klabs((posz[snum]>>8)-((sprite[i].z>>8)-(tilesizy[sprite[i].picnum]>>1))) <= 40))
+		if ((std::abs(posx[snum]-sprite[i].x)+std::abs(posy[snum]-sprite[i].y) < 512) && (std::abs((posz[snum]>>8)-((sprite[i].z>>8)-(tilesizy[sprite[i].picnum]>>1))) <= 40))
 		{
 			switch(sprite[i].picnum)
 			{
@@ -1742,7 +1742,7 @@ void checkgrabbertouchsprite(short snum, short sectnum)   // Andy did this
 	{
 		nexti = nextspritesect[i];
 		if (sprite[i].cstat&0x8000) continue;
-		if ((klabs(sprite[snum].x-sprite[i].x)+klabs(sprite[snum].y-sprite[i].y) < 512) && (klabs((sprite[snum].z>>8)-((sprite[i].z>>8)-(tilesizy[sprite[i].picnum]>>1))) <= 40))
+		if ((std::abs(sprite[snum].x-sprite[i].x)+std::abs(sprite[snum].y-sprite[i].y) < 512) && (std::abs((sprite[snum].z>>8)-((sprite[i].z>>8)-(tilesizy[sprite[i].picnum]>>1))) <= 40))
 		{
 			switch(sprite[i].picnum)
 			{
@@ -2021,8 +2021,8 @@ void analyzesprites(int dax, int day)
 			//Don't allow close explosion sprites to be transluscent
 		k = tspr->statnum;
 		if ((k == 3) || (k == 4) || (k == 5) || (k == 7))
-			if (klabs(dax-tspr->x) < 256)
-				if (klabs(day-tspr->y) < 256)
+			if (std::abs(dax-tspr->x) < 256)
+				if (std::abs(day-tspr->y) < 256)
 					tspr->cstat &= ~2;
 
 		tspr->shade += 6;
@@ -2300,7 +2300,7 @@ void tagcode()
 		if ((j < 0) && (subwayvel[i] >= 0)) subwayvel[i] = -1;
 		if ((j > 0) && (subwayvel[i] <= 0)) subwayvel[i] = 1;
 
-		if ((subwayvel[i] <= 2) && (subwayvel[i] >= -2) && (klabs(k) < 2048))
+		if ((subwayvel[i] <= 2) && (subwayvel[i] >= -2) && (std::abs(k) < 2048))
 		{
 			  //Open / close doors
 			if ((subwaypausetime[i] == 720) || ((subwaypausetime[i] >= 120) && (subwaypausetime[i]-TICSPERFRAME < 120)))
@@ -2350,7 +2350,7 @@ void statuslistcode()
 		mindist = 0x7fffffff; target = connecthead;
 		for(p=connecthead;p>=0;p=connectpoint2[p])
 		{
-			dist = klabs(sprite[i].x-posx[p])+klabs(sprite[i].y-posy[p]);
+			dist = std::abs(sprite[i].x-posx[p])+std::abs(sprite[i].y-posy[p]);
 			if (dist < mindist) mindist = dist, target = p;
 		}
 
@@ -2470,7 +2470,7 @@ void statuslistcode()
 		mindist = 0x7fffffff; target = connecthead;
 		for(p=connecthead;p>=0;p=connectpoint2[p])
 		{
-			dist = klabs(sprite[i].x-posx[p])+klabs(sprite[i].y-posy[p]);
+			dist = std::abs(sprite[i].x-posx[p])+std::abs(sprite[i].y-posy[p]);
 			if (dist < mindist) mindist = dist, target = p;
 		}
 
@@ -2727,7 +2727,7 @@ void statuslistcode()
 
 				k = sprite[i].xvel*dax+sprite[i].yvel*day+mulscale4(sprite[i].zvel,daz);
 				l = dax*dax+day*day+daz*daz;
-				if ((klabs(k)>>14) < l)
+				if ((std::abs(k)>>14) < l)
 				{
 					k = divscale17(k,l);
 					sprite[i].xvel -= mulscale16(dax,k);
@@ -3600,7 +3600,7 @@ void view(short snum, int *vx, int *vy, int *vz, short *vsectnum, short ang, int
 	updatesectorz(*vx,*vy,*vz,vsectnum);
 	hitscan(*vx,*vy,*vz,*vsectnum,nx,ny,nz,&hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,CLIPMASK1);
 	hx = hitx-(*vx); hy = hity-(*vy);
-	if (klabs(nx)+klabs(ny) > klabs(hx)+klabs(hy))
+	if (std::abs(nx)+std::abs(ny) > std::abs(hx)+std::abs(hy))
 	{
 		*vsectnum = hitsect;
 		if (hitwall >= 0)
@@ -3609,15 +3609,15 @@ void view(short snum, int *vx, int *vy, int *vz, short *vsectnum, short ang, int
 				  wall[wall[hitwall].point2].y-wall[hitwall].y);
 
 			i = nx*sintable[daang]+ny*sintable[(daang+1536)&2047];
-			if (klabs(nx) > klabs(ny)) hx -= mulscale28(nx,i);
+			if (std::abs(nx) > std::abs(ny)) hx -= mulscale28(nx,i);
 			else hy -= mulscale28(ny,i);
 		}
 		else if (hitsprite < 0)
 		{
-			if (klabs(nx) > klabs(ny)) hx -= (nx>>5);
+			if (std::abs(nx) > std::abs(ny)) hx -= (nx>>5);
 			else hy -= (ny>>5);
 		}
-		if (klabs(nx) > klabs(ny)) i = divscale16(hx,nx);
+		if (std::abs(nx) > std::abs(ny)) i = divscale16(hx,nx);
 		else i = divscale16(hy,ny);
 		if (i < cameradist) cameradist = i;
 	}
@@ -3896,8 +3896,8 @@ void drawscreen(short snum, int dasmoothratio)
 				dist = 0x7fffffff; i = 0;
 				for(k=floormirrorcnt-1;k>=0;k--)
 				{
-					j = klabs(wall[sector[floormirrorsector[k]].wallptr].x-cposx);
-					j += klabs(wall[sector[floormirrorsector[k]].wallptr].y-cposy);
+					j = std::abs(wall[sector[floormirrorsector[k]].wallptr].x-cposx);
+					j += std::abs(wall[sector[floormirrorsector[k]].wallptr].y-cposy);
 					if (j < dist) dist = j, i = k;
 				}
 
@@ -3921,9 +3921,9 @@ void drawscreen(short snum, int dasmoothratio)
 						ptr = (unsigned char *)(frameplace+ylookup[y1]);
 						ptr2 = (unsigned char *)(frameplace+ylookup[y2]);
 						ptr3 = palookup[18];
-						ptr3 += (min(klabs(y1-l)>>2,31)<<8);
+						ptr3 += (min(std::abs(y1-l)>>2,31)<<8);
 						ptr4 = palookup[18];
-						ptr4 += (min(klabs(y2-l)>>2,31)<<8);
+						ptr4 += (min(std::abs(y2-l)>>2,31)<<8);
 
 						j = sintable[((y2+totalclock)<<6)&2047];
 						j += sintable[((y2-totalclock)<<7)&2047];
@@ -4984,7 +4984,7 @@ void initlava()
 		lavadropsizlookup[z] = 8 / (ksqrt(z)+1);
 
 	for(z=0;z<LAVASIZ;z++)
-		lavainc[z] = klabs((((z^17)>>4)&7)-4)+12;
+		lavainc[z] = std::abs((((z^17)>>4)&7)-4)+12;
 
 	lavanumdrops = 0;
 	lavanumframes = 0;

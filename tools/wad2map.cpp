@@ -1552,7 +1552,7 @@ int main(int argc, char **argv)
 	{
 		x = wall[wall[z].point2].x-wall[z].x;
 		y = wall[wall[z].point2].y-wall[z].y;
-		if ((klabs(x) >= 32768) || (klabs(y) >= 32768))
+		if ((std::abs(x) >= 32768) || (std::abs(y) >= 32768))
 			wall[z].xrepeat = 255;
 		else
 		{

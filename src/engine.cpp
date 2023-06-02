@@ -1365,7 +1365,7 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	else
 		{ xv = x1-globalposx; yv = y1-globalposy; }
 	i = xv*(y1-globalposy)-yv*(x1-globalposx); j = yv*x2-xv*y2;
-	if (klabs(j) > klabs(i>>3)) i = divscale28(i,j);
+	if (std::abs(j) > std::abs(i>>3)) i = divscale28(i,j);
 	if (dastat == 0)
 	{
 		t = mulscale15(sector[sectnum].ceilingheinum,dasqr);
@@ -1385,7 +1385,7 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	else
 		{ xv = (x2+x1)-globalposx; yv = (y2+y1)-globalposy; }
 	i = xv*(y1-globalposy)-yv*(x1-globalposx); j = yv*x2-xv*y2;
-	if (klabs(j) > klabs(i>>3)) i = divscale28(i,j);
+	if (std::abs(j) > std::abs(i>>3)) i = divscale28(i,j);
 	if (dastat == 0)
 	{
 		t = mulscale15(sector[sectnum].ceilingheinum,dasqr);
@@ -1575,7 +1575,7 @@ static void ceilscan(int x1, int x2, int sectnum)
 	globalx2 = mulscale16(globalx2,globalzd);
 	globaly1 = mulscale16(globaly1,globalzd);
 	globaly2 = mulscale16(globaly2,globalzd);
-	globvis = klabs(mulscale10(globvis,globalzd));
+	globvis = std::abs(mulscale10(globvis,globalzd));
 
 	if (!(globalorientation&0x180))
 	{
@@ -1746,7 +1746,7 @@ static void florscan(int x1, int x2, int sectnum)
 	globalx2 = mulscale16(globalx2,globalzd);
 	globaly1 = mulscale16(globaly1,globalzd);
 	globaly2 = mulscale16(globaly2,globalzd);
-	globvis = klabs(mulscale10(globvis,globalzd));
+	globvis = std::abs(mulscale10(globvis,globalzd));
 
 	if (!(globalorientation&0x180))
 	{
@@ -2133,7 +2133,7 @@ static void ceilspritehline(int x2, int y)
 	asm1 = mulscale14(globalx2,v);
 	asm2 = mulscale14(globaly2,v);
 
-	asm3 = (intptr_t)palookup[globalpal] + (getpalookup((int)mulscale28(klabs(v),globvis),globalshade)<<8);
+	asm3 = (intptr_t)palookup[globalpal] + (getpalookup((int)mulscale28(std::abs(v),globvis),globalshade)<<8);
 
 	if ((globalorientation&2) == 0)
 		mhline((void *)globalbufplc,bx,(x2-x1)<<16,0L,by,(void *)(ylookup[y]+x1+frameoffset));
@@ -2889,7 +2889,7 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	sprcosang = sintable[(dasprang+512)&2047];
 	sprsinang = sintable[dasprang&2047];
 
-	i = klabs(dmulscale6(dasprx-globalposx,cosang,daspry-globalposy,sinang));
+	i = std::abs(dmulscale6(dasprx-globalposx,cosang,daspry-globalposy,sinang));
 	j = (int)(getpalookup((int)mulscale21(globvis,i),(int)dashade)<<8);
 	setupdrawslab(ylookup[1], palookup[dapal]+j);
 	j = 1310720;
@@ -2955,9 +2955,9 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 		ggyinc[i] = y; y += gyinc;
 	}
 
-	if ((klabs(globalposz-dasprz)>>10) >= klabs(odayscale)) return;
+	if ((std::abs(globalposz-dasprz)>>10) >= std::abs(odayscale)) return;
 	syoff = divscale21(globalposz-dasprz,odayscale) + (dazpivot<<7);
-	yoff = ((klabs(gxinc)+klabs(gyinc))>>1);
+	yoff = ((std::abs(gxinc)+std::abs(gyinc))>>1);
 	longptr = (int *)davoxptr;
 	xyvoxoffs = ((daxsiz+1)<<2);
 
@@ -3620,13 +3620,13 @@ static void drawsprite(int snum)
 
 		dax = rzi[z1]-rzi[z]; day = rxi[z1]-rxi[z];
 		bot = dmulscale8(dax,dax,day,day);
-		if (((klabs(dax)>>13) >= bot) || ((klabs(day)>>13) >= bot)) return;
+		if (((std::abs(dax)>>13) >= bot) || ((std::abs(day)>>13) >= bot)) return;
 		globalx1 = divscale18(dax,bot);
 		globalx2 = divscale18(day,bot);
 
 		dax = rzi[z2]-rzi[z]; day = rxi[z2]-rxi[z];
 		bot = dmulscale8(dax,dax,day,day);
-		if (((klabs(dax)>>13) >= bot) || ((klabs(day)>>13) >= bot)) return;
+		if (((std::abs(dax)>>13) >= bot) || ((std::abs(day)>>13) >= bot)) return;
 		globaly1 = divscale18(dax,bot);
 		globaly2 = divscale18(day,bot);
 
@@ -4287,10 +4287,10 @@ static int clippoly(int npoints, int clipstat)
 			for(zz=0;zz<z;zz++)
 			{
 				z1 = p2[z]; z2 = xb2[z1]; z3 = p2[zz]; z4 = xb2[z3];
-				s1  = klabs(rx2[z1]-rx2[z2])+klabs(ry2[z1]-ry2[z2]);
-				s1 += klabs(rx2[z3]-rx2[z4])+klabs(ry2[z3]-ry2[z4]);
-				s2  = klabs(rx2[z1]-rx2[z4])+klabs(ry2[z1]-ry2[z4]);
-				s2 += klabs(rx2[z3]-rx2[z2])+klabs(ry2[z3]-ry2[z2]);
+				s1  = std::abs(rx2[z1]-rx2[z2])+std::abs(ry2[z1]-ry2[z2]);
+				s1 += std::abs(rx2[z3]-rx2[z4])+std::abs(ry2[z3]-ry2[z4]);
+				s2  = std::abs(rx2[z1]-rx2[z4])+std::abs(ry2[z1]-ry2[z4]);
+				s2 += std::abs(rx2[z3]-rx2[z2])+std::abs(ry2[z3]-ry2[z2]);
 				if (s2 < s1)
 					{ t = xb2[p2[z]]; xb2[p2[z]] = xb2[p2[zz]]; xb2[p2[zz]] = t; }
 			}
@@ -4334,10 +4334,10 @@ static int clippoly(int npoints, int clipstat)
 			for(zz=0;zz<z;zz++)
 			{
 				z1 = p2[z]; z2 = xb1[z1]; z3 = p2[zz]; z4 = xb1[z3];
-				s1  = klabs(rx1[z1]-rx1[z2])+klabs(ry1[z1]-ry1[z2]);
-				s1 += klabs(rx1[z3]-rx1[z4])+klabs(ry1[z3]-ry1[z4]);
-				s2  = klabs(rx1[z1]-rx1[z4])+klabs(ry1[z1]-ry1[z4]);
-				s2 += klabs(rx1[z3]-rx1[z2])+klabs(ry1[z3]-ry1[z2]);
+				s1  = std::abs(rx1[z1]-rx1[z2])+std::abs(ry1[z1]-ry1[z2]);
+				s1 += std::abs(rx1[z3]-rx1[z4])+std::abs(ry1[z3]-ry1[z4]);
+				s2  = std::abs(rx1[z1]-rx1[z4])+std::abs(ry1[z1]-ry1[z4]);
+				s2 += std::abs(rx1[z3]-rx1[z2])+std::abs(ry1[z3]-ry1[z2]);
 				if (s2 < s1)
 					{ t = xb1[p2[z]]; xb1[p2[z]] = xb1[p2[zz]]; xb1[p2[zz]] = t; }
 			}
@@ -4382,10 +4382,10 @@ static int clippoly(int npoints, int clipstat)
 			for(zz=0;zz<z;zz++)
 			{
 				z1 = p2[z]; z2 = xb2[z1]; z3 = p2[zz]; z4 = xb2[z3];
-				s1  = klabs(rx2[z1]-rx2[z2])+klabs(ry2[z1]-ry2[z2]);
-				s1 += klabs(rx2[z3]-rx2[z4])+klabs(ry2[z3]-ry2[z4]);
-				s2  = klabs(rx2[z1]-rx2[z4])+klabs(ry2[z1]-ry2[z4]);
-				s2 += klabs(rx2[z3]-rx2[z2])+klabs(ry2[z3]-ry2[z2]);
+				s1  = std::abs(rx2[z1]-rx2[z2])+std::abs(ry2[z1]-ry2[z2]);
+				s1 += std::abs(rx2[z3]-rx2[z4])+std::abs(ry2[z3]-ry2[z4]);
+				s2  = std::abs(rx2[z1]-rx2[z4])+std::abs(ry2[z1]-ry2[z4]);
+				s2 += std::abs(rx2[z3]-rx2[z2])+std::abs(ry2[z3]-ry2[z2]);
 				if (s2 < s1)
 					{ t = xb2[p2[z]]; xb2[p2[z]] = xb2[p2[zz]]; xb2[p2[zz]] = t; }
 			}
@@ -4429,10 +4429,10 @@ static int clippoly(int npoints, int clipstat)
 			for(zz=0;zz<z;zz++)
 			{
 				z1 = p2[z]; z2 = xb1[z1]; z3 = p2[zz]; z4 = xb1[z3];
-				s1  = klabs(rx1[z1]-rx1[z2])+klabs(ry1[z1]-ry1[z2]);
-				s1 += klabs(rx1[z3]-rx1[z4])+klabs(ry1[z3]-ry1[z4]);
-				s2  = klabs(rx1[z1]-rx1[z4])+klabs(ry1[z1]-ry1[z4]);
-				s2 += klabs(rx1[z3]-rx1[z2])+klabs(ry1[z3]-ry1[z2]);
+				s1  = std::abs(rx1[z1]-rx1[z2])+std::abs(ry1[z1]-ry1[z2]);
+				s1 += std::abs(rx1[z3]-rx1[z4])+std::abs(ry1[z3]-ry1[z4]);
+				s2  = std::abs(rx1[z1]-rx1[z4])+std::abs(ry1[z1]-ry1[z4]);
+				s2 += std::abs(rx1[z3]-rx1[z2])+std::abs(ry1[z3]-ry1[z2]);
 				if (s2 < s1)
 					{ t = xb1[p2[z]]; xb1[p2[z]] = xb1[p2[zz]]; xb1[p2[zz]] = t; }
 			}
@@ -4993,7 +4993,7 @@ static void dosetaspect()
 			if (i != (horizycent-1))
 			{
 				horizlookup[i] = divscale28(1,i-(horizycent-1));
-				horizlookup2[i] = divscale14(klabs(horizlookup[i]),j);
+				horizlookup2[i] = divscale14(std::abs(horizlookup[i]),j);
 			}
 	}
 	if ((xdimen != oxdimen) || (viewingrange != oviewingrange))
@@ -5426,7 +5426,7 @@ static void keepaway (int *x, int *y, int w)
 	x1 = clipit[w].x1; dx = clipit[w].x2-x1;
 	y1 = clipit[w].y1; dy = clipit[w].y2-y1;
 	ox = ksgn(-dy); oy = ksgn(dx);
-	first = (klabs(dx) <= klabs(dy));
+	first = (std::abs(dx) <= std::abs(dy));
 	while (1)
 	{
 		if (dx*(*y-y1) > (*x-x1)*dy) return;
@@ -5471,7 +5471,7 @@ static int raytrace(int x3, int y3, int *x4, int *y4)
 			topu--;
 		} while (x21*(ninty-y1) <= (nintx-x1)*y21);
 
-		if (klabs(x3-nintx)+klabs(y3-ninty) < klabs(x3-*x4)+klabs(y3-*y4)) {
+		if (std::abs(x3-nintx)+std::abs(y3-ninty) < std::abs(x3-*x4)+std::abs(y3-*y4)) {
 			*x4 = nintx;
 			*y4 = ninty;
 			hitwall = z;
@@ -5936,12 +5936,12 @@ killsprite:
 					spritesz[k] -= ((yoff*tspriteptr[k]->yrepeat)<<2);
 					yspan = (tilesizy[tspriteptr[k]->picnum]*tspriteptr[k]->yrepeat<<2);
 					if (!(tspriteptr[k]->cstat&128)) spritesz[k] -= (yspan>>1);
-					if (klabs(spritesz[k]-globalposz) < (yspan>>1)) spritesz[k] = globalposz;
+					if (std::abs(spritesz[k]-globalposz) < (yspan>>1)) spritesz[k] = globalposz;
 				}
 			}
 			for(k=i+1;k<j;k++)
 				for(l=i;l<k;l++)
-					if (klabs(spritesz[k]-globalposz) < klabs(spritesz[l]-globalposz))
+					if (std::abs(spritesz[k]-globalposz) < std::abs(spritesz[l]-globalposz))
 					{
 						swaplong(&tspriteptr[k],&tspriteptr[l]);
 						swaplong(&spritesx[k],&spritesx[l]);
@@ -8454,7 +8454,7 @@ int getangle(int xvect, int yvect)
 	if (yvect == 0) return(((xvect<0)<<10));
 	if (xvect == yvect) return(256+((xvect<0)<<10));
 	if (xvect == -yvect) return(768+((xvect>0)<<10));
-	if (klabs(xvect) > klabs(yvect))
+	if (std::abs(xvect) > std::abs(yvect))
 		return(((radarang[640+scale(160,yvect,xvect)]>>6)+((xvect<0)<<10))&2047);
 	return(((radarang[640-scale(160,xvect,yvect)]>>6)+512+((yvect<0)<<10))&2047);
 }
@@ -8799,7 +8799,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			if (j != 0)
 			{
 				i = ((sec->ceilingz-zs)<<8)+dmulscale15(dax,ys-wal->y,-day,xs-wal->x);
-				if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
+				if (((i^j) >= 0) && ((std::abs(i)>>1) < std::abs(j)))
 				{
 					i = divscale30(i,j);
 					x1 = xs + mulscale30(vx,i);
@@ -8811,14 +8811,14 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 		else if ((vz < 0) && (zs >= sec->ceilingz))
 		{
 			z1 = sec->ceilingz; i = z1-zs;
-			if ((klabs(i)>>1) < -vz)
+			if ((std::abs(i)>>1) < -vz)
 			{
 				i = divscale30(i,vz);
 				x1 = xs + mulscale30(vx,i);
 				y1 = ys + mulscale30(vy,i);
 			}
 		}
-		if ((x1 != 0x7fffffff) && (klabs(x1-xs)+klabs(y1-ys) < klabs((*hitx)-xs)+klabs((*hity)-ys)))
+		if ((x1 != 0x7fffffff) && (std::abs(x1-xs)+std::abs(y1-ys) < std::abs((*hitx)-xs)+std::abs((*hity)-ys)))
 			if (inside(x1,y1,dasector) != 0)
 			{
 				*hitsect = dasector; *hitwall = -1; *hitsprite = -1;
@@ -8846,7 +8846,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			if (j != 0)
 			{
 				i = ((sec->floorz-zs)<<8)+dmulscale15(dax,ys-wal->y,-day,xs-wal->x);
-				if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
+				if (((i^j) >= 0) && ((std::abs(i)>>1) < std::abs(j)))
 				{
 					i = divscale30(i,j);
 					x1 = xs + mulscale30(vx,i);
@@ -8860,7 +8860,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			z1 = sec->floorz;
 			i = z1 - zs;
 
-			if ((klabs(i) >> 1) < vz)
+			if ((std::abs(i) >> 1) < vz)
 			{
 				i = divscale30(i, vz);
 				x1 = xs + mulscale30(vx, i);
@@ -8868,7 +8868,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			}
 		}
 
-		if ((x1 != 0x7fffffff) && (klabs(x1-xs)+klabs(y1-ys) < klabs((*hitx)-xs)+klabs((*hity)-ys)))
+		if ((x1 != 0x7fffffff) && (std::abs(x1-xs)+std::abs(y1-ys) < std::abs((*hitx)-xs)+std::abs((*hity)-ys)))
 			if (inside(x1,y1,dasector) != 0)
 			{
 				*hitsect = dasector; *hitwall = -1; *hitsprite = -1;
@@ -8889,7 +8889,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			if ((x1-xs)*(y2-ys) < (x2-xs)*(y1-ys)) continue;
 			if (rintersect(xs,ys,zs,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz) == 0) continue;
 
-			if (klabs(intx-xs)+klabs(inty-ys) >= klabs((*hitx)-xs)+klabs((*hity)-ys)) continue;
+			if (std::abs(intx-xs)+std::abs(inty-ys) >= std::abs((*hitx)-xs)+std::abs((*hity)-ys)) continue;
 
 			nextsector = wal->nextsector;
 			
@@ -8946,7 +8946,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 					intx = xs + scale(vx,topt,bot);
 					inty = ys + scale(vy,topt,bot);
 
-					if (klabs(intx-xs)+klabs(inty-ys) > klabs((*hitx)-xs)+klabs((*hity)-ys)) continue;
+					if (std::abs(intx-xs)+std::abs(inty-ys) > std::abs((*hitx)-xs)+std::abs((*hity)-ys)) continue;
 
 					*hitsect = dasector; *hitwall = -1; *hitsprite = z;
 					*hitx = intx; *hity = inty; *hitz = intz;
@@ -8968,7 +8968,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 
 					if (rintersect(xs,ys,zs,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz) == 0) continue;
 
-					if (klabs(intx-xs)+klabs(inty-ys) > klabs((*hitx)-xs)+klabs((*hity)-ys)) continue;
+					if (std::abs(intx-xs)+std::abs(inty-ys) > std::abs((*hitx)-xs)+std::abs((*hity)-ys)) continue;
 
 					k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
 					if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
@@ -8989,7 +8989,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 					intx = xs+scale(intz-zs,vx,vz);
 					inty = ys+scale(intz-zs,vy,vz);
 
-					if (klabs(intx-xs)+klabs(inty-ys) > klabs((*hitx)-xs)+klabs((*hity)-ys)) continue;
+					if (std::abs(intx-xs)+std::abs(inty-ys) > std::abs((*hitx)-xs)+std::abs((*hity)-ys)) continue;
 
 					tilenum = spr->picnum;
 					xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
@@ -9151,7 +9151,7 @@ int neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsec
 							{
 								intx = xs + scale(vx,topt,bot);
 								inty = ys + scale(vy,topt,bot);
-								if (klabs(intx-xs)+klabs(inty-ys) < klabs(xe-xs)+klabs(ye-ys))
+								if (std::abs(intx-xs)+std::abs(inty-ys) < std::abs(xe-xs)+std::abs(ye-ys))
 								{
 									*neartagsprite = z;
 									*neartaghitdist = dmulscale14(intx-xs,sintable[(ange+2560)&2047],inty-ys,sintable[(ange+2048)&2047]);
@@ -9503,7 +9503,7 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 			{
 				templong1 = (goalx-intx)*lx + (goaly-inty)*ly;
 
-				if ((klabs(templong1)>>11) < templong2)
+				if ((std::abs(templong1)>>11) < templong2)
 					i = divscale20(templong1,templong2);
 				else
 					i = 0;
@@ -9615,7 +9615,7 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 
 				dax = (*x)-spr->x; day = (*y)-spr->y;
 				t = (spr->clipdist<<2)+walldist;
-				if ((klabs(dax) < t) && (klabs(day) < t))
+				if ((std::abs(dax) < t) && (std::abs(day) < t))
 				{
 					t = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
 					if (spr->cstat&128) daz = spr->z+(t>>1); else daz = spr->z;
@@ -9632,7 +9632,7 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 						{
 							*x = (*x) + dx; *y = (*y) + dy;
 							bad2--; if (bad2 == 0) break;
-						} while ((klabs((*x)-spr->x) < t) && (klabs((*y)-spr->y) < t));
+						} while ((std::abs((*x)-spr->x) < t) && (std::abs((*y)-spr->y) < t));
 						bad = -1;
 						k--; if (k <= 0) return(bad);
 						updatesector(*x,*y,sectnum);
@@ -9939,7 +9939,7 @@ void getzrange(int x, int y, int z, short sectnum,
 				{
 					case 0:
 						k = walldist+(spr->clipdist<<2)+1;
-						if ((klabs(x1-x) <= k) && (klabs(y1-y) <= k))
+						if ((std::abs(x1-x) <= k) && (std::abs(y1-y) <= k))
 						{
 							daz = spr->z;
 							k = ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
@@ -10943,7 +10943,7 @@ void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 	if (!polymost_drawline256(x1,y1,x2,y2,col)) return;
 #endif
 
-	if (klabs(dx) >= klabs(dy))
+	if (std::abs(dx) >= std::abs(dy))
 	{
 		if (dx == 0) return;
 		if (dx < 0)
