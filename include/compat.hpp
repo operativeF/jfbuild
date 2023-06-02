@@ -149,8 +149,6 @@ typedef unsigned __int64 uint64_t;
 
 #ifdef __cplusplus
 
-using namespace std;
-
 extern "C" {
 #endif
 
