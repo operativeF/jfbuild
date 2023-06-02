@@ -245,7 +245,7 @@ static int osdcmd_help(const osdfuncparm_t *parm)
 static int osdcmd_clear(const osdfuncparm_t *parm)
 {
 	if (parm->numparms != 0) return OSDCMD_SHOWHELP;
-	Bmemset(osdtext, 0, TEXTSIZE);
+	std::memset(osdtext, 0, TEXTSIZE);
 	osdlines=1;
 	osdhead=0;
 	osdpos=0;
@@ -295,7 +295,7 @@ void OSD_Init()
     if (osdinited) return;
 	osdinited=1;
 
-	Bmemset(osdtext, 0, TEXTSIZE);
+	std::memset(osdtext, 0, TEXTSIZE);
 	osdlines=1;
 
 	atexit(OSD_Cleanup);
@@ -816,7 +816,7 @@ void OSD_ResizeDisplay(int w, int h)
 	const int k = min(newcols, osdcols);
 
 	char newtext[TEXTSIZE];
-	memset(newtext, 0, TEXTSIZE);
+	std::memset(newtext, 0, TEXTSIZE);
 
 	for(int i{0}; i < j; ++i) {
 		std::memcpy(newtext + newcols * i, osdtext + osdcols * i, k);
@@ -902,7 +902,7 @@ void OSD_Draw()
 static inline void linefeed()
 {
 	Bmemmove(osdtext+osdcols, osdtext, TEXTSIZE-osdcols);
-	Bmemset(osdtext, 0, osdcols);
+	std::memset(osdtext, 0, osdcols);
 
 	if (osdlines < osdmaxlines) osdlines++;
 }
@@ -1066,7 +1066,7 @@ int OSD_Dispatch(const char *cmd)
 
 	do {
 		numparms = 0;
-		Bmemset(parms, 0, sizeof(parms));
+		std::memset(parms, 0, sizeof(parms));
 		wp = strtoken(state, &wtp, &restart);
 		if (!wp) {
 			state = wtp;
@@ -1178,7 +1178,7 @@ static symbol_t *addnewsymbol(const char *name)
 
 	newsymb = (symbol_t *)Bmalloc(sizeof(symbol_t));
 	if (!newsymb) { return nullptr; }
-	Bmemset(newsymb, 0, sizeof(symbol_t));
+	std::memset(newsymb, 0, sizeof(symbol_t));
 
 	// link it to the main chain
 	if (!symbols) {

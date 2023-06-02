@@ -236,7 +236,7 @@ int netinit (int portnum)
 			}
 
 			struct sockaddr_in6 host;
-			memset(&host, 0, sizeof(host));
+			std::memset(&host, 0, sizeof(host));
 			host.sin6_family = AF_INET6;
 			host.sin6_port = htons(portnum);
 			host.sin6_addr = in6addr_any;
@@ -247,7 +247,7 @@ int netinit (int portnum)
 			}
 		} else {
 			struct sockaddr_in host;
-			memset(&host, 0, sizeof(host));
+			std::memset(&host, 0, sizeof(host));
 			host.sin_family = AF_INET;
 			host.sin_port = htons(portnum);
 			host.sin_addr.s_addr = INADDR_ANY;
@@ -338,7 +338,7 @@ int netsend (int other, void *dabuf, int bufsiz) //0:buffer full... can't send
 #endif
 
 	len = 0;
-	memset(msg_control, 0, sizeof(msg_control));
+	std::memset(msg_control, 0, sizeof(msg_control));
 
 	cmsg = CMSG_FIRSTHDR(&msg);
 #if !defined(__APPLE__) && !defined(__HAIKU__)
@@ -462,8 +462,8 @@ int netread (int *other, void *dabuf, int bufsiz) //0:no packets in buffer
 	// Decode the message headers to record what of our IP addresses the
 	// packet came in on. We reply on that same address so the peer knows
 	// who it came from.
-	memset(&snatchreplyfrom4, 0, sizeof(snatchreplyfrom4));
-	memset(&snatchreplyfrom6, 0, sizeof(snatchreplyfrom6));
+	std::memset(&snatchreplyfrom4, 0, sizeof(snatchreplyfrom4));
+	std::memset(&snatchreplyfrom6, 0, sizeof(snatchreplyfrom6));
 	for (cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
 #if defined(__linux) || defined(_WIN32)
 		if (cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IP_PKTINFO) {
@@ -604,14 +604,14 @@ static void initmultiplayers_reset()
 	int i;
 
 	initcrc16();
-	memset(icnt0,0,sizeof(icnt0));
-	memset(ocnt0,0,sizeof(ocnt0));
-	memset(ocnt1,0,sizeof(ocnt1));
-	memset(ipak,0,sizeof(ipak));
-	//memset(opak,0,sizeof(opak)); //Don't need to init opak
-	//memset(pakmem,0,sizeof(pakmem)); //Don't need to init pakmem
+	std::memset(icnt0,0,sizeof(icnt0));
+	std::memset(ocnt0,0,sizeof(ocnt0));
+	std::memset(ocnt1,0,sizeof(ocnt1));
+	std::memset(ipak,0,sizeof(ipak));
+	//std::memset(opak,0,sizeof(opak)); //Don't need to init opak
+	//std::memset(pakmem,0,sizeof(pakmem)); //Don't need to init pakmem
 #if (SIMLAG > 1)
-	memset(simlagcnt,0,sizeof(simlagcnt));
+	std::memset(simlagcnt,0,sizeof(simlagcnt));
 #endif
 
 	lastsendtims[0] = GetTickCount();
@@ -624,7 +624,7 @@ static void initmultiplayers_reset()
 	connecthead = 0;
 	numplayers = 1; myconnectindex = 0;
 
-	memset(otherhost,0,sizeof(otherhost));
+	std::memset(otherhost,0,sizeof(otherhost));
 }
 
 void initsingleplayers()
@@ -910,7 +910,7 @@ static int lookuphost(const char *name, struct sockaddr *host, int warnifmany)
 	}
 	if (port < 1025 || port > 65534) port = NETPORT;
 
-	memset(&hints, 0, sizeof(hints));
+	std::memset(&hints, 0, sizeof(hints));
 	hints.ai_flags = AI_ADDRCONFIG;
 	hints.ai_family = domain;
 	if (domain == PF_INET6) {
@@ -970,7 +970,7 @@ void dosendpackets (int other)
 
 	k = 2;
 	*(int *)&pakbuf[k] = icnt0[other]; k += 4;
-	memset(&pakbuf[k],0,32);
+	std::memset(&pakbuf[k],0,32);
 	for(i=icnt0[other];i<icnt0[other]+256;i++)
 		if (ipak[other][i&(FIFSIZ-1)])
 			pakbuf[((i-icnt0[other])>>3)+k] |= (1<<((i-icnt0[other])&7));

@@ -257,7 +257,7 @@ int glbuild_init()
 		return -1;
 	}
 
-	memset(&glinfo, 0, sizeof(glinfo));
+	std::memset(&glinfo, 0, sizeof(glinfo));
 	glver = (const char *) glfunc.glGetString(GL_VERSION);
 
 #if (USE_OPENGL == USE_GLES2)

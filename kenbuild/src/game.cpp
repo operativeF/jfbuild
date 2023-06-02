@@ -514,7 +514,7 @@ int app_main(int argc, char const * const argv[])
 		buildputs("Configuration file not found, using defaults.\n");
 
 #ifdef HAVE_STARTWIN
-    memset(&settings, 0, sizeof(settings));
+    std::memset(&settings, 0, sizeof(settings));
     settings.fullscreen = fullscreen;
     settings.xdim3d = xdimgame;
     settings.ydim3d = ydimgame;

@@ -378,7 +378,7 @@ int app_main(int argc, char const * const argv[])
 	if ((i = ExtInit()) < 0) return -1;
 
 #ifdef HAVE_STARTWIN
-    memset(&settings, 0, sizeof(settings));
+    std::memset(&settings, 0, sizeof(settings));
     settings.fullscreen = fullscreen;
     settings.xdim2d = xdim2d;
     settings.ydim2d = ydim2d;
@@ -4345,7 +4345,7 @@ void overheadeditor()
 				split = 0;
 
 				//clearbufbyte(&wall[newnumwalls],sizeof(walltype),0L);
-				memset(&wall[newnumwalls],0,sizeof(walltype));
+				std::memset(&wall[newnumwalls],0,sizeof(walltype));
 				wall[newnumwalls].extra = -1;
 
 				wall[newnumwalls].x = mousxplc;
@@ -4525,7 +4525,7 @@ void overheadeditor()
 							flipwalls(numwalls,newnumwalls);
 
 						//clearbufbyte(&sector[numsectors],sizeof(sectortype),0L);
-						memset(&sector[numsectors],0,sizeof(sectortype));
+						std::memset(&sector[numsectors],0,sizeof(sectortype));
 						sector[numsectors].extra = -1;
 
 						sector[numsectors].wallptr = numwalls;
@@ -6292,7 +6292,7 @@ int menuselect(int newpathmode)
 			for(i=listsize/2-1; i>=0; i--) if (!dir->prev) break; else dir=dir->prev;
 			for(i=0; i<listsize && dir; i++, dir=dir->next) {
 				const int c = dir->type == CACHE1D_FIND_DIR ? 4 : 3;
-				memset(buffer,0,sizeof(buffer));
+				std::memset(buffer,0,sizeof(buffer));
 				strncpy(buffer,dir->name,25);
 				if (strlen(buffer) == 25)
 					buffer[21] = buffer[22] = buffer[23] = '.', buffer[24] = 0;
@@ -6560,7 +6560,7 @@ int loadnames()
 	}
 
 	//clearbufbyte(names, sizeof(names), 0);
-	memset(names,0,sizeof(names));
+	std::memset(names,0,sizeof(names));
 
 	buildprintf("Loading NAMES.H\n");
 
@@ -7678,7 +7678,7 @@ void AutoAlignWalls(int nWall0, int ply)
 	if (ply == 0)
 	{
 			//clear visited bits
-		memset(visited,0,sizeof(visited));
+		std::memset(visited,0,sizeof(visited));
 		visited[nWall0] = 1;
 	}
 

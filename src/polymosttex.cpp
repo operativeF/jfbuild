@@ -114,7 +114,7 @@ static void detect_texture_size()
  */
 void PTM_InitIdent(PTMIdent *id, const PTHead *pth)
 {
-    memset(id, 0, sizeof(PTMIdent));
+    std::memset(id, 0, sizeof(PTMIdent));
 
     if (!pth) {
         return;
@@ -127,7 +127,7 @@ void PTM_InitIdent(PTMIdent *id, const PTHead *pth)
 			if (polymosttexverbosity >= 1) {
 				buildprintf("PolymostTex: cannot calculate texture id for pth with no repldef\n");
 			}
-			memset(id, 0, 16);
+			std::memset(id, 0, 16);
 			return;
 		}
 
@@ -354,7 +354,7 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 	if (!tex.pic) {
 		return -2;
 	}
-	memset(tex.pic, 0, tex.sizx * tex.sizy * sizeof(coltype));
+	std::memset(tex.pic, 0, tex.sizx * tex.sizy * sizeof(coltype));
 
 	if (kprender(picdata, picdatalen, (intptr_t)tex.pic, tex.sizx * sizeof(coltype), tex.sizx, tex.sizy, 0, 0)) {
 		free(picdata);
@@ -504,7 +504,7 @@ static PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int cr
 		if (!pth) {
 			return 0;
 		}
-		memset(pth, 0, sizeof(PTHash));
+		std::memset(pth, 0, sizeof(PTHash));
 
 		pth->next = pthashhead[i];
 		pth->head.picnum  = picnum;
@@ -651,7 +651,7 @@ static int pt_load_art(PTHead * pth)
 		free(tex.pic);
 		return 0;
 	}
-	memset(fbtex.pic, 0, tex.sizx * tex.sizy * sizeof(coltype));
+	std::memset(fbtex.pic, 0, tex.sizx * tex.sizy * sizeof(coltype));
 
 	if (!waloff[pth->picnum]) {
 		// Force invalid textures to draw something - an almost purely transparency texture

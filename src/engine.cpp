@@ -5081,8 +5081,8 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 
 	//clearbufbyte(colhere,sizeof(colhere),0L);
 	//clearbufbyte(colhead,sizeof(colhead),0L);
-	Bmemset(colhere,0,sizeof(colhere));
-	Bmemset(colhead,0,sizeof(colhead));
+	std::memset(colhere,0,sizeof(colhere));
+	std::memset(colhead,0,sizeof(colhead));
 
 	pal1 = &palette[768-3];
 	for(i=255;i>=0;i--,pal1-=3)
@@ -5578,7 +5578,7 @@ int initengine()
 
 #if !defined _WIN32 && defined DEBUGGINGAIDS
 	struct sigaction sigact, oldact;
-	memset(&sigact, 0, sizeof(sigact));
+	std::memset(&sigact, 0, sizeof(sigact));
 	sigact.sa_sigaction = sighandler;
 	sigact.sa_flags = SA_SIGINFO;
 	sigaction(SIGFPE, &sigact, &oldact);
@@ -5763,7 +5763,7 @@ void drawrooms(int daposx, int daposy, int daposz,
 		dosetaspect();
 
 	//clearbufbyte(&gotsector[0],(int)((numsectors+7)>>3),0L);
-	Bmemset(&gotsector[0],0,(int)((numsectors+7)>>3));
+	std::memset(&gotsector[0],0,(int)((numsectors+7)>>3));
 
 	shortptr1 = (short *)&startumost[windowx1];
 	shortptr2 = (short *)&startdmost[windowx1];
@@ -6515,7 +6515,7 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 	kclose(fil);
 
 #if USE_POLYMOST && USE_OPENGL
-	memset(spriteext, 0, sizeof(spriteext));
+	std::memset(spriteext, 0, sizeof(spriteext));
 #endif
 	guniqhudid = 0;
 
@@ -7454,7 +7454,7 @@ int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *
 	kclose(fil);
 
 #if USE_POLYMOST && USE_OPENGL
-	memset(spriteext, 0, sizeof(spriteext));
+	std::memset(spriteext, 0, sizeof(spriteext));
 #endif
 	guniqhudid = 0;
 
@@ -7499,7 +7499,7 @@ int loadmaphack(const char *filename)
 		return -1;
 	}
 
-	memset(spriteext, 0, sizeof(spriteext));
+	std::memset(spriteext, 0, sizeof(spriteext));
 
 	while (1) {
 		auto* tok = scriptfile_gettoken(script);
@@ -7892,7 +7892,7 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 
 	qsetmode = 200;
 
-	//memset(ratelimitlast,0,sizeof(ratelimitlast));
+	//std::memset(ratelimitlast,0,sizeof(ratelimitlast));
 	//ratelimitn = 0;
 
 	return(0);
@@ -11254,7 +11254,7 @@ static int screencapture_pcx(char mode)
 		return -1;
 	}
 
-	memset(head, 0, 128);
+	std::memset(head, 0, 128);
 	head[0] = 10;
 	head[1] = 5;
 	head[2] = 1;

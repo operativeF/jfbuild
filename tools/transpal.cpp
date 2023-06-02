@@ -126,8 +126,8 @@ void initfastcolorlookup(int rscale, int gscale, int bscale)
 		j += 129-(i<<1);
 	}
 
-	memset(colhere,0,sizeof(colhere));
-	memset(colhead,0,sizeof(colhead));
+	std::memset(colhere,0,sizeof(colhere));
+	std::memset(colhead,0,sizeof(colhead));
 
 	ptr = &palette[768-3];
 	for(i=255;i>=0;i--,ptr-=3)
@@ -218,10 +218,10 @@ int main(int argc, char **argv)
 		transonly = 0;
 	}
 
-	memset(buf,0,65536);
+	std::memset(buf,0,65536);
 
 	initfastcolorlookup(rscale,gscale,bscale);
-	memset(closestcol, 0xff, 262144);
+	std::memset(closestcol, 0xff, 262144);
 
 	for(i=0;i<numpalookups;i++)
 		for(j=0;j<256;j++)

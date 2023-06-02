@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	FILE* fh;
 	char *outfile = "palette.dat";
 	
-	memset(palette,0,sizeof(palette));
+	std::memset(palette,0,sizeof(palette));
 	
 	if (argc < 2) return showusage();
 	if (readscript(argv[1])) return 1;

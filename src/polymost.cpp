@@ -776,19 +776,19 @@ void polymost_aftershowframe()
 
 void polymost_setview()
 {
-	memset(gdrawroomsprojmat,0,sizeof(gdrawroomsprojmat));
+	std::memset(gdrawroomsprojmat,0,sizeof(gdrawroomsprojmat));
 	gdrawroomsprojmat[0][0] = (float)ydimen; gdrawroomsprojmat[0][2] = 1.0;
 	gdrawroomsprojmat[1][1] = (float)xdimen; gdrawroomsprojmat[1][2] = 1.0;
 	gdrawroomsprojmat[2][2] = 1.0; gdrawroomsprojmat[2][3] = (float)ydimen;
 	gdrawroomsprojmat[3][2] =-1.0;
 
-	memset(grotatespriteprojmat,0,sizeof(grotatespriteprojmat));
+	std::memset(grotatespriteprojmat,0,sizeof(grotatespriteprojmat));
 	grotatespriteprojmat[0][0] = grotatespriteprojmat[2][3] = 1.0;
 	grotatespriteprojmat[1][1] = ((float)xdim)/((float)ydim);
 	grotatespriteprojmat[2][2] = 1.0001;
 	grotatespriteprojmat[3][2] = 1-grotatespriteprojmat[2][2];
 
-	memset(gorthoprojmat,0,sizeof(gorthoprojmat));
+	std::memset(gorthoprojmat,0,sizeof(gorthoprojmat));
 	gorthoprojmat[0][0] = 2/(float)xdim;
 	gorthoprojmat[1][1] = -2/(float)ydim;
 	gorthoprojmat[2][2] = -1.0;
@@ -988,7 +988,7 @@ void polymost_nextpage()
 		);
 		printext256(0, 8, 31, -1, buf, 0);
 	}
-	memset(&polymostcallcounts, 0, sizeof(polymostcallcounts));
+	std::memset(&polymostcallcounts, 0, sizeof(polymostcallcounts));
 #endif
 }
 
@@ -1474,7 +1474,7 @@ void drawpoly (const double *dpx, const double *dpy, int n, int method)
 				if (ix0 < ix1)
 				{
 					if (rendmode == 1)
-						memset((void *)(ylookup[y]+ix0+frameoffset),dacol,ix1-ix0);
+						std::memset((void *)(ylookup[y]+ix0+frameoffset),dacol,ix1-ix0);
 					else
 					{
 						vidp = (unsigned char *)(ylookup[y]+frameoffset+ix0);
@@ -3222,7 +3222,7 @@ void polymost_drawrooms ()
 
 	while (numbunches > 0)
 	{
-		memset(tempbuf,0,numbunches+3); tempbuf[0] = 1;
+		std::memset(tempbuf,0,numbunches+3); tempbuf[0] = 1;
 
 		closest = 0;              //Almost works, but not quite :(
 		for(i=1;i<numbunches;i++)
@@ -3791,7 +3791,7 @@ void polymost_dorotatesprite (int sx, int sy, int z, short a, short picnum,
 		if ((tile2model[picnum].modelid >= 0) && (tile2model[picnum].framenum >= 0))
 		{
 			spritetype tspr;
-			memset(&tspr,0,sizeof(spritetype));
+			std::memset(&tspr,0,sizeof(spritetype));
 
 			if (hudmem[(dastat&4)>>2][picnum].flags&1) return; //"HIDE" is specified in DEF
 

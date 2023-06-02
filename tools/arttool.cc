@@ -180,9 +180,9 @@ public:
 		tilesizy_ = new short[ntiles];
 		picanm_   = new int[ntiles];
 
-		memset(tilesizx_, 0, sizeof(short)*ntiles);
-		memset(tilesizy_, 0, sizeof(short)*ntiles);
-		memset(picanm_, 0, sizeof(int)*ntiles);
+		std::memset(tilesizx_, 0, sizeof(short)*ntiles);
+		std::memset(tilesizy_, 0, sizeof(short)*ntiles);
+		std::memset(picanm_, 0, sizeof(int)*ntiles);
 
 		markprelength_ = 0;
 		markskiplength_ = 0;
@@ -613,7 +613,7 @@ public:
 		unsigned char head[128];
 		int bpl = imgdataw + (imgdataw&1);
 
-		memset(head,0,128);
+		std::memset(head,0,128);
 		head[0] = 10;
 		head[1] = 5;
 		head[2] = 1;

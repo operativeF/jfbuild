@@ -57,7 +57,7 @@ void freeallmodels ()
 		nextmodelid = 0;
 	}
 
-	memset(tile2model,-1,sizeof(tile2model));
+	std::memset(tile2model,-1,sizeof(tile2model));
 
 	if (vertlist)
 	{
@@ -131,7 +131,7 @@ void clearskins ()
 
 void mdinit ()
 {
-	memset(hudmem,0,sizeof(hudmem));
+	std::memset(hudmem,0,sizeof(hudmem));
 	freeallmodels();
 	mdinited = 1;
 }
@@ -240,7 +240,7 @@ int md_defineanimation (int modelid, const char *framestart, const char *frameen
 
 	if ((unsigned int)modelid >= (unsigned int)nextmodelid) return(-1);
 
-	memset(&ma, 0, sizeof(ma));
+	std::memset(&ma, 0, sizeof(ma));
 	m = (md2model *)models[modelid];
 	if (m->mdnum < 2) return 0;
 
@@ -348,7 +348,7 @@ int md_undefinemodel(int modelid)
 
 static void md_initident(PTMIdent *id, const char * filename, int effects)
 {
-    memset(id, 0, sizeof(PTMIdent));
+    std::memset(id, 0, sizeof(PTMIdent));
     id->effects = effects;
     strncpy(id->filename, filename, sizeof(id->filename)-1);
     id->filename[sizeof(id->filename)-1] = 0;
@@ -1532,7 +1532,7 @@ static voxmodel *vox2poly ()
 	void (*daquad)(int, int, int, int, int, int, int, int, int, int);
 
 	gvox = (voxmodel *)malloc(sizeof(voxmodel)); if (!gvox) return(0);
-	memset(gvox,0,sizeof(voxmodel));
+	std::memset(gvox,0,sizeof(voxmodel));
 
 		//x is largest dimension, y is 2nd largest dimension
 	x = xsiz; y = ysiz; z = zsiz;
@@ -1540,7 +1540,7 @@ static voxmodel *vox2poly ()
 	if (x < y) { z = x; x = y; y = z; }
 	shcntp = x; i = x*y*sizeof(int);
 	shcntmal = (int *)malloc(i); if (!shcntmal) { free(gvox); return(0); }
-	memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
+	std::memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
 	gmaxx = gmaxy = garea = 0;
 
 	if (pow2m1[32] != -1) { for(i=0;i<32;i++) pow2m1[i] = (1<<i)-1; pow2m1[32] = -1; }
@@ -1556,7 +1556,7 @@ static voxmodel *vox2poly ()
 			  else daquad = addquad;
 		gvox->qcnt = 0;
 
-		memset(by0,-1,(max(ysiz,zsiz)+1)<<2); v = 0;
+		std::memset(by0,-1,(max(ysiz,zsiz)+1)<<2); v = 0;
 
 		for(i=-1;i<=1;i+=2)
 			for(y=0;y<ysiz;y++)
@@ -1615,7 +1615,7 @@ skindidntfit:;
 
 			i = (((gvox->mytexx*gvox->mytexy+31)>>5)<<2);
 			zbit = (int *)malloc(i); if (!zbit) { free(bx0); free(gvox); free(shp); return(0); }
-			memset(zbit,0,i);
+			std::memset(zbit,0,i);
 
 			v = gvox->mytexx*gvox->mytexy;
 			for(z=0;z<sc;z++)
@@ -1695,11 +1695,11 @@ static int loadvox (const char *filnam)
 
 	vcolhashsizm1 = 8192-1;
 	vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
-	memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
+	std::memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
 	vbit = (int *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
-	memset(vbit,0,i);
+	std::memset(vbit,0,i);
 
 	tbuf = (unsigned char *)malloc(zsiz*sizeof(unsigned char)); if (!tbuf) { kclose(fil); return(-1); }
 
@@ -1762,12 +1762,12 @@ static int loadkvx (const char *filnam)
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
 	vbit = (int *)malloc(i); if (!vbit) { free(xyoffs); kclose(fil); return(-1); }
-	memset(vbit,0,i);
+	std::memset(vbit,0,i);
 
 	for(vcolhashsizm1=4096;vcolhashsizm1<(mip1leng>>1);vcolhashsizm1<<=1) ;
 	vcolhashsizm1--; //approx to numvoxs!
 	vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { free(xyoffs); kclose(fil); return(-1); }
-	memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
+	std::memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
 	klseek(fil,28+((xsiz+1)<<2)+((ysizp1*xsiz)<<1),SEEK_SET);
 
@@ -1825,12 +1825,12 @@ static int loadkv6 (const char *filnam)
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
 	vbit = (int *)malloc(i); if (!vbit) { free(ylen); kclose(fil); return(-1); }
-	memset(vbit,0,i);
+	std::memset(vbit,0,i);
 
 	for(vcolhashsizm1=4096;vcolhashsizm1<numvoxs;vcolhashsizm1<<=1) ;
 	vcolhashsizm1--;
 	vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { free(ylen); kclose(fil); return(-1); }
-	memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
+	std::memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
 	for(x=0;x<xsiz;x++)
 		for(y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
@@ -1869,11 +1869,11 @@ static int loadvxl (const char *filnam)
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
 	vbit = (int *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
-	memset(vbit,-1,i);
+	std::memset(vbit,-1,i);
 
 	vcolhashsizm1 = 1048576-1;
 	vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
-	memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
+	std::memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
 		//Allocate huge buffer and load rest of file into it...
 	i = kfilelength(fil)-ktell(fil);

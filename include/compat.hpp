@@ -383,7 +383,6 @@ int Bwildmatch (const char *i, const char *j);
 # define Btolower tolower
 # define Bmemmove memmove
 # define Bmemchr memchr
-# define Bmemset memset
 # define Bmemcmp memcmp
 # define Bprintf printf
 # define Bsprintf sprintf

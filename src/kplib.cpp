@@ -1395,7 +1395,7 @@ static void initkpeg ()
 		cbmul[(i<<1)+1] = (i-1024)*1858077; //1.772*1048576
 	}
 
-	memset((void *)&dct[10][0],0,64*2*sizeof(dct[0][0]));
+	std::memset((void *)&dct[10][0],0,64*2*sizeof(dct[0][0]));
 }
 
 static void huffgetval (int index, int curbits, int num, int *daval, int *dabits)
@@ -1708,7 +1708,7 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 					}
 					z = zz*64*sizeof(short);
 					dctbuf = (short *)malloc(z); if (!dctbuf) return(-1);
-					memset(dctbuf,0,z);
+					std::memset(dctbuf,0,z);
 					for(z=zz=0;z<gnumcomponents;z++) { dctptr[z] = &dctbuf[zz*64]; zz += dctx[z]*dcty[z]; }
 				}
 
@@ -1800,7 +1800,7 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 									}
 
 										//Get AC
-									if (!dctbuf) memset((void *)&dc[1],0,63*4);
+									if (!dctbuf) std::memset((void *)&dc[1],0,63*4);
 									z = max(Ss,1); dcflag = 1;
 									if (eobrun <= 0)
 									{
@@ -2767,7 +2767,7 @@ static int kzcheckhashsiz (int siz)
 
 	if (!kzhashbuf) //Initialize hash table on first call
 	{
-		memset(kzhashead,-1,sizeof(kzhashead));
+		std::memset(kzhashead,-1,sizeof(kzhashead));
 		kzhashbuf = (char *)malloc(KZHASHINITSIZE); if (!kzhashbuf) return(0);
 		kzhashpos = 0; kzlastfnam = -1; kzhashsiz = KZHASHINITSIZE;
 	}

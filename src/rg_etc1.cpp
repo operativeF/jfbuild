@@ -52,8 +52,8 @@ namespace rg_etc1
    template<typename T> inline T maximum(T a, T b, T c) { return maximum(maximum(a, b), c); }
    template<typename T> inline T clamp(T value, T low, T high) { return (value < low) ? low : ((value > high) ? high : value); }
    template<typename T> inline T square(T value) { return value * value; }
-   template<typename T> inline void zero_object(T& obj) { memset((void*)&obj, 0, sizeof(obj)); }
-   template<typename T> inline void zero_this(T* pObj) { memset((void*)pObj, 0, sizeof(*pObj)); }
+   template<typename T> inline void zero_object(T& obj) { std::memset((void*)&obj, 0, sizeof(obj)); }
+   template<typename T> inline void zero_this(T* pObj) { std::memset((void*)pObj, 0, sizeof(*pObj)); }
 
    template<class T, size_t N> T decay_array_to_subtype(T (&a)[N]);   
 
@@ -774,7 +774,7 @@ namespace rg_etc1
 
       uint hist[256 * 4];
 
-      memset(hist, 0, sizeof(hist[0]) * 256 * key_size);
+      std::memset(hist, 0, sizeof(hist[0]) * 256 * key_size);
 
 #define RG_ETC1_GET_KEY(p) (*(const uint*)((const uint8*)(pKeys + *(p)) + key_ofs))
 #define RG_ETC1_GET_KEY_FROM_INDEX(i) (*(const uint*)((const uint8*)(pKeys + (i)) + key_ofs))
@@ -1817,7 +1817,7 @@ namespace rg_etc1
                   continue;
             }
 
-            memset(&m_temp_selectors[0], 0, n);
+            std::memset(&m_temp_selectors[0], 0, n);
 
             for (uint c = 0; c < n; c++)
                total_error += block_colors[0].squared_distance_rgb(pSrc_pixels[c]);
@@ -1831,7 +1831,7 @@ namespace rg_etc1
                   continue;
             }
 
-            memset(&m_temp_selectors[0], 3, n);
+            std::memset(&m_temp_selectors[0], 3, n);
 
             for (uint c = 0; c < n; c++)
                total_error += block_colors[3].squared_distance_rgb(pSrc_pixels[c]);
@@ -2143,7 +2143,7 @@ found_perfect_match:
       results.m_n = num_colors;
       results.m_block_color4 = !(best_x & 1);
       results.m_block_inten_table = (best_x >> 1) & 7;
-      memset(results.m_pSelectors, (best_x >> 4) & 3, num_colors);
+      std::memset(results.m_pSelectors, (best_x >> 4) & 3, num_colors);
 
       const uint best_packed_c0 = (best_x >> 8) & 255;
       results.m_block_color_unscaled[best_i] = static_cast<uint8>(best_packed_c0);
@@ -2160,7 +2160,7 @@ found_perfect_match:
       int err[8],*ep1 = err,*ep2 = err+4;
       const uint8 *quant = g_quant5_tab + 8;
 
-      memset(dest, 0xFF, sizeof(color_quad_u8)*16);
+      std::memset(dest, 0xFF, sizeof(color_quad_u8)*16);
 
       // process channels seperately
       for(int ch=0;ch<3;ch++)
@@ -2170,7 +2170,7 @@ found_perfect_match:
 
          bp += ch; dp += ch;
 
-         memset(err,0, sizeof(err));
+         std::memset(err,0, sizeof(err));
          for(int y = 0; y < 4; y++)
          {
             // pixel 0

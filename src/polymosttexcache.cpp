@@ -145,7 +145,7 @@ void PTCacheLoadIndex()
 	int total = 0, dups = 0;
 	int haveindex = 0, havestore = 0;
 
-	memset(filename, 0, sizeof(filename));
+	std::memset(filename, 0, sizeof(filename));
 
 	// first, check the cache storage file's signature.
 	// we open for reading and writing to test permission
@@ -426,7 +426,7 @@ PTCacheTile * PTCacheAllocNewTile(int nummipmaps)
 	PTCacheTile * tdef;
 
 	tdef = (PTCacheTile *) malloc(size);
-	memset(tdef, 0, size);
+	std::memset(tdef, 0, size);
 
 	tdef->nummipmaps = nummipmaps;
 
