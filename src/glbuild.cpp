@@ -464,7 +464,7 @@ int glbuild_loadfunctions()
 
 void glbuild_unloadfunctions()
 {
-	memset(&glfunc, 0, sizeof(glfunc));
+	std::memset(&glfunc, 0, sizeof(glfunc));
 }
 
 void glbuild_check_errors(const char *file, int line)

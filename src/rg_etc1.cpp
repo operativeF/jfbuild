@@ -1430,7 +1430,7 @@ namespace rg_etc1
             m_block_inten_table = rhs.m_block_inten_table;
             m_error = rhs.m_error;
             RG_ETC1_ASSERT(m_n == rhs.m_n);
-            memcpy(m_pSelectors, rhs.m_pSelectors, rhs.m_n);
+            std::memcpy(m_pSelectors, rhs.m_pSelectors, rhs.m_n);
             return *this;
          }
       };
@@ -1619,7 +1619,7 @@ namespace rg_etc1
       m_pResult->m_block_color4 = m_best_solution.m_coords.m_color4;
       
       m_pResult->m_block_inten_table = m_best_solution.m_coords.m_inten_table;
-      memcpy(m_pResult->m_pSelectors, pSelectors, n);
+      std::memcpy(m_pResult->m_pSelectors, pSelectors, n);
       m_pResult->m_n = n;
 
       return true;
@@ -1745,7 +1745,7 @@ namespace rg_etc1
          {
             trial_solution.m_error = total_error;
             trial_solution.m_coords.m_inten_table = inten_table;
-            memcpy(trial_solution.m_selectors, m_temp_selectors, 8);
+            std::memcpy(trial_solution.m_selectors, m_temp_selectors, 8);
             trial_solution.m_valid = true;
          }
       }
@@ -1863,7 +1863,7 @@ done:
          {
             trial_solution.m_error = total_error;
             trial_solution.m_coords.m_inten_table = inten_table;
-            memcpy(trial_solution.m_selectors, m_temp_selectors, n);
+            std::memcpy(trial_solution.m_selectors, m_temp_selectors, n);
             trial_solution.m_valid = true;
             if (!total_error)
                break;
@@ -2266,7 +2266,7 @@ found_perfect_match:
             for (subblock = 0; subblock < 2; subblock++)
             {
                if (flip)
-                  memcpy(subblock_pixels, pSrc_pixels + subblock * 8, sizeof(color_quad_u8) * 8);
+                  std::memcpy(subblock_pixels, pSrc_pixels + subblock * 8, sizeof(color_quad_u8) * 8);
                else
                {
                   const color_quad_u8* pSrc_col = pSrc_pixels + subblock * 2;

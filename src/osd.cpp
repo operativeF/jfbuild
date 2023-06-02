@@ -134,7 +134,7 @@ static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shad
 	(void)shade;
 
 	if (len>1023) len=1023;
-	memcpy(st,ch,len);
+	std::memcpy(st,ch,len);
 	st[len]=0;
 
 	if (qsetmode == 200) {
@@ -570,7 +570,7 @@ static void OSD_Manipulate(int op) {
 		case OSDOP_HISTORY_UP:
 			if (osdhistorypos < osdhistorysize-1) {
 				osdhistorypos++;
-				memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
+				std::memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
 				osdeditlen = osdeditcursor = 0;
 				while (osdeditbuf[osdeditcursor]) {
 					osdeditlen++;
@@ -600,7 +600,7 @@ static void OSD_Manipulate(int op) {
 					osdhistorypos = -1;
 				} else {
 					osdhistorypos--;
-					memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
+					std::memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
 					osdeditlen = osdeditcursor = 0;
 					while (osdeditbuf[osdeditcursor]) {
 						osdeditlen++;
@@ -819,10 +819,10 @@ void OSD_ResizeDisplay(int w, int h)
 	memset(newtext, 0, TEXTSIZE);
 
 	for(int i{0}; i < j; ++i) {
-		memcpy(newtext + newcols * i, osdtext + osdcols * i, k);
+		std::memcpy(newtext + newcols * i, osdtext + osdcols * i, k);
 	}
 
-	memcpy(osdtext, newtext, TEXTSIZE);
+	std::memcpy(osdtext, newtext, TEXTSIZE);
 
 	osdcols = newcols;
 	osdmaxlines = newmaxlines;

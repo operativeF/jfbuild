@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	memset(&icon, 0, sizeof(icon));
+	std::memset(&icon, 0, sizeof(icon));
 
 	kpzload(argv[1], (intptr_t*)&icon.pixels, &bpl, &icon.width, &icon.height);
 	if (!icon.pixels) {

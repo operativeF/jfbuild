@@ -14,7 +14,6 @@
 extern short brightness;
 extern int fullscreen;
 extern char option[8];
-extern int keys[NUMKEYS];
 
 /*
  * SETUP.DAT

@@ -175,10 +175,10 @@ PTMHead * PTM_GetHead(const PTMIdent *id)
 
 	ptmh = (PTMHash *) malloc(sizeof(PTMHash));
 	if (ptmh) {
-		memset(ptmh, 0, sizeof(PTMHash));
+		std::memset(ptmh, 0, sizeof(PTMHash));
 
         ptmh->idcrc = idcrc;
-		memcpy(&ptmh->id, id, sizeof(PTMIdent));
+		std::memcpy(&ptmh->id, id, sizeof(PTMIdent));
 		ptmh->next = ptmhashhead[i];
 		ptmhashhead[i] = ptmh;
 	}
@@ -376,11 +376,11 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 		if (tex.sizx > tex.tsizx) {	//Copy left to right
 			coltype * lptr = tex.pic;
 			for (y = 0; y < tex.tsizy; y++, lptr += tex.sizx) {
-				memcpy(&lptr[tex.tsizx], lptr, (tex.sizx - tex.tsizx) << 2);
+				std::memcpy(&lptr[tex.tsizx], lptr, (tex.sizx - tex.tsizx) << 2);
 			}
 		}
 		if (tex.sizy > tex.tsizy) {	//Copy top to bottom
-			memcpy(&tex.pic[tex.sizx * tex.tsizy], tex.pic, (tex.sizy - tex.tsizy) * tex.sizx << 2);
+			std::memcpy(&tex.pic[tex.sizx * tex.tsizy], tex.pic, (tex.sizy - tex.tsizy) * tex.sizx << 2);
 		}
 	}
 
@@ -634,7 +634,7 @@ static int pt_load_art(PTHead * pth)
 
 	tex.rawfmt = GL_RGBA;
 
-	memcpy(&fbtex, &tex, sizeof(PTTexture));
+	std::memcpy(&fbtex, &tex, sizeof(PTTexture));
 
 	if (!waloff[pth->picnum]) {
 		loadtile(pth->picnum);

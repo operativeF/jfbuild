@@ -85,7 +85,7 @@ void hicinit()
 			}
 		}
 	}
-	memset(hicreplc,0,sizeof(hicreplc));
+	memset(hicreplc, 0, sizeof(hicreplc));
 
 	hicfirstinit = 1;
 }

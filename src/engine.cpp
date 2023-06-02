@@ -10852,7 +10852,7 @@ void setfirstwall(short sectnum, short newfirstwall)
 	int endwall = startwall + danumwalls;
 	if ((newfirstwall < startwall) || (newfirstwall >= startwall+danumwalls)) return;
 	for(i=0;i<danumwalls;i++)
-		Bmemcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
+		std::memcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
 
 	numwallsofloop = 0;
 	i = newfirstwall;
@@ -10871,7 +10871,7 @@ void setfirstwall(short sectnum, short newfirstwall)
 		for(i=0;i<danumwalls;i++)
 		{
 			k = i+j; if (k >= danumwalls) k -= danumwalls;
-			Bmemcpy(&wall[startwall+i],&wall[numwalls+k],sizeof(walltype));
+			std::memcpy(&wall[startwall+i],&wall[numwalls+k],sizeof(walltype));
 
 			wall[startwall+i].point2 += danumwalls-startwall-j;
 			if (wall[startwall+i].point2 >= danumwalls)
@@ -10883,12 +10883,12 @@ void setfirstwall(short sectnum, short newfirstwall)
 	}
 
 	for(i=0;i<numwallsofloop;i++)
-		Bmemcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
+		std::memcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
 	for(i=0;i<numwallsofloop;i++)
 	{
 		k = i+newfirstwall-startwall;
 		if (k >= numwallsofloop) k -= numwallsofloop;
-		Bmemcpy(&wall[startwall+i],&wall[numwalls+k],sizeof(walltype));
+		std::memcpy(&wall[startwall+i],&wall[numwalls+k],sizeof(walltype));
 
 		wall[startwall+i].point2 += numwallsofloop-newfirstwall;
 		if (wall[startwall+i].point2 >= numwallsofloop)
@@ -11254,7 +11254,7 @@ static int screencapture_pcx(char mode)
 		return -1;
 	}
 
-	memset(head,0,128);
+	memset(head, 0, 128);
 	head[0] = 10;
 	head[1] = 5;
 	head[2] = 1;
@@ -11319,9 +11319,9 @@ static void screencapture_writepngline(unsigned char *buf, int bytes, int elemen
 
 	blklen = (unsigned short)B_LITTLE16(1 + bytes * elements);	// One extra for the filter type.
 	header[0] = 0;	// BFINAL = 0, BTYPE = 00.
-	memcpy(&header[1], &blklen, 2);
+	std::memcpy(&header[1], &blklen, 2);
 	blklen = ~blklen;
-	memcpy(&header[3], &blklen, 2);
+	std::memcpy(&header[3], &blklen, 2);
 
 	header[5] = 0;	// No filter.
 	sums->adlers2 = (sums->adlers2 + sums->adlers1) % 65521;
@@ -11343,17 +11343,17 @@ static int screencapture_png(char mode)
 
 #define BEGIN_PNG_CHUNK(type) { \
 	acclen = 4; \
-	memcpy(&buf[acclen], type, 4); \
+	std::memcpy(&buf[acclen], type, 4); \
 	acclen += 4; \
 }
 #define SET_PNG_CHUNK_LEN(fore) { \
 	/* Accumulated and forecast, minus length and type fields. */ \
 	const int len = B_BIG32(acclen + fore - 8); \
-	memcpy(&buf[0], &len, 4); \
+	std::memcpy(&buf[0], &len, 4); \
 }
 #define END_PNG_CHUNK(ccrc) { \
 	const unsigned int crc = B_BIG32(ccrc); \
-	memcpy(&buf[acclen], &crc, 4); \
+	std::memcpy(&buf[acclen], &crc, 4); \
 	acclen += 4; \
 	Bfwrite(buf, acclen, 1, fil); \
 }
@@ -11376,8 +11376,8 @@ static int screencapture_png(char mode)
 
 	// Header.
 	BEGIN_PNG_CHUNK("IHDR");
-	i = B_BIG32(xdim); memcpy(&buf[acclen], &i, 4); acclen += 4;
-	i = B_BIG32(ydim); memcpy(&buf[acclen], &i, 4); acclen += 4;
+	i = B_BIG32(xdim); std::memcpy(&buf[acclen], &i, 4); acclen += 4;
+	i = B_BIG32(ydim); std::memcpy(&buf[acclen], &i, 4); acclen += 4;
 	buf[acclen++] = 8;	// Bit depth per sample/palette index.
 	buf[acclen++] = glmode ? 2 : 3;	// Colour type.
 	buf[acclen++] = 0;	// Deflate compression method.
@@ -11425,9 +11425,9 @@ static int screencapture_png(char mode)
 
 	// Finalise the Zlib stream.
 	acclen = 0;
-	memcpy(&buf[acclen], enddeflate, sizeof(enddeflate)); acclen += sizeof(enddeflate);
-	s = B_BIG16(sums.adlers2); memcpy(&buf[acclen], &s, 2); acclen += 2;
-	s = B_BIG16(sums.adlers1); memcpy(&buf[acclen], &s, 2); acclen += 2;
+	std::memcpy(&buf[acclen], enddeflate, sizeof(enddeflate)); acclen += sizeof(enddeflate);
+	s = B_BIG16(sums.adlers2); std::memcpy(&buf[acclen], &s, 2); acclen += 2;
+	s = B_BIG16(sums.adlers1); std::memcpy(&buf[acclen], &s, 2); acclen += 2;
 
 	// Finalise the Image Data chunk and write what remains out.
 	crc32block(&sums.crc, buf, acclen);

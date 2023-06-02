@@ -1047,7 +1047,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 			if (groupfil[i] == -1) continue;
 			for(j=gnumfiles[i]-1;j>=0;j--)
 			{
-				Bmemcpy(&buf[0], &gfilelist[i][j << 4], 12);
+				std::memcpy(&buf[0], &gfilelist[i][j << 4], 12);
 				if (!Bwildmatch(&buf[0], mask)) continue;
 				switch (klistaddentry(&rec, &buf[0], CACHE1D_FIND_FILE, CACHE1D_SOURCE_GRP)) {
 					case -1: goto failure;

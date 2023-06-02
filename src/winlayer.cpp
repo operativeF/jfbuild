@@ -299,7 +299,7 @@ int wm_filechooser(const char *initialdir, const char *initialfile, const char *
 	}
 
 	// ext Files\0*.ext\0\0
-	memset(filter, 0, sizeof(filter));
+	std::memset(filter, 0, sizeof(filter));
 	sprintf(filterp, "%s Files", type);
 	filterp += strlen(filterp) + 1;
 	sprintf(filterp, "*.%s", type);
@@ -959,7 +959,7 @@ static void updatejoystick()
 	if (::XInputGetState(xinputusernum, &state) != ERROR_SUCCESS) {
 		buildputs("Joystick error, disabling.\n");
 		joyb = 0;
-		std::memset(&joyaxis[0], 0, sizeof(joyaxis));
+		std::ranges::fill(joyaxis, 0);
 		xinputusernum = -1;
 		return;
 	}

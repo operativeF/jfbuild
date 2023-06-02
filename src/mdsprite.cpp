@@ -259,7 +259,7 @@ int md_defineanimation (int modelid, const char *framestart, const char *frameen
 
 	map = (mdanim_t*)calloc(1,sizeof(mdanim_t));
 	if (!map) return(-4);
-	memcpy(map, &ma, sizeof(ma));
+	std::memcpy(map, &ma, sizeof(ma));
 
 	map->next = m->animations;
 	m->animations = map;
@@ -883,7 +883,7 @@ static md3model *md3load (int fil)
 	kread(fil,&filehead,sizeof(md3filehead_t));
 	m->head.id = B_LITTLE32(filehead.id);
 	m->head.vers = B_LITTLE32(filehead.vers);
-	memcpy(m->head.nam, filehead.nam, sizeof(filehead.nam));
+	std::memcpy(m->head.nam, filehead.nam, sizeof(filehead.nam));
 	m->head.flags = B_LITTLE32(filehead.flags);
 	m->head.numframes = B_LITTLE32(filehead.numframes);
 	m->head.numtags = B_LITTLE32(filehead.numtags);
@@ -943,7 +943,7 @@ static md3model *md3load (int fil)
 		klseek(fil,ofsurf,SEEK_SET); kread(fil,&filesurf,sizeof(md3filesurf_t));
 
 		s->id = B_LITTLE32(filesurf.id);
-		memcpy(s->nam, filesurf.nam, sizeof(filesurf.nam));
+		std::memcpy(s->nam, filesurf.nam, sizeof(filesurf.nam));
 		s->flags = B_LITTLE32(filesurf.flags);
 		s->numframes = B_LITTLE32(filesurf.numframes);
 		s->numshaders = B_LITTLE32(filesurf.numshaders);
@@ -1492,10 +1492,10 @@ static void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int
 		//Extend borders vertically
 	for(yy=0;yy<VOXBORDWIDTH;yy++)
 	{
-		memcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x],
+		std::memcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x],
 				 &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
 				 (x+(VOXBORDWIDTH<<1))<<2);
-		memcpy(&gvox->mytex[(shp[z].y+y+yy+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
+		std::memcpy(&gvox->mytex[(shp[z].y+y+yy+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
 				 &gvox->mytex[(shp[z].y+y-1+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
 				 (x+(VOXBORDWIDTH<<1))<<2);
 	}
@@ -2025,7 +2025,7 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 //------------
 
 		//transform to Build coords
-	memcpy(omat,mat,sizeof(omat));
+	std::memcpy(omat,mat,sizeof(omat));
 	f = 1.f/64.f;
 	g = m0.x*f; mat[0] *= g; mat[1] *= g; mat[2] *= g;
 	g = m0.y*f; mat[4] = omat[8]*g; mat[5] = omat[9]*g; mat[6] = omat[10]*g;

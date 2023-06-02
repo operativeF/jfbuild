@@ -406,7 +406,7 @@ int initinput()
 	inputdevices = 1|2; // keyboard (1) and mouse (2)
 	mouseacquired = 0;
 
-	memset(keynames,0,sizeof(keynames));
+	std::memset(keynames, 0, sizeof(keynames));
 	for (i=0; i<SDL_NUM_SCANCODES; i++) {
 		if (!keytranslation[i].normal) continue;
 		strncpy(keynames[ keytranslation[i].normal ], SDL_GetScancodeName(i), sizeof(keynames[i])-1);
@@ -1118,7 +1118,7 @@ void showframe()
 
 	in = frame;
 	for (y = yres - 1; y >= 0; y--) {
-		memcpy(pixels, in, xres);
+		std::memcpy(pixels, in, xres);
 		pixels += pitch;
 		in += bytesperline;
 	}
@@ -1420,7 +1420,7 @@ int handleevents()
 
 static int buildkeytranslationtable()
 {
-	memset(keytranslation,0,sizeof(keytranslation));
+	std::memset(keytranslation, 0, sizeof(keytranslation));
 
 #define MAP(x,y) keytranslation[x].normal = y
 #define MAPC(x,y,c) keytranslation[x].normal = y, keytranslation[x].controlchar = c

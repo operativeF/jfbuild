@@ -24,7 +24,7 @@ void findfiles(const char *dafilespec)
 
     for(i=numfiles-1;i>=0;i--)
     {
-        memcpy(t,filelist[i],12);
+        std::memcpy(t,filelist[i],12);
         t[12] = 0;
 
         if (Bwildmatch(t,dafilespec)) {

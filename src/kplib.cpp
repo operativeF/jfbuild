@@ -558,7 +558,7 @@ static int initpass () //Interlaced images have 7 "passes", non-interlaced have 
 		case 4: xsizbpl = ((xsizbpl+1)>>1); break;
 	}
 
-	memset(olinbuf,0,(xsizbpl+1)*sizeof(olinbuf[0]));
+	std::memset(olinbuf, 0, (xsizbpl+1) * sizeof(olinbuf[0]));
 	*(int *)&opixbuf0[0] = *(int *)&opixbuf1[0] = 0;
 	xplc = xsizbpl; yplc = globyoffs+iyoff; xm = 0; filt = -1;
 
@@ -1628,7 +1628,7 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 					ch = *kfileptr++; leng--;
 					if (ch >= 16) { index = ch-12; }
 								else { index = ch; }
-					memcpy((void *)&hufnumatbit[index][1],(void *)kfileptr,16); kfileptr += 16;
+					std::memcpy((void *)&hufnumatbit[index][1],(void *)kfileptr,16); kfileptr += 16;
 					leng -= 16;
 
 					v = 0; hufcnt[index] = 0;
@@ -1637,7 +1637,7 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 					{
 						hufmaxatbit[index][i] = v+hufnumatbit[index][i];
 						hufvalatbit[index][i] = hufcnt[index]-v;
-						memcpy((void *)&huftable[index][hufcnt[index]],(void *)kfileptr,(int)hufnumatbit[index][i]);
+						std::memcpy((void *)&huftable[index][hufcnt[index]],(void *)kfileptr,(int)hufnumatbit[index][i]);
 						if (i <= 10)
 							for(c=0;c<hufnumatbit[index][i];c++)
 								for(j=(1<<(10-i));j>0;j--)
@@ -2040,7 +2040,7 @@ static int kgifrend (const char *kfilebuf, int kfilelength,
 	for(i=lzcols-1;i>=0;i--) { suffix[i] = (unsigned char)(prefix[i] = i); }
 	currstr = lzcols+2; numbits = startnumbits; numbitgoal = (lzcols<<1);
 	blocklen = *ptr++;
-	memcpy(filbuffer,ptr,blocklen); ptr += blocklen;
+	std::memcpy(filbuffer,ptr,blocklen); ptr += blocklen;
 	bitcnt = 0;
 	while (1)
 	{
@@ -2051,7 +2051,7 @@ static int kgifrend (const char *kfilebuf, int kfilelength,
 			*(short *)filbuffer = *(short *)&filbuffer[bitcnt>>3];
 			i = blocklen-(bitcnt>>3);
 			blocklen = (int)*ptr++;
-			memcpy(&filbuffer[i],ptr,blocklen); ptr += blocklen;
+			std::memcpy(&filbuffer[i],ptr,blocklen); ptr += blocklen;
 			bitcnt &= 7; blocklen += i;
 		}
 		if (dat == lzcols)
@@ -2461,7 +2461,7 @@ static int kddsrend (const char *buf, int leng,
 		for(y=0;y<ysiz;y++,p+=bpl,buf+=xx)
 		{
 			if ((unsigned int)(y+yoff) >= (unsigned int)ydim) continue;
-			memcpy((void *)p,(void *)buf,xsiz);
+			std::memcpy((void *)p,(void *)buf,xsiz);
 		}
 		return(0);
 	}
@@ -2980,7 +2980,7 @@ int kzfindfile (char *filnam)
 				if ((wildst[i] == '/') || (wildst[i] == '\\'))
 					wildstpathleng = i+1;
 
-			memcpy(filnam,wildst,wildstpathleng);
+			std::memcpy(filnam,wildst,wildstpathleng);
 
 #if defined(__DOS__)
 			if (_dos_findfirst(wildst,_A_SUBDIR,&findata))
@@ -3019,7 +3019,7 @@ int kzfindfile (char *filnam)
 	if (srchstat == -2)
 		while (1)
 		{
-			memcpy(filnam,wildst,wildstpathleng);
+			std::memcpy(filnam,wildst,wildstpathleng);
 #if defined(__DOS__)
 			if (_dos_findnext(&findata))
 				{ if (!kzhashbuf) return(0); srchstat = kzlastfnam; break; }
@@ -3086,7 +3086,7 @@ static void putbuf4zip (const unsigned char *buf, int uncomp0, int uncomp1)
 		//  &gzbufptr[kzfs.pos] ... &gzbufptr[kzfs.endpos];
 	i0 = max(uncomp0,kzfs.pos);
 	i1 = min(uncomp1,kzfs.endpos);
-	if (i0 < i1) memcpy(&gzbufptr[i0],&buf[i0-uncomp0],i1-i0);
+	if (i0 < i1) std::memcpy(&gzbufptr[i0],&buf[i0-uncomp0],i1-i0);
 }
 
 	//returns number of bytes copied

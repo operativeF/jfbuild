@@ -34,7 +34,7 @@ char *scriptfile_peektoken(const scriptfile *sf)
 {
 	scriptfile dupe;
 
-	memcpy(&dupe, sf, sizeof(scriptfile));
+	std::memcpy(&dupe, sf, sizeof(scriptfile));
 
 	skipoverws(&dupe);
 	if (dupe.textptr >= dupe.eof) return nullptr;
@@ -327,7 +327,7 @@ scriptfile *scriptfile_fromstring(const char *string)
 		return nullptr;
 	}
 
-	memcpy(tx, string, flen);
+	std::memcpy(tx, string, flen);
 	tx[flen] = tx[flen+1] = 0;
 
 	scriptfile_preparse(sf,tx,flen);

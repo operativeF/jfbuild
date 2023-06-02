@@ -110,12 +110,7 @@ static int fvel, svel, avel;
 static int fvel2, svel2, avel2;
 
 char option[NUMOPTIONS] = {1,1,1,0,0,0,1,(4<<4)|1|2|4};
-int keys[NUMKEYS] =
-{
-	0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
-	0x1e,0x2c,0xd1,0xc9,0x33,0x34,
-	0x9c,0x1c,0xd,0xc,0xf,0x2b
-};
+
 int xdimgame = 640, ydimgame = 480, bppgame = 8;
 int forcesetup = 1;
 
@@ -5309,9 +5304,9 @@ int loadgame()
 	kdfread(revolvedoory,4,MAXPLAYERS,fil);
 
 	kdfread(&numsectors,2,1,fil);
-	kdfread(sector.data(),sizeof(sectortype),numsectors,fil);
+	kdfread(&sector[0],sizeof(sectortype),numsectors,fil);
 	kdfread(&numwalls,2,1,fil);
-	kdfread(wall,sizeof(walltype),numwalls,fil);
+	kdfread(&wall[0],sizeof(walltype),numwalls,fil);
 		//Store all sprites (even holes) to preserve indeces
 	kdfread(sprite,sizeof(spritetype),MAXSPRITES,fil);
 	kdfread(headspritesect,2,MAXSECTORS+1,fil);
@@ -5408,7 +5403,7 @@ int loadgame()
 		//Warning: only works if all pointers are in sector structures!
 	kdfread(tmpanimateptr,4,MAXANIMATES,fil);
 	for(i=MAXANIMATES-1;i>=0;i--)
-		animateptr[i] = (int *)(tmpanimateptr[i]+(intptr_t)sector.data());
+		animateptr[i] = (int *)(tmpanimateptr[i]+(intptr_t)&sector[0]);
 
 	kdfread(animategoal,4,MAXANIMATES,fil);
 	kdfread(animatevel,4,MAXANIMATES,fil);
@@ -5487,9 +5482,9 @@ int savegame()
 	dfwrite(revolvedoory,4,MAXPLAYERS,fil);
 
 	dfwrite(&numsectors,2,1,fil);
-	dfwrite(sector.data(),sizeof(sectortype),numsectors,fil);
+	dfwrite(&sector[0],sizeof(sectortype),numsectors,fil);
 	dfwrite(&numwalls,2,1,fil);
-	dfwrite(wall,sizeof(walltype),numwalls,fil);
+	dfwrite(&wall[0],sizeof(walltype),numwalls,fil);
 		//Store all sprites (even holes) to preserve indeces
 	dfwrite(sprite,sizeof(spritetype),MAXSPRITES,fil);
 	dfwrite(headspritesect,2,MAXSECTORS+1,fil);
@@ -5585,7 +5580,7 @@ int savegame()
 
 		//Warning: only works if all pointers are in sector structures!
 	for(i=MAXANIMATES-1;i>=0;i--)
-		tmpanimateptr[i] = (int)((intptr_t)animateptr[i]-(intptr_t)sector.data());
+		tmpanimateptr[i] = (int)((intptr_t)animateptr[i]-(intptr_t)&sector[0]);
 	dfwrite(tmpanimateptr,4,MAXANIMATES,fil);
 
 	dfwrite(animategoal,4,MAXANIMATES,fil);

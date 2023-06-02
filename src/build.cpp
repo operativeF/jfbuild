@@ -18,6 +18,7 @@
 #include "winlayer.hpp"
 #endif
 
+#include <algorithm>
 #include <array>
 
 constexpr auto TIMERINTSPERSECOND{120};
@@ -193,7 +194,7 @@ int getfilenames(const char *path, const char* kind);
 void clearfilenames();
 
 void clearkeys() {
-	std::memset(&keystatus[0], 0, sizeof(keystatus));
+	std::ranges::fill(keystatus, 0);
 }
 
 static int osdcmd_restartvid(const osdfuncparm_t *parm)
@@ -4033,7 +4034,7 @@ void overheadeditor()
 							m = newnumwalls;
 							do
 							{
-								Bmemcpy(&wall[newnumwalls],&wall[i],sizeof(walltype));
+								std::memcpy(&wall[newnumwalls],&wall[i],sizeof(walltype));
 								wall[newnumwalls].point2 = newnumwalls+1;
 								newnumwalls++;
 								wall[i].cstat = 255;
@@ -4052,7 +4053,7 @@ void overheadeditor()
 
 					if (newnumwalls > numwalls)
 					{
-						Bmemcpy(&sector[numsectors],&sector[joinsector[0]],sizeof(sectortype));
+						std::memcpy(&sector[numsectors],&sector[joinsector[0]],sizeof(sectortype));
 						sector[numsectors].wallptr = numwalls;
 						sector[numsectors].wallnum = newnumwalls-numwalls;
 
@@ -4418,7 +4419,7 @@ void overheadeditor()
 						if (bad == 0)
 						{
 							//clearbufbyte(&wall[newnumwalls],sizeof(walltype),0L);
-							memset(&wall[newnumwalls],0,sizeof(walltype));
+							std::memset(&wall[newnumwalls], 0, sizeof(walltype));
 							wall[newnumwalls].extra = -1;
 
 							wall[newnumwalls].x = mousxplc;
@@ -4455,7 +4456,7 @@ void overheadeditor()
 								flipwalls(numwalls,newnumwalls);
 
 							//clearbufbyte(&sector[numsectors],sizeof(sectortype),0L);
-							memset(&sector[numsectors],0,sizeof(sectortype));
+							std::memset(&sector[numsectors], 0, sizeof(sectortype));
 							sector[numsectors].extra = -1;
 
 							sector[numsectors].wallptr = numwalls;
@@ -4497,9 +4498,9 @@ void overheadeditor()
 							}
 
 							for(i=newnumwalls-1;i>=suckwall;i--)
-								Bmemcpy(&wall[i+j],&wall[i],sizeof(walltype));
+								std::memcpy(&wall[i+j],&wall[i],sizeof(walltype));
 							for(i=0;i<j;i++)
-								Bmemcpy(&wall[i+suckwall],&wall[i+newnumwalls],sizeof(walltype));
+								std::memcpy(&wall[i+suckwall],&wall[i+newnumwalls],sizeof(walltype));
 
 							for(i=suckwall;i<suckwall+j;i++)
 							{
@@ -4598,7 +4599,7 @@ void overheadeditor()
 									m = splitendwall;          //copy rest of loop next
 									while (m != splitstartwall)
 									{
-										Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+										std::memcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
 										wall[danumwalls].point2 = danumwalls+1;
 										danumwalls++;
 										m = wall[m].point2;
@@ -4620,7 +4621,7 @@ void overheadeditor()
 												k = danumwalls;
 												do
 												{
-													Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+													std::memcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
 													wall[danumwalls].point2 = danumwalls+1;
 													danumwalls++;
 													m = wall[m].point2;
@@ -4635,7 +4636,7 @@ void overheadeditor()
 										//copy split points for other sector backwards
 									for(j=newnumwalls;j>numwalls;j--)
 									{
-										Bmemcpy(&wall[danumwalls],&wall[j],sizeof(walltype));
+										std::memcpy(&wall[danumwalls],&wall[j],sizeof(walltype));
 										wall[danumwalls].nextwall = -1;
 										wall[danumwalls].nextsector = -1;
 										wall[danumwalls].point2 = danumwalls+1;
@@ -4644,7 +4645,7 @@ void overheadeditor()
 									m = splitstartwall;     //copy rest of loop next
 									while (m != splitendwall)
 									{
-										Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+										std::memcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
 										wall[danumwalls].point2 = danumwalls+1;
 										danumwalls++;
 										m = wall[m].point2;
@@ -4666,7 +4667,7 @@ void overheadeditor()
 												k = danumwalls;
 												do
 												{
-													Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+													std::memcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
 													wall[danumwalls].point2 = danumwalls+1;
 													danumwalls++;
 													m = wall[m].point2;
@@ -4699,8 +4700,8 @@ void overheadeditor()
 										wall[m].nextsector = numsectors;
 									}
 										//copy sector attributes & fix wall pointers
-									Bmemcpy(&sector[numsectors],&sector[splitsect],sizeof(sectortype));
-									Bmemcpy(&sector[numsectors+1],&sector[splitsect],sizeof(sectortype));
+									std::memcpy(&sector[numsectors],&sector[splitsect],sizeof(sectortype));
+									std::memcpy(&sector[numsectors+1],&sector[splitsect],sizeof(sectortype));
 									sector[numsectors].wallptr = numwalls;
 									sector[numsectors].wallnum = secondstartwall-numwalls;
 									sector[numsectors+1].wallptr = secondstartwall;
@@ -4782,7 +4783,7 @@ void overheadeditor()
 									m = splitendwall;          //copy rest of loop next
 									do
 									{
-										Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+										std::memcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
 										wall[danumwalls].point2 = danumwalls+1;
 										danumwalls++;
 										m = wall[m].point2;
@@ -4791,7 +4792,7 @@ void overheadeditor()
 									//copy split points for other sector backwards
 									for(j=newnumwalls;j>numwalls;j--)
 									{
-										Bmemcpy(&wall[danumwalls],&wall[j],sizeof(walltype));
+										std::memcpy(&wall[danumwalls],&wall[j],sizeof(walltype));
 										wall[danumwalls].nextwall = -1;
 										wall[danumwalls].nextsector = -1;
 										wall[danumwalls].point2 = danumwalls+1;
@@ -4801,7 +4802,7 @@ void overheadeditor()
 									m = splitstartwall;     //copy rest of loop next
 									do
 									{
-										Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+										std::memcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
 										wall[danumwalls].point2 = danumwalls+1;
 										danumwalls++;
 										m = wall[m].point2;
@@ -4820,7 +4821,7 @@ void overheadeditor()
 											m = j; k = danumwalls;     //copy loop
 											do
 											{
-												Bmemcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
+												std::memcpy(&wall[danumwalls],&wall[m],sizeof(walltype));
 												wall[danumwalls].point2 = danumwalls+1;
 												danumwalls++;
 												m = wall[m].point2;
@@ -4840,7 +4841,7 @@ void overheadeditor()
 									}
 
 										//copy sector attributes & fix wall pointers
-									Bmemcpy(&sector[numsectors],&sector[splitsect],sizeof(sectortype));
+									std::memcpy(&sector[numsectors], &sector[splitsect], sizeof(sectortype));
 									sector[numsectors].wallptr = numwalls;
 									sector[numsectors].wallnum = danumwalls-numwalls;
 
@@ -5036,7 +5037,7 @@ void overheadeditor()
 							//duplicate sprite
 						k = (highlight[i]&16383);
 						j = insertsprite(sprite[k].sectnum,sprite[k].statnum);
-						Bmemcpy(&sprite[j],&sprite[k],sizeof(spritetype));
+						std::memcpy(&sprite[j],&sprite[k],sizeof(spritetype));
 						sprite[j].sectnum = sprite[k].sectnum;   //Don't let memcpy overwrite sector!
 						setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
 					}
@@ -5292,7 +5293,7 @@ void overheadeditor()
 											{
 												m--;
 												if (i != m)
-													Bmemcpy(&sprite[m],&sprite[i],sizeof(spritetype));
+													std::memcpy(&sprite[m],&sprite[i],sizeof(spritetype));
 
 													//HACK - THESE 2 buffers back up .sectnum and .statnum
 													//for initspritelists() inside the loadboard call
@@ -5357,7 +5358,7 @@ void overheadeditor()
 										//tsprite[m].owner = sprite[i].statnum;
 
 										j = insertsprite(tsprite[m].picnum+(numsectors-MAXSECTORS),tsprite[m].owner);
-										Bmemcpy(&sprite[j],&sprite[m],sizeof(spritetype));
+										std::memcpy(&sprite[j],&sprite[m],sizeof(spritetype));
 										//sprite[j].sectnum = tsprite[m].picnum+(numsectors-MAXSECTORS);
 										//sprite[j].statnum = tsprite[m].owner;
 
@@ -5854,7 +5855,7 @@ void insertpoint(short linehighlight, int dax, int day)
 		sector[i].wallptr++;
 
 	movewalls((int)j+1,+1L);
-	Bmemcpy(&wall[j+1],&wall[j],sizeof(walltype));
+	std::memcpy(&wall[j+1],&wall[j],sizeof(walltype));
 
 	wall[j].point2 = j+1;
 	wall[j+1].x = dax;
@@ -5873,7 +5874,7 @@ void insertpoint(short linehighlight, int dax, int day)
 			sector[i].wallptr++;
 
 		movewalls((int)k+1,+1L);
-		Bmemcpy(&wall[k+1],&wall[k],sizeof(walltype));
+		std::memcpy(&wall[k+1],&wall[k],sizeof(walltype));
 
 		wall[k].point2 = k+1;
 		wall[k+1].x = dax;
@@ -5940,7 +5941,7 @@ int deletesector(short sucksect)
 			k = nextk;
 		}
 
-		Bmemcpy(&sector[i],&sector[i+1],sizeof(sectortype));
+		std::memcpy(&sector[i],&sector[i+1],sizeof(sectortype));
 		sector[i].wallptr -= j;
 	}
 	numsectors--;
@@ -5995,12 +5996,12 @@ int movewalls(int start, int offs)
 	if (offs < 0)  //Delete
 	{
 		for(i=start;i<numwalls+offs;i++)
-			Bmemcpy(&wall[i],&wall[i-offs],sizeof(walltype));
+			std::memcpy(&wall[i],&wall[i-offs],sizeof(walltype));
 	}
 	else if (offs > 0)  //Insert
 	{
 		for(i=numwalls+offs-1;i>=start+offs;i--)
-			Bmemcpy(&wall[i],&wall[i-offs],sizeof(walltype));
+			std::memcpy(&wall[i],&wall[i-offs],sizeof(walltype));
 	}
 	numwalls += offs;
 	for(i=0;i<numwalls;i++)
@@ -6008,17 +6009,17 @@ int movewalls(int start, int offs)
 		if (wall[i].nextwall >= start) wall[i].nextwall += offs;
 		if (wall[i].point2 >= start) wall[i].point2 += offs;
 	}
-	return(0);
+	return 0;
 }
 
 int checksectorpointer(short i, short sectnum)
 {
-	int j, k, startwall, endwall, x1, y1, x2, y2;
+	int j, k, startwall, endwall;
 
-	x1 = wall[i].x;
-	y1 = wall[i].y;
-	x2 = wall[wall[i].point2].x;
-	y2 = wall[wall[i].point2].y;
+	int x1 = wall[i].x;
+	int y1 = wall[i].y;
+	int x2 = wall[wall[i].point2].x;
+	int y2 = wall[wall[i].point2].y;
 
 	if (wall[i].nextwall >= 0)          //Check for early exit
 	{
@@ -6488,7 +6489,7 @@ short whitelinescan(short dalinehighlight)
 
 	const short sucksect = sectorofwall(dalinehighlight);
 
-	Bmemcpy(&sector[numsectors],&sector[sucksect],sizeof(sectortype));
+	std::memcpy(&sector[numsectors],&sector[sucksect],sizeof(sectortype));
 	sector[numsectors].wallptr = numwalls;
 	sector[numsectors].wallnum = 0;
 	
@@ -6514,7 +6515,7 @@ short whitelinescan(short dalinehighlight)
 			}
 		}
 
-		Bmemcpy(&wall[newnumwalls],&wall[i],sizeof(walltype));
+		std::memcpy(&wall[newnumwalls],&wall[i],sizeof(walltype));
 
 		wall[newnumwalls].nextwall = j;
 		wall[newnumwalls].nextsector = sectorofwall((short)j);
@@ -7291,7 +7292,7 @@ void copysector(short soursector, short destsector, short deststartwall, unsigne
 	endwall = startwall + sector[soursector].wallnum;
 	for(j=startwall;j<endwall;j++)
 	{
-		Bmemcpy(&wall[newnumwalls],&wall[j],sizeof(walltype));
+		std::memcpy(&wall[newnumwalls],&wall[j],sizeof(walltype));
 		wall[newnumwalls].point2 += deststartwall-startwall;
 		if (wall[newnumwalls].nextwall >= 0)
 		{
@@ -7311,7 +7312,7 @@ void copysector(short soursector, short destsector, short deststartwall, unsigne
 	if (newnumwalls > deststartwall)
 	{
 			//duplicate sectors
-		Bmemcpy(&sector[destsector],&sector[soursector],sizeof(sectortype));
+		std::memcpy(&sector[destsector],&sector[soursector],sizeof(sectortype));
 		sector[destsector].wallptr = deststartwall;
 		sector[destsector].wallnum = newnumwalls-deststartwall;
 
@@ -7324,7 +7325,7 @@ void copysector(short soursector, short destsector, short deststartwall, unsigne
 				k = nextspritesect[j];
 
 				m = insertsprite(destsector,sprite[j].statnum);
-				Bmemcpy(&sprite[m],&sprite[j],sizeof(spritetype));
+				std::memcpy(&sprite[m],&sprite[j],sizeof(spritetype));
 				sprite[m].sectnum = destsector;   //Don't let memcpy overwrite sector!
 
 				j = k;

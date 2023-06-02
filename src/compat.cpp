@@ -367,7 +367,8 @@ BDIR* Bopendir(const char *name)
 	if (!dirr) {
 		return nullptr;
 	}
-	memset(dirr, 0, sizeof(BDIR_real));
+	
+	std::memset(dirr, 0, sizeof(BDIR_real));
 
 #ifdef _MSC_VER
 	tname = (char*)malloc(strlen(name) + 4 + 1);

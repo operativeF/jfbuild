@@ -71,12 +71,12 @@ static void compressetc1(uint8_t *bgra, int width, int height, uint8_t *out)
 				}
 				// Repeat the final pixel to pad to 4.
 				for (; s < 4; s++) {
-					memcpy(&block[t][s][0], &block[t][s-1][0], 4);
+					std::memcpy(&block[t][s][0], &block[t][s-1][0], 4);
 				}
 			}
 			// Repeat the final row to pad to 4.
 			for (; t < 4; t++) {
-				memcpy(&block[t][0][0], &block[t-1][0][0], 4 * 4);
+				std::memcpy(&block[t][0][0], &block[t-1][0][0], 4 * 4);
 			}
 
 			rg_etc1::pack_etc1_block(out, (const uint32_t *)block, params);

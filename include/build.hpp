@@ -188,7 +188,7 @@ struct spriteexttype {
 #define SPREXT_NOMDANIM 2
 
 EXTERN std::array<sectortype, MAXSECTORS> sector;
-EXTERN walltype wall[MAXWALLS];
+EXTERN std::array<walltype, MAXWALLS> wall;
 EXTERN spritetype sprite[MAXSPRITES];
 EXTERN spriteexttype spriteext[MAXSPRITES+MAXUNIQHUDID];
 EXTERN int guniqhudid;

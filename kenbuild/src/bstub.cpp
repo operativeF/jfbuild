@@ -141,7 +141,7 @@ int ExtInit()
 	initgroupfile("stuff.dat");
 	bpp = 8;
 	if (loadsetup("build.cfg") < 0) buildputs("Configuration file not found, using defaults.\n"), rv = 1;
-	Bmemcpy((void *)buildkeys,(void *)keys,sizeof(buildkeys));   //Trick to make build use setup.dat keys
+	std::memcpy((void *)buildkeys,(void *)keys,sizeof(buildkeys));   //Trick to make build use setup.dat keys
 	if (option[4] > 0) option[4] = 0;
 	if (initengine()) {
 		wm_msgbox("Build Engine Initialisation Error",

@@ -381,7 +381,6 @@ int Bwildmatch (const char *i, const char *j);
 # define Bstrtod strtod
 # define Btoupper toupper
 # define Btolower tolower
-# define Bmemcpy memcpy
 # define Bmemmove memmove
 # define Bmemchr memchr
 # define Bmemset memset

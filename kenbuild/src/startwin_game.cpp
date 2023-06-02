@@ -419,7 +419,7 @@ int startwin_puts(const char *buf)
         }
         q = p;
         while (*q && *q != '\n') q++;
-        memcpy(workbuf, p, q-p);
+        std::memcpy(workbuf, p, q-p);
         if (*q == '\n') {
             if (!q[1]) {
                 newline = 1;

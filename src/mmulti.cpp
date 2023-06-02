@@ -506,10 +506,10 @@ int netread (int *other, void *dabuf, int bufsiz) //0:no packets in buffer
 
 #if (SIMLAG > 1)
 	i = simlagcnt[*other]%(SIMLAG+1);
-	*(short *)&simlagfif[*other][i][0] = bufsiz; memcpy(&simlagfif[*other][i][2],dabuf,bufsiz);
+	*(short *)&simlagfif[*other][i][0] = bufsiz; std::memcpy(&simlagfif[*other][i][2],dabuf,bufsiz);
 	simlagcnt[*other]++; if (simlagcnt[*other] < SIMLAG+1) return(0);
 	i = simlagcnt[*other]%(SIMLAG+1);
-	bufsiz = *(short *)&simlagfif[*other][i][0]; memcpy(dabuf,&simlagfif[*other][i][2],bufsiz);
+	bufsiz = *(short *)&simlagfif[*other][i][0]; std::memcpy(dabuf,&simlagfif[*other][i][2],bufsiz);
 #endif
 
 	return(1);
@@ -737,7 +737,7 @@ int initmultiplayersparms(int argc, char const * const argv[])
 			netuninit();
 			return 0;
 		} else {
-			memcpy(&otherhost[daindex], &resolvhost, sizeof(resolvhost));
+			std::memcpy(&otherhost[daindex], &resolvhost, sizeof(resolvhost));
 			printf("mmulti: Player %d at %s (%s)\n", daindex,
 				presentaddress((struct sockaddr *)&resolvhost), argv[i]);
 			daindex++;
@@ -928,11 +928,11 @@ static int lookuphost(const char *name, struct sockaddr *host, int warnifmany)
 
 	for (res = result; res; res = res->ai_next) {
 		if (res->ai_family == PF_INET && !found) {
-			memcpy((struct sockaddr_in *)host, (struct sockaddr_in *)res->ai_addr, sizeof(struct sockaddr_in));
+			std::memcpy((struct sockaddr_in *)host, (struct sockaddr_in *)res->ai_addr, sizeof(struct sockaddr_in));
 			((struct sockaddr_in *)host)->sin_port = htons(port);
 			found = 1;
 		} else if (res->ai_family == PF_INET6 && !found) {
-			memcpy((struct sockaddr_in6 *)host, (struct sockaddr_in6 *)res->ai_addr, sizeof(struct sockaddr_in6));
+			std::memcpy((struct sockaddr_in6 *)host, (struct sockaddr_in6 *)res->ai_addr, sizeof(struct sockaddr_in6));
 			((struct sockaddr_in6 *)host)->sin6_port = htons(port);
 			found = 1;
 		} else if (found && warnifmany) {
@@ -984,7 +984,7 @@ void dosendpackets (int other)
 
 		*(unsigned short *)&pakbuf[k] = (unsigned short)j; k += 2;
 		*(int *)&pakbuf[k] = i; k += 4;
-		memcpy(&pakbuf[k],&pakmem[opak[other][i&(FIFSIZ-1)]+2],j); k += j;
+		std::memcpy(&pakbuf[k],&pakmem[opak[other][i&(FIFSIZ-1)]+2],j); k += j;
 	}
 	*(unsigned short *)&pakbuf[k] = 0; k += 2;
 	*(unsigned short *)&pakbuf[0] = (unsigned short)k;
@@ -999,7 +999,7 @@ void sendpacket (int other, const unsigned char *bufptr, int messleng)
 	if (pakmemi+messleng+2 > (int)sizeof(pakmem)) pakmemi = 1;
 	opak[other][ocnt1[other]&(FIFSIZ-1)] = pakmemi;
 	*(short *)&pakmem[pakmemi] = messleng;
-	memcpy(&pakmem[pakmemi+2],bufptr,messleng); pakmemi += messleng+2;
+	std::memcpy(&pakmem[pakmemi+2],bufptr,messleng); pakmemi += messleng+2;
 	ocnt1[other]++;
 
 	dosendpackets(other);
@@ -1196,7 +1196,7 @@ int getpacket (int *retother, unsigned char *bufptr)
 						if (pakmemi+messleng+2 > (int)sizeof(pakmem)) pakmemi = 1;
 						ipak[other][j&(FIFSIZ-1)] = pakmemi;
 						*(short *)&pakmem[pakmemi] = messleng;
-						memcpy(&pakmem[pakmemi+2],&pakbuf[k],messleng); pakmemi += messleng+2;
+						std::memcpy(&pakmem[pakmemi+2],&pakbuf[k],messleng); pakmemi += messleng+2;
 					}
 					k += messleng;
 					messleng = (int)(*(unsigned short *)&pakbuf[k]); k += 2;
@@ -1216,7 +1216,7 @@ int getpacket (int *retother, unsigned char *bufptr)
 			j = ipak[i][icnt0[i]&(FIFSIZ-1)];
 			if (j)
 			{
-				messleng = *(short *)&pakmem[j]; memcpy(bufptr,&pakmem[j+2],messleng);
+				messleng = *(short *)&pakmem[j]; std::memcpy(bufptr,&pakmem[j+2],messleng);
 				*retother = i; ipak[i][icnt0[i]&(FIFSIZ-1)] = 0; icnt0[i]++;
 				return(messleng);
 			}
@@ -1239,7 +1239,7 @@ void savesnatchhost(int other)
 {
 	if (other == myconnectindex) return;
 
-	memcpy(&otherhost[other], &snatchhost, sizeof(snatchhost));
+	std::memcpy(&otherhost[other], &snatchhost, sizeof(snatchhost));
 	replyfrom4[other] = snatchreplyfrom4;
 	replyfrom6[other] = snatchreplyfrom6;
 }

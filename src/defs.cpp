@@ -203,7 +203,7 @@ static TokenType getatoken(scriptfile *sf, std::span<const tokenlist> tl)
 	}
 
 	for(const auto& token : tl) {
-		if (!Bstrcasecmp(tok, token.text.data()))
+		if (!Bstrcasecmp(tok, &token.text[0]))
 			return token.tokenid;
 	}
 
