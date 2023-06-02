@@ -20,12 +20,13 @@ static void skipovertoken(scriptfile *sf) { while ((sf->textptr < sf->eof) && (s
 
 char *scriptfile_gettoken(scriptfile *sf)
 {
-	char *start;
-
 	skipoverws(sf);
-	if (sf->textptr >= sf->eof) return nullptr;
 
-	start = sf->ltextptr = sf->textptr;
+	if (sf->textptr >= sf->eof) {
+		return nullptr;
+	}
+
+	char* start = sf->ltextptr = sf->textptr;
 	skipovertoken(sf);
 	return start;
 }

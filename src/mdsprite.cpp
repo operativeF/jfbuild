@@ -363,10 +363,13 @@ static void md_initident(PTMIdent *id, const char * filename, int effects)
 //Note: even though it says md2model, it works for both md2model&md3model
 PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 {
-	int i, err = 0;
-	char *skinfile = 0, fn[BMAX_PATH+65];
-	PTMHead **tex = 0;
-	mdskinmap_t *sk, *skzero = 0;
+	int i;
+	int err{ 0 };
+	char* skinfile{ nullptr };
+	std::array<char, BMAX_PATH> fn;
+	PTMHead** tex{ nullptr };
+	mdskinmap_t* sk;
+	mdskinmap_t* skzero{ nullptr };
     PTMIdent id;
 
 	if (m->mdnum == 2) {
@@ -382,7 +385,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 		if ((int)sk->palette == pal && sk->skinnum == number && sk->surfnum == surf) {
 			tex = &sk->tex[ hictinting[pal].f ];
 			skinfile = sk->fn;
-			strcpy(fn,skinfile);
+			strcpy(&fn[0], skinfile);
 			//buildprintf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
 			break;
 		}
@@ -398,7 +401,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 		if (skzero) {
 			tex = &skzero->tex[ hictinting[pal].f ];
 			skinfile = skzero->fn;
-			strcpy(fn,skinfile);
+			strcpy(&fn[0], skinfile);
 			//buildprintf("Using def skin 0,0 as fallback, pal=%d\n", pal);
 		} else {
 			if ((unsigned)number >= (unsigned)m->numskins) {
@@ -406,8 +409,8 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 			}
 			tex = &m->tex[ number * (HICEFFECTMASK+1) + hictinting[pal].f ];
 			skinfile = m->skinfn + number*64;
-			strcpy(fn,m->basepath);
-			strcat(fn,skinfile);
+			strcpy(&fn[0], m->basepath);
+			strcat(&fn[0], skinfile);
 			//buildprintf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
 		}
 	}

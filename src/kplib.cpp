@@ -1018,9 +1018,16 @@ static int kpngrend (const char *kfilebuf, int kfilength,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
-	int i, j, k, bfinal, btype, hlit, hdist;
+	int i;
+	int j;
+	int k;
+	int bfinal;
+	int btype;
+	int hlit;
+	int hdist;
 	unsigned int leng;
-	int slidew, slider;
+	int slidew;
+	int slider;
 	//int qhuf0v, qhuf1v;
 
 	if (!pnginited) { pnginited = 1; initpngtables(); }
@@ -1988,7 +1995,10 @@ static int kgifrend (const char *kfilebuf, int kfilelength,
 	int i, x, y, xsiz, ysiz, yinc, xend, xspan, yspan, currstr, numbitgoal;
 	int lzcols, dat, blocklen, bitcnt, xoff, yoff, transcol, backcol, *lptr;
 	intptr_t p=0;
-	unsigned char numbits, startnumbits, chunkind, ilacefirst;
+	unsigned char numbits;
+	unsigned char startnumbits;
+	unsigned char chunkind;
+	unsigned char ilacefirst;
 	const unsigned char *ptr, *cptr=nullptr;
 
 	(void)kfilelength;
@@ -2142,7 +2152,9 @@ static int kcelrend (const char *buf, int fleng,
 	if (((unsigned char)buf[0] != 0x19) || ((unsigned char)buf[1] != 0x91) ||
 		 ((unsigned char)buf[10] != 8) || ((unsigned char)buf[11] != 0)) return(-1);
 
-	coltype = 3; bitdepth = 8; paleng = 256; //For PNGOUT
+	coltype = 3;
+	bitdepth = 8;
+	paleng = 256; //For PNGOUT
 
 	xsiz = (int)SSWAPIB(*(unsigned short *)&buf[2]); if (xsiz <= 0) return(-1);
 	ysiz = (int)SSWAPIB(*(unsigned short *)&buf[4]); if (ysiz <= 0) return(-1);

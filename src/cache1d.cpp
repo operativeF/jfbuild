@@ -1345,10 +1345,17 @@ static int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned c
 
 static int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *lzwoutbuf)
 {
-	int strtot, currstr, numbits, oneupnumbits;
-	int i, dat, leng, bitcnt, outbytecnt;
-	int *intptr;
-	short *shortptr;
+	int strtot;
+	int currstr;
+	int numbits;
+	int oneupnumbits;
+	int i;
+	int dat;
+	int leng;
+	int bitcnt;
+	int outbytecnt;
+	int* intptr;
+	short* shortptr;
 
 	shortptr = (short *)lzwinbuf;
 	strtot = (int)B_LITTLE16(shortptr[1]);

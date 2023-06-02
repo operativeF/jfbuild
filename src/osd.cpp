@@ -128,13 +128,14 @@ static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 
 static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shade, int pal)
 {
-	char st[1024];
-	int colour, shadow;
+	std::array<char, 1024> st;
+	int colour;
+	int shadow;
 
 	(void)shade;
 
 	if (len>1023) len=1023;
-	std::memcpy(st,ch,len);
+	std::memcpy(&st[0], ch, len);
 	st[len]=0;
 
 	if (qsetmode == 200) {

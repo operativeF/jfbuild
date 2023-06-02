@@ -996,7 +996,7 @@ void polymost_nextpage()
 	//    n must be <= 8 (assume clipping can double number of vertices)
 	//method: 0:solid, 1:masked(255 is transparent), 2:transluscent #1, 3:transluscent #2
 	//    +4 means it's a sprite, so wraparound isn't needed
-void drawpoly (const double *dpx, const double *dpy, int n, int method)
+void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, int method)
 {
 	double ngdx = 0.0, ngdy = 0.0, ngdo = 0.0, ngux = 0.0, nguy = 0.0, nguo = 0.0;
 	double ngvx = 0.0, ngvy = 0.0, ngvo = 0.0, dp, up, vp, rdp;
@@ -1805,10 +1805,35 @@ static int testvisiblemost (float x0, float x1)
 
 static void domost (float x0, float y0, float x1, float y1, int polymethod)
 {
-	double dpx[4], dpy[4];
-	float d, f, n, t, slop, dx, dx0, dx1, nx, nx0, ny0, nx1, ny1;
-	float spx[4], spy[4], cy[2], cv[2];
-	int i, j, k, z, ni, vcnt = 0, scnt, newi, dir, spt[4];
+	std::array<double, 4> dpx;
+	std::array<double, 4> dpy;
+	float d;
+	float f;
+	float n;
+	float t;
+	float slop;
+	float dx;
+	float dx0;
+	float dx1;
+	float nx;
+	float nx0;
+	float ny0;
+	float nx1;
+	float ny1;
+	std::array<float, 4> spx;
+	std::array<float, 4> spy;
+	std::array<float, 2> cy;
+	std::array<float, 2> cv;
+	int i;
+	int j;
+	int k;
+	int z;
+	int ni;
+	int vcnt{ 0 };
+	int scnt;
+	int newi;
+	int dir;
+	std::array<int, 4> spt;
 
 #ifdef DEBUGGINGAIDS
 	polymostcallcounts.domost++;
@@ -1925,58 +1950,120 @@ static void domost (float x0, float y0, float x1, float y1, int polymethod)
 			{
 				switch(k)
 				{
-					case 1: case 2:
-						dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
-						dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
-						dpx[2] = dx0; dpy[2] = ny0; drawpoly(dpx,dpy,3,polymethod);
-						vsp[i].cy[0] = ny0; vsp[i].ctag = gtag; break;
-					case 3: case 6:
-						dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
-						dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
-						dpx[2] = dx1; dpy[2] = ny1; drawpoly(dpx,dpy,3,polymethod);
-						vsp[i].cy[1] = ny1; vsp[i].ctag = gtag; break;
-					case 4: case 5: case 7:
-						dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
-						dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
-						dpx[2] = dx1; dpy[2] = ny1;
-						dpx[3] = dx0; dpy[3] = ny0; drawpoly(dpx,dpy,4,polymethod);
-						vsp[i].cy[0] = ny0; vsp[i].cy[1] = ny1; vsp[i].ctag = gtag; break;
+					case 1:
+					case 2:
+						dpx[0] = dx0;
+						dpy[0] = vsp[i].cy[0];
+						dpx[1] = dx1;
+						dpy[1] = vsp[i].cy[1];
+						dpx[2] = dx0;
+						dpy[2] = ny0;
+						drawpoly(dpx, dpy, 3, polymethod);
+						vsp[i].cy[0] = ny0;
+						vsp[i].ctag = gtag;
+						break;
+					case 3:
+					case 6:
+						dpx[0] = dx0;
+						dpy[0] = vsp[i].cy[0];
+						dpx[1] = dx1;
+						dpy[1] = vsp[i].cy[1];
+						dpx[2] = dx1;
+						dpy[2] = ny1;
+						drawpoly(dpx, dpy, 3, polymethod);
+						vsp[i].cy[1] = ny1;
+						vsp[i].ctag = gtag;
+						break;
+					case 4:
+					case 5:
+					case 7:
+						dpx[0] = dx0;
+						dpy[0] = vsp[i].cy[0];
+						dpx[1] = dx1;
+						dpy[1] = vsp[i].cy[1];
+						dpx[2] = dx1;
+						dpy[2] = ny1;
+						dpx[3] = dx0;
+						dpy[3] = ny0;
+						drawpoly(dpx, dpy, 4, polymethod);
+						vsp[i].cy[0] = ny0;
+						vsp[i].cy[1] = ny1;
+						vsp[i].ctag = gtag;
+						break;
 					case 8:
-						dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
-						dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
-						dpx[2] = dx1; dpy[2] = vsp[i].fy[1];
-						dpx[3] = dx0; dpy[3] = vsp[i].fy[0]; drawpoly(dpx,dpy,4,polymethod);
-						vsp[i].ctag = vsp[i].ftag = -1; break;
-					default: break;
+						dpx[0] = dx0;
+						dpy[0] = vsp[i].cy[0];
+						dpx[1] = dx1;
+						dpy[1] = vsp[i].cy[1];
+						dpx[2] = dx1;
+						dpy[2] = vsp[i].fy[1];
+						dpx[3] = dx0;
+						dpy[3] = vsp[i].fy[0];
+						drawpoly(dpx, dpy, 4, polymethod);
+						vsp[i].ctag = vsp[i].ftag = -1;
+						break;
+					default:
+						break;
 				}
 			}
 			else
 			{
 				switch(k)
 				{
-					case 7: case 6:
-						dpx[0] = dx0; dpy[0] = ny0;
-						dpx[1] = dx1; dpy[1] = vsp[i].fy[1];
-						dpx[2] = dx0; dpy[2] = vsp[i].fy[0]; drawpoly(dpx,dpy,3,polymethod);
-						vsp[i].fy[0] = ny0; vsp[i].ftag = gtag; break;
-					case 5: case 2:
-						dpx[0] = dx0; dpy[0] = vsp[i].fy[0];
-						dpx[1] = dx1; dpy[1] = ny1;
-						dpx[2] = dx1; dpy[2] = vsp[i].fy[1]; drawpoly(dpx,dpy,3,polymethod);
-						vsp[i].fy[1] = ny1; vsp[i].ftag = gtag; break;
-					case 4: case 3: case 1:
-						dpx[0] = dx0; dpy[0] = ny0;
-						dpx[1] = dx1; dpy[1] = ny1;
-						dpx[2] = dx1; dpy[2] = vsp[i].fy[1];
-						dpx[3] = dx0; dpy[3] = vsp[i].fy[0]; drawpoly(dpx,dpy,4,polymethod);
-						vsp[i].fy[0] = ny0; vsp[i].fy[1] = ny1; vsp[i].ftag = gtag; break;
+					case 7:
+					case 6:
+						dpx[0] = dx0;
+						dpy[0] = ny0;
+						dpx[1] = dx1;
+						dpy[1] = vsp[i].fy[1];
+						dpx[2] = dx0;
+						dpy[2] = vsp[i].fy[0];
+						drawpoly(dpx, dpy, 3, polymethod);
+						vsp[i].fy[0] = ny0;
+						vsp[i].ftag = gtag;
+						break;
+					case 5:
+					case 2:
+						dpx[0] = dx0;
+						dpy[0] = vsp[i].fy[0];
+						dpx[1] = dx1;
+						dpy[1] = ny1;
+						dpx[2] = dx1;
+						dpy[2] = vsp[i].fy[1];
+						drawpoly(dpx, dpy, 3, polymethod);
+						vsp[i].fy[1] = ny1;
+						vsp[i].ftag = gtag;
+						break;
+					case 4:
+					case 3:
+					case 1:
+						dpx[0] = dx0;
+						dpy[0] = ny0;
+						dpx[1] = dx1;
+						dpy[1] = ny1;
+						dpx[2] = dx1;
+						dpy[2] = vsp[i].fy[1];
+						dpx[3] = dx0;
+						dpy[3] = vsp[i].fy[0];
+						drawpoly(dpx, dpy, 4, polymethod);
+						vsp[i].fy[0] = ny0;
+						vsp[i].fy[1] = ny1;
+						vsp[i].ftag = gtag;
+						break;
 					case 0:
-						dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
-						dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
-						dpx[2] = dx1; dpy[2] = vsp[i].fy[1];
-						dpx[3] = dx0; dpy[3] = vsp[i].fy[0]; drawpoly(dpx,dpy,4,polymethod);
-						vsp[i].ctag = vsp[i].ftag = -1; break;
-					default: break;
+						dpx[0] = dx0;
+						dpy[0] = vsp[i].cy[0];
+						dpx[1] = dx1;
+						dpy[1] = vsp[i].cy[1];
+						dpx[2] = dx1;
+						dpy[2] = vsp[i].fy[1];
+						dpx[3] = dx0;
+						dpy[3] = vsp[i].fy[0];
+						drawpoly(dpx, dpy, 4, polymethod);
+						vsp[i].ctag = vsp[i].ftag = -1;
+						break;
+					default:
+						break;
 				}
 			}
 		}
@@ -2001,19 +2088,68 @@ static void polymost_scansector (int sectnum);
 
 static void polymost_drawalls (int bunch)
 {
-	sectortype *sec, *nextsec;
-	walltype *wal, *wal2, *nwal;
-	double ox, oy, oz, ox2, oy2, px[3], py[3], dd[3], uu[3], vv[3];
-	double fx, fy, x0, x1, cy0, cy1, fy0, fy1, xp0, yp0, xp1, yp1, ryp0, ryp1, nx0, ny0, nx1, ny1;
-	double t, r, t0, t1, ocy0, ocy1, ofy0, ofy1, oxp0, oyp0, ft[4];
-	double oguo, ogux, oguy;
-	int i, x, y, z, cz, fz, wallnum, sectnum, nextsectnum, domostmethod;
+	sectortype* nextsec;
+	walltype* wal;
+	walltype* wal2;
+	walltype* nwal;
+	double ox;
+	double oy;
+	double oz;
+	double ox2;
+	double oy2;
+	std::array<double, 3> px;
+	std::array<double, 3> py;
+	std::array<double, 3> dd;
+	std::array<double, 3> uu;
+	std::array<double, 3> vv;
+	double fx;
+	double fy;
+	double x0;
+	double x1;
+	double cy0;
+	double cy1;
+	double fy0;
+	double fy1;
+	double xp0;
+	double yp0;
+	double xp1;
+	double yp1;
+	double ryp0;
+	double ryp1;
+	double nx0;
+	double ny0;
+	double nx1;
+	double ny1;
+	double t;
+	double r;
+	double t0;
+	double t1;
+	double ocy0;
+	double ocy1;
+	double ofy0;
+	double ofy1;
+	double oxp0;
+	double oyp0;
+	std::array<double, 4> ft;
+	double oguo;
+	double ogux;
+	double oguy;
+	int i;
+	int x;
+	int y;
+	int z;
+	int cz;
+	int fz;
+	int wallnum;
+	int nextsectnum;
+	int domostmethod;
 
 #ifdef DEBUGGINGAIDS
 	polymostcallcounts.drawalls++;
 #endif
 
-	sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
+	const int sectnum = thesector[bunchfirst[bunch]];
+	sectortype* sec = &sector[sectnum];
 
 #if USE_OPENGL
 	gfogpalnum = sec->floorpal;
@@ -3145,7 +3281,9 @@ void polymost_drawrooms ()
 		short hitsect, hitwall, hitsprite;
 		int vx, vy, vz, hitx, hity, hitz;
 
-		ox2 = searchx-ghalfx; oy2 = searchy-ghoriz; oz2 = ghalfx;
+		ox2 = searchx - ghalfx;
+		oy2 = searchy - ghoriz;
+		oz2 = ghalfx;
 
 			//Tilt rotation
 		ox = ox2*gctang + oy2*gstang;

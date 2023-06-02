@@ -268,14 +268,17 @@ void PTCacheUnloadIndex()
  */
 static PTCacheTile * ptcache_load(off_t offset)
 {
-	int32_t tsizx, tsizy;
-	int32_t sizx, sizy;
+	int32_t tsizx;
+	int32_t tsizy;
+	int32_t sizx;
+	int32_t sizy;
 	int32_t flags;
 	int32_t format;
-	int32_t nmipmaps, i;
+	int32_t nmipmaps;
+	int32_t i;
 	int32_t length;
 
-	PTCacheTile * tdef = 0;
+	PTCacheTile* tdef{ nullptr };
 	FILE * fh;
 
 	if (cachereplace) {

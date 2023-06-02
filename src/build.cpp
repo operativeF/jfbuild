@@ -2458,8 +2458,17 @@ unsigned char changechar(unsigned char dachar, int dadir, unsigned char smooshya
 int gettile(int tilenum)
 {
 	std::array<char, 80> snotbuf;
-	int i, j, otilenum, topleft, gap, temp, templong, ch;
-	int xtiles, ytiles, tottiles;
+	int i;
+	int j;
+	int otilenum;
+	int topleft;
+	int gap;
+	int temp;
+	int templong;
+	int ch;
+	int xtiles;
+	int ytiles;
+	int tottiles;
 
 	if (tilenum < 0) tilenum = 0;
 
@@ -5845,11 +5854,10 @@ void flipwalls(short numwalls, short newnumwalls)
 
 void insertpoint(short linehighlight, int dax, int day)
 {
-	short sucksect;
-	int i, j, k;
+	int i, k;
 
-	j = linehighlight;
-	sucksect = sectorofwall((short)j);
+	int j = linehighlight;
+	short sucksect = sectorofwall((short)j);
 
 	sector[sucksect].wallnum++;
 	for(i=sucksect+1;i<numsectors;i++)
