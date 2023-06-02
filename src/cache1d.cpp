@@ -396,7 +396,7 @@ int openfrompath(const char *fn, int flags, int mode)
 {
 	char *pfn{};
 	if (findfrompath(fn, &pfn) < 0) return -1;
-	int h = Bopen(pfn, flags, mode);
+	const int h = Bopen(pfn, flags, mode);
 	free(pfn);
 
 	return h;

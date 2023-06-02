@@ -188,7 +188,7 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 	if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
 	char* p{nullptr};
-	int m = (int)strtol(parm->parms[0], &p, 10);
+	const int m = (int)std::strtol(parm->parms[0], &p, 10);
 
 	if (m < 0 || m > 3 || *p) return OSDCMD_SHOWHELP;
 

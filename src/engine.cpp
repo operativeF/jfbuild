@@ -843,7 +843,7 @@ static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<
 		loadtile(globalpicnum);
 	}
 
-	int startx{x1};
+	const int startx{x1};
 
 	const bool xnice = pow2long[picsiz[globalpicnum] & 15] == tsizx;
 	
@@ -7523,7 +7523,7 @@ int loadmaphack(const char *filename)
 	std::memset(spriteext, 0, sizeof(spriteext));
 
 	while (1) {
-		auto* tok = scriptfile_gettoken(script);
+		const auto* tok = scriptfile_gettoken(script);
 		if (!tok) break;
 		for (i=0;legaltokens[i].text;i++) if (!Bstrcasecmp(tok,legaltokens[i].text)) break;
 		cmdtokptr = script->ltextptr;
@@ -8297,8 +8297,8 @@ int clipinsidebox(int x, int y, short wallnum, int walldist)
 	
 	walltype* wal = &wall[wallnum];
 
-	int x1 = wal->x + walldist - x;
-	int y1 = wal->y + walldist - y;
+	const int x1 = wal->x + walldist - x;
+	const int y1 = wal->y + walldist - y;
 
 	wal = &wall[wal->point2];
 
@@ -8713,9 +8713,9 @@ int cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short se
 		return sect1 == sect2;
 	}
 
-	int x21 = x2 - x1;
-	int y21 = y2 - y1;
-	int z21 = z2 - z1;
+	const int x21 = x2 - x1;
+	const int y21 = y2 - y1;
+	const int z21 = z2 - z1;
 
 	clipsectorlist[0] = sect1; danum = 1;
 	for(dacnt=0;dacnt<danum;dacnt++)
@@ -8784,8 +8784,8 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 
 	*hitx = hitscangoalx; *hity = hitscangoaly;
 
-	int dawalclipmask = cliptype & 65535;
-	int dasprclipmask = cliptype >> 16;
+	const int dawalclipmask = cliptype & 65535;
+	const int dasprclipmask = cliptype >> 16;
 
 	clipsectorlist[0] = sectnum;
 	tempshortcnt = 0;
@@ -10870,7 +10870,7 @@ void setfirstwall(short sectnum, short newfirstwall)
 
 	int startwall = sector[sectnum].wallptr;
 	int danumwalls = sector[sectnum].wallnum;
-	int endwall = startwall + danumwalls;
+	const int endwall = startwall + danumwalls;
 	if ((newfirstwall < startwall) || (newfirstwall >= startwall+danumwalls)) return;
 	for(i=0;i<danumwalls;i++)
 		std::memcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
@@ -10932,8 +10932,8 @@ void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 
 	col = palookup[0][col];
 
-	int dx = x2 - x1;
-	int dy = y2 - y1;
+	const int dx = x2 - x1;
+	const int dy = y2 - y1;
 
 	if (dx >= 0)
 	{

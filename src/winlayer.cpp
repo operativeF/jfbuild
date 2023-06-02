@@ -2427,7 +2427,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 					}
 
 					if (raw.data.mouse.usButtonFlags & RI_MOUSE_WHEEL) {
-						int direction = (short)raw.data.mouse.usButtonData < 0;	// 1 = down (-ve values), 0 = up
+						const int direction = (short)raw.data.mouse.usButtonData < 0;	// 1 = down (-ve values), 0 = up
 
 						// Repeated events before the fake button release timer
 						// expires need to trigger a release and a new press.

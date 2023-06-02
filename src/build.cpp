@@ -6017,10 +6017,10 @@ int checksectorpointer(short i, short sectnum)
 {
 	int j, k, startwall, endwall;
 
-	int x1 = wall[i].x;
-	int y1 = wall[i].y;
-	int x2 = wall[wall[i].point2].x;
-	int y2 = wall[wall[i].point2].y;
+	const int x1 = wall[i].x;
+	const int y1 = wall[i].y;
+	const int x2 = wall[wall[i].point2].x;
+	const int y2 = wall[wall[i].point2].y;
 
 	if (wall[i].nextwall >= 0)          //Check for early exit
 	{

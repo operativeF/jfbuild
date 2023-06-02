@@ -1454,7 +1454,7 @@ PTHead * PT_GetHead(int picnum, int palnum, unsigned short flags, int peek)
 
 
 
-static inline int ptiter_matches(const PTIter iter)
+static inline int ptiter_matches(PTIter iter)
 {
 	if (iter->match == 0) {
 		return 1;	// matching every item

@@ -257,15 +257,15 @@ static void drawline2d (float x0, float y0, float x1, float y1, unsigned char co
 	int e, inc, x, y;
 	unsigned int up16;
 
-	float dx = x1 - x0;
-	float dy = y1 - y0;
+	const float dx = x1 - x0;
+	const float dy = y1 - y0;
 
 	if ((dx == 0) && (dy == 0)) {
 		return;
 	}
 
-	auto fxres = static_cast<float>(xdimen);
-	auto fyres = static_cast<float>(ydimen);
+	const auto fxres = static_cast<float>(xdimen);
+	const auto fyres = static_cast<float>(ydimen);
 
 	if (x0 >= fxres) { if (x1 >= fxres) return; y0 += (fxres-x0)*dy/dx; x0 = fxres; }
 	else if (x0 <      0) { if (x1 <      0) return; y0 += (    0-x0)*dy/dx; x0 =     0; }

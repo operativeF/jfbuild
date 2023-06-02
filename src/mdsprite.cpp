@@ -664,8 +664,8 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 // -------- Unnecessarily clean (lol) code to generate translation/rotation matrix for MD2 ---------
 
 		//create current&next frame's vertex list from whole list
-	auto* f0 = (md2frame_t *)&m->frames[m->cframe*m->framebytes];
-	auto* f1 = (md2frame_t *)&m->frames[m->nframe*m->framebytes];
+	const auto* f0 = (md2frame_t *)&m->frames[m->cframe*m->framebytes];
+	const auto* f1 = (md2frame_t *)&m->frames[m->nframe*m->framebytes];
 
 	float f = m->interpol;
 	float g = 1 - f;
@@ -683,8 +683,8 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 	a0.z = f0->add.z*m->scale;
 	a0.z = (f1->add.z*m->scale-a0.z)*f+a0.z + m->zadd*m->scale;
 	
-	md2vert_t* c0 = &f0->verts[0];
-	md2vert_t* c1 = &f1->verts[0];
+	const md2vert_t* c0 = &f0->verts[0];
+	const md2vert_t* c1 = &f1->verts[0];
 
 	// Parkar: Moved up to be able to use k0 for the y-flipping code
 	float k0 = tspr->z;
