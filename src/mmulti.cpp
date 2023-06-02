@@ -610,7 +610,7 @@ static void initmultiplayers_reset()
 	std::memset(simlagcnt,0,sizeof(simlagcnt));
 #endif
 
-	lastsendtims[0] = GetTickCount();
+	lastsendtims[0] = ::GetTickCount64();
 	for(i=0;i<MAXPLAYERS;i++) {
 		lastsendtims[i] = lastsendtims[0];
 		lastrecvtims[i] = prevlastrecvtims[i] = 0;
@@ -772,7 +772,7 @@ int initmultiplayerscycle()
 
 	getpacket(&i, nullptr);
 
-	tims = GetTickCount();
+	tims = ::GetTickCount64();
 
 	if (networkmode == MMULTI_MODE_MS && myconnectindex == connecthead)
 	{
@@ -959,7 +959,7 @@ void dosendpackets (int other)
 		//   unsigned short crc16; //CRC16 of everything except crc16
 
 
-	tims = GetTickCount();
+	tims = ::GetTickCount64();
 	if (tims < lastsendtims[other]) lastsendtims[other] = tims;
 	if (tims < lastsendtims[other]+1000/PAKRATE) return;
 	lastsendtims[other] = tims;
