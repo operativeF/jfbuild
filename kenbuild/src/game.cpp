@@ -92,7 +92,7 @@ KEN'S STATUS DEFINITIONS:  (Please define your own statuses for your games)
 			code also)
 **************************************************************************/
 
-struct point3d
+struct point3di
 {
 	int x, y, z;
 };
@@ -184,7 +184,7 @@ static int oposx[MAXPLAYERS], oposy[MAXPLAYERS], oposz[MAXPLAYERS];
 static int ohoriz[MAXPLAYERS], ozoom[MAXPLAYERS];
 static short oang[MAXPLAYERS];
 
-static point3d osprite[MAXSPRITES];
+static point3di osprite[MAXSPRITES];
 
 constexpr auto MAXINTERPOLATIONS{1024};
 static int numinterpolations = 0, startofdynamicinterpolations = 0;
@@ -1956,7 +1956,7 @@ void shootgun(short snum, int x, int y, int z,
 void analyzesprites(int dax, int day)
 {
 	int i, j=0, k, *intptr;
-	point3d *ospr;
+	point3di *ospr;
 	spritetype *tspr;
 
 		//This function is called between drawrooms() and drawmasks()
