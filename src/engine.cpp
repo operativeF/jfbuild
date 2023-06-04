@@ -119,7 +119,7 @@ int fpuasm;
 unsigned char britable[16][256];
 
 static std::array<char, 128> kensmessage;
-const char* engineerrstr{nullptr};
+std::string engineerrstr{};
 static BFILE *logfile{nullptr};		// log filehandle
 
 const struct textfontspec textfonts[3] = {
@@ -5056,20 +5056,25 @@ static void calcbritable()
 
 static int loadtables()
 {
-	int i;
-
 	initksqrt();
-    for(i=0;i<2048;i++) {
-        sintable[i] = (short)(16384*sin((double)i*3.14159265358979/1024));
-        reciptable[i] = divscale30(2048L,i+2048);
-    }
-    for(i=0;i<640;i++) {
-        radarang[i] = (short)(atan(((double)i-639.5)/160)*64*1024/3.14159265358979);
-        radarang[1279-i] = -radarang[i];
+
+	std::ranges::generate(sintable, [n = 0]() mutable {
+        	return static_cast<short>(16384 * std::sin(static_cast<double>(n++) * std::numbers::pi_v<double> / 1024));
+		}
+	);
+
+	std::ranges::generate(reciptable, [n = 0]() mutable {
+			return divscale30(2048L, (n++) + 2048);
+		}
+	);
+
+    for(int i{0}; i < 640; i++) {
+        radarang[i] = (short)(atan(((double)i-639.5)/160)*64*1024/std::numbers::pi_v<double>);
+        radarang[1279 - i] = -radarang[i];
     }
 	calcbritable();
 
-    if (crc32once((unsigned char *)sintable, sizeof(sintable)) != 0xee1e7aba) {
+    if (crc32once((unsigned char *)&sintable[0], sizeof(sintable)) != 0xee1e7aba) {
         engineerrstr = "Calculation of sintable yielded unexpected results.";
         return 1;
     }
@@ -5087,17 +5092,17 @@ static int loadtables()
 //
 static void initfastcolorlookup(int rscale, int gscale, int bscale)
 {
-	int i, j, x, y, z;
-	unsigned char *pal1;
+	int i, x, y, z;
 
-	j = 0;
-	for(i=64;i>=0;i--)
+	int j{0};
+
+	for(i = 64; i >= 0; i--)
 	{
 		//j = (i-64)*(i-64);
-		rdist[i] = rdist[128-i] = j*rscale;
-		gdist[i] = gdist[128-i] = j*gscale;
-		bdist[i] = bdist[128-i] = j*bscale;
-		j += 129-(i<<1);
+		rdist[i] = rdist[128-i] = j * rscale;
+		gdist[i] = gdist[128-i] = j * gscale;
+		bdist[i] = bdist[128-i] = j * bscale;
+		j += 129 - (i << 1);
 	}
 
 	//clearbufbyte(colhere,sizeof(colhere),0L);
@@ -5105,7 +5110,7 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 	std::memset(colhere,0,sizeof(colhere));
 	std::memset(colhead,0,sizeof(colhead));
 
-	pal1 = &palette[768-3];
+	unsigned char* pal1 = &palette[768-3];
 	for(i=255;i>=0;i--,pal1-=3)
 	{
 		j = (pal1[0]>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(pal1[1]>>3)*FASTPALGRIDSIZ+(pal1[2]>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
@@ -5119,7 +5124,9 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 		for(y=-FASTPALGRIDSIZ;y<=FASTPALGRIDSIZ;y+=FASTPALGRIDSIZ)
 			for(z=-1;z<=1;z++)
 				colscan[i++] = x+y+z;
-	i = colscan[13]; colscan[13] = colscan[26]; colscan[26] = i;
+	i = colscan[13];
+	colscan[13] = colscan[26];
+	colscan[26] = i;
 }
 
 
@@ -5128,7 +5135,7 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 //
 static int loadpalette()
 {
-	int fil = -1;
+	int fil{-1};
 	off_t flen;
 
 	if ((fil = kopen4load("palette.dat",0)) < 0) goto badpalette;
@@ -5193,17 +5200,20 @@ badpalette:
 //
 int getclosestcol(int r, int g, int b)
 {
-	int i, j, k, dist, mindist, retcol;
+	int i, k, dist;
 	unsigned char *pal1;
 
-	j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(g>>3)*FASTPALGRIDSIZ+(b>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
-	mindist = std::min(rdist[coldist[r & 7] + 64 + 8], gdist[coldist[g & 7] + 64 + 8]);
+	int j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(g>>3)*FASTPALGRIDSIZ+(b>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
+	int mindist = std::min(rdist[coldist[r & 7] + 64 + 8], gdist[coldist[g & 7] + 64 + 8]);
 	mindist = std::min(mindist, bdist[coldist[b & 7] + 64 + 8]);
 	mindist++;
 
-	r = 64-r; g = 64-g; b = 64-b;
+	r = 64 - r;
+	g = 64 - g;
+	b = 64 - b;
 
-	retcol = -1;
+	int retcol{-1};
+
 	for(k=26;k>=0;k--)
 	{
 		i = colscan[k]+j; if ((colhere[i>>3] & pow2char[i & 7]) == 0) continue;
@@ -5224,18 +5234,21 @@ int getclosestcol(int r, int g, int b)
 			i = colnext[i];
 		} while (i >= 0);
 	}
+	
 	if (retcol >= 0) return(retcol);
 
 	mindist = 0x7fffffff;
 	pal1 = &palette[768-3];
+	
 	for(i=255;i>=0;i--,pal1-=3)
 	{
 		dist = gdist[pal1[1]+g]; if (dist >= mindist) continue;
 		dist += rdist[pal1[0]+r]; if (dist >= mindist) continue;
 		dist += bdist[pal1[2]+b]; if (dist >= mindist) continue;
-		mindist = dist; retcol = i;
+		mindist = dist;
+		retcol = i;
 	}
-	return(retcol);
+	return retcol;
 }
 
 
@@ -5441,17 +5454,24 @@ static int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3,
 //
 static void keepaway (int *x, int *y, int w)
 {
-	int dx, dy, ox, oy, x1, y1;
-	char first;
+	const int x1 = clipit[w].x1;
+	const int dx = clipit[w].x2 - x1;
+	const int y1 = clipit[w].y1;
+	const int dy = clipit[w].y2 - y1;
+	const int ox = ksgn(-dy);
+	const int oy = ksgn(dx);
+	char first = (std::abs(dx) <= std::abs(dy));
 
-	x1 = clipit[w].x1; dx = clipit[w].x2-x1;
-	y1 = clipit[w].y1; dy = clipit[w].y2-y1;
-	ox = ksgn(-dy); oy = ksgn(dx);
-	first = (std::abs(dx) <= std::abs(dy));
 	while (1)
 	{
-		if (dx*(*y-y1) > (*x-x1)*dy) return;
-		if (first == 0) *x += ox; else *y += oy;
+		if (dx * (*y - y1) > (*x - x1) * dy)
+			return;
+
+		if (first == 0)
+			*x += ox;
+		else
+			*y += oy;
+
 		first ^= 1;
 	}
 }
@@ -5606,14 +5626,19 @@ int initengine()
 #endif
 	if (!preinitcalled) {
 		i = preinitengine();
-		if (i) return i;
+
+		if (i != 0)
+			return i;
 	}
 
 	xyaspect = -1;
 
-	pskyoff[0] = 0; pskybits = 0;
+	pskyoff[0] = 0;
+	pskybits = 0;
 
-	parallaxtype = 2; parallaxyoffs = 0L; parallaxyscale = 65536;
+	parallaxtype = 2;
+	parallaxyoffs = 0L;
+	parallaxyscale = 65536;
 	showinvisibility = 0;
 
 	for(i=1;i<1024;i++) {

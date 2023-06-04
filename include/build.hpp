@@ -23,6 +23,7 @@
 
 #include <array>
 #include <span>
+#include <string>
 
 #ifdef __cplusplus
 extern "C" {
@@ -228,7 +229,17 @@ EXTERN short numwalls;
 EXTERN /*volatile*/ int totalclock;
 EXTERN int numframes;
 EXTERN int randomseed;
-EXTERN short sintable[2048];
+EXTERN std::array<short, 2048> sintable;
+// FIXME: Replace with constexpr after sintable is generated externally from 16384 * std::sin((double)n * pi / 1024).
+//static constexpr std::array<short, 2048> comptable = []() {
+// std::array<short, 2048> cc;
+//     std::ranges::generate(cc, [n = 0]() mutable {
+//         auto cc_val = (short)(16384*std::sin((double)(n++)*std::numbers::pi_v<double> / 1024));
+//         // ++n;
+//         return cc_val;
+//         });
+//     return cc;
+// }();
 EXTERN unsigned char palette[768];
 EXTERN short numpalookups;
 EXTERN unsigned char *palookup[MAXPALOOKUPS];
@@ -313,7 +324,7 @@ extern int usemodels;
 extern int usehightile;
 #endif
 
-extern const char* engineerrstr;
+extern std::string engineerrstr;
 
 inline constexpr auto MAXVOXMIPS{5};
 inline intptr_t voxoff[MAXVOXELS][MAXVOXMIPS];
