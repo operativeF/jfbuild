@@ -287,13 +287,17 @@ EXTERN intptr_t waloff[MAXTILES];
 	//   then in 3D mode, the walls and sprites that you see will show up the
 	//   next time you flip to 2D mode.
 
-EXTERN unsigned char show2dsector[(MAXSECTORS+7)>>3];
-EXTERN unsigned char show2dwall[(MAXWALLS+7)>>3];
-EXTERN unsigned char show2dsprite[(MAXSPRITES+7)>>3];
+inline constexpr auto SHOWN_SECTORS = (MAXSECTORS + 7) >> 3;
+inline constexpr auto SHOWN_SPRITES = (MAXSPRITES + 7) >> 3;
+inline constexpr auto SHOWN_WALLS   = (MAXWALLS + 7) >> 3;
+inline constexpr auto SHOWN_TILES   = (MAXTILES + 7) >> 3;
+EXTERN std::array<unsigned char, SHOWN_SECTORS> show2dsector;
+EXTERN std::array<unsigned char, SHOWN_WALLS> show2dwall;
+EXTERN std::array<unsigned char, SHOWN_SPRITES> show2dsprite;
 EXTERN unsigned char automapping;
 
-EXTERN unsigned char gotpic[(MAXTILES+7)>>3];
-EXTERN unsigned char gotsector[(MAXSECTORS+7)>>3];
+EXTERN std::array<unsigned char, SHOWN_TILES> gotpic;
+EXTERN std::array<unsigned char, SHOWN_SECTORS> gotsector;
 
 EXTERN int captureformat;
 extern unsigned int drawlinepat;

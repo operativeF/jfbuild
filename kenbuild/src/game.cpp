@@ -5275,7 +5275,7 @@ int loadgame()
 	kdfread(&numplayers,4,1,fil);
 	kdfread(&myconnectindex,4,1,fil);
 	kdfread(&connecthead,4,1,fil);
-	kdfread(connectpoint2,4,MAXPLAYERS,fil);
+	kdfread(&connectpoint2[0], 4, MAXPLAYERS, fil);
 
 		//Make sure palookups get set, sprites will get overwritten later
 	for(i=connecthead;i>=0;i=connectpoint2[i]) initplayersprite((short)i);
@@ -5456,7 +5456,7 @@ int savegame()
 	dfwrite(&numplayers,4,1,fil);
 	dfwrite(&myconnectindex,4,1,fil);
 	dfwrite(&connecthead,4,1,fil);
-	dfwrite(connectpoint2,4,MAXPLAYERS,fil);
+	dfwrite(&connectpoint2[0], 4, MAXPLAYERS, fil);
 
 	dfwrite(posx,4,MAXPLAYERS,fil);
 	dfwrite(posy,4,MAXPLAYERS,fil);

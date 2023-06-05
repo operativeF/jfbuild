@@ -68,6 +68,9 @@ static int GetTickCount()
 #include "mmulti.hpp"
 #include "baselayer.hpp"
 
+#include <algorithm>
+#include <array>
+
 #define printf buildprintf
 
 constexpr auto MAXPAKSIZ{256}; //576
@@ -84,21 +87,33 @@ static unsigned char simlagfif[MAXPLAYERS][SIMLAG+1][MAXPAKSIZ+2];
 #pragma message("\n\nWARNING! INTENTIONAL PACKET LOSS SIMULATION IS ENABLED!\nREMEMBER TO CHANGE SIMMIS&SIMLAG to 0 before RELEASE!\n\n")
 #endif
 
-int myconnectindex, numplayers, networkmode = -1;
-int connecthead, connectpoint2[MAXPLAYERS];
+int myconnectindex;
+int numplayers;
+int networkmode{-1};
+int connecthead;
+std::array<int, MAXPLAYERS> connectpoint2;
 
-static int tims, lastsendtims[MAXPLAYERS], lastrecvtims[MAXPLAYERS], prevlastrecvtims[MAXPLAYERS];
-static unsigned char pakbuf[MAXPAKSIZ], playerslive[MAXPLAYERS];
+static int tims;
+static std::array<int, MAXPLAYERS> lastsendtims;
+static std::array<int, MAXPLAYERS> lastrecvtims;
+static std::array<int, MAXPLAYERS> prevlastrecvtims;
+static std::array<unsigned char, MAXPAKSIZ> pakbuf;
+static std::array<unsigned char, MAXPAKSIZ> playerslive;
 
 constexpr auto FIFSIZ{512}; //16384/40 = 6min:49sec
-static int ipak[MAXPLAYERS][FIFSIZ], icnt0[MAXPLAYERS];
-static int opak[MAXPLAYERS][FIFSIZ], ocnt0[MAXPLAYERS], ocnt1[MAXPLAYERS];
-static unsigned char pakmem[4194304]; static int pakmemi = 1;
+static int ipak[MAXPLAYERS][FIFSIZ];
+static std::array<int, MAXPLAYERS> icnt0;
+static int opak[MAXPLAYERS][FIFSIZ];
+static std::array<int, MAXPLAYERS> ocnt0;
+static std::array<int, MAXPLAYERS> ocnt1;
+static std::array<unsigned char, 4194304> pakmem;
+static int pakmemi{1};
 
 constexpr auto NETPORT{0x5bd9};
 static SOCKET mysock = -1;
-static int domain = PF_UNSPEC;
-static struct sockaddr_storage otherhost[MAXPLAYERS], snatchhost;	// IPV4/6 address of peers
+static int domain{PF_UNSPEC};
+static std::array<struct sockaddr_storage, MAXPLAYERS> otherhost;
+static struct sockaddr_storage snatchhost;	// IPV4/6 address of peers
 static struct in_addr replyfrom4[MAXPLAYERS], snatchreplyfrom4;		// our IPV4 address peers expect to hear from us on
 static struct in6_addr replyfrom6[MAXPLAYERS], snatchreplyfrom6;	// our IPV6 address peers expect to hear from us on
 static int netready = 0;
@@ -597,12 +612,10 @@ void uninitmultiplayers () { netuninit(); }
 
 static void initmultiplayers_reset()
 {
-	int i;
-
 	initcrc16();
-	std::memset(icnt0,0,sizeof(icnt0));
-	std::memset(ocnt0,0,sizeof(ocnt0));
-	std::memset(ocnt1,0,sizeof(ocnt1));
+	std::ranges::fill(icnt0, 0);
+	std::ranges::fill(ocnt0, 0);
+	std::ranges::fill(ocnt1, 0);
 	std::memset(ipak,0,sizeof(ipak));
 	//std::memset(opak,0,sizeof(opak)); //Don't need to init opak
 	//std::memset(pakmem,0,sizeof(pakmem)); //Don't need to init pakmem
@@ -611,16 +624,18 @@ static void initmultiplayers_reset()
 #endif
 
 	lastsendtims[0] = ::GetTickCount64();
-	for(i=0;i<MAXPLAYERS;i++) {
-		lastsendtims[i] = lastsendtims[0];
-		lastrecvtims[i] = prevlastrecvtims[i] = 0;
-		connectpoint2[i] = -1;
-		playerslive[i] = 0;
-	}
-	connecthead = 0;
-	numplayers = 1; myconnectindex = 0;
 
-	std::memset(otherhost,0,sizeof(otherhost));
+	std::ranges::fill(lastsendtims, lastsendtims[0]);
+	std::ranges::fill(prevlastrecvtims, 0);
+	std::ranges::fill(lastrecvtims, 0);
+	std::ranges::fill(connectpoint2, -1);
+	std::ranges::fill_n(playerslive.begin(), MAXPLAYERS, 0);
+
+	connecthead = 0;
+	numplayers = 1;
+	myconnectindex = 0;
+
+	std::memset(&otherhost[0], 0, sizeof(otherhost));
 }
 
 void initsingleplayers()
@@ -835,8 +850,8 @@ int initmultiplayerscycle()
 					*(int *)&pakbuf[k] = -1; k += 4;
 					pakbuf[k++] = 0xaa;
 					*(unsigned short *)&pakbuf[0] = (unsigned short)k;
-					*(unsigned short *)&pakbuf[k] = getcrc16(pakbuf,k); k += 2;
-					netsend(i,pakbuf,k);
+					*(unsigned short *)&pakbuf[k] = getcrc16(&pakbuf[0], k); k += 2;
+					netsend(i, &pakbuf[0], k);
 				}
 
 				if (lastrecvtims[i] == 0) {
@@ -984,8 +999,8 @@ void dosendpackets (int other)
 	}
 	*(unsigned short *)&pakbuf[k] = 0; k += 2;
 	*(unsigned short *)&pakbuf[0] = (unsigned short)k;
-	*(unsigned short *)&pakbuf[k] = getcrc16(pakbuf,k); k += 2;
-	netsend(other,pakbuf,k);
+	*(unsigned short *)&pakbuf[k] = getcrc16(&pakbuf[0], k); k += 2;
+	netsend(other, &pakbuf[0], k);
 }
 
 void sendpacket (int other, const unsigned char *bufptr, int messleng)
@@ -1021,7 +1036,7 @@ int getpacket (int *retother, unsigned char *bufptr)
 
 	tims = GetTickCount();
 
-	while (netread(&other,pakbuf,sizeof(pakbuf)))
+	while (netread(&other, &pakbuf[0], sizeof(pakbuf)))
 	{
 			//Packet format:
 			//   short crc16ofs;       //offset of crc16
@@ -1040,7 +1055,7 @@ int getpacket (int *retother, unsigned char *bufptr)
 #ifdef MMULTI_DEBUG_SENDRECV
 			debugprintf("mmulti debug: wrong-sized packet from %d\n", other);
 #endif
-		} else if (getcrc16(pakbuf,crc16ofs) != (*(unsigned short *)&pakbuf[crc16ofs])) {
+		} else if (getcrc16(&pakbuf[0], crc16ofs) != (*(unsigned short *)&pakbuf[crc16ofs])) {
 #ifdef MMULTI_DEBUG_SENDRECV
 			debugprintf("mmulti debug: bad crc in packet from %d\n", other);
 #endif
@@ -1115,8 +1130,8 @@ int getpacket (int *retother, unsigned char *bufptr)
 						pakbuf[k++] = (char)numplayers;
 						pakbuf[k++] = (char)netready;
 						*(unsigned short *)&pakbuf[0] = (unsigned short)k;
-						*(unsigned short *)&pakbuf[k] = getcrc16(pakbuf,k); k += 2;
-						netsend(sendother,pakbuf,k);
+						*(unsigned short *)&pakbuf[k] = getcrc16(&pakbuf[0], k); k += 2;
+						netsend(sendother, &pakbuf[0], k);
 					}
 				}
 				else if (pakbuf[k] == 0xab)

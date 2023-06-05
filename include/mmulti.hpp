@@ -3,6 +3,8 @@
 #ifndef __mmulti_h__
 #define __mmulti_h__
 
+#include <array>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -12,8 +14,11 @@ inline constexpr auto MAXMULTIPLAYERS{16};
 #define MMULTI_MODE_MS  0
 #define MMULTI_MODE_P2P 1
 
-extern int myconnectindex, numplayers, networkmode;
-extern int connecthead, connectpoint2[MAXMULTIPLAYERS];
+extern int myconnectindex;
+extern int numplayers;
+extern int networkmode;
+extern int connecthead;
+extern std::array<int, MAXMULTIPLAYERS> connectpoint2;
 extern unsigned char syncstate;
 
 void initsingleplayers();

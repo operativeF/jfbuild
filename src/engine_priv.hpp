@@ -27,9 +27,12 @@ inline constexpr std::array<int, 32> pow2long = {
 	268435456L,536870912L,1073741824L,2147483647L
 };
 
-extern short thesector[MAXWALLSB], thewall[MAXWALLSB];
-extern short bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
-extern short maskwall[MAXWALLSB], maskwallcnt;
+extern std::array<short, MAXWALLSB> thesector;
+extern std::array<short, MAXWALLSB> thewall;
+extern std::array<short, MAXWALLSB> bunchfirst;
+extern std::array<short, MAXWALLSB> bunchlast;
+extern std::array<short, MAXWALLSB> maskwall;
+extern short maskwallcnt;
 extern spritetype *tspriteptr[MAXSPRITESONSCREEN];
 extern int xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen, ydimenscale;
 extern intptr_t frameoffset;
@@ -67,9 +70,9 @@ extern int qsetmode;
 extern int hitallsprites;
 
 extern std::array<int, MAXWALLSB> xb1;
-extern int rx1[MAXWALLSB];
-extern int ry1[MAXWALLSB];
-extern short p2[MAXWALLSB];
+extern std::array<int, MAXWALLSB> rx1;
+extern std::array<int, MAXWALLSB> ry1;
+extern std::array<short, MAXWALLSB> p2;
 extern short numscans;
 extern short numhits;
 extern short numbunches;

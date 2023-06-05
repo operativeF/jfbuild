@@ -461,16 +461,16 @@ static std::array<int, MAXWALLSB> yb1;
 static std::array<int, MAXWALLSB> xb2;
 static std::array<int, MAXWALLSB> yb2;
 
-int rx1[MAXWALLSB];
-int ry1[MAXWALLSB];
+std::array<int, MAXWALLSB> rx1;
+std::array<int, MAXWALLSB> ry1;
 static std::array<int, MAXWALLSB> rx2;
 static std::array<int, MAXWALLSB> ry2;
-short p2[MAXWALLSB];
-short thesector[MAXWALLSB];
-short thewall[MAXWALLSB];
+std::array<short, MAXWALLSB> p2;
+std::array<short, MAXWALLSB> thesector;
+std::array<short, MAXWALLSB> thewall;
 
-short bunchfirst[MAXWALLSB];
-short bunchlast[MAXWALLSB];
+std::array<short, MAXWALLSB> bunchfirst;
+std::array<short, MAXWALLSB> bunchlast;
 
 static std::array<short, MAXYSAVES> smost;
 static short smostcnt;
@@ -479,7 +479,7 @@ static std::array<unsigned char, MAXWALLSB> smostwalltype;
 static std::array<int, MAXWALLSB> smostwall;
 static int smostwallcnt{-1L};
 
-short maskwall[MAXWALLSB];
+std::array<short, MAXWALLSB> maskwall;
 short maskwallcnt;
 static std::array<int, MAXSPRITESONSCREEN> spritesx;
 static std::array<int, MAXSPRITESONSCREEN + 1> spritesy;
@@ -488,10 +488,10 @@ spritetype *tspriteptr[MAXSPRITESONSCREEN];
 
 std::array<short, MAXXDIM> umost;
 std::array<short, MAXXDIM> dmost;
-static short bakumost[MAXXDIM];
-static short bakdmost[MAXXDIM];
-short uplc[MAXXDIM];
-short dplc[MAXXDIM];
+static std::array<short, MAXXDIM> bakumost;
+static std::array<short, MAXXDIM> bakdmost;
+std::array<short, MAXXDIM> uplc;
+std::array<short, MAXXDIM> dplc;
 static std::array<short, MAXXDIM> uwall;
 static std::array<short, MAXXDIM> dwall;
 static std::array<int, MAXXDIM> swplc;
@@ -557,7 +557,8 @@ int asm1;
 int asm2;
 int asm4;
 intptr_t asm3;
-int vplce[4], vince[4];
+std::array<int, 4> vplce;
+std::array<int, 4> vince;
 intptr_t palookupoffse[4], bufplce[4];
 unsigned char globalxshift, globalyshift;
 int globalxpanning, globalypanning, globalshade;

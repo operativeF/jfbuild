@@ -30,7 +30,12 @@ extern int startwin_idle(void *);
 extern int startwin_run(struct startwin_settings *);
 
 // video
-extern int xres, yres, bpp, fullscreen, bytesperline, imageSize;
+extern int xres;
+extern int yres;
+extern int bpp;
+extern int fullscreen;
+extern int bytesperline;
+extern int imageSize;
 extern char offscreenrendering;
 extern intptr_t frameplace;
 

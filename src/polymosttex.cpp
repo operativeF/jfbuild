@@ -197,11 +197,11 @@ PTMHead * PTM_GetHead(const PTMIdent *id)
  */
 static int ptm_loadcachedtexturefile(const char* filename, PTMHead* ptmh, int flags, int effects)
 {
-	int mipmap = 0, i = 0;
-	PTCacheTile * tdef = 0;
-	int compress = PTCOMPRESS_NONE;
+	int mipmap{0};
+	int i{0};
+	int compress{PTCOMPRESS_NONE};
 
-	tdef = PTCacheLoadTile(filename, effects, flags & (PTH_CLAMPED));
+	PTCacheTile* tdef = PTCacheLoadTile(filename, effects, flags & (PTH_CLAMPED));
 	if (!tdef) {
 		return -1;
 	}
@@ -293,7 +293,7 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 	PTTexture tex;
 	int filh, picdatalen;
 	int y;
-	char * picdata = 0;
+	char* picdata{nullptr};
 	PTCacheTile * tdef = 0;
 	int writetocache = 0, iscached = 0;
 

@@ -17,13 +17,26 @@ int krecip(int num);	// from engine.c
 constexpr auto BITSOFPRECISION{3};
 constexpr auto BITSOFPRECISIONPOW{8};
 
-extern int asm1, asm2, asm4, fpuasm, globalx3, globaly3;
+extern int asm1;
+extern int asm2;
+extern int asm4;
+extern int fpuasm;
+extern int globalx3;
+extern int globaly3;
 extern intptr_t asm3;
 extern void *reciptable;
 
-static int bpl, transmode = 0;
-static int glogx, glogy, gbxinc, gbyinc, gpinc;
-static unsigned char *gbuf, *gpal, *ghlinepal, *gtrans;
+static int bpl;
+static int transmode{0};
+static int glogx;
+static int glogy;
+static int gbxinc;
+static int gbyinc;
+static int gpinc;
+static unsigned char *gbuf;
+static unsigned char *gpal;
+static unsigned char *ghlinepal;
+static unsigned char *gtrans;
 
 	//Global variable functions
 void setvlinebpl(int dabpl) {

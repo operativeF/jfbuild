@@ -58,8 +58,11 @@ extern int forcesetup;
 
 struct startwin_settings {
     int fullscreen;
-    int xdim2d, ydim2d;
-    int xdim3d, ydim3d, bpp3d;
+    int xdim2d;
+    int ydim2d;
+    int xdim3d;
+    int ydim3d;
+    int bpp3d;
     int forcesetup;
 };
 

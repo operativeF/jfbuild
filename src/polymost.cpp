@@ -4371,8 +4371,8 @@ void polymost_fillpolygon (int npoints)
 		//Convert int to float (in-place)
 	for(i=npoints-1;i>=0;i--)
 	{
-		((float *)rx1)[i] = ((float)rx1[i])/4096.0;
-		((float *)ry1)[i] = ((float)ry1[i])/4096.0;
+		((float *)&rx1)[i] = ((float)rx1[i])/4096.0;
+		((float *)&ry1)[i] = ((float)ry1[i])/4096.0;
 	}
 
 	if ((unsigned int)globalpicnum >= MAXTILES) globalpicnum = 0;
@@ -4410,7 +4410,7 @@ void polymost_fillpolygon (int npoints)
 
 	draw.indexbuffer = 0;
 	draw.elementbuffer = 0;
-	tessectrap((float *)rx1, (float *)ry1, xb1, npoints, &draw);
+	tessectrap((float *)&rx1[0], (float *)&ry1[0], xb1, npoints, &draw);
 }
 
 int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
