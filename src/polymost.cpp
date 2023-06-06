@@ -88,67 +88,104 @@ Low priority:
 #include <cmath>
 #include <span>
 
-int rendmode = 0;
-int usemodels=1, usehightile=1, usegoodalpha=0;
+int rendmode{0};
+int usemodels{1};
+int usehightile{1};
+int usegoodalpha{0};
 
-struct vsptyp { float x, cy[2], fy[2]; int n, p, tag, ctag, ftag; };
+struct vsptyp {
+	float x;
+	std::array<float, 2> cy;
+	std::array<float, 2> fy;
+	int n;
+	int p;
+	int tag;
+	int ctag;
+	int ftag;
+};
+
 constexpr auto VSPMAX{4096}; //<- careful!
 static std::array<vsptyp, VSPMAX> vsp;
-static int vcnt, gtag;
+static int vcnt;
+static int gtag;
 
 double dxb1[MAXWALLSB];
 double dxb2[MAXWALLSB];
 
-constexpr auto SCISDIST{1.0}; //1.0: Close plane clipping distance
+static constexpr auto SCISDIST{1.0}; //1.0: Close plane clipping distance
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
-constexpr auto LINTERPSIZ{4}; //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
+static constexpr auto LINTERPSIZ{4}; //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
-constexpr auto FOGSCALE{0.0000384};
+static constexpr auto FOGSCALE{0.0000384};
 
-double gxyaspect, grhalfxdown10x;
-static double gyxscale, gviewxrange, ghalfx, grhalfxdown10, ghoriz;
-double gcosang, gsinang, gcosang2, gsinang2;
-double gchang, gshang, gctang, gstang;
+double gxyaspect;
+double grhalfxdown10x;
+static double gyxscale;
+static double gviewxrange;
+static double ghalfx;
+static double grhalfxdown10;
+static double ghoriz;
+double gcosang;
+double gsinang;
+double gcosang2;
+double gsinang2;
+double gchang;
+double gshang;
+double gctang;
+double gstang;
 static double gvisibility;
 float gtang{0.0F};
-double guo, gux, guy; //Screen-based texture mapping parameters
-double gvo, gvx, gvy;
-double gdo, gdx, gdy;
+
+//Screen-based texture mapping parameters
+double guo;
+double gux;
+double guy;
+double gvo;
+double gvx;
+double gvy;
+double gdo;
+double gdx;
+double gdy;
 
 #if (USEZBUFFER != 0)
-intptr_t zbufmem = 0;
-int zbufysiz = 0, zbufbpl = 0, *zbufoff = 0;
+intptr_t zbufmem{0};
+int zbufysiz{0};
+int zbufbpl{0};
+int* zbufoff{nullptr};
 #endif
 
 #if USE_OPENGL
-int gfogpalnum = 0;
-float gfogdensity = 0.f;
+int gfogpalnum{0};
+float gfogdensity{0.f};
 
-int glredbluemode = 0;
-static int lastglredbluemode = 0, redblueclearcnt = 0;
+int glredbluemode{0};
+static int lastglredbluemode{0};
+static int redblueclearcnt{0};
 
 struct glfiltermodes glfiltermodes[numglfiltermodes] = {
-	{"GL_NEAREST",GL_NEAREST,GL_NEAREST},
-	{"GL_LINEAR",GL_LINEAR,GL_LINEAR},
-	{"GL_NEAREST_MIPMAP_NEAREST",GL_NEAREST_MIPMAP_NEAREST,GL_NEAREST},
-	{"GL_LINEAR_MIPMAP_NEAREST",GL_LINEAR_MIPMAP_NEAREST,GL_LINEAR},
-	{"GL_NEAREST_MIPMAP_LINEAR",GL_NEAREST_MIPMAP_LINEAR,GL_NEAREST},
-	{"GL_LINEAR_MIPMAP_LINEAR",GL_LINEAR_MIPMAP_LINEAR,GL_LINEAR}
+	{"GL_NEAREST", GL_NEAREST,GL_NEAREST},
+	{"GL_LINEAR", GL_LINEAR,GL_LINEAR},
+	{"GL_NEAREST_MIPMAP_NEAREST", GL_NEAREST_MIPMAP_NEAREST,GL_NEAREST},
+	{"GL_LINEAR_MIPMAP_NEAREST", GL_LINEAR_MIPMAP_NEAREST,GL_LINEAR},
+	{"GL_NEAREST_MIPMAP_LINEAR", GL_NEAREST_MIPMAP_LINEAR,GL_NEAREST},
+	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR,GL_LINEAR}
 };
 
-int glanisotropy = 0;            // 0 = maximum supported by card
-int glusetexcompr = 1;
-int gltexcomprquality = 0;	// 0 = fast, 1 = slow and pretty, 2 = very slow and pretty
-int gltexfiltermode = 5;   // GL_LINEAR_MIPMAP_LINEAR
-int glusetexcache = 1;
-int glmultisample = 0, glnvmultisamplehint = 0, glsampleshading = 0;
-int gltexmaxsize = 0;      // 0 means autodetection on first run
-int gltexmiplevel = 0;		// discards this many mipmap levels
-static int lastglpolygonmode = 0;
-int glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT,3:clear+GL_FILL
+int glanisotropy{0};            // 0 = maximum supported by card
+int glusetexcompr{1};
+int gltexcomprquality{0};	// 0 = fast, 1 = slow and pretty, 2 = very slow and pretty
+int gltexfiltermode{5};   // GL_LINEAR_MIPMAP_LINEAR
+int glusetexcache{1};
+int glmultisample{0};
+int glnvmultisamplehint{0};
+int glsampleshading{0};
+int gltexmaxsize{0};      // 0 means autodetection on first run
+int gltexmiplevel{0};		// discards this many mipmap levels
+static int lastglpolygonmode{0};
+int glpolygonmode{0};     // 0:GL_FILL,1:GL_LINE,2:GL_POINT,3:clear+GL_FILL
 
-static GLuint texttexture = 0;
-static GLuint nulltexture = 0;
+static GLuint texttexture{0};
+static GLuint nulltexture{0};
 
 #define SHADERDEV 1
 static struct {
@@ -184,8 +221,8 @@ static struct {
 		// 2 = draw solid colour.
 } polymostauxglsl;
 
-static GLuint elementindexbuffer = 0;
-static GLuint elementindexbuffersize = 0;
+static GLuint elementindexbuffer{0};
+static GLuint elementindexbuffersize{0};
 
 const GLfloat gidentitymat[4][4] = {
 	{1.f, 0.f, 0.f, 0.f},
@@ -254,7 +291,10 @@ static inline int imod(int a, int b)
 static void drawline2d (float x0, float y0, float x1, float y1, unsigned char col)
 {
 	float f;
-	int e, inc, x, y;
+	int e;
+	int inc;
+	int x;
+	int y;
 	unsigned int up16;
 
 	const float dx = x1 - x0;
@@ -276,11 +316,19 @@ static void drawline2d (float x0, float y0, float x1, float y1, unsigned char co
 		  if (y1 >= fyres) {                          x1 += (fyres-y1)*dx/dy; y1 = fyres; }
 	else if (y1 <      0) {                          x1 += (    0-y1)*dx/dy; y1 =     0; }
 
-	if (fabs(dx) > fabs(dy))
+	if (std::fabs(dx) > std::fabs(dy))
 	{
-		if (x0 > x1) { f = x0; x0 = x1; x1 = f; f = y0; y0 = y1; y1 = f; }
-		y = (int)(y0*65536.f)+32768;
-		inc = (int)(dy/dx*65536.f+.5f);
+		if (x0 > x1) {
+			f = x0;
+			x0 = x1;
+			x1 = f;
+			f = y0;
+			y0 = y1;
+			y1 = f;
+		}
+
+		y = (int)(y0 * 65536.F) + 32768;
+		inc = (int)(dy/dx*65536.F + .5F);
 		x = (int)(x0+.5); if (x < 0) { y -= inc*x; x = 0; } //if for safety
 		e = (int)(x1+.5); if (e > xdimen) e = xdimen;       //if for safety
 		up16 = (ydimen<<16);
@@ -288,33 +336,44 @@ static void drawline2d (float x0, float y0, float x1, float y1, unsigned char co
 	}
 	else
 	{
-		if (y0 > y1) { f = x0; x0 = x1; x1 = f; f = y0; y0 = y1; y1 = f; }
-		x = (int)(x0*65536.f)+32768;
-		inc = (int)(dx/dy*65536.f+.5f);
+		if (y0 > y1) {
+			f = x0;
+			x0 = x1;
+			x1 = f;
+			f = y0;
+			y0 = y1;
+			y1 = f;
+		}
+
+		x = (int)(x0 * 65536.F) + 32768;
+		inc = (int)(dx / dy * 65536.F + .5F);
 		y = (int)(y0+.5); if (y < 0) { x -= inc*y; y = 0; } //if for safety
 		e = (int)(y1+.5); if (e > ydimen) e = ydimen;       //if for safety
 		up16 = (xdimen<<16);
-		for(;y<e;y++,x+=inc) if ((unsigned int)x < up16) *(unsigned char *)(ylookup[y]+(x>>16)+frameoffset) = col;
+		
+		for(; y < e; ++y, x += inc)
+			if ((unsigned int)x < up16)
+				*(unsigned char *)(ylookup[y] + (x >> 16) + frameoffset) = col;
 	}
 }
 
 #if USE_OPENGL
 
-static int drawingskybox = 0;
+static int drawingskybox{0};
 
-int polymost_texmayhavealpha (int dapicnum, int dapalnum)
+bool polymost_texmayhavealpha (int dapicnum, int dapalnum)
 {
 	const PTHead* pth = PT_GetHead(dapicnum, dapalnum, 0, 1);
 
 	if (!pth) {
-		return 1;
+		return true;
 	}
 
 	if (!pth->pic[PTHPIC_BASE]) {
 		// we haven't got a PTMHead reference yet for the base layer, so we
 		// don't know if the texture actually does have alpha, so err on
 		// the side of caution
-		return 1;
+		return true;
 	}
 
 	return (pth->pic[PTHPIC_BASE]->flags & PTH_HASALPHA) == PTH_HASALPHA;
@@ -396,7 +455,6 @@ void gltexapplyprops ()
 	PTIterFree(iter);
 
 	{
-		int j;
 		mdskinmap_t *sk;
 
 		for(int i{0}; i < nextmodelid; i++) {
@@ -406,7 +464,7 @@ void gltexapplyprops ()
 				continue;
 			}
 
-			for (j=0;j<m->numskins*(HICEFFECTMASK+1);j++)
+			for (int j{0};j < m->numskins * (HICEFFECTMASK + 1); ++j)
 			{
 				if (!m->tex[j] || !m->tex[j]->glpic) continue;
 				glfunc.glBindTexture(GL_TEXTURE_2D,m->tex[j]->glpic);
@@ -419,7 +477,7 @@ void gltexapplyprops ()
 			}
 
 			for (sk=m->skinmap;sk;sk=sk->next)
-				for (j=0;j<(HICEFFECTMASK+1);j++)
+				for (int j{0}; j < (HICEFFECTMASK + 1); ++j)
 				{
 					if (!sk->tex[j] || !sk->tex[j]->glpic) continue;
 					glfunc.glBindTexture(GL_TEXTURE_2D,sk->tex[j]->glpic);
@@ -442,7 +500,7 @@ float glox2;
 float gloy2;
 
 	//Use this for both initialization and uninitialization of OpenGL.
-static int gltexcacnum = -1;
+static int gltexcacnum{-1};
 
 void polymost_glreset ()
 {
@@ -554,18 +612,18 @@ static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, co
 #ifdef SHADERDEV
 	GLchar *fileshadersrc{nullptr};
 
-	BFILE* shaderfh = fopen(filename, "rb");
+	FILE* shaderfh = std::fopen(filename, "rb");
 	
 	if (shaderfh) {
-		fseek(shaderfh, 0, SEEK_END);
+		std::fseek(shaderfh, 0, SEEK_END);
 		auto shadersrclen = ftell(shaderfh);
-		fseek(shaderfh, 0, SEEK_SET);
+		std::fseek(shaderfh, 0, SEEK_SET);
 
-		fileshadersrc = (GLchar *)malloc(shadersrclen + 1);
-		shadersrclen = fread(fileshadersrc, 1, shadersrclen, shaderfh);
+		fileshadersrc = (GLchar *)std::malloc(shadersrclen + 1);
+		shadersrclen = std::fread(fileshadersrc, 1, shadersrclen, shaderfh);
 		fileshadersrc[shadersrclen] = 0;
 
-		fclose(shaderfh);
+		std::fclose(shaderfh);
 		shaderfh = nullptr;
 
 		buildprintf("polymost_load_shader: loaded %s (%ld bytes)\n", filename, shadersrclen);
@@ -577,7 +635,7 @@ static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, co
 
 #ifdef SHADERDEV
 	if (fileshadersrc) {
-		free(fileshadersrc);
+		std::free(fileshadersrc);
 		fileshadersrc = nullptr;
 	}
 #endif
@@ -587,28 +645,30 @@ static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, co
 
 static void checkindexbuffer(unsigned int size)
 {
-	GLushort *indexes, i;
+	if (size <= elementindexbuffersize)
+		return;
 
-	if (size <= elementindexbuffersize) return;
+	auto* indexes = (GLushort *) std::malloc(sizeof(GLushort)*size);
 
-	indexes = (GLushort *) malloc(sizeof(GLushort)*size);
-	for (i = 0; i < size; i++) indexes[i] = i;
+	for (GLushort i{0}; i < size; ++i)
+		indexes[i] = i;
+
 	glfunc.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementindexbuffer);
 	glfunc.glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort)*size, indexes, GL_STATIC_DRAW);
-	free(indexes);
+	std::free(indexes);
 
 	elementindexbuffersize = size;
 }
 
 static void polymost_loadshaders()
 {
-	GLuint shader[2] = {0,0};
-
 	// General texture rendering shader.
 	if (polymostglsl.program) {
 		glfunc.glDeleteProgram(polymostglsl.program);
 		polymostglsl.program = 0;
 	}
+
+	GLuint shader[2] = {0, 0};
 
 	shader[0] = polymost_load_shader(GL_VERTEX_SHADER, default_polymost_vs_glsl, "polymost_vs.glsl");
 	shader[1] = polymost_load_shader(GL_FRAGMENT_SHADER, default_polymost_fs_glsl, "polymost_fs.glsl");
@@ -647,7 +707,7 @@ static void polymost_loadshaders()
 
 	// A fully transparent texture for the case when a glow texture is not needed.
 	if (!nulltexture) {
-		const char pix[4] = {0,0,0,0};
+		const char pix[4] = {0, 0, 0, 0};
 		glfunc.glGenTextures(1, &nulltexture);
 		glfunc.glBindTexture(GL_TEXTURE_2D, nulltexture);
 		glfunc.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,1,1,0,GL_RGBA,GL_UNSIGNED_BYTE,(GLvoid*)&pix);
@@ -735,9 +795,11 @@ void resizeglcheck ()
 	if (glredbluemode < lastglredbluemode) {
 		glox1 = -1;
 		glfunc.glColorMask(1,1,1,1);
-	} else if (glredbluemode != lastglredbluemode) {
+	}
+	else if (glredbluemode != lastglredbluemode) {
 		redblueclearcnt = 0;
 	}
+
 	lastglredbluemode = glredbluemode;
 
 #if (USE_OPENGL != USE_GLES2)
@@ -756,8 +818,10 @@ void resizeglcheck ()
 
 	if ((glox1 != windowx1) || (gloy1 != windowy1) || (glox2 != windowx2) || (gloy2 != windowy2))
 	{
-		glox1 = windowx1; gloy1 = windowy1;
-		glox2 = windowx2; gloy2 = windowy2;
+		glox1 = windowx1;
+		gloy1 = windowy1;
+		glox2 = windowx2;
+		gloy2 = windowy2;
 
 		glfunc.glViewport(windowx1,yres-(windowy2+1),windowx2-windowx1+1,windowy2-windowy1+1);
 	}
@@ -768,29 +832,33 @@ void polymost_aftershowframe()
 #if (USE_OPENGL != USE_GLES2)
 	if (glpolygonmode)
 	{
-		glfunc.glClearColor(1.0,1.0,1.0,0.0);
-		glfunc.glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+		glfunc.glClearColor(1.0, 1.0, 1.0, 0.0);
+		glfunc.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 #endif
 }
 
 void polymost_setview()
 {
-	std::memset(gdrawroomsprojmat,0,sizeof(gdrawroomsprojmat));
-	gdrawroomsprojmat[0][0] = (float)ydimen; gdrawroomsprojmat[0][2] = 1.0;
-	gdrawroomsprojmat[1][1] = (float)xdimen; gdrawroomsprojmat[1][2] = 1.0;
-	gdrawroomsprojmat[2][2] = 1.0; gdrawroomsprojmat[2][3] = (float)ydimen;
+	std::memset(gdrawroomsprojmat, 0, sizeof(gdrawroomsprojmat));
+	gdrawroomsprojmat[0][0] = (float)ydimen;
+	gdrawroomsprojmat[0][2] = 1.0;
+	gdrawroomsprojmat[1][1] = (float)xdimen;
+	gdrawroomsprojmat[1][2] = 1.0;
+	gdrawroomsprojmat[2][2] = 1.0;
+	gdrawroomsprojmat[2][3] = (float)ydimen;
 	gdrawroomsprojmat[3][2] =-1.0;
 
-	std::memset(grotatespriteprojmat,0,sizeof(grotatespriteprojmat));
-	grotatespriteprojmat[0][0] = grotatespriteprojmat[2][3] = 1.0;
-	grotatespriteprojmat[1][1] = ((float)xdim)/((float)ydim);
+	std::memset(grotatespriteprojmat, 0, sizeof(grotatespriteprojmat));
+	grotatespriteprojmat[0][0] = 1.0;
+	grotatespriteprojmat[2][3] = 1.0;
+	grotatespriteprojmat[1][1] = ((float)xdim) / ((float)ydim);
 	grotatespriteprojmat[2][2] = 1.0001;
-	grotatespriteprojmat[3][2] = 1-grotatespriteprojmat[2][2];
+	grotatespriteprojmat[3][2] = 1 - grotatespriteprojmat[2][2];
 
-	std::memset(gorthoprojmat,0,sizeof(gorthoprojmat));
-	gorthoprojmat[0][0] = 2/(float)xdim;
-	gorthoprojmat[1][1] = -2/(float)ydim;
+	std::memset(gorthoprojmat, 0, sizeof(gorthoprojmat));
+	gorthoprojmat[0][0] = 2 / (float)xdim;
+	gorthoprojmat[1][1] = -2 / (float)ydim;
 	gorthoprojmat[2][2] = -1.0;
 	gorthoprojmat[3][3] = 1.0;
 	gorthoprojmat[3][0] = -1.0;
@@ -1373,9 +1441,15 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 
 		if (!dorot)
 		{
-			ngdx = gdx; ngdy = gdy; ngdo = gdo+(ngdx+ngdy)*.5;
-			ngux = gux; nguy = guy; nguo = guo+(ngux+nguy)*.5;
-			ngvx = gvx; ngvy = gvy; ngvo = gvo+(ngvx+ngvy)*.5;
+			ngdx = gdx;
+			ngdy = gdy;
+			ngdo = gdo + (ngdx + ngdy) * .5;
+			ngux = gux;
+			nguy = guy;
+			nguo = guo + (ngux + nguy) * .5;
+			ngvx = gvx;
+			ngvy = gvy;
+			ngvo = gvo + (ngvx + ngvy) * .5;
 		}
 		else
 		{
@@ -1395,24 +1469,31 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 				//px[0]*gvx + py[0]*gvy + 1*gvo = vv[0]*dd[0] (vv[i] premultiplied by dd[i] above)
 				//px[1]*gvx + py[1]*gvy + 1*gvo = vv[1]*dd[1]
 				//px[2]*gvx + py[2]*gvy + 1*gvo = vv[2]*dd[2]
-			ox = py[1]-py[2]; oy = py[2]-py[0]; oz = py[0]-py[1];
-			r = 1.0 / (ox*px[0] + oy*px[1] + oz*px[2]);
-			ngdx = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
-			ngux = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
-			ngvx = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
-			ox = px[2]-px[1]; oy = px[0]-px[2]; oz = px[1]-px[0];
-			ngdy = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
-			nguy = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
-			ngvy = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
-			ox = px[0]-.5; oy = py[0]-.5; //.5 centers texture nicely
-			ngdo = dd[0] - ox*ngdx - oy*ngdy;
-			nguo = uu[0] - ox*ngux - oy*nguy;
-			ngvo = vv[0] - ox*ngvx - oy*ngvy;
+			ox = py[1] - py[2];
+			oy = py[2] - py[0];
+			oz = py[0] - py[1];
+			r = 1.0 / (ox * px[0] + oy * px[1] + oz * px[2]);
+			ngdx = (ox * dd[0] + oy * dd[1] + oz * dd[2]) * r;
+			ngux = (ox * uu[0] + oy * uu[1] + oz * uu[2]) * r;
+			ngvx = (ox * vv[0] + oy * vv[1] + oz * vv[2]) * r;
+			ox = px[2] - px[1];
+			oy = px[0] - px[2];
+			oz = px[1] - px[0];
+			ngdy = (ox * dd[0] + oy * dd[1] + oz * dd[2]) * r;
+			nguy = (ox * uu[0] + oy * uu[1] + oz * uu[2]) * r;
+			ngvy = (ox * vv[0] + oy * vv[1] + oz * vv[2]) * r;
+			ox = px[0] - .5;
+			oy = py[0] - .5; //.5 centers texture nicely
+			ngdo = dd[0] - ox * ngdx - oy * ngdy;
+			nguo = uu[0] - ox * ngux - oy * nguy;
+			ngvo = vv[0] - ox * ngvx - oy * ngvy;
 		}
 		palptr = &palookup[globalpal][std::min(std::max(globalshade, 0), static_cast<int>(numpalookups) - 1) << 8]; //<-need to make shade not static!
 
-		tsizxm1 = tsizx-1; xmodnice = (!(tsizxm1&tsizx));
-		tsizym1 = tsizy-1; ymulnice = (!(tsizym1&tsizy));
+		tsizxm1 = tsizx-1;
+		xmodnice = (!(tsizxm1&tsizx));
+		tsizym1 = tsizy-1;
+		ymulnice = (!(tsizym1&tsizy));
 		if ((method & METH_CLAMPED) && (!xmodnice)) //Sprites don't need a mod on texture coordinates
 			{ xmodnice = 1; for(tsizxm1=1;tsizxm1<tsizx;tsizxm1=(tsizxm1<<1)+1); }
 		if (!ymulnice) { for(tsizym1=1;tsizym1+1<tsizy;tsizym1=(tsizym1<<1)+1); }
@@ -1435,9 +1516,9 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 		ngvo += ((double)xdimen)*ngvx; ngvx = -ngvx;
 	}
 
-	ngdx2 = ngdx*(1<<LINTERPSIZ);
-	ngux2 = ngux*(1<<LINTERPSIZ);
-	ngvx2 = ngvx*(1<<LINTERPSIZ);
+	ngdx2 = ngdx * (1 << LINTERPSIZ);
+	ngux2 = ngux * (1 << LINTERPSIZ);
+	ngvx2 = ngvx * (1 << LINTERPSIZ);
 
 	mini = (py[0] >= py[1]); maxi = 1-mini;
 	for(z=2;z<n;z++)
@@ -1663,7 +1744,8 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 	{
 		if (method & (METH_MASKED | METH_TRANS)) //Only draw border around sprites/maskwalls
 		{
-		for(i=0,j=n-1;i<n;j=i,i++) drawline2d(px[i],py[i],px[j],py[j],31); //hopefully color index 31 is white
+			for(i=0,j=n-1;i<n;j=i,i++)
+				drawline2d(px[i],py[i],px[j],py[j],31); //hopefully color index 31 is white
 		}
 
 		//ox = 0; oy = 0;
@@ -1685,7 +1767,8 @@ static void initmosts (const double *px, const double *py, int n)
 
 	vcnt = 1; //0 is dummy solid node
 
-	if (n < 3) return;
+	if (n < 3)
+		return;
 	imin = (px[1] < px[0]);
 	for(i=n-1;i>=2;i--) if (px[i] < px[imin]) imin = i;
 
@@ -2263,23 +2346,26 @@ static void polymost_drawalls (int bunch)
 
 			if (globalorientation&2) //slopes
 			{
-				px[0] = x0; py[0] = ryp0 + ghoriz;
-				px[1] = x1; py[1] = ryp1 + ghoriz;
+				px[0] = x0;
+				py[0] = ryp0 + ghoriz;
+				px[1] = x1;
+				py[1] = ryp1 + ghoriz;
 
 					//Pick some point guaranteed to be not collinear to the 1st two points
-				ox = nx0 + (ny1-ny0);
-				oy = ny0 + (nx0-nx1);
-				ox2 = (double)(oy-globalposy)*gcosang  - (double)(ox-globalposx)*gsinang;
-				oy2 = (double)(ox-globalposx)*gcosang2 + (double)(oy-globalposy)*gsinang2;
-				oy2 = 1.0/oy2;
-				px[2] = ghalfx*ox2*oy2 + ghalfx; oy2 *= gyxscale;
+				ox = nx0 + (ny1 - ny0);
+				oy = ny0 + (nx0 - nx1);
+				ox2 = (double)(oy - globalposy) * gcosang  - (double)(ox - globalposx) * gsinang;
+				oy2 = (double)(ox - globalposx) * gcosang2 + (double)(oy - globalposy) * gsinang2;
+				oy2 = 1.0 / oy2;
+				px[2] = ghalfx * ox2 * oy2 + ghalfx;
+				oy2 *= gyxscale;
 				py[2] = oy2 + ghoriz;
 
 				for(i=0;i<3;i++)
 				{
-					dd[i] = px[i]*gdx + py[i]*gdy + gdo;
-					uu[i] = px[i]*gux + py[i]*guy + guo;
-					vv[i] = px[i]*gvx + py[i]*gvy + gvo;
+					dd[i] = px[i] * gdx + py[i] * gdy + gdo;
+					uu[i] = px[i] * gux + py[i] * guy + guo;
+					vv[i] = px[i] * gvx + py[i] * gvy + gvo;
 				}
 
 				py[0] = fy0;
@@ -2718,8 +2804,8 @@ static void polymost_drawalls (int bunch)
 				double _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1, _nx0, _ny0, _nx1, _ny1;
 				double _ryp0, _ryp1, _x0, _x1, _cy0, _fy0, _cy1, _fy1, _ox0, _ox1;
 				double ncy0, ncy1;
-				constexpr int skywalx[4] = { -512,512,512,-512 };
-				constexpr int skywaly[4] = { -512,-512,512,512 };
+				constexpr int skywalx[4] = { -512,  512, 512, -512 };
+				constexpr int skywaly[4] = { -512, -512, 512,  512 };
 
 				(void)_nx0; (void)_ny0; (void)_nx1; (void)_ny1;
 				domostmethod = METH_CLAMPED;
@@ -4183,17 +4269,41 @@ static float trapextx[2];
 static void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1,
 	struct polymostdrawpolycall *draw)
 {
-	float px[4], py[4];
-	int i, n;
+	std::array<float, 4> px;
+	std::array<float, 4> py;
+
+	if (y0 == y1)
+		return;
+
+	px[0] = x0;
+	py[0] = y0; 
+	py[2] = y1;
+
+	int n{0};
+	if (x0 == x1) {
+		px[1] = x3;
+		py[1] = y1;
+		px[2] = x2;
+		n = 3;
+	}
+	else if (x2 == x3) {
+		px[1] = x1;
+		py[1] = y0;
+		px[2] = x3;
+		n = 3;
+	}
+	else {
+		px[1] = x1;
+		py[1] = y0;
+		px[2] = x3;
+		px[3] = x2;
+		py[3] = y1;
+		n = 4;
+	}
+
 	struct polymostvboitem vboitem[4];
 
-	if (y0 == y1) return;
-	px[0] = x0; py[0] = y0;  py[2] = y1;
-		  if (x0 == x1) { px[1] = x3; py[1] = y1; px[2] = x2; n = 3; }
-	else if (x2 == x3) { px[1] = x1; py[1] = y0; px[2] = x3; n = 3; }
-	else               { px[1] = x1; py[1] = y0; px[2] = x3; px[3] = x2; py[3] = y1; n = 4; }
-
-	for(i=0;i<n;i++)
+	for(int i{0}; i < n; ++i)
 	{
 		px[i] = std::min(std::max(px[i], trapextx[0]), trapextx[1]);
 		vboitem[i].t.s = px[i]*gux + py[i]*guy + guo;
@@ -4212,10 +4322,25 @@ static void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1
 static void tessectrap (const float *px, const float *py, std::span<const int> point2, int numpoints,
 	struct polymostdrawpolycall *draw)
 {
-	float x0, x1, m0, m1;
-	int i, j, k, z, i0, i1, i2, i3, npoints, gap, numrst;
+	float x0;
+	float x1;
+	float m0;
+	float m1;
+	int i;
+	int j;
+	int k;
+	int z;
+	int i0;
+	int i1;
+	int i2;
+	int i3;
+	int npoints;
+	int gap;
+	int numrst;
 
-	static int allocpoints = 0, *slist = 0, *npoint2 = 0;
+	static int allocpoints{0};
+	static int* slist{nullptr};
+	static int* npoint2{nullptr};
 	struct raster { float x, y, xi; int i; };
 	static raster *rst = 0;
 	static struct polymostvboitem *vboitem = nullptr;
@@ -4229,6 +4354,7 @@ static void tessectrap (const float *px, const float *py, std::span<const int> p
 	}
 
 		//Remove unnecessary collinear points:
+	// FIXME: nullptr access here if npoint2 is not set!
 	for(i=0;i<numpoints;i++) npoint2[i] = point2[i];
 	npoints = numpoints; z = 0;
 	for(i=0;i<numpoints;i++)
@@ -4354,9 +4480,7 @@ static void tessectrap (const float *px, const float *py, std::span<const int> p
 
 void polymost_fillpolygon (int npoints)
 {
-	PTHead *pth;
 	int i;
-	unsigned short ptflags = 0;
 	struct polymostdrawpolycall draw;
 
 	globalx1 = mulscale16(globalx1,xyaspect);
@@ -4375,16 +4499,24 @@ void polymost_fillpolygon (int npoints)
 		((float *)&ry1)[i] = ((float)ry1[i])/4096.0;
 	}
 
-	if ((unsigned int)globalpicnum >= MAXTILES) globalpicnum = 0;
-	if (!palookup[globalpal]) globalpal = 0;
+	if ((unsigned int)globalpicnum >= MAXTILES)
+		globalpicnum = 0;
+	
+	if (!palookup[globalpal])
+		globalpal = 0;
 
-	if (usehightile) ptflags |= PTH_HIGHTILE;
+	unsigned short ptflags{0};
+
+	if (usehightile)
+		ptflags |= PTH_HIGHTILE;
 
 	draw.texture0 = 0;
-	pth = PT_GetHead(globalpicnum, globalpal, ptflags, 0);
+	PTHead* pth = PT_GetHead(globalpicnum, globalpal, ptflags, 0);
+
 	if (pth && pth->pic[PTHPIC_BASE]) {
 		draw.texture0 = pth->pic[ PTHPIC_BASE ]->glpic;
 	}
+
 	draw.texture1 = nulltexture;
 	draw.alphacut = 0.f;
 	draw.fogcolour.r = draw.fogcolour.g = draw.fogcolour.b = draw.fogcolour.a = 0.f;
@@ -4392,6 +4524,7 @@ void polymost_fillpolygon (int npoints)
 
 	draw.colour.r = draw.colour.g = draw.colour.b =
 		((float)(numpalookups - std::min(std::max(globalshade, 0), static_cast<int>(numpalookups))))/((float)numpalookups);
+
 	switch ((globalorientation>>7)&3) {
 		case 0:
 		case 1: draw.colour.a = 1.0; glfunc.glDisable(GL_BLEND); break;
@@ -4415,16 +4548,17 @@ void polymost_fillpolygon (int npoints)
 
 int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 {
-	float xdime, ydime, xdimepad, ydimepad, scx, scy;
-	PTHead *pth;
-	palette_t bgcolour;
 	struct polymostdrawauxcall draw;
 	struct polymostvboitem vboitem[4];
 
-	if ((rendmode != 3) || (qsetmode != 200)) return(-1);
+	if ((rendmode != 3) || (qsetmode != 200))
+		return -1;
 
-	xdime = (float)tilesizx[wallnum];
-	ydime = (float)tilesizy[wallnum];
+	auto xdime = (float)tilesizx[wallnum];
+	auto ydime = (float)tilesizy[wallnum];
+
+	float scx;
+	float scy;
 
 	if ((xdime <= dimen) && (ydime <= dimen)) {
 		scx = xdime;
@@ -4439,7 +4573,10 @@ int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 		}
 	}
 
-	pth = PT_GetHead(wallnum, 0, (usehightile ? PTH_HIGHTILE : 0) | PTH_CLAMPED, 0);
+	PTHead* pth = PT_GetHead(wallnum, 0, (usehightile ? PTH_HIGHTILE : 0) | PTH_CLAMPED, 0);
+
+	float xdimepad;
+	float ydimepad;
 
 	if (pth) {
 		xdimepad = (float)pth->pic[PTHPIC_BASE]->tsizx / (float)pth->pic[PTHPIC_BASE]->sizx;
@@ -4449,7 +4586,8 @@ int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 		ydimepad = 1.0;
 	}
 
-	bgcolour = curpalette[255];
+	palette_t bgcolour = curpalette[255];
+
 	if (!gammabrightness) {
 		bgcolour.r = britable[curbrightness][bgcolour.r];
 		bgcolour.g = britable[curbrightness][bgcolour.g];
@@ -4501,12 +4639,20 @@ int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 
 	polymost_drawaux_glcall(GL_TRIANGLE_FAN, &draw);
 
-	return(0);
+	return 0;
 }
 
 int polymost_printext256(int xpos, int ypos, short col, short backcol, std::span<const char> name, char fontsize)
 {
-	GLfloat tx, ty, txc, tyc, txg, tyg, tyoff, cx, cy;
+	GLfloat tx;
+	GLfloat ty;
+	GLfloat txc;
+	GLfloat tyc;
+	GLfloat txg;
+	GLfloat tyg;
+	GLfloat tyoff;
+	GLfloat cx;
+	GLfloat cy;
 	int indexcnt;
 	int vbocnt;
 	palette_t colour;
@@ -4618,7 +4764,8 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, std::span
 
 		polymost_drawaux_glcall(GL_TRIANGLES, &draw);
 
-		indexcnt = vbocnt = 0;
+		indexcnt = 0;
+		vbocnt = 0;
 	}
 
 	glfunc.glDepthMask(GL_TRUE);	// re-enable writing to the z-buffer
@@ -4715,17 +4862,18 @@ int polymost_plotpixel(int x, int y, unsigned char col)
 
 static int polymost_preparetext()
 {
-	unsigned int *tbuf;
-
 	if (texttexture) {
 		return 0;
 	}
 
 	// construct a 256x256 rgba texture for the font glyph matrix.
 	glfunc.glGenTextures(1,&texttexture);
-	if (!texttexture) return -1;
+	
+	if (!texttexture)
+		return -1;
 
-	tbuf = (unsigned int *)Bcalloc(256*256, sizeof(unsigned int));
+	auto* tbuf = (unsigned int *)Bcalloc(256*256, sizeof(unsigned int));
+
 	if (!tbuf) {
 		glfunc.glDeleteTextures(1,&texttexture);
 		texttexture = 0;
@@ -4736,22 +4884,23 @@ static int polymost_preparetext()
 	// 4x6 - lines 64 to 127, 8 lines per row
 	// 8x14 - lines 128-255, 16 lines per row
 
-	for (int fn = 0; fn < 3; fn++) {
+	for (int fn{0}; fn < 3; ++fn) {
 		const struct textfontspec *f = &textfonts[fn];
-		unsigned int *tptr = tbuf + 256*64*fn;
-		int cellh = fn < 2 ? 8 : 16;
+		unsigned int* tptr = tbuf + 256 * 64 * fn;
+		const int cellh = fn < 2 ? 8 : 16;
 
-		for (int c = 0; c < 256; c++) {
+		for (int c = 0; c < 256; ++c) {
 			const unsigned char *letptr = &f->font[c * f->cellh + f->cellyoff];
-			unsigned int *cptr = tptr + ((c/32) * 256 * cellh) + ((c%32)*8);
+			unsigned int *cptr = tptr + ((c / 32) * 256 * cellh) + ((c % 32) *8);
 
-			for(int y = 0; y < f->charysiz; y++)
+			for(int y{0}; y < f->charysiz; ++y)
 			{
-				for(int x = 0; x < f->charxsiz; x++)
+				for(int x{0}; x < f->charxsiz; ++x)
 				{
 					if (letptr[y] & pow2char[7 - x - f->cellxoff])
 						cptr[x] = 0xffffffff;
 				}
+
 				cptr += 256;
 			}
 		}
@@ -4762,7 +4911,7 @@ static int polymost_preparetext()
 	glfunc.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,256,256,0,GL_RGBA,GL_UNSIGNED_BYTE,(GLvoid*)tbuf);
 	glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	free(tbuf);
+	std::free(tbuf);
 
 	return 0;
 }
@@ -4778,31 +4927,33 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
 	// datype is 0 for a wall/floor/ceiling and 1 for a sprite
 	//    basically this just means walls are repeating
 	//    while sprites are clamped
-	int mid;
-	unsigned short flags;
 
-	if (rendmode < 3) return;
+	if (rendmode < 3)
+		return;
 
-	if (!palookup[dapalnum]) return;//dapalnum = 0;
+	if (!palookup[dapalnum])
+		return;//dapalnum = 0;
 
 		//FIXME
 	//buildprintf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
-	flags = (datype & 1) ? PTH_CLAMPED :0;
+	unsigned short flags = (datype & 1) ? PTH_CLAMPED : 0;
+
 	if (usehightile) flags |= PTH_HIGHTILE;
 	PTMarkPrime(dapicnum, dapalnum, flags);
 
 	if (datype == 0) return;
 
-	mid = md_tilehasmodel(dapicnum);
+	int mid = md_tilehasmodel(dapicnum);
+
 	if (mid < 0 || models[mid]->mdnum < 2) return;
 
 	{
-		int i,j=0;
+		int j{0};
 
 		if (models[mid]->mdnum == 3)
 			j = ((md3model *)models[mid])->head.numsurfs;
 
-		for (i=0;i<=j;i++)
+		for (int i{0}; i <= j; ++i)
 			mdloadskin((md2model*)models[mid], 0, dapalnum, i);
 	}
 }
@@ -4884,26 +5035,27 @@ static int osdcmd_debugreloadshaders(const osdfuncparm_t *parm)
 
 static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 {
-	int m;
 	const char *p;
 
 	if (parm->numparms != 1) {
 		buildprintf("Current texturing mode is %s\n", glfiltermodes[gltexfiltermode].name);
 		buildprintf("  Vaild modes are:\n");
-		for (m = 0; m < (int)numglfiltermodes; m++)
+		for (int m{0}; m < (int)numglfiltermodes; ++m)
 			buildprintf("     %d - %s\n",m,glfiltermodes[m].name);
 
 		return OSDCMD_OK;
 	}
 
-	m = (int)strtol(parm->parms[0], (char **)&p, 10);
+	int m = (int)std::strtol(parm->parms[0], (char **)&p, 10);
+	
 	if (p == parm->parms[0]) {
 		// string
 		for (m = 0; m < (int)numglfiltermodes; m++) {
 			if (!Bstrcasecmp(parm->parms[0], glfiltermodes[m].name)) break;
 		}
 		if (m == numglfiltermodes) m = gltexfiltermode;   // no change
-	} else {
+	}
+	else {
 		if (m < 0) m = 0;
 		else if (m >= (int)numglfiltermodes) m = numglfiltermodes - 1;
 	}
@@ -4920,9 +5072,6 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 
 static int osdcmd_gltextureanisotropy(const osdfuncparm_t *parm)
 {
-	int l;
-	const char *p;
-
 	if (parm->numparms != 1) {
 		buildprintf("Current texture anisotropy is %d\n", glanisotropy);
 		buildprintf("  Maximum is %f\n", glinfo.maxanisotropy);
@@ -4930,8 +5079,11 @@ static int osdcmd_gltextureanisotropy(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 
-	l = (int)strtol(parm->parms[0], (char **)&p, 10);
-	if (l < 0 || l > glinfo.maxanisotropy) l = 0;
+	const char *p;
+	int l = (int) std::strtol(parm->parms[0], (char **)&p, 10);
+
+	if (l < 0 || l > glinfo.maxanisotropy)
+		l = 0;
 
 	if (l != gltexfiltermode) {
 		glanisotropy = l;
@@ -4955,10 +5107,10 @@ static int osdcmd_forcetexcacherebuild(const osdfuncparm_t *parm)
 
 static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 {
-	const int showval = (parm->numparms < 1);
+	const bool showval = parm->numparms < 1;
 	int val{ 0 };
 
-	if (!showval) val = atoi(parm->parms[0]);
+	if (!showval) val = std::atoi(parm->parms[0]);
 #if USE_OPENGL
 	if (!Bstrcasecmp(parm->name, "usemodels")) {
 		if (showval) { buildprintf("usemodels is %d\n", usemodels); }

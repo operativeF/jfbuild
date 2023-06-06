@@ -205,7 +205,8 @@ static int framename2index (mdmodel *vm, const char *nam)
 			}
 			break;
 	}
-	return(i);
+
+	return i;
 }
 
 int md_defineframe (int modelid, const char *framename, int tilenume, int skinnum)
@@ -1966,18 +1967,39 @@ void voxfree (voxmodel *m)
 	free(m);
 }
 
-voxmodel *voxload (const char *filnam)
+voxmodel* voxload (const char *filnam)
 {
-	int is8bit, ret;
-	voxmodel *vm;
+	auto* dot = std::strrchr(filnam, '.');
+	
+	if (!dot)
+		return 0;
 
-	auto* dot = strrchr(filnam, '.'); if (!dot) return(0);
-	     if (!strcasecmp(dot,".vox")) { ret = loadvox(filnam); is8bit = 1; }
-	else if (!strcasecmp(dot,".kvx")) { ret = loadkvx(filnam); is8bit = 1; }
-	else if (!strcasecmp(dot,".kv6")) { ret = loadkv6(filnam); is8bit = 0; }
+	bool is8bit{};
+    int ret{};
+
+    if (!strcasecmp(dot,".vox")) {
+		ret = loadvox(filnam);
+		is8bit = true;
+	}
+	else if (!strcasecmp(dot,".kvx")) {
+		ret = loadkvx(filnam);
+		is8bit = true;
+	}
+	else if (!strcasecmp(dot,".kv6")) {
+		ret = loadkv6(filnam);
+		is8bit = false;
+	}
 	//else if (!strcasecmp(dot,".vxl")) { ret = loadvxl(filnam); is8bit = 0; }
-	else return(0);
-	if (ret >= 0) vm = vox2poly(); else vm = 0;
+	else
+		return 0;
+
+	auto* vm = [ret]() -> voxmodel* {
+          if (ret >= 0)
+            return vox2poly();
+          else
+            return nullptr;
+	    }();
+	
 	if (vm)
 	{
 		vm->mdnum = 1; //VOXel model id
@@ -1987,13 +2009,36 @@ voxmodel *voxload (const char *filnam)
 		vm->is8bit = is8bit;
 
 		vm->texid = (unsigned int *)calloc(MAXPALOOKUPS,sizeof(unsigned int));
-		if (!vm->texid) { voxfree(vm); vm = 0; }
+
+		if (!vm->texid) {
+			voxfree(vm);
+			vm = nullptr;
+		}
 	}
-	if (shcntmal) { free(shcntmal); shcntmal = 0; }
-	if (vbit) { free(vbit); vbit = 0; }
-	if (vcol) { free(vcol); vcol = 0; vnum = 0; vmax = 0; }
-	if (vcolhashead) { free(vcolhashead); vcolhashead = 0; }
-	return(vm);
+
+	if (shcntmal) {
+		std::free(shcntmal);
+		shcntmal = nullptr;
+	}
+
+	if (vbit) {
+		std::free(vbit);
+		vbit = nullptr;
+	}
+
+	if (vcol) {
+		std::free(vcol);
+		vcol = nullptr;
+		vnum = 0;
+		vmax = 0;
+	}
+	
+	if (vcolhashead) {
+		std::free(vcolhashead);
+		vcolhashead = nullptr;
+	}
+
+	return vm;
 }
 
 static int voxloadbufs(voxmodel *m);
@@ -2001,29 +2046,30 @@ static int voxloadbufs(voxmodel *m);
 	//Draw voxel model as perfect cubes
 int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 {
-	point3d m0, a0;
-	float f;
-	float g;
-	float k0;
-	float k1;
-	float k2;
-	float k3;
-	float k4;
-	float k5;
-	float k6;
-	float k7;
+	// TODO: null check added, but maybe we should make sure it's never null.
+    if (m == nullptr)
+		return 0;
+
 	std::array<float, 16> mat;
 	std::array<float, 16> omat;
 	std::array<float, 4> pc;
 	struct polymostdrawpolycall draw;
 
 	//updateanimation((md2model *)m,tspr);
-	if ((tspr->cstat&48)==32) return 0;
+	if ((tspr->cstat&48)==32)
+		return 0;
 
-	m0.x = m->scale;
-	m0.y = m->scale;
-	m0.z = m->scale;
-	a0.x = a0.y = 0; a0.z = m->zadd*m->scale;
+	point3d m0{
+		.x = m->scale,
+		.y = m->scale,
+		.z = m->scale
+	};
+
+	point3d a0{
+		.x = 0,
+		.y = 0,
+		.z = m->zadd * m->scale
+	};
 
 	//if (globalorientation&8) //y-flipping
 	//{
@@ -2033,42 +2079,70 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 	//}
 	//if (globalorientation&4) { m0.y = -m0.y; a0.y = -a0.y; } //x-flipping
 
-	f = ((float)tspr->xrepeat)*(256.0/320.0)/64.0*m->bscale;
-	m0.x *= f; a0.x *= f; f = -f;
-	m0.y *= f; a0.y *= f;
-	f = ((float)tspr->yrepeat)/64.0*m->bscale;
-	m0.z *= f; a0.z *= f;
+	float f = ((float)tspr->xrepeat)*(256.0/320.0)/64.0*m->bscale;
 
-	k0 = tspr->z;
-	if (globalorientation&128) k0 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<1);
+	m0.x *= f;
+	a0.x *= f;
+	f = -f;
+	m0.y *= f;
+	a0.y *= f;
+	f = ((float)tspr->yrepeat)/64.0*m->bscale;
+	m0.z *= f;
+	a0.z *= f;
+
+	float k0 = tspr->z;
+	
+	if (globalorientation&128)
+		k0 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<1);
 
 	f = (65536.0*512.0)/((float)xdimen*viewingrange);
-	g = 32.0/((float)xdimen*gxyaspect);
-	m0.y *= f; a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
-	m0.x *=-f; a0.x = (((float)(tspr->y-globalposy))/ -1024.0 + a0.x)*-f;
-	m0.z *= g; a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
+	float g = 32.0/((float)xdimen*gxyaspect);
+	m0.y *= f;
+	a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
+	m0.x *=-f;
+	a0.x = (((float)(tspr->y-globalposy))/ -1024.0 + a0.x)*-f;
+	m0.z *= g;
+	a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
 
 	k0 = ((float)(tspr->x-globalposx))*f/1024.0;
-	k1 = ((float)(tspr->y-globalposy))*f/1024.0;
+	float k1 = ((float)(tspr->y-globalposy))*f/1024.0;
 	f = gcosang2*gshang;
 	g = gsinang2*gshang;
-	k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0;
-	k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] / 16384.0;
-	k2 = k0*(1-k4)+k1*k5;
-	k3 = k1*(1-k4)-k0*k5;
-	k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
-	mat[0] = k4*k6 + k5*k7; mat[4] = gchang*gstang; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
-	k6 = f*gctang + gsinang*gstang; k7 = g*gctang - gcosang*gstang;
-	mat[1] = k4*k6 + k5*k7; mat[5] = gchang*gctang; mat[ 9] = k4*k7 - k5*k6; mat[13] = k2*k6 + k3*k7;
-	k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
-	mat[2] = k4*k6 + k5*k7; mat[6] =-gshang;        mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
+	float k4 = static_cast<float>(sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0);
+	float k5 = static_cast<float>(sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] / 16384.0);
+	float k2 = k0*(1-k4)+k1*k5;
+	float k3 = k1*(1-k4)-k0*k5;
+	float k6 = f*gstang - gsinang*gctang;
+	float k7 = g*gstang + gcosang*gctang;
+
+	mat[0] = k4 * k6 + k5 * k7;
+	mat[4] = gchang * gstang;
+	mat[8] = k4 * k7 - k5 * k6;
+	mat[12] = k2 * k6 + k3 * k7;
+	k6 = f * gctang + gsinang * gstang;
+	k7 = g * gctang - gcosang*gstang;
+	mat[1] = k4 * k6 + k5 * k7;
+	mat[5] = gchang * gctang;
+	mat[9] = k4 * k7 - k5 * k6;
+	mat[13] = k2 * k6 + k3 * k7;
+	k6 = gcosang2 * gchang;
+	k7 = gsinang2 * gchang;
+	mat[2] = k4 * k6 + k5 * k7;
+	mat[6] = -gshang;
+	mat[10] = k4 * k7 - k5 * k6;
+	mat[14] = k2 * k6 + k3 * k7;
 
 	mat[12] += a0.y*mat[0] + a0.z*mat[4] + a0.x*mat[ 8];
 	mat[13] += a0.y*mat[1] + a0.z*mat[5] + a0.x*mat[ 9];
 	mat[14] += a0.y*mat[2] + a0.z*mat[6] + a0.x*mat[10];
 
 		//Mirrors
-	if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
+	if (grhalfxdown10x < 0) {
+		mat[0] = -mat[0];
+		mat[4] = -mat[4];
+		mat[8] = -mat[8];
+		mat[12] = -mat[12];
+	}
 
 //------------
 	//bit 10 is an ugly hack in game.c\animatesprites telling MD2SPRITE
@@ -2082,7 +2156,12 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 		glfunc.glDepthRange(0.0,0.9999);
 #endif
 	}
-	if ((grhalfxdown10x >= 0) /*^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0)*/) glfunc.glFrontFace(GL_CW); else glfunc.glFrontFace(GL_CCW);
+
+	if ((grhalfxdown10x >= 0) /*^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0)*/)
+		glfunc.glFrontFace(GL_CW);
+	else
+		glfunc.glFrontFace(GL_CCW);
+
 	glfunc.glEnable(GL_CULL_FACE);
 	glfunc.glCullFace(GL_BACK);
 
@@ -2090,20 +2169,44 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 	pc[0] *= (float)hictinting[globalpal].r / 255.0;
 	pc[1] *= (float)hictinting[globalpal].g / 255.0;
 	pc[2] *= (float)hictinting[globalpal].b / 255.0;
-	if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } else pc[3] = 1.0;
-	if (tspr->cstat&2) glfunc.glEnable(GL_BLEND); else glfunc.glDisable(GL_BLEND);
+	if (tspr->cstat&2) {
+		if (!(tspr->cstat&512))
+			pc[3] = 0.66;
+		else pc[3] = 0.33;
+	}
+	else
+		pc[3] = 1.0;
+
+	if (tspr->cstat&2)
+		glfunc.glEnable(GL_BLEND);
+	else
+		glfunc.glDisable(GL_BLEND);
+
 //------------
 
 		//transform to Build coords
 	std::memcpy(&omat[0], &mat[0], sizeof(omat));
-	f = 1.f/64.f;
-	g = m0.x*f; mat[0] *= g; mat[1] *= g; mat[2] *= g;
-	g = m0.y*f; mat[4] = omat[8]*g; mat[5] = omat[9]*g; mat[6] = omat[10]*g;
-	g =-m0.z*f; mat[8] = omat[4]*g; mat[9] = omat[5]*g; mat[10] = omat[6]*g;
-	mat[12] -= (m->xpiv*mat[0] + m->ypiv*mat[4] + (m->zpiv+m->zsiz*.5)*mat[ 8]);
-	mat[13] -= (m->xpiv*mat[1] + m->ypiv*mat[5] + (m->zpiv+m->zsiz*.5)*mat[ 9]);
-	mat[14] -= (m->xpiv*mat[2] + m->ypiv*mat[6] + (m->zpiv+m->zsiz*.5)*mat[10]);
-	mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
+	f = 1.0F / 64.0F;
+	g = m0.x*f;
+	mat[0] *= g;
+	mat[1] *= g;
+	mat[2] *= g;
+	g = m0.y*f;
+	mat[4] = omat[8] * g;
+	mat[5] = omat[9] * g;
+	mat[6] = omat[10] * g;
+
+	g =-m0.z * f;
+	mat[8]  = omat[4] * g;
+	mat[9]  = omat[5] * g;
+	mat[10] = omat[6] * g;
+	mat[12] -= (m->xpiv * mat[0] + m->ypiv * mat[4] + (m->zpiv + m->zsiz * .5) * mat[ 8]);
+	mat[13] -= (m->xpiv * mat[1] + m->ypiv * mat[5] + (m->zpiv + m->zsiz * .5) * mat[ 9]);
+	mat[14] -= (m->xpiv * mat[2] + m->ypiv * mat[6] + (m->zpiv + m->zsiz * .5) * mat[10]);
+	mat[3] = 0.0F;
+	mat[7] = 0.0F;
+	mat[11] = 0.0F;
+	mat[15] = 1.0F;
 
 	if (!m->texid[globalpal]) {
 		m->texid[globalpal] = gloadtex(m->mytex,m->mytexx,m->mytexy,m->is8bit,globalpal);
@@ -2116,22 +2219,25 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 	draw.colour.g = pc[1];
 	draw.colour.b = pc[2];
 	draw.colour.a = pc[3];
-	draw.fogcolour.r = (float)palookupfog[gfogpalnum].r / 63.f;
-	draw.fogcolour.g = (float)palookupfog[gfogpalnum].g / 63.f;
-	draw.fogcolour.b = (float)palookupfog[gfogpalnum].b / 63.f;
-	draw.fogcolour.a = 1.f;
+	draw.fogcolour.r = (float)palookupfog[gfogpalnum].r / 63.0F;
+	draw.fogcolour.g = (float)palookupfog[gfogpalnum].g / 63.0F;
+	draw.fogcolour.b = (float)palookupfog[gfogpalnum].b / 63.0F;
+	draw.fogcolour.a = 1.0F;
 	draw.fogdensity = gfogdensity;
 
 	if (method & 1) {
 		draw.projection = &grotatespriteprojmat[0][0];
-	} else {
+	}
+	else {
 		draw.projection = &gdrawroomsprojmat[0][0];
 	}
+
 	draw.modelview = mat.data();
 
 	if (!m->vertexbuf || !m->indexbuf) {
 		voxloadbufs(m);
 	}
+
 	draw.indexcount = m->indexcount;
 	draw.indexbuffer = m->indexbuf;
 	draw.elementbuffer = m->vertexbuf;
@@ -2151,33 +2257,37 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 		glfunc.glDepthRange(0.0,0.99999);
 #endif
 	}
+
 	return 1;
 }
 
 static int voxloadbufs(voxmodel *m)
 {
-	int i, j, vxi, ixi, xx, yy, zz;
-	vert_t *vptr;
-	GLfloat ru, rv, phack[2];
+	int i;
+	int j;
+	int vxi;
+	int ixi;
+	int xx;
+	int yy;
+	int zz;
+	vert_t* vptr;
 #if (VOXBORDWIDTH == 0)
 	GLfloat uhack[2], vhack[2];
 #endif
-	int numindexes, numvertexes;
-	GLushort *indexes;
-	struct polymostvboitem *vertexes;
 
-	ru = 1.f/((GLfloat)m->mytexx);
-	rv = 1.f/((GLfloat)m->mytexy);
-	phack[0] = 0; phack[1] = 1.f/256.f;
+	const GLfloat ru = 1.f/((GLfloat)m->mytexx);
+	const GLfloat rv = 1.f/((GLfloat)m->mytexy);
+	std::array<GLfloat, 2> phack{ 0.0, 1.0F / 256.0F };
+
 #if (VOXBORDWIDTH == 0)
 	uhack[0] = ru*.125; uhack[1] = -uhack[0];
 	vhack[0] = rv*.125; vhack[1] = -vhack[0];
 #endif
 
-	numindexes = 6 * m->qcnt;
-	numvertexes = 4 * m->qcnt;
-	indexes = (GLushort *)malloc(numindexes * sizeof(GLushort));
-	vertexes = (struct polymostvboitem *)malloc(numvertexes * sizeof(struct polymostvboitem));
+	const int numindexes = 6 * m->qcnt;
+	const int numvertexes = 4 * m->qcnt;
+	auto* indexes = static_cast<GLushort *>(std::malloc(numindexes * sizeof(GLushort)));
+	auto* vertexes = static_cast<struct polymostvboitem *>(std::malloc(numvertexes * sizeof(struct polymostvboitem)));
 
 	for(i=0,vxi=0,ixi=0;i<m->qcnt;i++)
 	{
@@ -2220,8 +2330,8 @@ static int voxloadbufs(voxmodel *m)
 	glfunc.glBindBuffer(GL_ARRAY_BUFFER, m->vertexbuf);
 	glfunc.glBufferData(GL_ARRAY_BUFFER, numvertexes * sizeof(struct polymostvboitem), vertexes, GL_STATIC_DRAW);
 
-	free(indexes);
-	free(vertexes);
+	std::free(indexes);
+	std::free(vertexes);
 
 	return 0;
 }
@@ -2231,54 +2341,99 @@ static int voxloadbufs(voxmodel *m)
 
 mdmodel *mdload (const char *filnam)
 {
-	mdmodel *vm;
-	int fil;
-	int i;
+	auto* vm = (mdmodel*)voxload(filnam);
+	
+	if (vm)
+		return(vm);
 
-	vm = (mdmodel*)voxload(filnam); if (vm) return(vm);
+	const int fil = kopen4load((char *)filnam,0);
+	
+	if (fil < 0)
+		return 0;
 
-	fil = kopen4load((char *)filnam,0); if (fil < 0) return(0);
-	kread(fil,&i,4); klseek(fil,0,SEEK_SET);
+	int i{0};
+	kread(fil, &i, 4);
+	klseek(fil, 0, SEEK_SET);
+
 	switch(B_LITTLE32(i))
 	{
-		case 0x32504449: vm = (mdmodel*)md2load(fil,filnam); break; //IDP2
-		case 0x33504449: vm = (mdmodel*)md3load(fil); break; //IDP3
-		default: vm = (mdmodel*)0; break;
+		case 0x32504449:
+			vm = (mdmodel*)md2load(fil,filnam);
+			break; //IDP2
+		case 0x33504449:
+			vm = (mdmodel*)md3load(fil);
+			break; //IDP3
+		default:
+			vm = (mdmodel*)nullptr;
+			break;
 	}
+
 	kclose(fil);
-	return(vm);
+
+	return vm;
 }
 
 // method: 0 = drawrooms projection, 1 = rotatesprite projection
 int mddraw (spritetype *tspr, int method)
 {
-	mdmodel *vm;
-
 	if (maxmodelverts > allocmodelverts)
 	{
-		point3d *vl = (point3d *)realloc(vertlist,sizeof(point3d)*maxmodelverts);
-		if (!vl) { buildprintf("ERROR: Not enough memory to allocate %d vertices!\n",maxmodelverts); return 0; }
-		vertlist = vl; allocmodelverts = maxmodelverts;
+		auto* vl = static_cast<point3d *>(std::realloc(vertlist, sizeof(point3d) * maxmodelverts));
+		
+		if (!vl) {
+			buildprintf("ERROR: Not enough memory to allocate %d vertices!\n", maxmodelverts);
+			return 0;
+		}
+
+		vertlist = vl;
+		allocmodelverts = maxmodelverts;
 	}
 	if (maxelementvbo > allocelementvbo)
 	{
-		struct polymostvboitem *vbo = (struct polymostvboitem *)realloc(elementvbo, maxelementvbo * sizeof(struct polymostvboitem));
-		if (!vbo) { buildprintf("ERROR: Not enough memory to allocate %d vertex buffer items!\n",maxelementvbo); return 0; }
-		elementvbo = vbo; allocelementvbo = maxelementvbo;
+		auto* vbo = static_cast<struct polymostvboitem *>(std::realloc(elementvbo, maxelementvbo * sizeof(struct polymostvboitem)));
+		
+		if (!vbo) {
+			buildprintf("ERROR: Not enough memory to allocate %d vertex buffer items!\n",maxelementvbo);
+			return 0;
+		}
+
+		elementvbo = vbo;
+		allocelementvbo = maxelementvbo;
 	}
 
-	vm = models[tile2model[tspr->picnum].modelid];
-	if (vm->mdnum == 1) { return voxdraw((voxmodel *)vm,tspr,method); }
-	if (vm->mdnum == 2) { return md2draw((md2model *)vm,tspr,method); }
-	if (vm->mdnum == 3) { return md3draw((md3model *)vm,tspr,method); }
+	mdmodel* vm = models[tile2model[tspr->picnum].modelid];
+
+	if (vm->mdnum == 1) {
+		return voxdraw((voxmodel *)vm, tspr, method);
+	}
+
+	if (vm->mdnum == 2) {
+		return md2draw((md2model *)vm, tspr, method);
+	}
+	
+	if (vm->mdnum == 3) {
+		return md3draw((md3model *)vm, tspr, method);
+	}
+
 	return 0;
 }
 
 void mdfree (mdmodel *vm)
 {
-	if (vm->mdnum == 1) { voxfree((voxmodel *)vm); return; }
-	if (vm->mdnum == 2) { md2free((md2model *)vm); return; }
-	if (vm->mdnum == 3) { md3free((md3model *)vm); return; }
+	if (vm->mdnum == 1) {
+		voxfree((voxmodel *)vm);
+		return;
+	}
+	
+	if (vm->mdnum == 2) {
+		md2free((md2model *)vm);
+		return;
+	}
+
+	if (vm->mdnum == 3) {
+		md3free((md3model *)vm);
+		return;
+	}
 }
 
 //---------------------------------------- MD LIBRARY ENDS  ----------------------------------------

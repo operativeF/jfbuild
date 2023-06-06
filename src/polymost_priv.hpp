@@ -35,13 +35,32 @@ enum {
 
 #include "glbuild_priv.hpp"
 
-struct coltype { unsigned char r, g, b, a; };
-struct coltypef { GLfloat r, g, b, a; };
+struct coltype {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+};
 
-extern float glox1, gloy1;
-extern double gxyaspect, grhalfxdown10x;
-extern double gcosang, gsinang, gcosang2, gsinang2;
-extern double gchang, gshang, gctang, gstang;
+struct coltypef {
+    GLfloat r;
+    GLfloat g;
+    GLfloat b;
+    GLfloat a;
+};
+
+extern float glox1;
+extern float gloy1;
+extern double gxyaspect;
+extern double grhalfxdown10x;
+extern double gcosang;
+extern double gsinang;
+extern double gcosang2;
+extern double gsinang2;
+extern double gchang;
+extern double gshang;
+extern double gctang;
+extern double gstang;
 extern int gfogpalnum;
 extern float gfogdensity;
 
@@ -65,10 +84,13 @@ extern GLfloat gorthoprojmat[4][4];          // Proj. matrix for 2D (aux) calls.
 
 struct polymostvboitem {
     struct {    // Vertex
-        GLfloat x, y, z;
+        GLfloat x;
+        GLfloat y;
+        GLfloat z;
     } v;
     struct {    // Texture
-        GLfloat s, t;
+        GLfloat s;
+        GLfloat t;
     } t;
 };
 
@@ -109,7 +131,7 @@ struct polymostdrawauxcall {
 
 void polymost_drawpoly_glcall(GLenum mode, struct polymostdrawpolycall const *draw);
 
-int polymost_texmayhavealpha (int dapicnum, int dapalnum);
+bool polymost_texmayhavealpha (int dapicnum, int dapalnum);
 void polymost_texinvalidate (int dapicnum, int dapalnum, int dameth);
 void polymost_texinvalidateall ();
 void polymost_glinit();

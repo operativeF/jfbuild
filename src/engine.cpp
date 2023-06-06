@@ -419,10 +419,8 @@ static inline unsigned int nsqrtasm(unsigned int a)
 
 static inline int msqrtasm(unsigned int c)
 {
-	unsigned int a,b;
-
-	a = 0x40000000l;		// mov eax, 0x40000000
-	b = 0x20000000l;		// mov ebx, 0x20000000
+	unsigned int a{0x40000000l};    // mov eax, 0x40000000
+	unsigned int b{0x20000000l};		// mov ebx, 0x20000000
 	do {				// begit:
 		if (c >= a) {		// cmp ecx, eax	 /  jl skip
 			c -= a;		// sub ecx, eax
@@ -580,42 +578,63 @@ constexpr auto FASTPALGRIDSIZ{8};
 static int rdist[129], gdist[129], bdist[129];
 static unsigned char colhere[((FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2))>>3];
 static unsigned char colhead[(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)];
-static int colnext[256];
+static std::array<int, 256> colnext;
 
 constexpr std::array<unsigned char, 8> coldist = {
 	0, 1, 2, 3, 4, 3, 2, 1
 };
 
-static int colscan[27];
+static std::array<int, 27> colscan;
 
-static short clipnum, hitwalls[4];
-int hitscangoalx = (1<<29)-1, hitscangoaly = (1<<29)-1;
+static short clipnum;
+static std::array<short, 4> hitwalls;
+int hitscangoalx = (1 << 29) - 1;
+int hitscangoaly = (1 << 29) - 1;
 #if USE_POLYMOST
-int hitallsprites = 0;
+int hitallsprites{0};
 #endif
 
-struct linetype { int x1, y1, x2, y2; };
-static linetype clipit[MAXCLIPNUM];
-static short clipsectorlist[MAXCLIPNUM], clipsectnum;
-static short clipobjectval[MAXCLIPNUM];
+struct linetype {
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+};
+
+static std::array<linetype, MAXCLIPNUM> clipit;
+static std::array<short, MAXCLIPNUM> clipsectorlist;
+static short clipsectnum;
+static std::array<short, MAXCLIPNUM> clipobjectval;
 
 struct permfifotype
 {
-	int sx, sy, z;
-	short a, picnum;
+	int sx;
+	int sy;
+	int z;
+	short a;
+	short picnum;
 	signed char dashade;
-	unsigned char dapalnum, dastat, pagesleft;
-	int cx1, cy1, cx2, cy2;
+	unsigned char dapalnum;
+	unsigned char dastat;
+	unsigned char pagesleft;
+	int cx1;
+	int cy1;
+	int cx2;
+	int cy2;
 	int uniqid;	//JF extension
 };
 
 static permfifotype permfifo[MAXPERMS];
-static int permhead = 0, permtail = 0;
+static int permhead{0};
+static int permtail{0};
 
-short numscans, numhits, numbunches;
+short numscans;
+short numhits;
+short numbunches;
 
-static short capturecount = 0;
-static char capturename[20] = "capt0000.xxx", captureatnextpage = 0;
+static short capturecount{0};
+static char capturename[20] = "capt0000.xxx";
+static char captureatnextpage{0};
 static int screencapture_pcx(char mode);
 static int screencapture_tga(char mode);
 static int screencapture_png(char mode);
@@ -628,24 +647,38 @@ constexpr std::array<unsigned char, 4 * 256> vgapal16 = {
 	63,63,63,00
 };
 
-short editstatus = 0;
+short editstatus{0};
 short searchit;
-int searchx = -1, searchy;                          //search input
-short searchsector, searchwall, searchstat;     //search output
+int searchx{-1};
+int searchy;                          //search input
+short searchsector;
+short searchwall;
+short searchstat;     //search output
 
 static char artfilename[20];
-static int numtilefiles, artfil = -1, artfilnum, artfilplc;
+static int numtilefiles;
+static int artfil{-1};
+static int artfilnum;
+static int artfilplc;
 
-char inpreparemirror = 0;
-static int mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
+char inpreparemirror{0};
+static int mirrorsx1;
+static int mirrorsy1;
+static int mirrorsx2;
+static int mirrorsy2;
 
-static int setviewcnt = 0;	// interface layers use this now
-static intptr_t bakframeplace[4];
-static int bakxsiz[4], bakysiz[4];
-static int bakwindowx1[4], bakwindowy1[4];
-static int bakwindowx2[4], bakwindowy2[4];
+static int setviewcnt{0};	// interface layers use this now
+static std::array<intptr_t, 4> bakframeplace;
+static std::array<int, 4> bakxsiz;
+static std::array<int, 4> bakysiz;
+static std::array<int, 4> bakwindowx1;
+static std::array<int, 4> bakwindowy1;
+static std::array<int, 4> bakwindowx2;
+static std::array<int, 4> bakwindowy2;
+
 #if USE_POLYMOST
-static int bakrendmode,baktile;
+static int bakrendmode;
+static int baktile;
 #endif
 
 int totalclocklock;
@@ -653,7 +686,7 @@ int totalclocklock;
 std::array<palette_t, 256> curpalette;			// the current palette, unadjusted for brightness or tint
 std::array<palette_t, 256> curpalettefaded;		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
 palette_t palfadergb = { 0,0,0,0 };
-unsigned char palfadedelta = 0;
+unsigned char palfadedelta{0};
 
 
 
@@ -676,10 +709,27 @@ static inline int getpalookup(int davis, int dashade)
 //
 static void scansector(short sectnum)
 {
-	walltype *wal, *wal2;
+	walltype* wal;
+	walltype* wal2;
 	spritetype *spr;
-	int xs, ys, x1, y1, x2, y2, xp1, yp1, xp2=0, yp2=0, templong;
-	short z, zz, startwall, endwall, numscansbefore, scanfirst, bunchfrst;
+	int xs;
+	int ys;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int xp1;
+	int yp1;
+	int xp2{0};
+	int yp2{0};
+	int templong;
+	short z;
+	short zz;
+	short startwall;
+	short endwall;
+	short numscansbefore;
+	short scanfirst;
+	short bunchfrst;
 
 	if (sectnum < 0) {
 		return;
@@ -819,9 +869,8 @@ skipitaddwall:
 //
 static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<const short> dwal, std::span<const int> swal, std::span<const int> lwal)
 {
-	intptr_t i, fpalookup, p;
-	int y1ve[4], y2ve[4], u4, d4, dax, z;
-	char bad;
+	std::array<int, 4> y1ve;
+	std::array<int, 4> y2ve;
 
 	int tsizx = tilesizx[globalpicnum];
 	int tsizy = tilesizy[globalpicnum];
@@ -858,12 +907,18 @@ static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<
 		tsizy = picsiz[globalpicnum] >> 4;
 	}
 
-	fpalookup = (intptr_t)palookup[globalpal];
+	const auto fpalookup = (intptr_t)palookup[globalpal];
 
 	setupmvlineasm(globalshiftval);
 
 #ifndef USING_A_C
-
+    intptr_t i;
+	int u4;
+	int d4;
+	int dax;
+	int z;
+	char bad;
+	
 	x = startx;
 	while ((startumost[x+windowx1] > startdmost[x+windowx1]) && (x <= x2)) x++;
 
@@ -963,25 +1018,37 @@ static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<
 	}
 
 #else	// USING_A_C
-	(void)i; (void)u4; (void)d4; (void)dax; (void)z; (void)bad;
 
-	p = startx+frameoffset;
+	intptr_t p = startx + frameoffset;
+	
 	for(int x{startx}; x <= x2; x++, p++)
 	{
 		y1ve[0] = std::max(static_cast<int>(uwal[x]), static_cast<int>(startumost[x + windowx1]) - windowy1);
 		y2ve[0] = std::min(static_cast<int>(dwal[x]), static_cast<int>(startdmost[x + windowx1]) - windowy1);
-		if (y2ve[0] <= y1ve[0]) continue;
+		
+		if (y2ve[0] <= y1ve[0])
+			continue;
 
-		palookupoffse[0] = fpalookup+(getpalookup((int)mulscale16(swal[x],globvis),globalshade)<<8);
+		palookupoffse[0] = fpalookup + (getpalookup((int)mulscale16(swal[x], globvis), globalshade) << 8);
 
 		bufplce[0] = lwal[x] + globalxpanning;
-		if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
-		if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
 
-		vince[0] = swal[x]*globalyscale;
-		vplce[0] = globalzd + vince[0]*(y1ve[0]-globalhoriz+1);
+		if (bufplce[0] >= tsizx) {
+			if (xnice == 0)
+				bufplce[0] %= tsizx;
+			else
+				bufplce[0] &= tsizx;
+		}
 
-		mvlineasm1(vince[0],(void *)palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],(void *)(bufplce[0]+waloff[globalpicnum]),(void *)(p+ylookup[y1ve[0]]));
+		if (ynice == 0)
+			bufplce[0] *= tsizy;
+		else
+			bufplce[0] <<= tsizy;
+
+		vince[0] = swal[x] * globalyscale;
+		vplce[0] = globalzd + vince[0] * (y1ve[0] - globalhoriz + 1);
+
+		mvlineasm1(vince[0], (void *)palookupoffse[0], y2ve[0] - y1ve[0] - 1, vplce[0], (void *)(bufplce[0] + waloff[globalpicnum]), (void *)(p+ylookup[y1ve[0]]));
 	}
 
 #endif
@@ -995,36 +1062,65 @@ static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<
 //
 int wallfront(int l1, int l2)
 {
-	walltype *wal;
-	int x11, y11, x21, y21, x12, y12, x22, y22, dx, dy, t1, t2;
+	walltype* wal = &wall[thewall[l1]];
+	const int x11 = wal->x;
+	const int y11 = wal->y;
 
-	wal = &wall[thewall[l1]]; x11 = wal->x; y11 = wal->y;
-	wal = &wall[wal->point2]; x21 = wal->x; y21 = wal->y;
-	wal = &wall[thewall[l2]]; x12 = wal->x; y12 = wal->y;
-	wal = &wall[wal->point2]; x22 = wal->x; y22 = wal->y;
+	wal = &wall[wal->point2];
+	const int x21 = wal->x;
+	const int y21 = wal->y;
 
-	dx = x21-x11; dy = y21-y11;
-	t1 = dmulscale2(x12-x11,dy,-dx,y12-y11); //p1(l2) vs. l1
-	t2 = dmulscale2(x22-x11,dy,-dx,y22-y11); //p2(l2) vs. l1
-	if (t1 == 0) { t1 = t2; if (t1 == 0) return(-1); }
-	if (t2 == 0) t2 = t1;
-	if ((t1^t2) >= 0)
+	wal = &wall[thewall[l2]];
+	const int x12 = wal->x;
+	const int y12 = wal->y;
+
+	wal = &wall[wal->point2];
+	const int x22 = wal->x;
+	const int y22 = wal->y;
+
+	int dx = x21 - x11;
+	int dy = y21 - y11;
+
+	int t1 = dmulscale2(x12 - x11, dy, -dx, y12 - y11); //p1(l2) vs. l1
+	int t2 = dmulscale2(x22 - x11, dy, -dx, y22 - y11); //p2(l2) vs. l1
+	
+	if (t1 == 0) {
+		t1 = t2;
+		if (t1 == 0)
+			return -1;
+	}
+
+	if (t2 == 0)
+		t2 = t1;
+	
+	if ((t1 ^ t2) >= 0)
 	{
 		t2 = dmulscale2(globalposx-x11,dy,-dx,globalposy-y11); //pos vs. l1
-		return((t2^t1) >= 0);
+		return (t2 ^ t1) >= 0;
 	}
 
-	dx = x22-x12; dy = y22-y12;
-	t1 = dmulscale2(x11-x12,dy,-dx,y11-y12); //p1(l1) vs. l2
-	t2 = dmulscale2(x21-x12,dy,-dx,y21-y12); //p2(l1) vs. l2
-	if (t1 == 0) { t1 = t2; if (t1 == 0) return(-1); }
-	if (t2 == 0) t2 = t1;
-	if ((t1^t2) >= 0)
-	{
-		t2 = dmulscale2(globalposx-x12,dy,-dx,globalposy-y12); //pos vs. l2
-		return((t2^t1) < 0);
+	dx = x22 - x12;
+	dy = y22 - y12;
+
+	t1 = dmulscale2(x11 - x12, dy, -dx, y11 - y12); //p1(l1) vs. l2
+	t2 = dmulscale2(x21 - x12, dy, -dx, y21 - y12); //p2(l1) vs. l2
+	
+	if (t1 == 0) {
+		t1 = t2;
+		if (t1 == 0)
+			return -1;
 	}
-	return(-2);
+
+	if (t2 == 0)
+		t2 = t1;
+
+	if ((t1 ^ t2) >= 0)
+	{
+		t2 = dmulscale2(globalposx - x12, dy, -dx, globalposy - y12); //pos vs. l2
+		return (t2 ^ t1) < 0;
+	}
+
+	return -2;
 }
 
 
@@ -1033,12 +1129,13 @@ int wallfront(int l1, int l2)
 //
 static int spritewallfront(const spritetype *s, int w)
 {
-	walltype *wal;
-	int x1, y1;
+	walltype* wal = &wall[w];
+	const int x1 = wal->x;
+	const int y1 = wal->y;
 
-	wal = &wall[w]; x1 = wal->x; y1 = wal->y;
 	wal = &wall[wal->point2];
-	return (dmulscale32(wal->x-x1,s->y-y1,-(s->x-x1),wal->y-y1) >= 0);
+
+	return (dmulscale32(wal->x - x1, s->y - y1, -(s->x - x1), wal->y - y1) >= 0);
 }
 
 
@@ -3108,16 +3205,65 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 //
 static void drawsprite(int snum)
 {
-	sectortype *sec;
-	int startum, startdm, sectnum;
-	int siz, xsiz, ysiz, xoff, yoff, xspan, yspan;
-	int x1, y1, x2, y2, lx, rx, dalx2, darx2, i, j, k, x, linum, linuminc;
-	int yinc, z, z1, z2, xp1, yp1, xp2, yp2;
-	int xv, yv, top, topinc, bot, botinc, hplc, hinc;
-	int cosang, sinang, dax, day, lpoint, lmax, rpoint, rmax, dax1, dax2, y;
-	int npoints, npoints2, zz, t, zsgn, zzsgn, *longptr;
+	int startum;
+	int startdm;
+	int sectnum;
+	int siz;
+	int xsiz;
+	int ysiz;
+	int xspan;
+	int yspan;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int lx;
+	int rx;
+	int dalx2;
+	int darx2;
+	int i;
+	int j;
+	int k;
+	int x;
+	int linum;
+	int linuminc;
+	int yinc;
+	int z;
+	int z1;
+	int z2;
+	int xp1;
+	int yp1;
+	int xp2;
+	int yp2;
+	int xv;
+	int yv;
+	int top;
+	int topinc;
+	int bot;
+	int botinc;
+	int hplc;
+	int hinc;
+	int cosang;
+	int sinang;
+	int dax;
+	int day;
+	int lpoint;
+	int lmax;
+	int rpoint;
+	int rmax;
+	int dax1;
+	int dax2;
+	int y;
+	int npoints;
+	int npoints2;
+	int zz;
+	int t;
+	int zsgn;
+	int zzsgn;
+	int* longptr;
 	int vtilenum{ 0 };
-	unsigned char swapped, daclip;
+	unsigned char swapped;
+	unsigned char daclip;
 
 	//============================================================================= //POLYMOST BEGINS
 #if USE_POLYMOST
@@ -3130,7 +3276,7 @@ static void drawsprite(int snum)
 	const int xb = spritesx[snum];
 	const int yp = spritesy[snum];
 	int tilenum = tspr->picnum;
-	int spritenum = tspr->owner;
+	const int spritenum = tspr->owner;
 	int cstat = tspr->cstat;
 
 	if ((cstat & 48) == 48) {
@@ -3158,7 +3304,7 @@ static void drawsprite(int snum)
 	if ((tspr->xrepeat <= 0) || (tspr->yrepeat <= 0)) return;
 
 	sectnum = tspr->sectnum;
-	sec = &sector[sectnum];
+	sectortype* sec = &sector[sectnum];
 	globalpal = tspr->pal;
 	
 	if (palookup[globalpal] == nullptr) {
@@ -3171,8 +3317,8 @@ static void drawsprite(int snum)
 		if (cstat&512) settransreverse(); else settransnormal();
 	}
 
-	xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)tspr->xoffset);
-	yoff = (int)((signed char)((picanm[tilenum]>>16)&255))+((int)tspr->yoffset);
+	int xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)tspr->xoffset);
+	int yoff = (int)((signed char)((picanm[tilenum]>>16)&255))+((int)tspr->yoffset);
 
 	if ((cstat&48) == 0)
 	{
@@ -3903,7 +4049,8 @@ static void drawsprite(int snum)
 	}
 	else if ((cstat&48) == 48)
 	{
-		int nxrepeat, nyrepeat;
+		int nxrepeat;
+		int nyrepeat;
 
 		lx = 0; rx = xdim-1;
 		for(x=lx;x<=rx;x++)
@@ -4033,7 +4180,8 @@ static void drawsprite(int snum)
 		drawvox(tspr->x,tspr->y,tspr->z,i,(int)tspr->xrepeat,(int)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
 	}
 
-	if (automapping == 1) show2dsprite[spritenum >> 3] |= pow2char[spritenum & 7];
+	if (automapping == 1)
+		show2dsprite[spritenum >> 3] |= pow2char[spritenum & 7];
 }
 
 
@@ -4042,9 +4190,19 @@ static void drawsprite(int snum)
 //
 static void drawmaskwall(short damaskwallcnt)
 {
-	int i, j, k, x, z, sectnum, z1, z2, lx, rx;
-	sectortype *sec, *nsec;
-	walltype *wal;
+	int i;
+	int j;
+	int k;
+	int x;
+	int z;
+	int sectnum;
+	int z1;
+	int z2;
+	int lx;
+	int rx;
+	sectortype* sec;
+	sectortype* nsec;
+	walltype* wal;
 
 	//============================================================================= //POLYMOST BEGINS
 #if USE_POLYMOST
@@ -4260,13 +4418,16 @@ static void fillpolygon(int npoints)
 static int clippoly(int npoints, int clipstat)
 {
 	int z, zz, s1, s2, t, npoints2, start2, z1, z2, z3, z4, splitcnt;
-	int cx1, cy1, cx2, cy2;
 
-	cx1 = windowx1;
-	cy1 = windowy1;
-	cx2 = windowx2+1;
-	cy2 = windowy2+1;
-	cx1 <<= 12; cy1 <<= 12; cx2 <<= 12; cy2 <<= 12;
+	int cx1 = windowx1;
+	int cy1 = windowy1;
+	int cx2 = windowx2 + 1;
+	int cy2 = windowy2 + 1;
+
+	cx1 <<= 12;
+	cy1 <<= 12;
+	cx2 <<= 12;
+	cy2 <<= 12;
 
 	if (clipstat&0xa)   //Need to clip top or left
 	{
@@ -4349,7 +4510,9 @@ static int clippoly(int npoints, int clipstat)
 			z = 1;
 			while ((z < npoints2) && (xb2[z] < 0)) z++;
 		} while (z < npoints2);
-		if (npoints <= 2) return(0);
+		
+		if (npoints <= 2)
+			return 0;
 
 		for(z=1;z<splitcnt;z++)
 			for(zz=0;zz<z;zz++)
@@ -4469,9 +4632,18 @@ static int clippoly(int npoints, int clipstat)
 	//JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
 static int clippoly4(int cx1, int cy1, int cx2, int cy2)
 {
-	int n, nn, z, zz, x, x1, x2, y, y1, y2, t;
+	int n;
+	int nn{0};
+	int z{0};
+	int zz;
+	int x;
+	int x1;
+	int x2;
+	int y;
+	int y1;
+	int y2;
+	int t;
 
-	nn = 0; z = 0;
 	do
 	{
 		zz = ((z+1)&3);
@@ -4497,8 +4669,13 @@ static int clippoly4(int cx1, int cy1, int cx2, int cy2)
 	n = 0; z = 0;
 	do
 	{
-		zz = z+1; if (zz == nn) zz = 0;
-		y1 = nry2[z]; y2 = nry2[zz]-y1;
+		zz = z + 1;
+		
+		if (zz == nn) 
+			zz = 0;
+
+		y1 = nry2[z];
+		y2 = nry2[zz] - y1;
 
 		if ((cy1 <= y1) && (y1 <= cy2))
 			nry1[n] = y1, nrx1[n] = nrx2[z], n++;
@@ -4515,7 +4692,8 @@ static int clippoly4(int cx1, int cy1, int cx2, int cy2)
 
 		z = zz;
 	} while (z != 0);
-	return(n);
+
+	return n;
 }
 
 
@@ -4526,11 +4704,41 @@ static int clippoly4(int cx1, int cy1, int cx2, int cy2)
 static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade,
 	unsigned char dapalnum, unsigned char dastat, int cx1, int cy1, int cx2, int cy2, int uniqid)
 {
-	int cosang, sinang, v, nextv, dax1, dax2, oy, bx, by;
-	int x, y, x1, y1, x2, y2, gx1, gy1, iv;
-	intptr_t i, p, bufplc, palookupoffs;
-	int xsiz, ysiz, xoff, yoff, npoints, yplc, yinc, lx, rx;
-	int xv, yv, xv2, yv2;
+	int cosang;
+	int sinang;
+	int v;
+	int nextv;
+	int dax1;
+	int dax2;
+	int oy;
+	int bx;
+	int by;
+	int x;
+	int y;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int gx1;
+	int gy1;
+	int iv;
+	intptr_t i;
+	intptr_t p;
+	intptr_t bufplc;
+	intptr_t palookupoffs;
+	int xsiz;
+	int ysiz;
+	int xoff;
+	int yoff;
+	int npoints;
+	int yplc;
+	int yinc;
+	int lx;
+	int rx;
+	int xv;
+	int yv;
+	int xv2;
+	int yv2;
 
 	//============================================================================= //POLYMOST BEGINS
 #if USE_POLYMOST
@@ -4540,12 +4748,21 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 #endif
 	//============================================================================= //POLYMOST ENDS
 
-	if (cx1 < 0) cx1 = 0;
-	if (cy1 < 0) cy1 = 0;
-	if (cx2 > xres-1) cx2 = xres-1;
-	if (cy2 > yres-1) cy2 = yres-1;
+	if (cx1 < 0)
+		cx1 = 0;
 
-	xsiz = tilesizx[picnum]; ysiz = tilesizy[picnum];
+	if (cy1 < 0)
+		cy1 = 0;
+
+	if (cx2 > xres - 1)
+		cx2 = xres - 1;
+
+	if (cy2 > yres - 1)
+		cy2 = yres - 1;
+
+	xsiz = tilesizx[picnum];
+	ysiz = tilesizy[picnum];
+
 	if (dastat&16) { xoff = 0; yoff = 0; }
 	else
 	{
@@ -4599,9 +4816,9 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 		yv2 = yv;
 	}
 
-	nry1[0] = sy - (yv*xoff + xv*yoff);
-	nry1[1] = nry1[0] + yv*xsiz;
-	nry1[3] = nry1[0] + xv*ysiz;
+	nry1[0] = sy - (yv * xoff + xv * yoff);
+	nry1[1] = nry1[0] + yv * xsiz;
+	nry1[3] = nry1[0] + xv * ysiz;
 	nry1[2] = nry1[1]+nry1[3]-nry1[0];
 	i = (cy1<<16); if ((nry1[0]<i) && (nry1[1]<i) && (nry1[2]<i) && (nry1[3]<i)) return;
 	i = (cy2<<16); if ((nry1[0]>i) && (nry1[1]>i) && (nry1[2]>i) && (nry1[3]>i)) return;
@@ -5004,7 +5221,11 @@ static void initksqrt()
 //
 static void dosetaspect()
 {
-	int i, j, k, x, xinc;
+	int i;
+	int j;
+	int k;
+	int x;
+	int xinc;
 
 	if (xyaspect != oxyaspect)
 	{
@@ -5176,13 +5397,14 @@ static int loadpalette()
 		return 1;
 	}
 
-	globalpalwritten = palookup[0]; globalpal = 0;
+	globalpalwritten = palookup[0];
+	globalpal = 0;
 	setpalookupaddress(globalpalwritten);
 
 	fixtransluscence(transluc);
 
-	kread(fil,palookup[globalpal],numpalookups<<8);
-	kread(fil,transluc,65536);
+	kread(fil, palookup[globalpal], numpalookups << 8);
+	kread(fil, transluc, 65536);
 	kclose(fil);
 
 	initfastcolorlookup(30L,59L,11L);
@@ -5204,7 +5426,7 @@ int getclosestcol(int r, int g, int b)
 	int i, k, dist;
 	unsigned char *pal1;
 
-	int j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(g>>3)*FASTPALGRIDSIZ+(b>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
+	const int j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(g>>3)*FASTPALGRIDSIZ+(b>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
 	int mindist = std::min(rdist[coldist[r & 7] + 64 + 8], gdist[coldist[g & 7] + 64 + 8]);
 	mindist = std::min(mindist, bdist[coldist[b & 7] + 64 + 8]);
 	mindist++;
@@ -5258,12 +5480,10 @@ int getclosestcol(int r, int g, int b)
 //
 static int insertspritesect(short sectnum)
 {
-	short blanktouse;
-
 	if ((sectnum >= MAXSECTORS) || (headspritesect[MAXSECTORS] == -1))
-		return(-1);  //list full
+		return -1;  //list full
 
-	blanktouse = headspritesect[MAXSECTORS];
+	const short blanktouse = headspritesect[MAXSECTORS];
 
 	headspritesect[MAXSECTORS] = nextspritesect[blanktouse];
 	if (headspritesect[MAXSECTORS] >= 0)
@@ -5277,7 +5497,7 @@ static int insertspritesect(short sectnum)
 
 	sprite[blanktouse].sectnum = sectnum;
 
-	return(blanktouse);
+	return blanktouse;
 }
 
 
@@ -5286,12 +5506,10 @@ static int insertspritesect(short sectnum)
 //
 static int insertspritestat(short statnum)
 {
-	short blanktouse;
-
 	if ((statnum >= MAXSTATUS) || (headspritestat[MAXSTATUS] == -1))
-		return(-1);  //list full
+		return -1;  //list full
 
-	blanktouse = headspritestat[MAXSTATUS];
+	short blanktouse = headspritestat[MAXSTATUS];
 
 	headspritestat[MAXSTATUS] = nextspritestat[blanktouse];
 	if (headspritestat[MAXSTATUS] >= 0)
@@ -5339,7 +5557,7 @@ static int deletespritesect(short deleteme)
 static int deletespritestat(short deleteme)
 {
 	if (sprite[deleteme].statnum == MAXSTATUS)
-		return(-1);
+		return -1;
 
 	if (headspritestat[sprite[deleteme].statnum] == deleteme)
 		headspritestat[sprite[deleteme].statnum] = nextspritestat[deleteme];
@@ -5353,7 +5571,7 @@ static int deletespritestat(short deleteme)
 	headspritestat[MAXSTATUS] = deleteme;
 
 	sprite[deleteme].statnum = MAXSTATUS;
-	return(0);
+	return 0;
 }
 
 
@@ -5362,7 +5580,8 @@ static int deletespritestat(short deleteme)
 //
 static int lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 		  int y3, int x4, int y4, int *intx, int *inty, int *intz)
-{     //p1 to p2 is a line segment
+{
+	//p1 to p2 is a line segment
 	const int x21 = x2 - x1;
 	const int x34 = x3 - x4;
 	const int y21 = y2 - y1;
@@ -5483,8 +5702,20 @@ static void keepaway (int *x, int *y, int w)
 //
 static int raytrace(int x3, int y3, int *x4, int *y4)
 {
-	int x1, y1, x2, y2, bot, topu, nintx, ninty, cnt, z;
-	int x21, y21, x43, y43;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int bot;
+	int topu;
+	int nintx;
+	int ninty;
+	int cnt;
+	int z;
+	int x21;
+	int y21;
+	int x43;
+	int y43;
 
 	int hitwall{ -1 };
 
@@ -5589,7 +5820,8 @@ int preinitengine()
 	assert(sizeof(spriteexttype) == 12);
 	assert((intptr_t)&spriteext[1] - (intptr_t)&spriteext[0] == sizeof(spriteexttype));
 
-	if (initsystem()) exit(1);
+	if (initsystem())
+		exit(1);
 
 #ifndef USING_A_C
 	makeasmwriteable();
@@ -5616,7 +5848,8 @@ int preinitengine()
 //
 int initengine()
 {
-	int i, j;
+	int i;
+	int j;
 
 #if !defined _WIN32 && defined DEBUGGINGAIDS
 	struct sigaction sigact, oldact;
@@ -5698,8 +5931,6 @@ int initengine()
 //
 void uninitengine()
 {
-	int i;
-
 	//buildprintf("cacheresets = %d, cacheinvalidates = %d\n", cacheresets, cacheinvalidates);
 
 #if USE_POLYMOST && USE_OPENGL
@@ -5725,7 +5956,7 @@ void uninitengine()
 	if (transluc != nullptr) { kfree(transluc); transluc = nullptr; }
 	if (pic != nullptr) { kfree(pic); pic = nullptr; }
 	if (lookups != nullptr) { kfree(lookups); lookups = nullptr; }
-	for (i = 0; i < MAXPALOOKUPS; i++) {
+	for (int i{0}; i < MAXPALOOKUPS; ++i) {
 		if (palookup[i] != nullptr) {
 			kfree(palookup[i]); palookup[i] = nullptr;
 		}
@@ -5925,7 +6156,17 @@ void drawrooms(int daposx, int daposy, int daposz,
 //
 void drawmasks()
 {
-	int i, j, k, l, gap, xs, ys, xp, yp, yoff, yspan;
+	int i;
+	int j;
+	int k;
+	int l;
+	int gap;
+	int xs;
+	int ys;
+	int xp;
+	int yp;
+	int yoff;
+	int yspan;
 
 	for(i=spritesortcnt-1;i>=0;i--) tspriteptr[i] = &tsprite[i];
 	for(i=spritesortcnt-1;i>=0;i--)
@@ -6126,9 +6367,36 @@ void drawmapview(int dax, int day, int zoome, short ang)
 	walltype *wal;
 	sectortype *sec;
 	spritetype *spr;
-	int tilenum, xoff, yoff, i, j, k, l, cosang, sinang, xspan, yspan;
-	int xrepeat, yrepeat, x, y, x1, y1, x2, y2, x3, y3, x4, y4, bakx1, baky1;
-	int s, w, ox, oy, startwall;
+	int tilenum;
+	int xoff;
+	int yoff;
+	int i;
+	int j;
+	int k;
+	int l;
+	int cosang;
+	int sinang;
+	int xspan;
+	int yspan;
+	int xrepeat;
+	int yrepeat;
+	int x;
+	int y;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int x3;
+	int y3;
+	int x4;
+	int y4;
+	int bakx1;
+	int baky1;
+	int s;
+	int w;
+	int ox;
+	int oy;
+	int startwall;
 	int npoints;
 	int daslope;
 
@@ -6240,14 +6508,22 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			globalpolytype = 0;
 			if ((globalorientation&64) == 0)
 			{
-				globalposx = dax; globalx1 = bakgxvect; globaly1 = bakgyvect;
-				globalposy = day; globalx2 = bakgxvect; globaly2 = bakgyvect;
+				globalposx = dax;
+				globalx1 = bakgxvect;
+				globaly1 = bakgyvect;
+				globalposy = day;
+				globalx2 = bakgxvect;
+				globaly2 = bakgyvect;
 			}
 			else
 			{
 				ox = wall[wall[startwall].point2].x - wall[startwall].x;
 				oy = wall[wall[startwall].point2].y - wall[startwall].y;
-				i = nsqrtasm(ox*ox+oy*oy); if (i == 0) continue;
+				i = nsqrtasm(ox*ox+oy*oy); 
+				
+				if (i == 0)
+					continue;
+
 				i = 1048576/i;
 				globalx1 = mulscale10(dmulscale10(ox,bakgxvect,oy,bakgyvect),i);
 				globaly1 = mulscale10(dmulscale10(ox,bakgyvect,-oy,bakgxvect),i);
@@ -6429,8 +6705,11 @@ void drawmapview(int dax, int day, int zoome, short ang)
 int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz,
 			 short *daang, short *dacursectnum)
 {
-	short fil, numsprites;
-	short maxsectors, maxwalls, maxsprites;
+	short fil;
+	short numsprites;
+	short maxsectors;
+	short maxwalls;
+	short maxsprites;
 
 	short i = strlen(filename) - 1;
 
@@ -6591,27 +6870,45 @@ struct sectortypev5
 
 struct walltypev5
 {
-	int x, y;
+	int x;
+	int y;
 	short point2;
-	short picnum, overpicnum;
+	short picnum;
+	short overpicnum;
 	signed char shade;
 	short cstat;
-	unsigned char xrepeat, yrepeat, xpanning, ypanning;
-	short nextsector1, nextwall1;
-	short nextsector2, nextwall2;
-	short lotag, hitag;
+	unsigned char xrepeat;
+	unsigned char yrepeat;
+	unsigned char xpanning;
+	unsigned char ypanning;
+	short nextsector1;
+	short nextwall1;
+	short nextsector2;
+	short nextwall2;
+	short lotag;
+	short hitag;
 	short extra;
 };
 
 struct spritetypev5
 {
-	int x, y, z;
+	int x;
+	int y;
+	int z;
 	unsigned char cstat;
 	signed char shade;
-	unsigned char xrepeat, yrepeat;
-	short picnum, ang, xvel, yvel, zvel, owner;
-	short sectnum, statnum;
-	short lotag, hitag;
+	unsigned char xrepeat;
+	unsigned char yrepeat;
+	short picnum;
+	short ang;
+	short xvel;
+	short yvel;
+	short zvel;
+	short owner;
+	short sectnum;
+	short statnum;
+	short lotag;
+	short hitag;
 	short extra;
 };
 
@@ -6973,14 +7270,13 @@ static int writev5sprite(int fil, struct spritetypev5 const *spr)
 
 static void convertv5sprv6(struct spritetypev5 const *from, struct spritetypev6 *to)
 {
-	short j;
 	to->x = from->x;
 	to->y = from->y;
 	to->z = from->z;
 	to->cstat = from->cstat;
 	to->shade = from->shade;
 
-	j = from->sectnum;
+	short j = from->sectnum;
 	if ((sector[j].ceilingstat&1) > 0)
 		to->pal = sector[j].ceilingpal;
 	else
@@ -7619,7 +7915,11 @@ int loadmaphack(const char *filename)
 int saveboard(const char *filename, const int *daposx, const int *daposy, const int *daposz,
 			 const short *daang, const short *dacursectnum)
 {
-	short fil, i, j, numsprites, ts;
+	short fil;
+	short i;
+	short j;
+	short numsprites;
+	short ts;
 	int tl;
 	sectortype tsect;
 	walltype   twall;
@@ -7727,7 +8027,11 @@ writeerror:
 int saveoldboard(const char *filename, const int *daposx, const int *daposy, const int *daposz,
 			 const short *daang, const short *dacursectnum)
 {
-	short fil, i, j, numsprites, ts;
+	short fil;
+	short i;
+	short j;
+	short numsprites;
+	short ts;
 	int tl;
 	struct sectortypev5 v5sect;
 	struct walltypev5   v5wall;
@@ -7855,7 +8159,8 @@ writeerror:
 // JBF: davidoption now functions as a windowed-mode flag (0 == windowed, 1 == fullscreen)
 int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 {
-	int i, j;
+	int i;
+	int j;
 
 	if ((qsetmode == 200) && (videomodereset == 0) &&
 	    (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp))
@@ -8053,8 +8358,14 @@ void nextpage()
 //
 int loadpics(const char* filename, int askedsize)
 {
-	int offscount, localtilestart, localtileend, dasiz;
-	short fil, i, j, k;
+	int offscount;
+	int localtilestart;
+	int localtileend;
+	int dasiz;
+	short fil;
+	short i;
+	short j;
+	short k;
 
 	Bstrcpy(artfilename,filename);
 
@@ -8151,7 +8462,8 @@ char cachedebug = 0;
 void loadtile(short tilenume)
 {
 	char *ptr;
-	int i, dasiz;
+	int i;
+	int dasiz;
 
 	if ((unsigned)tilenume >= (unsigned)MAXTILES) return;
 	dasiz = tilesizx[tilenume]*tilesizy[tilenume];
@@ -8196,12 +8508,12 @@ void loadtile(short tilenume)
 //
 intptr_t allocatepermanenttile(short tilenume, int xsiz, int ysiz)
 {
-	int j, dasiz;
+	int j;
 
 	if ((xsiz <= 0) || (ysiz <= 0) || ((unsigned)tilenume >= (unsigned)MAXTILES))
 		return(0);
 
-	dasiz = xsiz*ysiz;
+	const int dasiz = xsiz*ysiz;
 
 	walock[tilenume] = 255;
 	allocache((void **)&waloff[tilenume],dasiz,&walock[tilenume]);
@@ -8225,8 +8537,15 @@ intptr_t allocatepermanenttile(short tilenume, int xsiz, int ysiz)
 void copytilepiece(int tilenume1, int sx1, int sy1, int xsiz, int ysiz,
 		  int tilenume2, int sx2, int sy2)
 {
-	unsigned char *ptr1, *ptr2, dat;
-	int i, j, x1, y1, x2, y2;
+	unsigned char *ptr1;
+	unsigned char* ptr2;
+	unsigned char dat;
+	int i;
+	int j;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
 
 	const int xsiz1 = tilesizx[tilenume1];
 	int ysiz1 = tilesizy[tilenume1];
@@ -8319,7 +8638,7 @@ int qloadkvx(int voxindex, const char* filename)
 //
 int clipinsidebox(int x, int y, short wallnum, int walldist)
 {
-	int r = walldist << 1;
+	const int r = walldist << 1;
 	
 	walltype* wal = &wall[wallnum];
 
@@ -8381,7 +8700,7 @@ int clipinsidebox(int x, int y, short wallnum, int walldist)
 //
 int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist)
 {
-	int r = walldist << 1;
+	const int r = walldist << 1;
 
 	x1 += walldist-x;
 	x2 += walldist-x;
@@ -9102,25 +9421,58 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 int neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsector, short *neartagwall,
 	short *neartagsprite, int *neartaghitdist, int neartagrange, unsigned char tagsearch)
 {
-	walltype *wal, *wal2;
-	spritetype *spr;
-	int i, z, zz, xe, ye, ze, x1, y1, z1, x2, y2, intx, inty, intz;
-	int topt, topu, bot, dist, offx, offy, vx, vy, vz;
-	short tempshortcnt, tempshortnum, dasector, startwall, endwall;
-	short nextsector, good;
+	walltype* wal;
+	walltype* wal2;
+	spritetype* spr;
+	int i;
+	int z;
+	int zz;
+	int xe;
+	int ye;
+	int ze;
+	int x1;
+	int y1;
+	int z1;
+	int x2;
+	int y2;
+	int intx;
+	int inty;
+	int intz;
+	int topt;
+	int topu;
+	int bot;
+	int dist;
+	int offx;
+	int offy;
+	int vx;
+	int vy;
+	int vz;
+	short tempshortcnt;
+	short tempshortnum;
+	short dasector;
+	short startwall;
+	short endwall;
+	short nextsector;
+	short good;
 
-	*neartagsector = -1; *neartagwall = -1; *neartagsprite = -1;
+	*neartagsector = -1;
+	*neartagwall = -1;
+	*neartagsprite = -1;
 	*neartaghitdist = 0;
 
-	if (sectnum < 0) return(0);
-	if ((tagsearch < 1) || (tagsearch > 3)) return(0);
+	if (sectnum < 0)
+		return 0;
+
+	if ((tagsearch < 1) || (tagsearch > 3))
+		return 0;
 
 	vx = mulscale14(sintable[(ange+2560)&2047],neartagrange); xe = xs+vx;
 	vy = mulscale14(sintable[(ange+2048)&2047],neartagrange); ye = ys+vy;
 	vz = 0; ze = 0;
 
 	clipsectorlist[0] = sectnum;
-	tempshortcnt = 0; tempshortnum = 1;
+	tempshortcnt = 0;
+	tempshortnum = 1;
 
 	do
 	{
@@ -9270,19 +9622,24 @@ void dragpoint(short pointhighlight, int dax, int day)
 //
 int lastwall(short point)
 {
-	int i, j, cnt;
+	if ((point > 0) && (wall[point - 1].point2 == point))
+		return point - 1;
 
-	if ((point > 0) && (wall[point-1].point2 == point)) return(point-1);
-	i = point;
-	cnt = MAXWALLS;
+	int i{point};
+
+	int cnt{MAXWALLS};
+
 	do
 	{
-		j = wall[i].point2;
-		if (j == point) return(i);
+		int j = wall[i].point2;
+
+		if (j == point)
+			return i;
 		i = j;
 		cnt--;
 	} while (cnt > 0);
-	return(point);
+
+	return point;
 }
 
 
@@ -9306,16 +9663,61 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 		 int xvect, int yvect,
 		 int walldist, int ceildist, int flordist, unsigned int cliptype)
 {
-	walltype *wal, *wal2;
+	walltype* wal;
+	walltype* wal2;
 	spritetype *spr;
-	sectortype *sec, *sec2;
-	int i, j, templong1, templong2;
-	int intx, inty, lx, ly, retval;
-	int k, l, clipsectcnt, startwall, endwall, cstat, dasect;
-	int x1, y1, x2, y2, cx, cy, rad, xmin, ymin, xmax, ymax, daz, daz2;
-	int bsz, dax, day, xoff, yoff, xspan, yspan, cosang, sinang, tilenum;
-	int xrepeat, yrepeat, gx, gy, dx, dy, dasprclipmask, dawalclipmask;
-	int hitwall, cnt, clipyou;
+	sectortype *sec;
+	sectortype* sec2;
+	int i;
+	int j;
+	int templong1;
+	int templong2;
+	int intx;
+	int inty;
+	int lx;
+	int ly;
+	int retval;
+	int k;
+	int l;
+	int clipsectcnt;
+	int startwall;
+	int endwall;
+	int cstat;
+	int dasect;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int cx;
+	int cy;
+	int rad;
+	int xmin;
+	int ymin;
+	int xmax;
+	int ymax;
+	int daz;
+	int daz2;
+	int bsz;
+	int dax;
+	int day;
+	int xoff;
+	int yoff;
+	int xspan;
+	int yspan;
+	int cosang;
+	int sinang;
+	int tilenum;
+	int xrepeat;
+	int yrepeat;
+	int gx;
+	int gy;
+	int dx;
+	int dy;
+	int dasprclipmask;
+	int dawalclipmask;
+	int hitwall;
+	int cnt;
+	int clipyou;
 
 	if (((xvect | yvect) == 0) || (*sectnum < 0)) {
 		return 0;
@@ -9634,11 +10036,22 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 	sectortype* sec;
 	sectortype* sec2;
 	walltype* wal;
-	int i, j, t, dx, dy, dax, day, daz, daz2;
-	short startwall, endwall, clipsectcnt;
+	int i;
+	int j;
+	int t;
+	int dx;
+	int dy;
+	int dax;
+	int day;
+	int daz;
+	int daz2;
+	short startwall;
+	short endwall;
+	short clipsectcnt;
 	char bad2;
 
-	if ((*sectnum) < 0) return(-1);
+	if ((*sectnum) < 0)
+		return -1;
 
 	const int dawalclipmask = cliptype & 65535;
 	//int dasprclipmask = (cliptype>>16);
@@ -9767,7 +10180,8 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 void updatesector(int x, int y, short *sectnum)
 {
 	walltype *wal;
-	int i, j;
+	int i;
+	int j;
 
 	if (inside(x, y, *sectnum) == 1) {
 		return;
@@ -9804,7 +10218,10 @@ void updatesector(int x, int y, short *sectnum)
 void updatesectorz(int x, int y, int z, short *sectnum)
 {
 	walltype *wal;
-	int i, j, cz, fz;
+	int i;
+	int j;
+	int cz;
+	int fz;
 
 	getzsofslope(*sectnum, x, y, &cz, &fz);
 	if ((z >= cz) && (z <= fz))
@@ -9886,10 +10303,36 @@ void getzrange(int x, int y, int z, short sectnum,
 	sectortype *sec;
 	walltype *wal, *wal2;
 	spritetype *spr;
-	int clipsectcnt, startwall, endwall, tilenum, xoff, yoff, dax, day;
-	int j, k, l, daz, daz2, dx, dy;
-	int x1, y1, x2, y2, x3, y3, x4, y4, ang, cosang, sinang;
-	int xspan, yspan, xrepeat, yrepeat;
+	int clipsectcnt;
+	int startwall;
+	int endwall;
+	int tilenum;
+	int xoff;
+	int yoff;
+	int dax;
+	int day;
+	int j;
+	int k;
+	int l;
+	int daz;
+	int daz2;
+	int dx;
+	int dy;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int x3;
+	int y3;
+	int x4;
+	int y4;
+	int ang;
+	int cosang;
+	int sinang;
+	int xspan;
+	int yspan;
+	int xrepeat;
+	int yrepeat;
 	short cstat;
 	unsigned char clipyou;
 
@@ -10270,8 +10713,11 @@ void rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dash
 //
 int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char g, signed char b, unsigned char dastat)
 {
-	int i, j, palscale;
-	unsigned char *ptr, *ptr2;
+	int i;
+	int j;
+	int palscale;
+	unsigned char* ptr;
+	unsigned char* ptr2;
 
 	if (palookup[palnum] == nullptr)
 	{
@@ -10412,7 +10858,7 @@ void setpalettefade(unsigned char r, unsigned char g, unsigned char b, unsigned 
 	int k{0};
 
 	for (int i{0}; i < 256; i++) {
-	palette_t p;
+		palette_t p;
 
 		if (gammabrightness) {
 			p = curpalette[i];
@@ -10451,6 +10897,7 @@ void clearview(int dacol)
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode == 3) {
 		palette_t p;
+
 		if (gammabrightness) {
 			p = curpalette[dacol];
 		}
@@ -10554,14 +11001,20 @@ unsigned char getpixel(int x, int y)
 //
 void setviewtotile(short tilenume, int xsiz, int ysiz)
 {
-	int i, j;
+	int i;
+	int j;
 
 		//DRAWROOMS TO TILE BACKUP&SET CODE
-	tilesizx[tilenume] = xsiz; tilesizy[tilenume] = ysiz;
-	bakxsiz[setviewcnt] = xsiz; bakysiz[setviewcnt] = ysiz;
-	bakframeplace[setviewcnt] = frameplace; frameplace = waloff[tilenume];
-	bakwindowx1[setviewcnt] = windowx1; bakwindowy1[setviewcnt] = windowy1;
-	bakwindowx2[setviewcnt] = windowx2; bakwindowy2[setviewcnt] = windowy2;
+	tilesizx[tilenume] = xsiz;
+	tilesizy[tilenume] = ysiz;
+	bakxsiz[setviewcnt] = xsiz;
+	bakysiz[setviewcnt] = ysiz;
+	bakframeplace[setviewcnt] = frameplace;
+	frameplace = waloff[tilenume];
+	bakwindowx1[setviewcnt] = windowx1;
+	bakwindowy1[setviewcnt] = windowy1;
+	bakwindowx2[setviewcnt] = windowx2;
+	bakwindowy2[setviewcnt] = windowy2;
 #if USE_POLYMOST
 	if (setviewcnt == 0) {
 		bakrendmode = rendmode;
@@ -10587,7 +11040,9 @@ void setviewtotile(short tilenume, int xsiz, int ysiz)
 extern char modechange;
 void setviewback()
 {
-	int i, j, k;
+	int i;
+	int j;
+	int k;
 
 	if (setviewcnt <= 0) {
 		return;
@@ -10625,7 +11080,9 @@ void setviewback()
 //
 void squarerotatetile(short tilenume)
 {
-	int i, j, k;
+	int i;
+	int j;
+	int k;
 	unsigned char* ptr1;
 	unsigned char* ptr2;
 
@@ -10756,14 +11213,25 @@ int sectorofwall(short theline)
 //
 int getceilzofslope(short sectnum, int dax, int day)
 {
-	int dx, dy, i, j;
+	int dx;
+	int dy;
+	int i;
+	int j;
 	walltype *wal;
 
-	if (!(sector[sectnum].ceilingstat&2)) return(sector[sectnum].ceilingz);
+	if (!(sector[sectnum].ceilingstat&2))
+		return(sector[sectnum].ceilingz);
+
 	wal = &wall[sector[sectnum].wallptr];
-	dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
-	i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return(sector[sectnum].ceilingz);
+	dx = wall[wal->point2].x-wal->x;
+	dy = wall[wal->point2].y-wal->y;
+	i = (nsqrtasm(dx*dx+dy*dy)<<5);
+	
+	if (i == 0)
+		return(sector[sectnum].ceilingz);
+	
 	j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
+
 	return(sector[sectnum].ceilingz+scale(sector[sectnum].ceilingheinum,j,i));
 }
 
@@ -10773,12 +11241,18 @@ int getceilzofslope(short sectnum, int dax, int day)
 //
 int getflorzofslope(short sectnum, int dax, int day)
 {
-	int dx, dy, i, j;
+	int dx;
+	int dy;
+	int i;
+	int j;
 	walltype *wal;
 
-	if (!(sector[sectnum].floorstat&2)) return(sector[sectnum].floorz);
+	if (!(sector[sectnum].floorstat&2))
+		return(sector[sectnum].floorz);
+
 	wal = &wall[sector[sectnum].wallptr];
-	dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
+	dx = wall[wal->point2].x-wal->x;
+	dy = wall[wal->point2].y-wal->y;
 	i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return(sector[sectnum].floorz);
 	j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
 	return(sector[sectnum].floorz+scale(sector[sectnum].floorheinum,j,i));
@@ -10790,20 +11264,32 @@ int getflorzofslope(short sectnum, int dax, int day)
 //
 void getzsofslope(short sectnum, int dax, int day, int *ceilz, int *florz)
 {
-	int dx, dy, i, j;
-	walltype *wal, *wal2;
-	sectortype *sec;
+	int dx;
+	int dy;
+	int i;
+	int j;
+	walltype* wal;
+	walltype* wal2;
+	sectortype* sec = &sector[sectnum];
 
-	sec = &sector[sectnum];
 	*ceilz = sec->ceilingz; *florz = sec->floorz;
 	if ((sec->ceilingstat|sec->floorstat)&2)
 	{
-		wal = &wall[sec->wallptr]; wal2 = &wall[wal->point2];
-		dx = wal2->x-wal->x; dy = wal2->y-wal->y;
-		i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return;
-		j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
-		if (sec->ceilingstat&2) *ceilz = (*ceilz)+scale(sec->ceilingheinum,j,i);
-		if (sec->floorstat&2) *florz = (*florz)+scale(sec->floorheinum,j,i);
+		wal = &wall[sec->wallptr];
+		wal2 = &wall[wal->point2];
+		dx = wal2->x-wal->x;
+		dy = wal2->y-wal->y;
+		i = (nsqrtasm(dx * dx + dy * dy) << 5);
+		
+		if (i == 0)
+			return;
+		
+		j = dmulscale3(dx, day - wal->y, -dy, dax - wal->x);
+		if (sec->ceilingstat&2)
+			*ceilz = (*ceilz)+scale(sec->ceilingheinum, j, i);
+
+		if (sec->floorstat&2)
+			*florz = (*florz)+scale(sec->floorheinum, j, i);
 	}
 }
 

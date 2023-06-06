@@ -87,7 +87,9 @@ unsigned int crc32once(unsigned char *blk, unsigned int len)
 
 void crc32init(unsigned int *crcvar)
 {
-	if (!crcvar) return;
+	if (!crcvar)
+    return;
+
 	*crcvar = 0xffffffffl;
 }
 

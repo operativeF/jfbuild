@@ -1327,6 +1327,7 @@ namespace rg_etc1
       inline void get_block_colors(color_quad_u8* pBlock_colors)
       {
          int br, bg, bb;
+         
          if (m_color4)
          {
             br = m_unscaled_color.r | (m_unscaled_color.r << 4);

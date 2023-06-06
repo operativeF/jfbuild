@@ -253,6 +253,7 @@ incompatible:
 	glfunc.glBindTexture(GL_TEXTURE_2D, ptmh->glpic);
 
 	int mipmap{0};
+	
 	if (! (flags & PTH_NOMIPLEVEL)) {
 		// if we aren't instructed to preserve all mipmap levels,
 		// immediately throw away gltexmiplevel mipmaps
