@@ -87,36 +87,62 @@ int scriptfile_gethex(scriptfile *sf, int *num)
 }
 
 static double parsedouble(char *ptr, char **end)
-{
-	int beforedecimal = 1, negative = 0, dig;
-	int exposgn = 0, expo = 0;
-	double num = 0.0, decpl = 0.1;
-	char *p;
-	
-	p = ptr;
-	if (*p == '-') negative = 1, p++;
-	else if (*p == '+') p++;
+{	
+
+	int negative{0};
+	char* p{ptr};
+
+	if (*p == '-') {
+		negative = 1;
+		p++;
+	}
+	else if (*p == '+')
+		p++;
+
+	int beforedecimal{1};
+	int expo{0};
+	int exposgn{0};
+
+	double decpl{0.1};
+	double num{0.0};
+
 	for (;; p++) {
 		if (*p >= '0' && *p <= '9') {
-			dig = *p - '0';
-			if (beforedecimal) num = num * 10.0 + dig;
-			else if (exposgn) expo = expo*10 + dig;
+			int dig = *p - '0';
+			if (beforedecimal)
+				num = num * 10.0 + dig;
+			else if (exposgn)
+				expo = expo*10 + dig;
 			else {
 				num += (double)dig * decpl;
 				decpl /= 10.0;
 			}
-		} else if (*p == '.') {
-			if (beforedecimal) beforedecimal = 0;
-			else break;
-		} else if ((*p == 'E') || (*p == 'e')) {
+		}
+		else if (*p == '.') {
+			if (beforedecimal)
+				beforedecimal = 0;
+			else
+				break;
+		}
+		else if ((*p == 'E') || (*p == 'e')) {
 			exposgn = 1;
-			if (p[1] == '-') { exposgn = -1; p++; }
-			else if (p[1] == '+') p++;
-		} else break;
+			if (p[1] == '-') {
+				exposgn = -1;
+				p++;
+			}
+			else if (p[1] == '+')
+				p++;
+		}
+		else
+			break;
 	}
 	
-	if (end) *end = p;
-	if (exposgn) num *= pow(10.0,(double)(expo*exposgn));
+	if (end)
+		*end = p;
+
+	if (exposgn)
+		num *= pow(10.0,(double)(expo*exposgn));
+
 	return negative ? -num : num;
 }
 
@@ -146,13 +172,14 @@ int scriptfile_getdouble(scriptfile *sf, double *num)
 
 int scriptfile_getsymbol(scriptfile *sf, int *num)
 {
-	char *t, *e;
-	int v;
+	char* t = scriptfile_gettoken(sf);
 
-	t = scriptfile_gettoken(sf);
-	if (!t) return -1;
+	if (!t)
+		return -1;
 
-	v = (int)strtol(t, &e, 10);
+	char* e{nullptr};
+	int v = (int) std::strtol(t, &e, 10);
+
 	if (*e) {
 		// looks like a string, so find it in the symbol table
 		if (scriptfile_getsymbolvalue(t, num)) return 0;
@@ -161,15 +188,14 @@ int scriptfile_getsymbol(scriptfile *sf, int *num)
 	}
 
 	*num = v;
+
 	return 0;
 }
 
 int scriptfile_getbraces(scriptfile *sf, char **braceend)
 {
-	int bracecnt;
-	char *bracestart;
-
 	skipoverws(sf);
+
 	if (sf->textptr >= sf->eof)
 	{
 		buildprintf("Error on line %s:%d: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
@@ -180,84 +206,157 @@ int scriptfile_getbraces(scriptfile *sf, char **braceend)
 		buildprintf("Error on line %s:%d: expecting '{'\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
 		return -1;
 	}
-	bracestart = ++sf->textptr; bracecnt = 1;
+
+	char* bracestart = ++sf->textptr;
+	int bracecnt{1};
+
 	while (1)
 	{
-		if (sf->textptr >= sf->eof) return(0);
-		if (sf->textptr[0] == '{') bracecnt++;
-		if (sf->textptr[0] == '}') { bracecnt--; if (!bracecnt) break; }
+		if (sf->textptr >= sf->eof)
+			return 0;
+
+		if (sf->textptr[0] == '{')
+			bracecnt++;
+
+		if (sf->textptr[0] == '}') {
+			bracecnt--;
+			if (!bracecnt)
+				break;
+		}
+
 		sf->textptr++;
 	}
+
 	(*braceend) = sf->textptr;
 	sf->textptr = bracestart;
+
 	return 0;
 }
 
 
 int scriptfile_getlinum (scriptfile *sf, char *ptr)
 {
-	int i, stp;
-	ptrdiff_t ind;
-
 	//for(i=0;i<sf->linenum;i++) if (sf->lineoffs[i] >= ind) return(i+1); //brute force algo
 
-	ind = ((intptr_t)ptr) - ((intptr_t)sf->textbuf);
+	ptrdiff_t ind = ((intptr_t)ptr) - ((intptr_t)sf->textbuf);
 
-	for(stp=1;stp+stp<sf->linenum;stp+=stp); //stp = highest power of 2 less than sf->linenum
-	for(i=0;stp;stp>>=1)
-		if ((i+stp < sf->linenum) && (sf->lineoffs[i+stp] < ind)) i += stp;
-	return(i+1); //i = index to highest lineoffs which is less than ind; convert to 1-based line numbers
+	int stp{1};
+	for(; stp + stp<sf->linenum; stp += stp); //stp = highest power of 2 less than sf->linenum
+	
+	int i{0};
+	for(; stp; stp >>= 1)
+		if ((i + stp < sf->linenum) && (sf->lineoffs[i + stp] < ind))
+			i += stp;
+	
+	return i + 1; //i = index to highest lineoffs which is less than ind; convert to 1-based line numbers
 }
 
 void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 {
-	int cr, numcr, nflen, ws, cs, inquote;
-	size_t i;
+	//Count number of lines
+	int numcr{1};
 
-		//Count number of lines
-	numcr = 1;
-	for(i=0;i<flen;i++)
+	int cr{0};
+	for(std::size_t i{0}; i < flen; ++i)
 	{
 			//detect all 4 types of carriage return (\r, \n, \r\n, \n\r :)
-		cr=0;if (tx[i] == '\r') { i += (tx[i+1] == '\n'); cr = 1; }
-		else if (tx[i] == '\n') { i += (tx[i+1] == '\r'); cr = 1; }
-		if (cr) { numcr++; continue; }
+		cr = 0;
+		
+		if (tx[i] == '\r') {
+			i += (tx[i+1] == '\n');
+			cr = 1;
+		}
+		else if (tx[i] == '\n') {
+			i += (tx[i+1] == '\r');
+			cr = 1;
+		}
+
+		if (cr) {
+			numcr++;
+			continue;
+		}
 	}
 
 	sf->linenum = numcr;
-	sf->lineoffs = (int *)malloc(sf->linenum*sizeof(int));
+	sf->lineoffs = (int *) std::malloc(sf->linenum*sizeof(int));
 
-		//Preprocess file for comments (// and /*...*/, and convert all whitespace to single spaces)
-	nflen = 0; ws = 0; cs = 0; numcr = 0; inquote = 0;
-	for(i=0;i<flen;i++)
+	//Preprocess file for comments (// and /*...*/, and convert all whitespace to single spaces)
+	int nflen{0};
+	int ws{0};
+	int cs{0};
+	int inquote{0};
+	
+	numcr = 0;
+
+	for(int i{}; i < flen; ++i)
 	{
 			//detect all 4 types of carriage return (\r, \n, \r\n, \n\r :)
-		cr=0;if (tx[i] == '\r') { i += (tx[i+1] == '\n'); cr = 1; }
-		else if (tx[i] == '\n') { i += (tx[i+1] == '\r'); cr = 1; }
+		cr = 0;
+		
+		if (tx[i] == '\r') { i += (tx[i+1] == '\n');
+			cr = 1; }
+		else if (tx[i] == '\n') { i += (tx[i+1] == '\r');
+			cr = 1; }
+
 		if (cr)
 		{
 				//Remember line numbers by storing the byte index at the start of each line
 				//Line numbers can be retrieved by doing a binary search on the byte index :)
 			sf->lineoffs[numcr++] = nflen;
-			if (cs == 1) cs = 0;
-			ws = 1; continue; //strip CR/LF
+			
+			if (cs == 1)
+				cs = 0;
+			ws = 1;
+			continue; //strip CR/LF
 		}
 
-		if ((!inquote) && ((tx[i] == ' ') || (tx[i] == '\t'))) { ws = 1; continue; } //strip Space/Tab
-		if ((tx[i] == ';') && (!cs)) cs = 1;	// ; comment
-		if ((tx[i] == '/') && (tx[i+1] == '/') && (!cs)) cs = 1;
-		if ((tx[i] == '/') && (tx[i+1] == '*') && (!cs)) { ws = 1; cs = 2; }
-		if ((tx[i] == '*') && (tx[i+1] == '/') && (cs == 2)) { cs = 0; i++; continue; }
-		if (cs) continue;
+		if ((!inquote) && ((tx[i] == ' ') || (tx[i] == '\t'))) {
+			ws = 1;
+			continue;
+		} //strip Space/Tab
+		
+		if ((tx[i] == ';') && (!cs))
+			cs = 1;	// ; comment
 
-		if (ws) { tx[nflen++] = 0; ws = 0; }
+		if ((tx[i] == '/') && (tx[i+1] == '/') && (!cs))
+			cs = 1;
+
+		if ((tx[i] == '/') && (tx[i+1] == '*') && (!cs)) {
+			ws = 1;
+			cs = 2;
+		}
+
+		if ((tx[i] == '*') && (tx[i+1] == '/') && (cs == 2)) {
+			cs = 0;
+			i++;
+			continue;
+		}
+
+		if (cs)
+			continue;
+
+		if (ws) {
+			tx[nflen++] = 0;
+			ws = 0;
+		}
 
 			//quotes inside strings: \"
-		if ((tx[i] == '\\') && (tx[i+1] == '\"')) { i++; tx[nflen++] = '\"'; continue; }
-		if (tx[i] == '\"') { inquote ^= 1; continue; }
+		if ((tx[i] == '\\') && (tx[i+1] == '\"')) {
+			i++;
+			tx[nflen++] = '\"';
+			continue;
+		}
+
+		if (tx[i] == '\"') {
+			inquote ^= 1;
+			continue;
+		}
+		
 		tx[nflen++] = tx[i];
 	}
-	tx[nflen++] = 0; sf->lineoffs[numcr] = nflen;
+
+	tx[nflen++] = 0;
+	sf->lineoffs[numcr] = nflen;
 	tx[nflen++] = 0;
 
 #if 0
@@ -276,34 +375,34 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 
 scriptfile *scriptfile_fromfile(const char *fn)
 {
-	int fp;
-	scriptfile *sf;
-	char *tx;
-	unsigned int flen;
+	int fp = kopen4load(fn, 0);
 
-	fp = kopen4load(fn,0);
-	if (fp<0) return nullptr;
+	if (fp < 0)
+		return nullptr;
 
-	flen = kfilelength(fp);
-	tx = (char *) malloc(flen + 2);
+	unsigned int flen = kfilelength(fp);
+	auto* tx = (char *) std::malloc(flen + 2);
+	
 	if (!tx) {
 		kclose(fp);
 		return nullptr;
 	}
 
-	sf = (scriptfile*) malloc(sizeof(scriptfile));
+	auto* sf = (scriptfile*) malloc(sizeof(scriptfile));
+
 	if (!sf) {
 		kclose(fp);
-		free(tx);
+		std::free(tx);
 		return nullptr;
 	}
 
 	kread(fp, tx, flen);
-	tx[flen] = tx[flen+1] = 0;
+	tx[flen] = 0;
+	tx[flen+1] = 0;
 
 	kclose(fp);
 
-	scriptfile_preparse(sf,tx,flen);
+	scriptfile_preparse(sf, tx, flen);
 	sf->filename = strdup(fn);
 
 	return sf;
@@ -311,27 +410,29 @@ scriptfile *scriptfile_fromfile(const char *fn)
 
 scriptfile *scriptfile_fromstring(const char *string)
 {
-	scriptfile *sf;
-	char *tx;
-	size_t flen;
+	if (!string)
+		return nullptr;
 
-	if (!string) return nullptr;
+	auto flen = std::strlen(string);
 
-	flen = strlen(string);
+	auto* tx = (char *) std::malloc(flen + 2);
+	
+	if (!tx)
+		return nullptr;
 
-	tx = (char *) malloc(flen + 2);
-	if (!tx) return nullptr;
+	auto* sf = (scriptfile*) std::malloc(sizeof(scriptfile));
 
-	sf = (scriptfile*) malloc(sizeof(scriptfile));
 	if (!sf) {
-		free(tx);
+		std::free(tx);
+
 		return nullptr;
 	}
 
 	std::memcpy(tx, string, flen);
-	tx[flen] = tx[flen+1] = 0;
+	tx[flen] = 0;
+	tx[flen + 1] = 0;
 
-	scriptfile_preparse(sf,tx,flen);
+	scriptfile_preparse(sf, tx, flen);
 	sf->filename = nullptr;
 
 	return sf;
@@ -339,19 +440,31 @@ scriptfile *scriptfile_fromstring(const char *string)
 
 void scriptfile_close(scriptfile *sf)
 {
-	if (!sf) return;
-	if (sf->lineoffs) free(sf->lineoffs);
-	if (sf->textbuf) free(sf->textbuf);
-	if (sf->filename) free(sf->filename);
+	if (!sf)
+		return;
+
+	if (sf->lineoffs)
+		std::free(sf->lineoffs);
+
+	if (sf->textbuf)
+		std::free(sf->textbuf);
+	
+	if (sf->filename)
+		std::free(sf->filename);
+
 	sf->textbuf = nullptr;
 	sf->filename = nullptr;
-	free(sf);
+	
+	std::free(sf);
 }
 
 int scriptfile_eof(scriptfile *sf)
 {
 	skipoverws(sf);
-	if (sf->textptr >= sf->eof) return 1;
+
+	if (sf->textptr >= sf->eof)
+		return 1;
+
 	return 0;
 }
 
@@ -359,35 +472,43 @@ constexpr std::size_t SYMBTABSTARTSIZE{256};
 static size_t symbtablength=0, symbtaballoclength=0;
 static char *symbtab = nullptr;
 
-static char * getsymbtabspace(size_t reqd)
+static char* getsymbtabspace(size_t reqd)
 {
-	char *pos,*np;
-	size_t i;
-
 	if (symbtablength + reqd > symbtaballoclength)
 	{
-		for(i = std::max(symbtaballoclength, SYMBTABSTARTSIZE); symbtablength + reqd > i; i <<= 1);
-		np = (char *)realloc(symbtab, i); if (!np) return nullptr;
-		symbtab = np; symbtaballoclength = i;
+		auto i = std::max(symbtaballoclength, SYMBTABSTARTSIZE);
+		
+		for(; symbtablength + reqd > i; i <<= 1);
+		
+		auto* np = (char *) std::realloc(symbtab, i);
+		
+		if (!np)
+			return nullptr;
+
+		symbtab = np;
+		symbtaballoclength = i;
 	}
 
-	pos = &symbtab[symbtablength];
+	char* pos = &symbtab[symbtablength];
 	symbtablength += reqd;
+	
 	return pos;
 }
 
 int scriptfile_getsymbolvalue(const char *name, int *val)
 {
-	char *scanner = symbtab;
+	char* scanner = symbtab;
 
-	if (!symbtab) return 0;
+	if (!symbtab)
+		return 0;
+	
 	while (scanner - symbtab < (ptrdiff_t)symbtablength) {
 		if (!strcasecmp(name, scanner)) {
-			*val = *(int*)(scanner + strlen(scanner) + 1);
+			*val = *(int*)(scanner + std::strlen(scanner) + 1);
 			return 1;
 		}
 
-		scanner += strlen(scanner) + 1 + sizeof(int);
+		scanner += std::strlen(scanner) + 1 + sizeof(int);
 	}
 
 	return 0;
@@ -396,32 +517,37 @@ int scriptfile_getsymbolvalue(const char *name, int *val)
 int scriptfile_addsymbolvalue(const char *name, int val)
 {
 	//int x;
-	char *sp;
 	//if (scriptfile_getsymbolvalue(name, &x)) return -1;   // already exists
 
 	if (symbtab) {
 		char *scanner = symbtab;
 		while (scanner - symbtab < (ptrdiff_t)symbtablength) {
 			if (!strcasecmp(name, scanner)) {
-				*(int*)(scanner + strlen(scanner) + 1) = val;
+				*(int*)(scanner + std::strlen(scanner) + 1) = val;
 				return 1;
 			}
 
-			scanner += strlen(scanner) + 1 + sizeof(int);
+			scanner += std::strlen(scanner) + 1 + sizeof(int);
 		}
 	}
 	
-	sp = getsymbtabspace(strlen(name) + 1 + sizeof(int));
-	if (!sp) return 0;
-	strcpy(sp, name);
-	sp += strlen(name)+1;
+	auto* sp = getsymbtabspace(strlen(name) + 1 + sizeof(int));
+
+	if (!sp)
+		return 0;
+
+	std::strcpy(sp, name);
+	sp += std::strlen(name)+1;
 	*(int*)sp = val;
+
 	return 1;   // added
 }
 
 void scriptfile_clearsymbols()
 {
-	if (symbtab) free(symbtab);
+	if (symbtab)
+		std::free(symbtab);
+
 	symbtab = nullptr;
 	symbtablength = 0;
 	symbtaballoclength = 0;

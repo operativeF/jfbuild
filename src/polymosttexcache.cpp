@@ -166,11 +166,13 @@ void PTCacheLoadIndex()
 		}
 		
 		std::fclose(fh);
-	} else {
+	}
+	else {
 		if (errno == ENOENT) {
 			// file doesn't exist, which is fine
 			;
-		} else {
+		}
+		else {
 			buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHESTORAGEFILE);
 			cachedisabled = true;
 			return;
@@ -253,17 +255,16 @@ void PTCacheLoadIndex()
  */
 void PTCacheUnloadIndex()
 {
-	PTCacheIndex* next;
 
-	for (int i{0}; i < PTCACHEHASHSIZ; ++i) {
-		PTCacheIndex* pci = cachehead[i];
+	for (auto& pci : cachehead) {
 		while (pci) {
-			next = pci->next;
+			PTCacheIndex* next = pci->next;
 			// we needn't free pci->filename since it was alloced with pci
 			std::free(pci);
 			pci = next;
 		}
-		cachehead[i] = 0;
+		
+		pci = nullptr;
 	}
 
 	buildprintf("PolymostTexCache: cache index unloaded\n");
@@ -350,14 +351,17 @@ static PTCacheTile * ptcache_load(off_t offset)
 	std::fclose(fh);
 
 	return tdef;
+
 fail:
 	cachereplace = true;
 	buildprintf("PolymostTexCache: corrupt texture cache detected, cache will be replaced\n");
 	PTCacheUnloadIndex();
 	std::fclose(fh);
+	
 	if (tdef) {
 		PTCacheFreeTile(tdef);
 	}
+
 	return 0;
 }
 
@@ -412,13 +416,11 @@ bool PTCacheHasTile(const char * filename, int effects, int flags)
  */
 void PTCacheFreeTile(PTCacheTile * tdef)
 {
-	int i;
-
 	if (tdef->filename) {
 		std::free(tdef->filename);
 	}
 
-	for (i = 0; i < tdef->nummipmaps; i++) {
+	for (int i{0}; i < tdef->nummipmaps; ++i) {
 		if (tdef->mipmap[i].data) {
 			std::free(tdef->mipmap[i].data);
 		}
@@ -433,6 +435,8 @@ void PTCacheFreeTile(PTCacheTile * tdef)
  * @param nummipmaps allocate mipmap entries for nummipmaps items
  * @return a PTCacheTile entry
  */
+
+// FIXME: What if tdef allocation fails?
 PTCacheTile * PTCacheAllocNewTile(int nummipmaps)
 {
 	const int size = sizeof(PTCacheTile) + (nummipmaps - 1) * sizeof(PTCacheTileMip);
@@ -451,11 +455,8 @@ PTCacheTile * PTCacheAllocNewTile(int nummipmaps)
  */
 int PTCacheWriteTile(const PTCacheTile * tdef)
 {
-	long i;
-	PTCacheIndex * pci;
-
-	off_t offset;
 	char createmode[] = "ab";
+	PTCacheIndex* pci{nullptr};
 
 	if (cachedisabled) {
 		return 0;
@@ -480,9 +481,11 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 	// imagine, so the ftell doesn't return the length of the
 	// file like you'd expect it should
 	std::fseek(fh, 0, SEEK_END);
-	offset = ftell(fh);
+	off_t offset = ftell(fh);
 
-	if (offset >= UINT32_MAX) goto fail;
+	if (offset >= UINT32_MAX)
+		goto fail;
+
 	if (offset == 0) {
 		// new file
 		if (std::fwrite(&storagesig[0], 16, 1, fh) != 1) {
@@ -494,7 +497,7 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 
 	{
 		int32_t tsizx = B_LITTLE32(tdef->tsizx);
-		int32_t tsizy = B_LITTLE32(tdef->tsizy);
+		const int32_t tsizy = B_LITTLE32(tdef->tsizy);
 		int32_t flags = tdef->flags & (PTH_CLAMPED | PTH_HASALPHA);
 		flags = B_LITTLE32(flags);
 		int32_t format = B_LITTLE32(tdef->format);
@@ -509,13 +512,10 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 		}
 	}
 
-	for (i = 0; i < tdef->nummipmaps; i++) {
-		int32_t sizx, sizy;
-		int32_t length;
-
-		sizx = B_LITTLE32(tdef->mipmap[i].sizx);
-		sizy = B_LITTLE32(tdef->mipmap[i].sizy);
-		length = B_LITTLE32(tdef->mipmap[i].length);
+	for (int i{0}; i < tdef->nummipmaps; i++) {
+		int32_t sizx = B_LITTLE32(tdef->mipmap[i].sizx);
+		int32_t sizy = B_LITTLE32(tdef->mipmap[i].sizy);
+		int32_t length = B_LITTLE32(tdef->mipmap[i].length);
 
 		if (std::fwrite(&sizx, 4, 1, fh) != 1 ||
 		    std::fwrite(&sizy, 4, 1, fh) != 1 ||
@@ -533,6 +533,7 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 
 	// 2. append to the index
 	fh = std::fopen(CACHEINDEXFILE, createmode);
+
 	if (!fh) {
 		cachedisabled = true;
 		buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHEINDEXFILE);
@@ -540,16 +541,19 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 	}
 
 	std::fseek(fh, 0, SEEK_END);
+
 	if (std::ftell(fh) == 0) {
 		// new file
 		if (std::fwrite(&indexsig[0], 16, 1, fh) != 1) {
 			goto fail;
 		}
 	}
-
+	
 	{
 		char filename[PTCACHEINDEXFILENAMELEN];
-		int32_t effects, flags, mtime;
+		int32_t effects;
+		int32_t flags;
+		int32_t mtime;
 		uint32_t offs;
 
 		std::strncpy(filename, tdef->filename, sizeof(filename));
@@ -573,10 +577,12 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 
 	// stow the data into the index in memory
 	pci = ptcache_findhash(tdef->filename, tdef->effects, tdef->flags);
+	
 	if (pci) {
 		// superseding an old hash entry
 		pci->offset = (unsigned)offset;
-	} else {
+	}
+	else {
 		ptcache_addhash(tdef->filename, tdef->effects, tdef->flags, (unsigned)offset);
 	}
 

@@ -61,15 +61,17 @@ char *strupr(char *s)
 
 int Bvasprintf(char **ret, const char *format, va_list ap)
 {
-    int len;
     va_list app;
 
     va_copy(app, ap);
-    len = vsnprintf(nullptr, 0, format, app);
+    int len = vsnprintf(nullptr, 0, format, app);
     va_end(app);
 
-    if (len < 0) return -1;
-    if ((*ret = static_cast<char*>(malloc(len + 1))) == nullptr) return -1;
+    if (len < 0)
+		return -1;
+
+    if ((*ret = static_cast<char*>(malloc(len + 1))) == nullptr)
+		return -1;
 
     va_copy(app, ap);
     len = vsnprintf(*ret, len + 1, format, app);

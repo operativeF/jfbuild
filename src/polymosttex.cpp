@@ -317,12 +317,12 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 		}
 	}
 
-	int filh = kopen4load((char *) filename, 0);
+	const int filh = kopen4load((char *) filename, 0);
 	if (filh < 0) {
 		return -1;
 	}
 	
-	int picdatalen = kfilelength(filh);
+	const int picdatalen = kfilelength(filh);
 
 	picdata = (char *) std::malloc(picdatalen);
 	if (!picdata) {
