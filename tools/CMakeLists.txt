@@ -18,7 +18,11 @@ add_executable(kextract
   ${CMAKE_SOURCE_DIR}/src/compat.cpp
 )
 
+if(WIN32)
+  set(kextract_libs msvcrt.lib)
+endif()
+
 target_link_libraries(kextract
   PUBLIC
-    msvcrt.lib
+    ${kextract_libs}
 )

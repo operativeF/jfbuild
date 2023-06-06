@@ -508,7 +508,7 @@ int app_main(int argc, char const * const argv[])
 
 	initgroupfile("stuff.dat");
 	if (initengine()) {
-		wm_msgbox(nullptr, "There was a problem initialising the engine: %s.\n", engineerrstr);
+		wm_msgbox(nullptr, "There was a problem initialising the engine: %s.\n", engineerrstr.c_str());
 		return -1;
 	}
 

@@ -8097,7 +8097,6 @@ int loadmaphack(const char *filename)
 		{ nullptr, -1 }
 	};
 
-	int i;
 	int whichsprite = -1;
 
 	auto* script = scriptfile_fromfile(filename);

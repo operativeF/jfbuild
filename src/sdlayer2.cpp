@@ -19,10 +19,8 @@
 
 #include "build.hpp"
 
-#if defined __APPLE__
+#if defined __APPLE__ || defined __LINUX__
 # include <SDL2/SDL.h>
-#else
-# include "SDL.h"
 #endif
 
 #if (SDL_MAJOR_VERSION != 2)
@@ -37,6 +35,7 @@
 #include "osd.hpp"
 #include "glbuild_priv.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 
@@ -409,7 +408,7 @@ int initinput()
 	std::memset(keynames, 0, sizeof(keynames));
 	for (i=0; i<SDL_NUM_SCANCODES; i++) {
 		if (!keytranslation[i].normal) continue;
-		strncpy(keynames[ keytranslation[i].normal ], SDL_GetScancodeName(i), sizeof(keynames[i])-1);
+		strncpy(keynames[ keytranslation[i].normal ], SDL_GetScancodeName(static_cast<SDL_Scancode>(i)), sizeof(keynames[i])-1);
 	}
 
 	if (!SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER)) {
@@ -458,7 +457,7 @@ int initinput()
 				buildprintf("Using controller %s\n", SDL_GameControllerName(controller));
 
 				inputdevices |= 4;
-				joynumaxes    = std::min(Barraylen(joyaxis), SDL_CONTROLLER_AXIS_MAX);
+				joynumaxes    = std::min(Barraylen(joyaxis), static_cast<unsigned long>(SDL_CONTROLLER_AXIS_MAX));
 				joynumbuttons = SDL_CONTROLLER_BUTTON_MAX;
 			} else {
 				buildprintf("No controllers are usable\n");
@@ -488,13 +487,13 @@ const char *getkeyname(int num)
 	return keynames[num];
 }
 
-const char *getjoyname(int what, int num)
+const char *getjoyname(int what, SDL_GameControllerButton num)
 {
 	switch (what) {
 		case 0: // axis
-			return SDL_GameControllerGetStringForAxis(num);
+			return SDL_GameControllerGetStringForAxis(static_cast<SDL_GameControllerAxis>(num));
 		case 1: // button
-			return SDL_GameControllerGetStringForButton(num);
+			return SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(num));
 		default:
 			return nullptr;
 	}
@@ -1145,12 +1144,12 @@ int setpalette(int start, int num, const unsigned char *dapal)
 	(void)start; (void)num; (void)dapal;
 #if USE_OPENGL
 	if (!glunavailable) {
-		glbuild_update_8bit_palette(&gl8bit, curpalettefaded);
+		glbuild_update_8bit_palette(&gl8bit, &curpalettefaded[0]);
 	}
 #endif
 #ifndef SDLAYER_USE_RENDERER
 	if (sdl_surface) {
-		if (SDL_SetPaletteColors(sdl_surface->format->palette, (const SDL_Color *)curpalettefaded, 0, 256)) {
+		if (SDL_SetPaletteColors(sdl_surface->format->palette, (const SDL_Color *)&curpalettefaded[0], 0, 256)) {
 			debugprintf("Could not set palette: %s\n", SDL_GetError());
 		}
 	}

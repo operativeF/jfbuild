@@ -5,11 +5,14 @@ set(KENBUILD_GAME_SRCS
   # ${CMAKE_CURRENT_LIST_DIR}/src/buildres.rc
   ${CMAKE_CURRENT_LIST_DIR}/src/config.cpp
   ${CMAKE_CURRENT_LIST_DIR}/src/game.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/src/startwin_game.cpp
   ${CMAKE_CURRENT_LIST_DIR}/src/kdmsound.cpp
   ${CMAKE_CURRENT_LIST_DIR}/src/kdmsound_stub.cpp
   # ${CMAKE_CURRENT_LIST_DIR}/src/kdmsound_sdl2.cpp
   # ${CMAKE_CURRENT_LIST_DIR}/src/kdmsound_xaudio2.cpp
+)
+
+set(KENBUILD_GAME_WIN_SRCS
+  ${CMAKE_CURRENT_LIST_DIR}/src/startwin_game.cpp
 )
 
 set(KENBUILD_GAME_RC
@@ -23,8 +26,8 @@ set(KENBUILD_GAME_RSRCS
   ${CMAKE_CURRENT_LIST_DIR}/rsrc/build.bmp
   # ${CMAKE_CURRENT_LIST_DIR}/rsrc/build.manifest
   # ${CMAKE_CURRENT_LIST_DIR}/rsrc/build.png
-  # ${CMAKE_CURRENT_LIST_DIR}/rsrc/game_icon.ico
-  # ${CMAKE_CURRENT_LIST_DIR}/rsrc/game_icon.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/rsrc/game_icon.ico
+  ${CMAKE_CURRENT_LIST_DIR}/rsrc/game_icon.cpp
   ${CMAKE_CURRENT_LIST_DIR}/rsrc/game_icon.bmp
   # ${CMAKE_CURRENT_LIST_DIR}/rsrc/game-x86.manifest
   ${CMAKE_CURRENT_LIST_DIR}/rsrc/game.bmp
@@ -32,12 +35,22 @@ set(KENBUILD_GAME_RSRCS
   # ${CMAKE_CURRENT_LIST_DIR}/rsrc/game.png
 )
 
-add_executable(test_game WIN32
-  ${KENBUILD_GAME_SRCS}
-  # ${KENBUILD_GAME_RC}
-  # ${KENBUILD_GAME_RSRCS}
-  # ${KENBUILD_GAME_DATA}
-)
+if(WIN32)
+  add_executable(test_game WIN32
+    ${KENBUILD_GAME_SRCS}
+    ${KENBUILD_GAME_WIN_SRCS}
+    # ${KENBUILD_GAME_RC}
+    # ${KENBUILD_GAME_RSRCS}
+    # ${KENBUILD_GAME_DATA}
+  )
+else()
+  add_executable(test_game
+    ${KENBUILD_GAME_SRCS}
+    # ${KENBUILD_GAME_RC}
+    ${KENBUILD_GAME_RSRCS}
+    # ${KENBUILD_GAME_DATA}
+  )
+endif()
 
 target_include_directories(test_game
   PRIVATE
@@ -48,9 +61,15 @@ target_include_directories(test_game
     ${CMAKE_SOURCE_DIR}/include
 )
 
+if(WIN32)
+  set(WIN_COMPILE_OPTIONS
+    -DRENDERTYPEWIN
+  )
+endif()
+
 target_compile_options(test_game
   PRIVATE
-    -DRENDERTYPEWIN
+    ${WIN_COMPILE_OPTIONS}
     -DUSE_OPENGL=3
     -DUSE_POLYMOST=1
 )

@@ -48,12 +48,12 @@ extern short globalpicnum;
 extern int globalx1, globaly2;
 extern int globalorientation;
 
-extern short searchit;
-extern int searchx;
-extern int searchy;
-extern short searchsector;
-extern short searchwall;
-extern short searchstat;
+extern "C" short searchit;
+extern "C" int searchx;
+extern "C" int searchy;
+extern "C" short searchsector;
+extern "C" short searchwall;
+extern "C" short searchstat;
 
 extern char inpreparemirror;
 

@@ -15,6 +15,13 @@ set(ENGINE_BASE_SRCS
   ${CMAKE_CURRENT_LIST_DIR}/osd.cpp
   ${CMAKE_CURRENT_LIST_DIR}/pragmas.cpp
   ${CMAKE_CURRENT_LIST_DIR}/scriptfile.cpp
+)
+
+set(ENGINE_BASE_SDL_SRCS
+  ${CMAKE_CURRENT_LIST_DIR}/sdlayer2.cpp
+)
+
+set(WIN_ENGINE_BASE_SRCS
   ${CMAKE_CURRENT_LIST_DIR}/winlayer.cpp
 )
 
@@ -65,13 +72,18 @@ if(USE_ASM)
   list(APPEND BUILD_ENGINE_SRCS ${ASM_SRCS})
 endif()
 
+if(WIN32)
+  list(APPEND BUILD_ENGINE_SRCS ${WIN_ENGINE_BASE_SRCS})
+else()
+  list(APPEND BUILD_ENGINE_SRCS ${ENGINE_BASE_SDL_SRCS})
+endif()
+
 add_library(build_engine STATIC
   ${BUILD_ENGINE_SRCS}
 )
 
-target_link_libraries(build_engine
-  PUBLIC
-    unofficial::libsquish::squish
+if(WIN32)
+  set(WINDOWS_LINK_LIBRARIES
     Microsoft::XApoBase
     Microsoft::XAudio2Redist
     ws2_32.lib
@@ -80,6 +92,19 @@ target_link_libraries(build_engine
     uxtheme.lib
     xinput.lib
     Xinput9_1_0.lib
+  )
+endif()
+
+if(USE_SDL2)
+  set(SDL_LINK_LIBRARIES "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main> $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>")
+endif()
+
+target_link_libraries(build_engine
+  PUBLIC
+    unofficial::libsquish::squish
+    ${WINDOWS_LINK_LIBRARIES}
+  PRIVATE
+    ${SDL_LINK_LIBRARIES}
 )
 
 target_include_directories(build_engine

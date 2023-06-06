@@ -623,7 +623,11 @@ static void initmultiplayers_reset()
 	std::memset(simlagcnt,0,sizeof(simlagcnt));
 #endif
 
+#if (__WIN32__)
 	lastsendtims[0] = ::GetTickCount64();
+#else
+	lastsendtims[0] = GetTickCount();
+#endif
 
 	std::ranges::fill(lastsendtims, lastsendtims[0]);
 	std::ranges::fill(prevlastrecvtims, 0);
@@ -787,8 +791,11 @@ int initmultiplayerscycle()
 
 	getpacket(&i, nullptr);
 
+#if (__WIN32__)
 	tims = ::GetTickCount64();
-
+#else
+    tims = GetTickCount();
+#endif
 	if (networkmode == MMULTI_MODE_MS && myconnectindex == connecthead)
 	{
 		// The master waits for all players to check in.
@@ -974,7 +981,12 @@ void dosendpackets (int other)
 		//   unsigned short crc16; //CRC16 of everything except crc16
 
 
+#if defined _WIN32
 	tims = ::GetTickCount64();
+#else
+	tims = GetTickCount();
+#endif
+
 	if (tims < lastsendtims[other]) lastsendtims[other] = tims;
 	if (tims < lastsendtims[other]+1000/PAKRATE) return;
 	lastsendtims[other] = tims;

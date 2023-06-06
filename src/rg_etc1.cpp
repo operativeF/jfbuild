@@ -14,6 +14,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <memory>
 
 #ifdef _MSC_VER

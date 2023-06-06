@@ -572,7 +572,7 @@ int app_main(int argc, char const * const argv[])
 	uninitengine();
 
 	buildprintf("Memory status: %d(%d) bytes\n",cachesize,artsize);
-	buildprintf("%s\n",kensig);
+	buildprintf("%s\n", &kensig[0]);
 	return(0);
 }
 
