@@ -5,10 +5,6 @@
 
 #include <array>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 inline constexpr auto MAXMULTIPLAYERS{16};
 
 #define MMULTI_MODE_MS  0
@@ -36,10 +32,6 @@ void sendpacket(int other, const unsigned char *bufptr, int messleng);
 int getpacket(int *other, unsigned char *bufptr);
 void flushpackets();
 void genericmultifunction(int other, const unsigned char *bufptr, int messleng, int command);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif	// __mmulti_h__
 

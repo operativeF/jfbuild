@@ -16,10 +16,6 @@ struct osdfuncparm_t {
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // initializes things
 void OSD_Init();
 
@@ -80,10 +76,6 @@ int OSD_Dispatch(const char *cmd);
 //   help = a short help string
 //   func = the entry point to the function
 int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const osdfuncparm_t*));
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // __osd_h__
 

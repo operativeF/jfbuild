@@ -1,10 +1,6 @@
 #ifndef __wgl_wglext_h_
 #define __wgl_wglext_h_ 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*
 ** Copyright (c) 2013-2017 The Khronos Group Inc.
 **
@@ -842,9 +838,5 @@ BOOL WINAPI wglWaitForMscOML (HDC hdc, INT64 target_msc, INT64 divisor, INT64 re
 BOOL WINAPI wglWaitForSbcOML (HDC hdc, INT64 target_sbc, INT64 *ust, INT64 *msc, INT64 *sbc);
 #endif
 #endif /* WGL_OML_sync_control */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

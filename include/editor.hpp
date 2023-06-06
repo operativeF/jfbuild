@@ -5,10 +5,6 @@
 #ifndef __editor_h__
 #define __editor_h__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 inline constexpr auto NUMBUILDKEYS{20};
 
 // extern int qsetmode;
@@ -104,9 +100,5 @@ void printmessage16(const char* name);
 
 void getpoint(int searchxe, int searchye, int *x, int *y);
 int getpointhighlight(int xplc, int yplc);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

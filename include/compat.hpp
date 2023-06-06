@@ -147,11 +147,6 @@ typedef unsigned __int64 uint64_t;
 # error Unknown endianness
 #endif
 
-#ifdef __cplusplus
-
-extern "C" {
-#endif
-
 #ifdef B_ENDIAN_C_INLINE
 static inline uint16_t B_SWAP16(uint16_t s) { return (s>>8)|(s<<8); }
 static inline uint32_t B_SWAP32(uint32_t l) { return ((l>>8)&0xff00)|((l&0xff00)<<8)|(l<<24)|(l>>24); }
@@ -382,10 +377,6 @@ int Bwildmatch (const char *i, const char *j);
 # define Bgetcwd getcwd
 # define Bgetenv getenv
 # define Btime time
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif // __compat_h__

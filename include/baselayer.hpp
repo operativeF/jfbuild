@@ -7,10 +7,6 @@
 
 #include <array>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern int _buildargc;
 extern const char **_buildargv;
 
@@ -127,10 +123,6 @@ void wm_setwindowtitle(const char *name);
 
 // baselayer.c
 void makeasmwriteable();
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // __baselayer_h__
 

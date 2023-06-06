@@ -11,9 +11,7 @@
 #include "squish.h"
 #include "rg_etc1.hpp"
 
-extern "C" {
 #include "glbuild.hpp"
-}
 
 static int getsquishflags(int format)
 {
@@ -86,7 +84,7 @@ static void compressetc1(uint8_t *bgra, int width, int height, uint8_t *out)
 	}
 }
 
-extern "C" int ptcompress_getstorage(int width, int height, int format)
+int ptcompress_getstorage(int width, int height, int format)
 {
 	switch (format) {
 		case PTCOMPRESS_DXT1:
@@ -98,7 +96,7 @@ extern "C" int ptcompress_getstorage(int width, int height, int format)
 	return 0;
 }
 
-extern "C" int ptcompress_compress(void * bgra, int width, int height, unsigned char * output, int format)
+int ptcompress_compress(void * bgra, int width, int height, unsigned char * output, int format)
 {
 	switch (format) {
 		case PTCOMPRESS_DXT1:

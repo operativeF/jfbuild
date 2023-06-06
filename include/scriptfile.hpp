@@ -1,10 +1,6 @@
 #ifndef __scriptfile_h__
 #define __scriptfile_h__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 struct scriptfile {
     char *textbuf;
     unsigned int textlength;
@@ -34,9 +30,5 @@ int scriptfile_eof(scriptfile *sf);
 int scriptfile_getsymbolvalue(const char *name, int *val);
 int scriptfile_addsymbolvalue(const char *name, int val);
 void scriptfile_clearsymbols();
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // __scriptfile_h__

@@ -8,10 +8,6 @@
 #ifndef POLYMOSTTEXCACHE_H
 #define POLYMOSTTEXCACHE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 struct PTCacheTileMip_typ {
 	int sizx;
 	int sizy;
@@ -84,9 +80,5 @@ int PTCacheWriteTile(const PTCacheTile * tdef);
  * Forces the cache to be rebuilt.
  */
 void PTCacheForceRebuild();
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

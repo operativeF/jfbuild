@@ -25,10 +25,6 @@
 #include <span>
 #include <string>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 inline constexpr auto MAXSECTORSV8 {4096};
 inline constexpr auto MAXWALLSV8 {16384};
 inline constexpr auto MAXSPRITESV8 {16384};
@@ -601,9 +597,5 @@ void buildsetlogfile(const char *fn);
 #endif
 
 #undef BPACK
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // __build_h__

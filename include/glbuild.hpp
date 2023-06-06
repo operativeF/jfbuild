@@ -5,10 +5,6 @@
 #ifndef __glbuild_h__
 #define __glbuild_h__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #if USE_OPENGL
 struct glbuild_info {
 	int loaded;
@@ -35,10 +31,6 @@ struct glbuild_info {
 	char debugext;
 };
 extern struct glbuild_info glinfo;
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif // __glbuild_h__

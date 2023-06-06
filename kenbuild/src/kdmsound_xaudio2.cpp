@@ -11,13 +11,11 @@
 #include <windows.h>
 #include <xaudio2.h>
 
-extern "C" {
 #define KDMSOUND_INTERNAL
 #include "kdmsound.hpp"
 
 // Nicked from build.h
 void buildprintf(const char *,...);
-}
 
 static IXAudio2 *xaudio;
 static IXAudio2MasteringVoice *mastervoice;

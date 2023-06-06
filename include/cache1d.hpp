@@ -3,10 +3,6 @@
 #ifndef __cache1d_h__
 #define __cache1d_h__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void	initcache(void *dacachestart, size_t dacachesize);
 void	allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr);
 void	suckcache(void *suckptr);
@@ -70,10 +66,6 @@ unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil);
 unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil);
 unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil);
 unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // __cache1d_h__
 

@@ -5,10 +5,6 @@
 #ifndef __pragmas_h__
 #define __pragmas_h__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 extern int dmval;
 
 #if defined(__GNUC__) && defined(__i386__) && USE_ASM
@@ -3745,10 +3741,6 @@ inline void copybufreverse(void *S, void *D, int c)
 }
 
 
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif // __pragmas_h__

@@ -5,10 +5,6 @@
 #ifndef __build_interface_layer__
 #define __build_interface_layer__ WIN
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 intptr_t win_gethwnd();
 intptr_t win_gethinstance();
 
@@ -18,10 +14,6 @@ int win_checkinstance();
 
 void win_setmaxrefreshfreq(unsigned frequency);
 unsigned win_getmaxrefreshfreq();
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "baselayer.hpp"
 
