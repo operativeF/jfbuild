@@ -15,6 +15,10 @@
 #include "polymosttexcache.hpp"
 #include "polymosttexcompress.hpp"
 
+#include <array>
+#include <cstdlib>
+#include <cstring>
+
 /** a texture hash entry */
 struct PTHash {
 	PTHash* next;
@@ -68,7 +72,7 @@ static PTHash * pthashhead[PTHASHHEADSIZ];	// will be initialised 0 by .bss segm
 constexpr auto PTMHASHHEADSIZ{4096};
 static PTMHash * ptmhashhead[PTMHASHHEADSIZ];	// will be initialised 0 by .bss segment
 
-static const char *compressfourcc[] = {
+static constexpr std::array<const char*, 4> compressfourcc = {
 	"NONE",
 	"DXT1",
 	"DXT5",
@@ -83,12 +87,12 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 
 static inline int pt_gethashhead(const int picnum)
 {
-	return picnum & (PTHASHHEADSIZ-1);
+	return picnum & (PTHASHHEADSIZ - 1);
 }
 
 static inline int ptm_gethashhead(const unsigned int idcrc)
 {
-	return idcrc & (PTMHASHHEADSIZ-1);
+	return idcrc & (PTMHASHHEADSIZ - 1);
 }
 
 static void detect_texture_size()
@@ -138,7 +142,7 @@ void PTM_InitIdent(PTMIdent *id, const PTHead *pth)
 			// hightile + skybox + picnum ought to cover it
 		    id->picnum = pth->picnum;
 		} else {
-		    strncpy(id->filename, pth->repldef->filename, BMAX_PATH);
+		    std::strncpy(id->filename, pth->repldef->filename, BMAX_PATH);
 		}
 	} else {
 		id->type = PTMIDENT_ART;
@@ -154,26 +158,23 @@ void PTM_InitIdent(PTMIdent *id, const PTHead *pth)
  * @param id the identifier of the texture
  * @return the PTMHead item, or null if it couldn't be created
  */
-PTMHead * PTM_GetHead(const PTMIdent *id)
+PTMHead* PTM_GetHead(const PTMIdent *id)
 {
-	PTMHash * ptmh;
-	int i;
-    unsigned int idcrc;
+    const unsigned int idcrc = crc32once((unsigned char *)id, sizeof(PTMIdent));
+	const int i = ptm_gethashhead(idcrc);
 
-    idcrc = crc32once((unsigned char *)id, sizeof(PTMIdent));
-
-	i = ptm_gethashhead(idcrc);
-	ptmh = ptmhashhead[i];
+	PTMHash* ptmh = ptmhashhead[i];
 
 	while (ptmh) {
         if (ptmh->idcrc == idcrc &&
-            memcmp(&ptmh->id, id, sizeof(PTMIdent)) == 0) {
+            std::memcmp(&ptmh->id, id, sizeof(PTMIdent)) == 0) {
 			return &ptmh->head;
 		}
 		ptmh = ptmh->next;
 	}
 
-	ptmh = (PTMHash *) malloc(sizeof(PTMHash));
+	ptmh = (PTMHash *) std::malloc(sizeof(PTMHash));
+
 	if (ptmh) {
 		std::memset(ptmh, 0, sizeof(PTMHash));
 
@@ -197,14 +198,13 @@ PTMHead * PTM_GetHead(const PTMIdent *id)
  */
 static int ptm_loadcachedtexturefile(const char* filename, PTMHead* ptmh, int flags, int effects)
 {
-	int mipmap{0};
-	int i{0};
-	int compress{PTCOMPRESS_NONE};
-
 	PTCacheTile* tdef = PTCacheLoadTile(filename, effects, flags & (PTH_CLAMPED));
+
 	if (!tdef) {
 		return -1;
 	}
+
+	int compress{PTCOMPRESS_NONE};
 
 	switch (tdef->format) {
 #if GL_EXT_texture_compression_dxt1 || GL_EXT_texture_compression_s3tc
@@ -252,7 +252,7 @@ incompatible:
 	ptmh->flags = tdef->flags & PTH_HASALPHA;
 	glfunc.glBindTexture(GL_TEXTURE_2D, ptmh->glpic);
 
-	mipmap = 0;
+	int mipmap{0};
 	if (! (flags & PTH_NOMIPLEVEL)) {
 		// if we aren't instructed to preserve all mipmap levels,
 		// immediately throw away gltexmiplevel mipmaps
@@ -265,7 +265,7 @@ incompatible:
 		mipmap++;
 	}
 
-	for (i = 0; i + mipmap < tdef->nummipmaps; i++) {
+	for (int i{0}; i + mipmap < tdef->nummipmaps; ++i) {
 		glfunc.glCompressedTexImage2D(GL_TEXTURE_2D, i,
 								   tdef->format,
 								   tdef->mipmap[i + mipmap].sizx,
@@ -290,12 +290,11 @@ incompatible:
  */
 int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effects)
 {
-	PTTexture tex;
-	int filh, picdatalen;
 	int y;
 	char* picdata{nullptr};
-	PTCacheTile * tdef = 0;
-	int writetocache = 0, iscached = 0;
+	
+	bool writetocache{false};
+	bool iscached{false};
 
 	if (!(flags & PTH_NOCOMPRESS) && glusetexcache && glusetexcompr) {
 		iscached = PTCacheHasTile(filename, effects, (flags & PTH_CLAMPED));
@@ -317,13 +316,14 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 		}
 	}
 
-	filh = kopen4load((char *) filename, 0);
+	int filh = kopen4load((char *) filename, 0);
 	if (filh < 0) {
 		return -1;
 	}
-	picdatalen = kfilelength(filh);
+	
+	int picdatalen = kfilelength(filh);
 
-	picdata = (char *) malloc(picdatalen);
+	picdata = (char *) std::malloc(picdatalen);
 	if (!picdata) {
 		kclose(filh);
 		return -2;
@@ -336,9 +336,11 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 
 	kclose(filh);
 
+	PTTexture tex;
+
 	kpgetdim(picdata, picdatalen, (int *) &tex.tsizx, (int *) &tex.tsizy);
 	if (tex.tsizx == 0 || tex.tsizy == 0) {
-		free(picdata);
+		std::free(picdata);
 		return -4;
 	}
 
@@ -350,19 +352,19 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 		tex.sizy = tex.tsizy;
 	}
 
-	tex.pic = (coltype *) malloc(tex.sizx * tex.sizy * sizeof(coltype));
+	tex.pic = (coltype *) std::malloc(tex.sizx * tex.sizy * sizeof(coltype));
 	if (!tex.pic) {
 		return -2;
 	}
 	std::memset(tex.pic, 0, tex.sizx * tex.sizy * sizeof(coltype));
 
 	if (kprender(picdata, picdatalen, (intptr_t)tex.pic, tex.sizx * sizeof(coltype), tex.sizx, tex.sizy, 0, 0)) {
-		free(picdata);
-		free(tex.pic);
+		std::free(picdata);
+		std::free(tex.pic);
 		return -5;
 	}
 
-	free(picdata);
+	std::free(picdata);
 	picdata = 0;
 
 	ptm_applyeffects(&tex, effects);	// updates tex.hasalpha
@@ -398,6 +400,8 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 	ptmh->sizx  = tex.sizx;
 	ptmh->sizy  = tex.sizy;
 
+	PTCacheTile* tdef{nullptr};
+
 	if (writetocache) {
 		int nmips = 0;
 		while (std::max(1, (tex.sizx >> nmips)) > 1 ||
@@ -426,7 +430,7 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 
 
 	if (tex.pic) {
-		free(tex.pic);
+		std::free(tex.pic);
 		tex.pic = 0;
 	}
 
@@ -470,12 +474,12 @@ const char * PTM_GetLoadTextureFileErrorString(int err)
 static PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int create)
 {
 	int i = pt_gethashhead(picnum);
-	PTHash * pth;
 
 	const unsigned short flagmask = flags & (PTH_HIGHTILE | PTH_CLAMPED | PTH_SKYBOX);
 
 	// first, try and find an existing match for our parameters
-	pth = pthashhead[i];
+	PTHash* pth = pthashhead[i];
+
 	while (pth) {
 		if (pth->head.picnum == picnum &&
 		    pth->head.palnum == palnum &&
@@ -500,7 +504,7 @@ static PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int cr
 			replc = hicfindsubst(picnum, palnum, (flags & PTH_SKYBOX));
 		}
 
-		pth = (PTHash *) malloc(sizeof(PTHash));
+		pth = (PTHash *) std::malloc(sizeof(PTHash));
 		if (!pth) {
 			return 0;
 		}
@@ -551,8 +555,7 @@ static PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int cr
  */
 static void pt_unload(PTHash * pth)
 {
-	int i;
-	for (i = PTHPIC_SIZE - 1; i>=0; i--) {
+	for (int i{PTHPIC_SIZE - 1}; i >= 0; i--) {
 		if (pth->head.pic[i] && pth->head.pic[i]->glpic) {
 			glfunc.glDeleteTextures(1, &pth->head.pic[i]->glpic);
 			pth->head.pic[i]->glpic = 0;
@@ -560,7 +563,7 @@ static void pt_unload(PTHash * pth)
 	}
 }
 
-static int pt_load_art(PTHead * pth);
+static bool pt_load_art(PTHead* pth);
 static int pt_load_hightile(PTHead * pth);
 static void pt_load_applyparameters(const PTHead * pth);
 
@@ -609,17 +612,23 @@ static int pt_load(PTHash * pth)
  * @param pth the header to populate
  * @return !0 on success
  */
-static int pt_load_art(PTHead * pth)
+static bool pt_load_art(PTHead * pth)
 {
 	PTTexture tex, fbtex;
-	coltype * wpptr, * fpptr;
-	int x, y, x2, y2;
+	coltype* wpptr;
+	coltype* fpptr;
+	int x;
+	int y;
+	int x2;
+	int y2;
 	int dacol;
-	int hasalpha = 0, hasfullbright = 0;
+	int hasalpha{0};
+	int hasfullbright{0};
     PTMIdent id;
 
 	tex.tsizx = tilesizx[pth->picnum];
 	tex.tsizy = tilesizy[pth->picnum];
+
 	if (!glinfo.texnpot) {
 		for (tex.sizx = 1; tex.sizx < tex.tsizx; tex.sizx += tex.sizx) ;
 		for (tex.sizy = 1; tex.sizy < tex.tsizy; tex.sizy += tex.sizy) ;
@@ -640,17 +649,20 @@ static int pt_load_art(PTHead * pth)
 		loadtile(pth->picnum);
 	}
 
-	tex.pic = (coltype *) malloc(tex.sizx * tex.sizy * sizeof(coltype));
+	tex.pic = (coltype *) std::malloc(tex.sizx * tex.sizy * sizeof(coltype));
+
 	if (!tex.pic) {
-		return 0;
+		return false;
 	}
 
 	// fullbright is initialised transparent
-	fbtex.pic = (coltype *) malloc(tex.sizx * tex.sizy * sizeof(coltype));
+	fbtex.pic = (coltype *) std::malloc(tex.sizx * tex.sizy * sizeof(coltype));
+
 	if (!fbtex.pic) {
-		free(tex.pic);
-		return 0;
+		std::free(tex.pic);
+		return false;
 	}
+
 	std::memset(fbtex.pic, 0, tex.sizx * tex.sizy * sizeof(coltype));
 
 	if (!waloff[pth->picnum]) {
@@ -738,13 +750,13 @@ static int pt_load_art(PTHead * pth)
 	pt_load_applyparameters(pth);
 
 	if (tex.pic) {
-		free(tex.pic);
+		std::free(tex.pic);
 	}
 	if (fbtex.pic) {
-		free(fbtex.pic);
+		std::free(fbtex.pic);
 	}
 
-	return 1;
+	return true;
 }
 
 /**
@@ -755,10 +767,10 @@ static int pt_load_art(PTHead * pth)
  */
 static int pt_load_hightile(PTHead * pth)
 {
-	const char *filename = 0;
-	int effects = 0;
-	int err = 0;
-	int texture = 0, loaded[PTHPIC_SIZE] = { 0,0,0,0,0,0, };
+	const char *filename{nullptr};
+	int err{0};
+	int texture{0};
+	std::array<int, PTHPIC_SIZE> loaded = { 0, 0, 0, 0, 0, 0, };
     PTMIdent id;
 
 	if (!pth->repldef) {
@@ -769,7 +781,7 @@ static int pt_load_hightile(PTHead * pth)
 		return 0;
 	}
 
-	effects = (pth->palnum != pth->repldef->palnum) ? hictinting[pth->palnum].f : 0;
+	int effects = (pth->palnum != pth->repldef->palnum) ? hictinting[pth->palnum].f : 0;
 
 	pth->flags &= ~(PTH_NOCOMPRESS | PTH_HASALPHA);
 	if (pth->repldef->flags & HIC_NOCOMPRESS) {
@@ -842,9 +854,7 @@ static int pt_load_hightile(PTHead * pth)
  */
 static void pt_load_applyparameters(const PTHead * pth)
 {
-	int i;
-
-	for (i = 0; i < PTHPIC_SIZE; i++) {
+	for (int i{0}; i < PTHPIC_SIZE; ++i) {
 		if (pth->pic[i] == 0 || pth->pic[i]->glpic == 0) {
 			continue;
 		}
@@ -888,15 +898,20 @@ static void pt_load_applyparameters(const PTHead * pth)
 static void ptm_fixtransparency(PTTexture * tex, int clamped)
 {
 	coltype *wpptr;
-	int j, x, y, r, g, b;
-	int dox, doy, naxsiz2;
+	int j;
+	int x;
+	int y;
+	int r;
+	int g;
+	int b;
+	int naxsiz2;
 	int daxsiz = tex->tsizx;
 	int daysiz = tex->tsizy;
 	int daxsiz2 = tex->sizx;
 	const int daysiz2 = tex->sizy;
 
-	dox = daxsiz2-1;
-	doy = daysiz2-1;
+	int dox = daxsiz2 - 1;
+	int doy = daysiz2 - 1;
 	if (clamped) {
 		dox = std::min(dox, daxsiz);
 		doy = std::min(doy, daysiz);
@@ -906,7 +921,9 @@ static void ptm_fixtransparency(PTTexture * tex, int clamped)
 		daysiz = daysiz2;
 	}
 
-	daxsiz--; daysiz--; naxsiz2 = -daxsiz2; // Hacks for optimization inside loop
+	daxsiz--;
+	daysiz--;
+	naxsiz2 = -daxsiz2; // Hacks for optimization inside loop
 
 	// Set transparent pixels to average color of neighboring opaque pixels
 	// Doing this makes bilinear filtering look much better for masked textures (I.E. sprites)
@@ -973,8 +990,9 @@ static void ptm_fixtransparency(PTTexture * tex, int clamped)
  */
 static void ptm_applyeffects(PTTexture * tex, int effects)
 {
-	int alph = 255;
-	int x, y;
+	int alph{255};
+	int x;
+	int y;
 	coltype * tptr = tex->pic;
 
 	if (effects == 0 && gammabrightness) {
@@ -1114,9 +1132,10 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 {
 	GLint mipmap;
 	GLint intexfmt;
-	int compress = PTCOMPRESS_NONE;
-	unsigned char * comprdata = 0;
-	int tdefmip = 0, comprsize = 0;
+	int compress{PTCOMPRESS_NONE};
+	unsigned char* comprdata{nullptr};
+	int tdefmip{0};
+	int comprsize{0};
 	int starttime;
 
 	detect_texture_size();
@@ -1179,7 +1198,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 	     mipmap--) {
 		if (compress && tdef) {
 			comprsize = ptcompress_getstorage(tex->sizx, tex->sizy, compress);
-			comprdata = (unsigned char *) malloc(comprsize);
+			comprdata = (unsigned char *) std::malloc(comprsize);
 
 			starttime = getticks();
 			ptcompress_compress(tex->pic, tex->sizx, tex->sizy, comprdata, compress);
@@ -1204,7 +1223,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 
 	if (compress) {
 		comprsize = ptcompress_getstorage(tex->sizx, tex->sizy, compress);
-		comprdata = (unsigned char *) malloc(comprsize);
+		comprdata = (unsigned char *) std::malloc(comprsize);
 
 		starttime = getticks();
 		ptcompress_compress(tex->pic, tex->sizx, tex->sizy, comprdata, compress);
@@ -1244,7 +1263,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 		if (compress) {
 			comprsize = ptcompress_getstorage(tex->sizx, tex->sizy, compress);
 			if (tdef) {
-				comprdata = (unsigned char *) malloc(comprsize);
+				comprdata = (unsigned char *) std::malloc(comprsize);
 			}
 
 			starttime = getticks();
@@ -1283,7 +1302,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 	ptm->flags |= (tex->hasalpha ? PTH_HASALPHA : 0);
 
 	if (comprdata) {
-		free(comprdata);
+		std::free(comprdata);
 	}
 }
 
@@ -1293,11 +1312,9 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
  */
 void PTBeginPriming()
 {
-	PTHash * pth;
-	int i;
-
-	for (i=PTHASHHEADSIZ-1; i>=0; i--) {
-		pth = pthashhead[i];
+	for (int i{PTHASHHEADSIZ - 1}; i >= 0; --i) {
+		PTHash* pth = pthashhead[i];
+		
 		while (pth) {
 			pth->primecnt = 0;
 			pth = pth->next;
@@ -1314,9 +1331,8 @@ void PTBeginPriming()
  */
 void PTMarkPrime(int picnum, int palnum, unsigned short flags)
 {
-	PTHash * pth;
+	PTHash* pth = pt_findhash(picnum, palnum, flags, 1);
 
-	pth = pt_findhash(picnum, palnum, flags, 1);
 	if (pth) {
 		if (pth->primecnt == 0) {
 			primecnt++;
@@ -1331,14 +1347,14 @@ void PTMarkPrime(int picnum, int palnum, unsigned short flags)
  * @param total receives the total number of textures to be primed
  * @return 0 when priming is complete
  */
-int PTDoPrime(int* done, int* total)
+bool PTDoPrime(int* done, int* total)
 {
-	PTHash * pth;
-
 	if (primepos >= PTHASHHEADSIZ) {
 		// done
-		return 0;
+		return false;
 	}
+
+	PTHash* pth;
 
 	if (primepos == 0) {
 		int i;
@@ -1368,7 +1384,7 @@ int PTDoPrime(int* done, int* total)
 	*total = primecnt;
 	primepos++;
 
-	return (primepos < PTHASHHEADSIZ);
+	return primepos < PTHASHHEADSIZ;
 }
 
 /**
@@ -1376,11 +1392,9 @@ int PTDoPrime(int* done, int* total)
  */
 void PTReset()
 {
-	PTHash * pth;
-	int i;
-
-	for (i=PTHASHHEADSIZ-1; i>=0; i--) {
-		pth = pthashhead[i];
+	for (int i{PTHASHHEADSIZ - 1}; i >= 0; --i) {
+		PTHash* pth = pthashhead[i];
+		
 		while (pth) {
 			pt_unload(pth);
 			pth = pth->next;
@@ -1393,8 +1407,10 @@ void PTReset()
  */
 void PTClear()
 {
-	PTHash * pth, * next;
-	PTMHash * ptmh, * mnext;
+	PTHash* pth;
+	PTHash* next;
+	PTMHash* ptmh;
+	PTMHash* mnext;
 	int i;
 
 	for (i=PTHASHHEADSIZ-1; i>=0; i--) {
@@ -1402,7 +1418,7 @@ void PTClear()
 		while (pth) {
 			next = pth->next;
 			pt_unload(pth);
-			free(pth);
+			std::free(pth);
 			pth = next;
 		}
 		pthashhead[i] = 0;
@@ -1412,7 +1428,7 @@ void PTClear()
 		ptmh = ptmhashhead[i];
 		while (ptmh) {
 			mnext = ptmh->next;
-			free(ptmh);
+			std::free(ptmh);
 			ptmh = mnext;
 		}
 		ptmhashhead[i] = 0;
@@ -1427,19 +1443,18 @@ void PTClear()
  * @param palnum
  * @param flags
  * @param peek if !0, does not try and create a header if none exists
- * @return pointer to the header, or null if peek!=0 and none exists
+ * @return pointer to the header, or nullptr if peek!=0 and none exists
  */
-PTHead * PT_GetHead(int picnum, int palnum, unsigned short flags, int peek)
+PTHead* PT_GetHead(int picnum, int palnum, unsigned short flags, int peek)
 {
-	PTHash * pth;
+	PTHash* pth = pt_findhash(picnum, palnum, flags, peek == 0);
 
-	pth = pt_findhash(picnum, palnum, flags, peek == 0);
-	if (pth == 0) {
-		return 0;
+	if (pth == nullptr) {
+		return nullptr;
 	}
 
 	if (!pt_load(pth)) {
-		return 0;
+		return nullptr;
 	}
 
 	while (pth->deferto) {
@@ -1510,9 +1525,8 @@ static void ptiter_seekforward(PTIter iter)
  */
 PTIter PTIterNewMatch(int match, int picnum, int palnum, unsigned short flagsmask, unsigned short flags)
 {
-	PTIter iter;
+	PTIter iter = (PTIter) std::malloc(sizeof(struct PTIter_typ));
 
-	iter = (PTIter) malloc(sizeof(struct PTIter_typ));
 	if (!iter) {
 		return 0;
 	}
@@ -1555,15 +1569,14 @@ PTIter PTIterNew()
  */
 PTHead * PTIterNext(PTIter iter)
 {
-	PTHead * found = 0;
+	if (!iter)
+		return nullptr;
 
-	if (!iter) return 0;
-
-	if (iter->pth == 0) {
-		return 0;
+	if (iter->pth == nullptr) {
+		return nullptr;
 	}
 
-	found = &iter->pth->head;
+	PTHead* found = &iter->pth->head;
 	iter->pth = iter->pth->next;
 
 	ptiter_seekforward(iter);
@@ -1578,7 +1591,7 @@ PTHead * PTIterNext(PTIter iter)
 void PTIterFree(PTIter iter)
 {
 	if (!iter) return;
-	free(iter);
+	std::free(iter);
 }
 
 #endif //USE_OPENGL

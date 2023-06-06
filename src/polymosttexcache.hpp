@@ -13,7 +13,8 @@ extern "C" {
 #endif
 
 struct PTCacheTileMip_typ {
-	int sizx, sizy;
+	int sizx;
+	int sizy;
 	int length;
 	unsigned char * data;
 };
@@ -56,7 +57,7 @@ PTCacheTile * PTCacheLoadTile(const char * filename, int effects, int flags);
  * @param flags the flags bits
  * @return !0 if it exists
  */
-int PTCacheHasTile(const char * filename, int effects, int flags);
+bool PTCacheHasTile(const char * filename, int effects, int flags);
 
 /**
  * Disposes of the resources allocated for a PTCacheTile

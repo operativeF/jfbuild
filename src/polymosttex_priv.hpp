@@ -94,7 +94,7 @@ void PTMarkPrime(int picnum, int palnum, unsigned short flags);
  * @param total receives the total number of textures to be primed
  * @return 0 when priming is complete
  */
-int PTDoPrime(int* done, int* total);
+bool PTDoPrime(int* done, int* total);
 
 /**
  * Resets the texture hash but leaves the headers in memory

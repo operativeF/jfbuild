@@ -8,6 +8,11 @@
 #include "hightile_priv.hpp"
 #include "polymosttex_priv.hpp"
 
+#include <array>
+#include <cstdio>
+#include <cstdlib>
+
+
 /*
  PolymostTex Cache file formats
 
@@ -44,18 +49,23 @@ struct PTCacheIndex_typ {
 	int effects;
 	int flags;
 	unsigned offset;
-	struct PTCacheIndex_typ * next;
+	struct PTCacheIndex_typ* next;
 };
+
 typedef struct PTCacheIndex_typ PTCacheIndex;
 constexpr auto PTCACHEHASHSIZ{512};
-static PTCacheIndex * cachehead[PTCACHEHASHSIZ];	// will be initialized 0 by .bss segment
+static std::array<PTCacheIndex*, PTCACHEHASHSIZ> cachehead;	// will be initialized 0 by .bss segment
 constexpr auto PTCACHEINDEXFILENAMELEN{260};
 
-static const char * CACHEINDEXFILE = "texture.cacheindex";
-static const char * CACHESTORAGEFILE = "texture.cache";
 static constexpr int CACHEVER{ 0 };
+static constexpr std::array<int8_t, 16> indexsig = { 'P','o','l','y','m','o','s','t','T','e','x','I','n','d','x',CACHEVER };
+static constexpr std::array<int8_t, 16> storagesig = { 'P','o','l','y','m','o','s','t','T','e','x','S','t','o','r',CACHEVER };
 
-static int cachedisabled = 0, cachereplace = 0;
+static const char* CACHEINDEXFILE = "texture.cacheindex";
+static const char* CACHESTORAGEFILE = "texture.cache";
+
+static bool cachedisabled{false};
+static bool cachereplace{false};
 
 static unsigned int gethashhead(const char * filename)
 {
@@ -64,7 +74,7 @@ static unsigned int gethashhead(const char * filename)
 	unsigned long hash = 5381;
 	int c;
 
-    while ((c = (unsigned char)*filename++)) {
+    while (c = (unsigned char)*filename++) {
 		hash = ((hash << 5) + hash) ^ c; /* hash * 33 ^ c */
 	}
 
@@ -80,13 +90,13 @@ static unsigned int gethashhead(const char * filename)
  */
 static void ptcache_addhash(const char * filename, int effects, int flags, unsigned offset)
 {
-	unsigned int hash = gethashhead(filename);
+	const unsigned int hash = gethashhead(filename);
 
 	// to reduce memory fragmentation we tack the filename onto the end of the block
-	PTCacheIndex * pci = (PTCacheIndex *) malloc(sizeof(PTCacheIndex) + strlen(filename) + 1);
+	PTCacheIndex* pci = (PTCacheIndex *) std::malloc(sizeof(PTCacheIndex) + strlen(filename) + 1);
 
 	pci->filename = (char *) pci + sizeof(PTCacheIndex);
-	strcpy(pci->filename, filename);
+	std::strcpy(pci->filename, filename);
 	pci->effects = effects;
 	pci->flags   = flags & (PTH_CLAMPED);
 	pci->offset  = offset;
@@ -102,13 +112,12 @@ static void ptcache_addhash(const char * filename, int effects, int flags, unsig
  * @param flags
  * @return the PTCacheIndex item, or null
  */
-static PTCacheIndex * ptcache_findhash(const char * filename, int effects, int flags)
+static PTCacheIndex* ptcache_findhash(const char * filename, int effects, int flags)
 {
-	PTCacheIndex * pci;
+	PTCacheIndex* pci = cachehead[ gethashhead(filename) ];
 
-	pci = cachehead[ gethashhead(filename) ];
 	if (!pci) {
-		return 0;
+		return nullptr;
 	}
 
 	flags &= PTH_CLAMPED;
@@ -116,13 +125,13 @@ static PTCacheIndex * ptcache_findhash(const char * filename, int effects, int f
 	while (pci) {
 		if (effects == pci->effects &&
 		    flags == pci->flags &&
-		    strcmp(pci->filename, filename) == 0) {
+		    std::strcmp(pci->filename, filename) == 0) {
 			return pci;
 		}
 		pci = pci->next;
 	}
 
-	return 0;
+	return nullptr;
 }
 
 /**
@@ -130,51 +139,51 @@ static PTCacheIndex * ptcache_findhash(const char * filename, int effects, int f
  */
 void PTCacheLoadIndex()
 {
-	FILE * fh = 0;
-	int8_t sig[16];
-	const int8_t indexsig[16] = { 'P','o','l','y','m','o','s','t','T','e','x','I','n','d','x',CACHEVER };
-	const int8_t storagesig[16] = { 'P','o','l','y','m','o','s','t','T','e','x','S','t','o','r',CACHEVER };
+	std::array<char, PTCACHEINDEXFILENAMELEN> filename{};
 
-	char filename[PTCACHEINDEXFILENAMELEN];
 	int32_t effects;
 	int32_t flags;
 	uint32_t offset;
 	int32_t mtime;
 	PTCacheIndex * pci;
 
-	int total = 0, dups = 0;
-	int haveindex = 0, havestore = 0;
-
-	std::memset(filename, 0, sizeof(filename));
+	int total{0};
+	int dups{0};
+	int haveindex{0};
+	int havestore{0};
 
 	// first, check the cache storage file's signature.
 	// we open for reading and writing to test permission
-	fh = fopen(CACHESTORAGEFILE, "r+b");
+	FILE* fh = std::fopen(CACHESTORAGEFILE, "r+b");
+
+	std::array<int8_t, 16> sig;
+
 	if (fh) {
 		havestore = 1;
 
-		if (fread(sig, 16, 1, fh) != 1 || memcmp(sig, storagesig, 16)) {
-			cachereplace = 1;
+		if (std::fread(&sig[0], 16, 1, fh) != 1 || std::memcmp(&sig[0], &storagesig[0], 16)) {
+			cachereplace = true;
 		}
-		fclose(fh);
+		
+		std::fclose(fh);
 	} else {
 		if (errno == ENOENT) {
 			// file doesn't exist, which is fine
 			;
 		} else {
 			buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHESTORAGEFILE);
-			cachedisabled = 1;
+			cachedisabled = true;
 			return;
 		}
 	}
 
 	// next, check the index
-	fh = fopen(CACHEINDEXFILE, "r+b");
+	fh = std::fopen(CACHEINDEXFILE, "r+b");
 	if (fh) {
 		haveindex = 1;
 
-		if (fread(sig, 16, 1, fh) != 1 || memcmp(sig, indexsig, 16)) {
-			cachereplace = 1;
+		if (std::fread(&sig[0], 16, 1, fh) != 1 || std::memcmp(&sig[0], &indexsig[0], 16)) {
+			cachereplace = true;
 		}
 	} else {
 		if (errno == ENOENT) {
@@ -182,7 +191,7 @@ void PTCacheLoadIndex()
 			return;
 		} else {
 			buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHEINDEXFILE);
-			cachedisabled = 1;
+			cachedisabled = true;
 			return;
 		}
 	}
@@ -190,29 +199,29 @@ void PTCacheLoadIndex()
 	// if we're missing either the index or the store, but not both at the same
 	// time, the cache is broken and should be replaced
 	if ((!haveindex || !havestore) && !(!haveindex && !havestore)) {
-		cachereplace = 1;
+		cachereplace = true;
 	}
 
 	if (cachereplace) {
 		buildprintf("PolymostTexCache: texture cache will be replaced\n");
 		if (fh) {
-			fclose(fh);
+			std::fclose(fh);
 		}
 		return;
 	}
 
 	// now that the index is sitting at the first entry, load everything
-	while (!feof(fh)) {
-		if (fread(filename, PTCACHEINDEXFILENAMELEN, 1, fh) != 1 && feof(fh)) {
+	while (!std::feof(fh)) {
+		if (std::fread(&filename[0], PTCACHEINDEXFILENAMELEN, 1, fh) != 1 && std::feof(fh)) {
 			break;
 		}
-		if (fread(&effects, 4,         1, fh) != 1 ||
-		    fread(&flags,   4,         1, fh) != 1 ||
-		    fread(&offset,  4,         1, fh) != 1 ||
-		    fread(&mtime,   4,         1, fh) != 1) {
+		if (std::fread(&effects, 4,         1, fh) != 1 ||
+		    std::fread(&flags,   4,         1, fh) != 1 ||
+		    std::fread(&offset,  4,         1, fh) != 1 ||
+		    std::fread(&mtime,   4,         1, fh) != 1) {
 			// truncated entry, so throw the whole cache away
 			buildprintf("PolymostTexCache: corrupt texture cache index detected, cache will be replaced\n");
-			cachereplace = 1;
+			cachereplace = true;
 			PTCacheUnloadIndex();
 			break;
 		}
@@ -223,18 +232,18 @@ void PTCacheLoadIndex()
 		mtime   = B_LITTLE32(mtime);
 
 		filename[sizeof(filename)-1] = 0;
-		pci = ptcache_findhash(filename, (int) effects, (int) flags);
+		pci = ptcache_findhash(&filename[0], (int) effects, (int) flags);
 		if (pci) {
 			// superseding an old hash entry
 			pci->offset = offset;
 			dups++;
 		} else {
-			ptcache_addhash(filename, (int) effects, (int) flags, offset);
+			ptcache_addhash(&filename[0], (int) effects, (int) flags, offset);
 		}
 		total++;
 	}
 
-	fclose(fh);
+	std::fclose(fh);
 
 	buildprintf("PolymostTexCache: cache index loaded (%d entries, %d old entries skipped)\n", total, dups);
 }
@@ -244,15 +253,14 @@ void PTCacheLoadIndex()
  */
 void PTCacheUnloadIndex()
 {
-	PTCacheIndex * pci, * next;
-	int i;
+	PTCacheIndex* next;
 
-	for (i = 0; i < PTCACHEHASHSIZ; i++) {
-		pci = cachehead[i];
+	for (int i{0}; i < PTCACHEHASHSIZ; ++i) {
+		PTCacheIndex* pci = cachehead[i];
 		while (pci) {
 			next = pci->next;
 			// we needn't free pci->filename since it was alloced with pci
-			free(pci);
+			std::free(pci);
 			pci = next;
 		}
 		cachehead[i] = 0;
@@ -279,27 +287,27 @@ static PTCacheTile * ptcache_load(off_t offset)
 	int32_t length;
 
 	PTCacheTile* tdef{ nullptr };
-	FILE * fh;
 
 	if (cachereplace) {
 		// cache is in a broken state, so don't try loading
 		return 0;
 	}
 
-	fh = fopen(CACHESTORAGEFILE, "rb");
+	FILE* fh = std::fopen(CACHESTORAGEFILE, "rb");
+
 	if (!fh) {
-		cachedisabled = 1;
+		cachedisabled = true;
 		buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHESTORAGEFILE);
-		return 0;
+		return nullptr;
 	}
 
-	fseek(fh, offset, SEEK_SET);
+	std::fseek(fh, offset, SEEK_SET);
 
-	if (fread(&tsizx, 4, 1, fh) != 1 ||
-	    fread(&tsizy, 4, 1, fh) != 1 ||
-	    fread(&flags, 4, 1, fh) != 1 ||
-	    fread(&format, 4, 1, fh) != 1 ||
-	    fread(&nmipmaps, 4, 1, fh) != 1) {
+	if (std::fread(&tsizx, 4, 1, fh) != 1 ||
+	    std::fread(&tsizy, 4, 1, fh) != 1 ||
+	    std::fread(&flags, 4, 1, fh) != 1 ||
+	    std::fread(&format, 4, 1, fh) != 1 ||
+	    std::fread(&nmipmaps, 4, 1, fh) != 1) {
 		// truncated entry, so throw the whole cache away
 		goto fail;
 	}
@@ -317,9 +325,9 @@ static PTCacheTile * ptcache_load(off_t offset)
 	tdef->format = format;
 
 	for (i = 0; i < nmipmaps; i++) {
-		if (fread(&sizx, 4, 1, fh) != 1 ||
-		    fread(&sizy, 4, 1, fh) != 1 ||
-		    fread(&length, 4, 1, fh) != 1) {
+		if (std::fread(&sizx, 4, 1, fh) != 1 ||
+		    std::fread(&sizy, 4, 1, fh) != 1 ||
+		    std::fread(&length, 4, 1, fh) != 1) {
 			// truncated entry, so throw the whole cache away
 			goto fail;
 		}
@@ -331,22 +339,22 @@ static PTCacheTile * ptcache_load(off_t offset)
 		tdef->mipmap[i].sizx = sizx;
 		tdef->mipmap[i].sizy = sizy;
 		tdef->mipmap[i].length = length;
-		tdef->mipmap[i].data = (unsigned char *) malloc(length);
+		tdef->mipmap[i].data = (unsigned char *) std::malloc(length);
 
-		if (fread(tdef->mipmap[i].data, length, 1, fh) != 1) {
+		if (std::fread(tdef->mipmap[i].data, length, 1, fh) != 1) {
 			// truncated data
 			goto fail;
 		}
 	}
 
-	fclose(fh);
+	std::fclose(fh);
 
 	return tdef;
 fail:
-	cachereplace = 1;
+	cachereplace = true;
 	buildprintf("PolymostTexCache: corrupt texture cache detected, cache will be replaced\n");
 	PTCacheUnloadIndex();
-	fclose(fh);
+	std::fclose(fh);
 	if (tdef) {
 		PTCacheFreeTile(tdef);
 	}
@@ -360,25 +368,25 @@ fail:
  * @param flags the flags bits
  * @return a PTCacheTile entry fully completed
  */
-PTCacheTile * PTCacheLoadTile(const char * filename, int effects, int flags)
+PTCacheTile* PTCacheLoadTile(const char * filename, int effects, int flags)
 {
-	PTCacheIndex * pci;
-	PTCacheTile * tdef;
-
 	if (cachedisabled) {
-		return 0;
+		return nullptr;
 	}
 
-	pci = ptcache_findhash(filename, effects, flags);
+	PTCacheIndex* pci = ptcache_findhash(filename, effects, flags);
+
 	if (!pci) {
-		return 0;
+		return nullptr;
 	}
 
-	tdef = ptcache_load(pci->offset);
+	PTCacheTile* tdef = ptcache_load(pci->offset);
+
 	if (tdef) {
 		tdef->filename = strdup(filename);
 		tdef->effects  = effects;
 	}
+
 	return tdef;
 }
 
@@ -387,15 +395,15 @@ PTCacheTile * PTCacheLoadTile(const char * filename, int effects, int flags)
  * @param filename the filename
  * @param effects the effects bits
  * @param flags the flags bits
- * @return !0 if it exists
+ * @return !nullptr if it exists
  */
-int PTCacheHasTile(const char * filename, int effects, int flags)
+bool PTCacheHasTile(const char * filename, int effects, int flags)
 {
 	if (cachedisabled) {
-		return 0;
+		return false;
 	}
 
-	return (ptcache_findhash(filename, effects, flags) != 0);
+	return ptcache_findhash(filename, effects, flags) != nullptr;
 }
 
 /**
@@ -407,14 +415,16 @@ void PTCacheFreeTile(PTCacheTile * tdef)
 	int i;
 
 	if (tdef->filename) {
-		free(tdef->filename);
+		std::free(tdef->filename);
 	}
+
 	for (i = 0; i < tdef->nummipmaps; i++) {
 		if (tdef->mipmap[i].data) {
-			free(tdef->mipmap[i].data);
+			std::free(tdef->mipmap[i].data);
 		}
 	}
-	free(tdef);
+
+	std::free(tdef);
 }
 
 /**
@@ -425,10 +435,8 @@ void PTCacheFreeTile(PTCacheTile * tdef)
  */
 PTCacheTile * PTCacheAllocNewTile(int nummipmaps)
 {
-	const int size = sizeof(PTCacheTile) + (nummipmaps-1) * sizeof(PTCacheTileMip);
-	PTCacheTile * tdef;
-
-	tdef = (PTCacheTile *) malloc(size);
+	const int size = sizeof(PTCacheTile) + (nummipmaps - 1) * sizeof(PTCacheTileMip);
+	auto* tdef = (PTCacheTile *) std::malloc(size);
 	std::memset(tdef, 0, size);
 
 	tdef->nummipmaps = nummipmaps;
@@ -446,7 +454,6 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 	long i;
 	PTCacheIndex * pci;
 
-	FILE * fh;
 	off_t offset;
 	char createmode[] = "ab";
 
@@ -456,13 +463,14 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 
 	if (cachereplace) {
 		createmode[0] = 'w';
-		cachereplace = 0;
+		cachereplace = false;
 	}
 
 	// 1. write the tile data to the storage file
-	fh = fopen(CACHESTORAGEFILE, createmode);
+	FILE* fh = std::fopen(CACHESTORAGEFILE, createmode);
+
 	if (!fh) {
-		cachedisabled = 1;
+		cachedisabled = true;
 		buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHESTORAGEFILE);
 		return 0;
 	}
@@ -471,14 +479,13 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 	// file pointer at the end of the file like you would
 	// imagine, so the ftell doesn't return the length of the
 	// file like you'd expect it should
-	fseek(fh, 0, SEEK_END);
+	std::fseek(fh, 0, SEEK_END);
 	offset = ftell(fh);
 
 	if (offset >= UINT32_MAX) goto fail;
 	if (offset == 0) {
 		// new file
-		const int8_t storagesig[16] = { 'P','o','l','y','m','o','s','t','T','e','x','S','t','o','r',CACHEVER };
-		if (fwrite(storagesig, 16, 1, fh) != 1) {
+		if (std::fwrite(&storagesig[0], 16, 1, fh) != 1) {
 			goto fail;
 		}
 
@@ -486,21 +493,18 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 	}
 
 	{
-		int32_t tsizx, tsizy;
-		int32_t format, flags, nmipmaps;
-
-		tsizx = B_LITTLE32(tdef->tsizx);
-		tsizy = B_LITTLE32(tdef->tsizy);
-		flags = tdef->flags & (PTH_CLAMPED | PTH_HASALPHA);
+		int32_t tsizx = B_LITTLE32(tdef->tsizx);
+		int32_t tsizy = B_LITTLE32(tdef->tsizy);
+		int32_t flags = tdef->flags & (PTH_CLAMPED | PTH_HASALPHA);
 		flags = B_LITTLE32(flags);
-		format = B_LITTLE32(tdef->format);
-		nmipmaps = B_LITTLE32(tdef->nummipmaps);
+		int32_t format = B_LITTLE32(tdef->format);
+		int32_t nmipmaps = B_LITTLE32(tdef->nummipmaps);
 
-		if (fwrite(&tsizx, 4, 1, fh) != 1 ||
-		    fwrite(&tsizy, 4, 1, fh) != 1 ||
-		    fwrite(&flags, 4, 1, fh) != 1 ||
-		    fwrite(&format, 4, 1, fh) != 1 ||
-		    fwrite(&nmipmaps, 4, 1, fh) != 1) {
+		if (std::fwrite(&tsizx, 4, 1, fh) != 1 ||
+		    std::fwrite(&tsizy, 4, 1, fh) != 1 ||
+		    std::fwrite(&flags, 4, 1, fh) != 1 ||
+		    std::fwrite(&format, 4, 1, fh) != 1 ||
+		    std::fwrite(&nmipmaps, 4, 1, fh) != 1) {
 			goto fail;
 		}
 	}
@@ -513,33 +517,32 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 		sizy = B_LITTLE32(tdef->mipmap[i].sizy);
 		length = B_LITTLE32(tdef->mipmap[i].length);
 
-		if (fwrite(&sizx, 4, 1, fh) != 1 ||
-		    fwrite(&sizy, 4, 1, fh) != 1 ||
-		    fwrite(&length, 4, 1, fh) != 1) {
+		if (std::fwrite(&sizx, 4, 1, fh) != 1 ||
+		    std::fwrite(&sizy, 4, 1, fh) != 1 ||
+		    std::fwrite(&length, 4, 1, fh) != 1) {
 			goto fail;
 		}
 
-		if (fwrite(tdef->mipmap[i].data, tdef->mipmap[i].length, 1, fh) != 1) {
+		if (std::fwrite(tdef->mipmap[i].data, tdef->mipmap[i].length, 1, fh) != 1) {
 			// truncated data
 			goto fail;
 		}
 	}
 
-	fclose(fh);
+	std::fclose(fh);
 
 	// 2. append to the index
-	fh = fopen(CACHEINDEXFILE, createmode);
+	fh = std::fopen(CACHEINDEXFILE, createmode);
 	if (!fh) {
-		cachedisabled = 1;
+		cachedisabled = true;
 		buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHEINDEXFILE);
 		return 0;
 	}
 
-	fseek(fh, 0, SEEK_END);
-	if (ftell(fh) == 0) {
+	std::fseek(fh, 0, SEEK_END);
+	if (std::ftell(fh) == 0) {
 		// new file
-		const int8_t indexsig[16] = { 'P','o','l','y','m','o','s','t','T','e','x','I','n','d','x',CACHEVER };
-		if (fwrite(indexsig, 16, 1, fh) != 1) {
+		if (std::fwrite(&indexsig[0], 16, 1, fh) != 1) {
 			goto fail;
 		}
 	}
@@ -549,7 +552,7 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 		int32_t effects, flags, mtime;
 		uint32_t offs;
 
-		strncpy(filename, tdef->filename, sizeof(filename));
+		std::strncpy(filename, tdef->filename, sizeof(filename));
 		filename[sizeof(filename)-1] = 0;
 		effects = B_LITTLE32(tdef->effects);
 		flags   = tdef->flags & (PTH_CLAMPED);	// we don't want the informational flags in the index
@@ -557,11 +560,11 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 		offs    = B_LITTLE32((uint32_t)offset);
 		mtime = 0;
 
-		if (fwrite(filename, sizeof(filename), 1, fh) != 1 ||
-		    fwrite(&effects, 4, 1, fh) != 1 ||
-		    fwrite(&flags, 4, 1, fh) != 1 ||
-		    fwrite(&offs, 4, 1, fh) != 1 ||
-		    fwrite(&mtime, 4, 1, fh) != 1) {
+		if (std::fwrite(filename, sizeof(filename), 1, fh) != 1 ||
+		    std::fwrite(&effects, 4, 1, fh) != 1 ||
+		    std::fwrite(&flags, 4, 1, fh) != 1 ||
+		    std::fwrite(&offs, 4, 1, fh) != 1 ||
+		    std::fwrite(&mtime, 4, 1, fh) != 1) {
 			goto fail;
 		}
 	}
@@ -579,9 +582,12 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 
 	return 1;
 fail:
-	cachedisabled = 1;
+	cachedisabled = true;
 	buildprintf("PolymostTexCache: error writing to cache, texture cache disabled\n");
-	if (fh) fclose(fh);
+	
+	if (fh)
+		std::fclose(fh);
+
 	return 0;
 }
 
@@ -591,8 +597,8 @@ fail:
 void PTCacheForceRebuild()
 {
 	PTCacheUnloadIndex();
-	cachedisabled = 0;
-	cachereplace = 1;
+	cachedisabled = false;
+	cachereplace = true;
 }
 
 #endif //USE_OPENGL
