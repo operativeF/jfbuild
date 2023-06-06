@@ -3673,26 +3673,39 @@ static inline int boundmulscale(int a, int d, int c)
 
 inline void qinterpolatedown16(void *bufptr, int num, int val, int add)
 { // gee, I wonder who could have provided this...
-    int i, *lptr = (int *)bufptr;
-    for(i=0;i<num;i++) { lptr[i] = (val>>16); val += add; }
+    auto* lptr = (int *)bufptr;
+
+    for (int i{0}; i < num; ++i) {
+      lptr[i] = (val >> 16);
+      val += add;
+    }
 }
 
 inline void qinterpolatedown16short(void *bufptr, int num, int val, int add)
 { // ...maybe the same person who provided this too?
-    int i; short *sptr = (short *)bufptr;
-    for(i=0;i<num;i++) { sptr[i] = (short)(val>>16); val += add; }
+	auto* sptr = (short *)bufptr;
+
+    for (int i{0}; i < num; i++) {
+      sptr[i] = (short)(val >> 16);
+      val += add;
+    }
 }
 
 inline void clearbuf(void *d, int c, int a)
 {
-	int *p = (int*)d;
-	while ((c--) > 0) *(p++) = a;
+	auto* p = (int*)d;
+
+	while ((c--) > 0)
+		*(p++) = a;
 }
 
 inline void copybuf(void *s, void *d, int c)
 {
-	int *p = (int*)s, *q = (int*)d;
-	while ((c--) > 0) *(q++) = *(p++);
+	auto* p = (int*)s;
+	auto* q = (int*)d;
+
+	while ((c--) > 0)
+		*(q++) = *(p++);
 }
 
 inline void clearbufbyte(void *D, int c, int a)

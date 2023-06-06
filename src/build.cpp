@@ -7531,111 +7531,156 @@ void showspritedata(short spritenum)
 
 void keytimerstuff()
 {
-	static int ltotalclock=0;
-	if (totalclock == ltotalclock) return;
+	static int ltotalclock{0};
+
+	if (totalclock == ltotalclock)
+		return;
+
 	ltotalclock=totalclock;
 
 	if (keystatus[buildkeys[5]] == 0)
 	{
-		if (keystatus[buildkeys[2]] > 0) angvel = std::max(angvel - 16, -128);
-		if (keystatus[buildkeys[3]] > 0) angvel = std::min(angvel + 16,  127);
+		if (keystatus[buildkeys[2]] > 0)
+			angvel = std::max(angvel - 16, -128);
+
+		if (keystatus[buildkeys[3]] > 0)
+			angvel = std::min(angvel + 16,  127);
 	}
 	else
 	{
-		if (keystatus[buildkeys[2]] > 0) svel = std::min(svel + 8,  127);
-		if (keystatus[buildkeys[3]] > 0) svel = std::max(svel - 8, -128);
-	}
-	if (keystatus[buildkeys[0]] > 0) vel = std::min(vel + 8,  127);
-	if (keystatus[buildkeys[1]] > 0) vel = std::max(vel - 8, -128);
-	if (keystatus[buildkeys[12]] > 0) svel = std::min(svel + 8,  127);
-	if (keystatus[buildkeys[13]] > 0) svel = std::max(svel - 8, -128);
+		if (keystatus[buildkeys[2]] > 0)
+			svel = std::min(svel + 8,  127);
 
-	if (angvel < 0) angvel = std::min(angvel + 12, 0);
-	if (angvel > 0) angvel = std::max(angvel - 12, 0);
-	if (svel < 0) svel = std::min(svel + 2, 0);
-	if (svel > 0) svel = std::max(svel - 2, 0);
-	if (vel < 0) vel = std::min(vel + 2, 0);
-	if (vel > 0) vel = std::max(vel - 2, 0);
+		if (keystatus[buildkeys[3]] > 0)
+			svel = std::max(svel - 8, -128);
+	}
+
+	if (keystatus[buildkeys[0]] > 0)
+		vel = std::min(vel + 8,  127);
+
+	if (keystatus[buildkeys[1]] > 0)
+		vel = std::max(vel - 8, -128);
+
+	if (keystatus[buildkeys[12]] > 0)
+		svel = std::min(svel + 8,  127);
+
+	if (keystatus[buildkeys[13]] > 0)
+		svel = std::max(svel - 8, -128);
+
+	if (angvel < 0)
+		angvel = std::min(angvel + 12, 0);
+
+	if (angvel > 0)
+		angvel = std::max(angvel - 12, 0);
+
+	if (svel < 0)
+		svel = std::min(svel + 2, 0);
+
+	if (svel > 0)
+		svel = std::max(svel - 2, 0);
+
+	if (vel < 0)
+		vel = std::min(vel + 2, 0);
+
+	if (vel > 0)
+		vel = std::max(vel - 2, 0);
 }
 
 void printmessage16(const char* name)
 {
-	char snotbuf[60];
-	int i;
+	std::array<char, 60> snotbuf;
+	int i{0};
 
-	i = 0;
 	while ((name[i] != 0) && (i < 54))
 	{
 		snotbuf[i] = name[i];
 		i++;
 	}
+
 	while (i < 54)
 	{
 		snotbuf[i] = 32;
 		i++;
 	}
+	
 	snotbuf[54] = 0;
 
 	setstatusbarviewport();
-	printext16(200L, 8L, 0, 6, snotbuf, 0);
+	printext16(200L, 8L, 0, 6, &snotbuf[0], 0);
 	restoreviewport();
 }
 
 void printmessage256(const char *name)
 {
-	char snotbuf[40];
-	int i;
+	std::array<char, 40> snotbuf;
+    int i{0};
 
-	i = 0;
 	while ((name[i] != 0) && (i < 38))
 	{
 		snotbuf[i] = name[i];
 		i++;
 	}
+
 	while (i < 38)
 	{
 		snotbuf[i] = 32;
 		i++;
 	}
+	
 	snotbuf[38] = 0;
 
-	printext256(0L,0L,whitecol,blackcol,snotbuf,0);
+	printext256(0L, 0L, whitecol, blackcol, snotbuf, 0);
 }
 
 	//Find closest point (*dax, *day) on wall (dawall) to (x, y)
 void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny)
 {
-	walltype *wal;
-	int i, j, dx, dy;
+    if (dawall < 0) {
+		*nx = 0;
+		*ny = 0;
+		return;
+	}
 
-    if (dawall < 0) { *nx = *ny = 0; return; }
-	wal = &wall[dawall];
-	dx = wall[wal->point2].x-wal->x;
-	dy = wall[wal->point2].y-wal->y;
-	i = dx*(x-wal->x) + dy*(y-wal->y);
-	if (i <= 0) { *nx = wal->x; *ny = wal->y; return; }
-	j = dx*dx+dy*dy;
-	if (i >= j) { *nx = wal->x+dx; *ny = wal->y+dy; return; }
-	i = divscale30(i,j);
-	*nx = wal->x + mulscale30(dx,i);
-	*ny = wal->y + mulscale30(dy,i);
+	walltype* wal = &wall[dawall];
+	int dx = wall[wal->point2].x-wal->x;
+	int dy = wall[wal->point2].y-wal->y;
+	int i = dx*(x-wal->x) + dy*(y-wal->y);
+
+	if (i <= 0) {
+		*nx = wal->x;
+		*ny = wal->y;
+		return;
+	}
+
+	const int j = dx * dx + dy * dy;
+
+	if (i >= j) {
+		*nx = wal->x + dx;
+		*ny = wal->y + dy;
+		return;
+	}
+
+	i = divscale30(i, j);
+	*nx = wal->x + mulscale30(dx, i);
+	*ny = wal->y + mulscale30(dy, i);
 }
 
 void initcrc()
 {
-	int i, j, k, a;
-
-	for(j=0;j<256;j++)      //Calculate CRC table
+	for (int j{0}; j < 256; ++j) // Calculate CRC table
 	{
-		k = (j<<8); a = 0;
-		for(i=7;i>=0;i--)
+		int k = j << 8;
+		int a{0};
+
+		for(int i{7}; i >= 0; --i)
 		{
-			if (((k^a)&0x8000) > 0)
-				a = ((a<<1)&65535) ^ 0x1021;   //0x1021 = genpoly
+			if (((k ^ a) & 0x8000) > 0)
+				a = ((a << 1) & 65535) ^ 0x1021;   //0x1021 = genpoly
 			else
-				a = ((a<<1)&65535);
-			k = ((k<<1)&65535);
+				a = ((a << 1) & 65535);
+			k = ((k << 1) & 65535);
 		}
+
 		crctable[j] = (a & 65535);
 	}
 }
@@ -7644,15 +7689,18 @@ static std::array<char, 8192> visited;
 
 int GetWallZPeg(int nWall)
 {
-	int z=0, nSector, nNextSector;
+	int z{0};
 
-	nSector = sectorofwall((short)nWall);
-	nNextSector = wall[nWall].nextsector;
+	const int nSector = sectorofwall((short)nWall);
+	const int nNextSector = wall[nWall].nextsector;
+	
 	if (nNextSector == -1)
 	{
-			//1-sided wall
-		if (wall[nWall].cstat&4) z = sector[nSector].floorz;
-								  else z = sector[nSector].ceilingz;
+		//1-sided wall
+		if (wall[nWall].cstat&4)
+			z = sector[nSector].floorz;
+		else
+			z = sector[nSector].ceilingz;
 	}
 	else
 	{
@@ -7667,31 +7715,31 @@ int GetWallZPeg(int nWall)
 				z = sector[nNextSector].floorz;   //bottom step
 		}
 	}
-	return(z);
+
+	return z;
 }
 
 void AlignWalls(int nWall0, int z0, int nWall1, int z1, int nTile)
 {
-	int n;
-
 		//do the x alignment
 	wall[nWall1].cstat &= ~0x0108;    //Set to non-flip
-	wall[nWall1].xpanning = (unsigned char)((wall[nWall0].xpanning+(wall[nWall0].xrepeat<<3))%tilesizx[nTile]);
+	wall[nWall1].xpanning = (unsigned char)((wall[nWall0].xpanning + (wall[nWall0].xrepeat << 3)) % tilesizx[nTile]);
 
 	z1 = GetWallZPeg(nWall1);
 
-	for(n=(picsiz[nTile]>>4);((1<<n)<tilesizy[nTile]);n++);
+	int n{picsiz[nTile] >> 4};
+	
+	for(; (1 << n) < tilesizy[nTile]; ++n);
 
 	wall[nWall1].yrepeat = wall[nWall0].yrepeat;
-	wall[nWall1].ypanning = (unsigned char)(wall[nWall0].ypanning+(((z1-z0)*wall[nWall0].yrepeat)>>(n+3)));
+	wall[nWall1].ypanning = (unsigned char)(wall[nWall0].ypanning + (((z1 - z0) * wall[nWall0].yrepeat)>>(n + 3)));
 }
 
 void AutoAlignWalls(int nWall0, int ply)
 {
-	int z0, z1, nTile, nWall1, branch, visible, nNextSector, nSector;
+	const int nTile = wall[nWall0].picnum;
+	int branch{0};
 
-	nTile = wall[nWall0].picnum;
-	branch = 0;
 	if (ply == 0)
 	{
 			//clear visited bits
@@ -7699,46 +7747,51 @@ void AutoAlignWalls(int nWall0, int ply)
 		visited[nWall0] = 1;
 	}
 
-	z0 = GetWallZPeg(nWall0);
+	int z0 = GetWallZPeg(nWall0);
 
-	nWall1 = wall[nWall0].point2;
+	int nWall1 = wall[nWall0].point2;
 
 		//loop through walls at this vertex in CCW order
 	while (1)
 	{
 			//break if this wall would connect us in a loop
-		if (visited[nWall1]) break;
+		if (visited[nWall1])
+			break;
 
 		visited[nWall1] = 1;
 
 			//break if reached back of left wall
-		if (wall[nWall1].nextwall == nWall0) break;
+		if (wall[nWall1].nextwall == nWall0)
+			break;
 
 		if (wall[nWall1].picnum == nTile)
 		{
-			z1 = GetWallZPeg(nWall1);
-			visible = 0;
+			const int z1 = GetWallZPeg(nWall1);
+			
+			bool visible{false};
 
-			nNextSector = wall[nWall1].nextsector;
+			const int nNextSector = wall[nWall1].nextsector;
+
 			if (nNextSector < 0)
-				visible = 1;
+				visible = true;
 			else
 			{
 					//ignore two sided walls that have no visible face
-				nSector = wall[wall[nWall1].nextwall].nextsector;
-				if (getceilzofslope((short)nSector,wall[nWall1].x,wall[nWall1].y) <
-					getceilzofslope((short)nNextSector,wall[nWall1].x,wall[nWall1].y))
-					visible = 1;
+				const int nSector = wall[wall[nWall1].nextwall].nextsector;
 
-				if (getflorzofslope((short)nSector,wall[nWall1].x,wall[nWall1].y) >
-					getflorzofslope((short)nNextSector,wall[nWall1].x,wall[nWall1].y))
-					visible = 1;
+				if (getceilzofslope((short)nSector, wall[nWall1].x, wall[nWall1].y) <
+					getceilzofslope((short)nNextSector, wall[nWall1].x, wall[nWall1].y))
+					visible = true;
+
+				if (getflorzofslope((short)nSector, wall[nWall1].x, wall[nWall1].y) >
+					getflorzofslope((short)nNextSector, wall[nWall1].x, wall[nWall1].y))
+					visible = true;
 			}
 
 			if (visible)
 			{
 				branch++;
-				AlignWalls(nWall0,z0,nWall1,z1,nTile);
+				AlignWalls(nWall0, z0, nWall1, z1, nTile);
 
 					//if wall was 1-sided, no need to recurse
 				if (wall[nWall1].nextwall < 0)
@@ -7750,11 +7803,13 @@ void AutoAlignWalls(int nWall0, int ply)
 					continue;
 				}
 				else
-					AutoAlignWalls(nWall1,ply+1);
+					AutoAlignWalls(nWall1, ply + 1);
 			}
 		}
 
-		if (wall[nWall1].nextwall < 0) break;
+		if (wall[nWall1].nextwall < 0)
+			break;
+		
 		nWall1 = wall[wall[nWall1].nextwall].point2;
 	}
 }
