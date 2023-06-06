@@ -66,7 +66,7 @@ extern std::array<int, MAXYDIM> lastx;
 extern unsigned char *transluc;
 extern std::array<short, 256> sectorborder;
 extern short sectorbordercnt;
-extern int qsetmode;
+inline int qsetmode{0};
 extern int hitallsprites;
 
 extern std::array<int, MAXWALLSB> xb1;

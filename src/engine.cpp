@@ -573,7 +573,6 @@ int globalx, globaly, globalz;
 
 std::array<short, 256> sectorborder;
 short sectorbordercnt;
-int qsetmode{0};
 int startposx;
 int startposy;
 int startposz;

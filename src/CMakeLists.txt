@@ -95,16 +95,12 @@ if(WIN32)
   )
 endif()
 
-if(USE_SDL2)
-  set(SDL_LINK_LIBRARIES "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main> $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>")
-endif()
-
 target_link_libraries(build_engine
   PUBLIC
     unofficial::libsquish::squish
     ${WINDOWS_LINK_LIBRARIES}
-  PRIVATE
-    ${SDL_LINK_LIBRARIES}
+    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
 )
 
 target_include_directories(build_engine

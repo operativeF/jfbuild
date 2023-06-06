@@ -11,7 +11,7 @@ extern "C" {
 
 inline constexpr auto NUMBUILDKEYS{20};
 
-extern int qsetmode;
+// extern int qsetmode;
 extern short searchsector;
 extern short searchwall;
 extern short searchstat;
