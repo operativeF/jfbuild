@@ -283,7 +283,7 @@ void OSD_Cleanup()
 
 	for (; symbols; symbols=s) {
 		s=symbols->next;
-		Bfree(symbols);
+		std::free(symbols);
 	}
 
 	osdinited=0;
@@ -1189,7 +1189,7 @@ static symbol_t *addnewsymbol(const char *name)
 	symbol_t *s;
 	symbol_t *t;
 
-	newsymb = (symbol_t *)Bmalloc(sizeof(symbol_t));
+	newsymb = (symbol_t *)std::malloc(sizeof(symbol_t));
 	if (!newsymb) { return nullptr; }
 	std::memset(newsymb, 0, sizeof(symbol_t));
 

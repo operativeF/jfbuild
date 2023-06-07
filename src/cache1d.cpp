@@ -99,9 +99,6 @@ static unsigned char toupperlookup[256] =
 	0xf0,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xff
 };
 
-extern void *kmalloc(size_t);
-extern void kfree(void *);
-
 static void reportandexit(const char* errormessage);
 
 void initcache(void *dacachestart, size_t dacachesize)
@@ -514,9 +511,9 @@ int initgroupfile(const char *filename)
 		}
 		gnumfiles[numgroupfiles] = B_LITTLE32(*((int *)&buf[12]));
 
-		if ((gfilelist[numgroupfiles] = (char *)kmalloc(gnumfiles[numgroupfiles]<<4)) == nullptr)
+		if ((gfilelist[numgroupfiles] = (char *)std::malloc(gnumfiles[numgroupfiles]<<4)) == nullptr)
 			{ buildprintf("Not enough memory for file grouping system\n"); exit(0); }
-		if ((gfileoffs[numgroupfiles] = (unsigned *)kmalloc((gnumfiles[numgroupfiles]+1)<<2)) == nullptr)
+		if ((gfileoffs[numgroupfiles] = (unsigned *)std::malloc((gnumfiles[numgroupfiles]+1)<<2)) == nullptr)
 			{ buildprintf("Not enough memory for file grouping system\n"); exit(0); }
 
 		if (Bread(groupfil[numgroupfiles],gfilelist[numgroupfiles],
@@ -552,8 +549,8 @@ void uninitsinglegroupfile(int grphandle)
 	for(i=numgroupfiles-1;i>=0;i--)
 		if (groupfil[i] != -1 && groupfil[i] == grphandle)
 		{
-			kfree(gfilelist[i]);
-			kfree(gfileoffs[i]);
+			std::free(gfilelist[i]);
+			std::free(gfileoffs[i]);
 			Bclose(groupfil[i]);
 			groupfil[i] = -1;
 			grpnum = i;
@@ -594,8 +591,8 @@ void uninitgroupfile()
 	for(i=numgroupfiles-1;i>=0;i--)
 		if (groupfil[i] != -1)
 		{
-			kfree(gfilelist[i]);
-			kfree(gfileoffs[i]);
+			std::free(gfilelist[i]);
+			std::free(gfileoffs[i]);
 			Bclose(groupfil[i]);
 			groupfil[i] = -1;
 		}

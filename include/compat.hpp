@@ -323,10 +323,8 @@ int Bwildmatch (const char *i, const char *j);
 # define BSEEK_END SEEK_END
 # define Brand rand
 # define Balloca alloca
-# define Bmalloc malloc
 # define Bcalloc calloc
 # define Brealloc realloc
-# define Bfree free
 # define Bopen open
 # define Bclose close
 # define Bwrite write

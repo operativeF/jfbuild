@@ -42,9 +42,6 @@
 #include <numbers>
 #include <span>
 
-void *kmalloc(bsize_t size) { return(Bmalloc(size)); }
-void kfree(void *buffer) { Bfree(buffer); }
-
 void loadvoxel(int voxindex) { (void)voxindex; }
 
 #define kloadvoxel loadvoxel
@@ -5647,12 +5644,12 @@ static int loadpalette()
 		goto badpalette;
 	}
 
-	if ((palookup[0] = static_cast<unsigned char*>(kmalloc(numpalookups<<8))) == nullptr) {
+	if ((palookup[0] = static_cast<unsigned char*>(std::malloc(numpalookups<<8))) == nullptr) {
 		engineerrstr = "Failed to allocate palette memory";
 		kclose(fil);
 		return 1;
 	}
-	if ((transluc = static_cast<unsigned char*>(kmalloc(65536L))) == nullptr) {
+	if ((transluc = static_cast<unsigned char*>(std::malloc(65536L))) == nullptr) {
 		engineerrstr = "Failed to allocate translucency memory";
 		kclose(fil);
 		return 1;
@@ -6224,12 +6221,12 @@ void uninitengine()
 		kclose(artfil);
 	}
 
-	if (transluc != nullptr) { kfree(transluc); transluc = nullptr; }
-	if (pic != nullptr) { kfree(pic); pic = nullptr; }
-	if (lookups != nullptr) { kfree(lookups); lookups = nullptr; }
+	if (transluc != nullptr) { std::free(transluc); transluc = nullptr; }
+	if (pic != nullptr) { std::free(pic); pic = nullptr; }
+	if (lookups != nullptr) { std::free(lookups); lookups = nullptr; }
 	for (int i{0}; i < MAXPALOOKUPS; ++i) {
 		if (palookup[i] != nullptr) {
-			kfree(palookup[i]); palookup[i] = nullptr;
+			std::free(palookup[i]); palookup[i] = nullptr;
 		}
 	}
 }
@@ -8560,8 +8557,8 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 
 	j = ydim*4*sizeof(int);  //Leave room for horizlookup&horizlookup2
 
-	if (lookups != nullptr) { kfree((void *)lookups); lookups = nullptr; }
-	if ((lookups = static_cast<int*>(kmalloc(j<<1))) == nullptr) {
+	if (lookups != nullptr) { std::free((void *)lookups); lookups = nullptr; }
+	if ((lookups = static_cast<int*>(std::malloc(j<<1))) == nullptr) {
 		engineerrstr = "Failed to allocate lookups memory";
 		return -1;
 	}
@@ -8790,7 +8787,7 @@ int loadpics(const char* filename, int askedsize)
 	else
 		cachesize = askedsize;
 
-	while ((pic = kmalloc(cachesize)) == nullptr)
+	while ((pic = std::malloc(cachesize)) == nullptr)
 	{
 		cachesize -= 65536L;
 	
@@ -11226,7 +11223,7 @@ int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char
 	if (palookup[palnum] == nullptr)
 	{
 			//Allocate palookup buffer
-		if ((palookup[palnum] = static_cast<unsigned char*>(kmalloc(numpalookups<<8))) == nullptr) {
+		if ((palookup[palnum] = static_cast<unsigned char*>(std::malloc(numpalookups<<8))) == nullptr) {
 			engineerrstr = "Failed to allocate palette lookup memory";
 			return 1;
 		}
@@ -12142,7 +12139,7 @@ static int screencapture_writeframe(BFILE *fil, char mode, void *v,
 			yend = -1;
 			yinc = -1;
 		}
-		buf = static_cast<unsigned char*>(kmalloc(xdim * ydim * 3));
+		buf = static_cast<unsigned char*>(std::malloc(xdim * ydim * 3));
 		if (buf) {
 			glfunc.glReadPixels(0,0,xdim,ydim,GL_RGB,GL_UNSIGNED_BYTE,buf);
 			if (bgr) {
@@ -12154,7 +12151,7 @@ static int screencapture_writeframe(BFILE *fil, char mode, void *v,
 				ptr = buf + y*xdim*3;
 				writeline(ptr, xdim, 3, fil, v);
 			}
-			kfree(buf);
+			std::free(buf);
 		}
 		return(0);
 	}
@@ -12172,14 +12169,14 @@ static int screencapture_writeframe(BFILE *fil, char mode, void *v,
 	}
 
 	if (inverseit && qsetmode != 200) {
-		buf = static_cast<unsigned char*>(kmalloc(bytesperline));
+		buf = static_cast<unsigned char*>(std::malloc(bytesperline));
 		if (buf) {
 			for (y = ystart; y != yend; y += yinc) {
 				copybuf(ptr + y*bytesperline, buf, xdim >> 2);
 				for (j=(bytesperline>>2)-1; j>=0; j--) ((int *)buf)[j] ^= 0x0f0f0f0fL;
 				writeline(buf, xdim, 1, fil, v);
 			}
-			kfree(buf);
+			std::free(buf);
 		}
 	} else {
 		for (y = ystart; y != yend; y += yinc) {
