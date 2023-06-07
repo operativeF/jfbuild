@@ -291,7 +291,7 @@ static PTCacheTile * ptcache_load(off_t offset)
 
 	if (cachereplace) {
 		// cache is in a broken state, so don't try loading
-		return 0;
+		return nullptr;
 	}
 
 	FILE* fh = std::fopen(CACHESTORAGEFILE, "rb");
@@ -362,7 +362,7 @@ fail:
 		PTCacheFreeTile(tdef);
 	}
 
-	return 0;
+	return nullptr;
 }
 
 /**

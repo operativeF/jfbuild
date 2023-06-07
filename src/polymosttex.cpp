@@ -366,7 +366,7 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 	}
 
 	std::free(picdata);
-	picdata = 0;
+	picdata = nullptr;
 
 	ptm_applyeffects(&tex, effects);	// updates tex.hasalpha
 
@@ -426,13 +426,13 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 		}
 		PTCacheWriteTile(tdef);
 		PTCacheFreeTile(tdef);
-		tdef = 0;
+		tdef = nullptr;
 	}
 
 
 	if (tex.pic) {
 		std::free(tex.pic);
-		tex.pic = 0;
+		tex.pic = nullptr;
 	}
 
 	return 0;
@@ -496,10 +496,10 @@ static PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int cr
 	}
 
 	if (!create) {
-		return 0;
+		return nullptr;
 	} else {
 		// we didn't find one, so we have to create one
-		hicreplctyp * replc = 0;
+		hicreplctyp * replc = nullptr;
 
 		if ((flags & PTH_HIGHTILE)) {
 			replc = hicfindsubst(picnum, palnum, (flags & PTH_SKYBOX));
@@ -507,7 +507,7 @@ static PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int cr
 
 		pth = (PTHash *) std::malloc(sizeof(PTHash));
 		if (!pth) {
-			return 0;
+			return nullptr;
 		}
 		std::memset(pth, 0, sizeof(PTHash));
 
@@ -537,7 +537,7 @@ static PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int cr
 		} else if ((flags & PTH_HIGHTILE) && !replc) {
 			// there is no replacement, so defer to ART
 			if (flags & PTH_SKYBOX) {
-				return 0;
+				return nullptr;
 			} else {
 				pth->deferto = pt_findhash(picnum, palnum, (flags & ~PTH_HIGHTILE), create);
 				while (pth->deferto) {
@@ -733,7 +733,7 @@ static bool pt_load_art(PTHead * pth)
 	pth->pic[PTHPIC_BASE]->tsizy = tex.tsizy;
 	pth->pic[PTHPIC_BASE]->sizx  = tex.sizx;
 	pth->pic[PTHPIC_BASE]->sizy  = tex.sizy;
-	ptm_uploadtexture(pth->pic[PTHPIC_BASE], pth->flags, &tex, 0);
+	ptm_uploadtexture(pth->pic[PTHPIC_BASE], pth->flags, &tex, nullptr);
 
 	if (hasfullbright) {
         id.layer = PTHPIC_GLOW;
@@ -743,11 +743,11 @@ static bool pt_load_art(PTHead * pth)
 		pth->pic[PTHPIC_GLOW]->sizx  = tex.sizx;
 		pth->pic[PTHPIC_GLOW]->sizy  = tex.sizy;
 		fbtex.hasalpha = 1;
-		ptm_uploadtexture(pth->pic[PTHPIC_GLOW], pth->flags, &fbtex, 0);
+		ptm_uploadtexture(pth->pic[PTHPIC_GLOW], pth->flags, &fbtex, nullptr);
 	} else {
 		// it might be that after reloading an invalidated texture, the
 		// glow map might not be needed anymore, so release it
-		pth->pic[PTHPIC_GLOW] = 0;//FIXME should really call a disposal function
+		pth->pic[PTHPIC_GLOW] = nullptr;//FIXME should really call a disposal function
 	}
 	pt_load_applyparameters(pth);
 
@@ -777,7 +777,7 @@ static int pt_load_hightile(PTHead * pth)
 
 	if (!pth->repldef) {
 		return 0;
-	} else if ((pth->flags & PTH_SKYBOX) && (pth->repldef->skybox == 0 || pth->repldef->skybox->ignore)) {
+	} else if ((pth->flags & PTH_SKYBOX) && (pth->repldef->skybox == nullptr || pth->repldef->skybox->ignore)) {
 		return 0;
 	} else if (pth->repldef->ignore) {
 		return 0;
@@ -857,7 +857,7 @@ static int pt_load_hightile(PTHead * pth)
 static void pt_load_applyparameters(const PTHead * pth)
 {
 	for (int i{0}; i < PTHPIC_SIZE; ++i) {
-		if (pth->pic[i] == 0 || pth->pic[i]->glpic == 0) {
+		if (pth->pic[i] == nullptr || pth->pic[i]->glpic == 0) {
 			continue;
 		}
 
@@ -1216,7 +1216,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 			tdef->mipmap[tdefmip].data = comprdata;
 			tdefmip++;
 
-			comprdata = 0;
+			comprdata = nullptr;
 		}
 
 		ptm_mipscale(tex);
@@ -1250,7 +1250,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 		if (tdef) {
 			// we need to retain each mipmap for the tdef struct, so
 			// force each mipmap to be allocated afresh in the loop below
-			comprdata = 0;
+			comprdata = nullptr;
 		}
 	} else {
 		glfunc.glTexImage2D(GL_TEXTURE_2D, 0,
@@ -1291,7 +1291,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 			if (tdef) {
 				// we need to retain each mipmap for the tdef struct, so
 				// force each mipmap to be allocated afresh in this loop
-				comprdata = 0;
+				comprdata = nullptr;
 			}
 		} else {
 			glfunc.glTexImage2D(GL_TEXTURE_2D, mipmap,
@@ -1423,7 +1423,7 @@ void PTClear()
 			std::free(pth);
 			pth = next;
 		}
-		pthashhead[i] = 0;
+		pthashhead[i] = nullptr;
 	}
 
 	for (i=PTMHASHHEADSIZ-1; i>=0; i--) {
@@ -1433,7 +1433,7 @@ void PTClear()
 			std::free(ptmh);
 			ptmh = mnext;
 		}
-		ptmhashhead[i] = 0;
+		ptmhashhead[i] = nullptr;
 	}
 }
 
@@ -1494,7 +1494,7 @@ static void ptiter_seekforward(PTIter iter)
 		if (iter->pth && ptiter_matches(iter)) {
 			break;
 		}
-		if (iter->pth == 0) {
+		if (iter->pth == nullptr) {
 			if ((iter->match & PTITER_PICNUM)) {
 				// because the hash key is based on picture number,
 				// reaching the end of the hash chain means we need
@@ -1504,7 +1504,7 @@ static void ptiter_seekforward(PTIter iter)
 			iter->i++;
 			if (iter->i >= PTHASHHEADSIZ) {
 				// end of hash
-				iter->pth = 0;
+				iter->pth = nullptr;
 				iter->i = PTHASHHEADSIZ;
 				break;
 			}
@@ -1530,7 +1530,7 @@ PTIter PTIterNewMatch(int match, int picnum, int palnum, unsigned short flagsmas
 	PTIter iter = (PTIter) std::malloc(sizeof(struct PTIter_typ));
 
 	if (!iter) {
-		return 0;
+		return nullptr;
 	}
 
 	iter->i = 0;
@@ -1544,8 +1544,8 @@ PTIter PTIterNewMatch(int match, int picnum, int palnum, unsigned short flagsmas
 	if ((match & PTITER_PICNUM)) {
 		iter->i = pt_gethashhead(picnum);
 		iter->pth = pthashhead[iter->i];
-		if (iter->pth == 0) {
-			iter->pth = 0;
+		if (iter->pth == nullptr) {
+			iter->pth = nullptr;
 			return iter;
 		}
 	}

@@ -1709,7 +1709,7 @@ static void UninitOpenGL()
 #if USE_POLYMOST
 		polymost_glreset();
 #endif
-		if (!wglfunc.wglMakeCurrent(0,0)) { }
+		if (!wglfunc.wglMakeCurrent(nullptr,nullptr)) { }
 		if (!wglfunc.wglDeleteContext(hGLRC)) { }
 		hGLRC = nullptr;
 	}
@@ -1802,8 +1802,8 @@ static int SetupOpenGL(int width, int height, unsigned char bitspp)
 		0,                             //Reserved
 		0,0,0                          //Layer Masks Ignored
 	};
-	HDC dummyhDC = 0;
-	HGLRC dummyhGLRC = 0;
+	HDC dummyhDC = nullptr;
+	HGLRC dummyhGLRC = nullptr;
 	const char *errmsg = nullptr;
 
 	dummyhGLwindow = ::CreateWindow(
@@ -1813,7 +1813,7 @@ static int SetupOpenGL(int width, int height, unsigned char bitspp)
 			0,0,
 			1,1,
 			hWindow,
-			(HMENU)0,
+			(HMENU)nullptr,
 			hInstance,
 			nullptr);
 	if (!dummyhGLwindow) {
@@ -1861,7 +1861,7 @@ static int SetupOpenGL(int width, int height, unsigned char bitspp)
 			0, 0,
 			width, height,
 			hWindow,
-			(HMENU)0,
+			(HMENU)nullptr,
 			hInstance,
 			nullptr);
 	if (!hGLWindow) {
@@ -1956,7 +1956,7 @@ static int SetupOpenGL(int width, int height, unsigned char bitspp)
 		if (!wglfunc.have_ARB_create_context_profile) {
 			contextattribs[4] = 0;	//WGL_CONTEXT_PROFILE_MASK_ARB
 		}
-		hGLRC = wglfunc.wglCreateContextAttribsARB(hDCGLWindow, 0, contextattribs);
+		hGLRC = wglfunc.wglCreateContextAttribsARB(hDCGLWindow, nullptr, contextattribs);
 		if (!hGLRC) {
 			errmsg = "Can't create GL context.";
 			goto fail;

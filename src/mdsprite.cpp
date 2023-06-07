@@ -382,7 +382,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 	}
 
 	if ((unsigned)pal >= (unsigned)MAXPALOOKUPS) {
-		return 0;
+		return nullptr;
 	}
 
 	i = -1;
@@ -421,7 +421,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 	}
 
 	if (!skinfile[0]) {
-		return 0;
+		return nullptr;
 	}
 
 	if (*tex && (*tex)->glpic) {
@@ -434,7 +434,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 		md_initident(&id, skinfile, hictinting[pal].f);
 		*tex = PTM_GetHead(&id);
 		if (!(*tex)) {
-			return 0;
+			return nullptr;
 		}
 	}
 
@@ -446,7 +446,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 				buildprintf("MDSprite: %s %s\n",
 						   skinfile, errstr);
 			}
-			return 0;
+			return nullptr;
 		}
 		m->usesalpha = (((*tex)->flags & PTH_HASALPHA) == PTH_HASALPHA);
 	}
@@ -579,7 +579,7 @@ static md2model *md2load (int fil, const char *filnam)
 	char st[BMAX_PATH];
 	size_t i;
 
-	m = (md2model *)calloc(1,sizeof(md2model)); if (!m) return(0);
+	m = (md2model *)calloc(1,sizeof(md2model)); if (!m) return(nullptr);
 	m->mdnum = 2; m->scale = .01;
 
 	kread(fil,(char *)&head,sizeof(md2head_t));
@@ -593,7 +593,7 @@ static md2model *md2load (int fil, const char *filnam)
 	head.ofsframes = B_LITTLE32(head.ofsframes);   head.ofsglcmds = B_LITTLE32(head.ofsglcmds);
 	head.ofseof = B_LITTLE32(head.ofseof);
 
-	if ((head.id != 0x32504449) || (head.vers != 8)) { md2free(m); return(0); } //"IDP2"
+	if ((head.id != 0x32504449) || (head.vers != 8)) { md2free(m); return(nullptr); } //"IDP2"
 
 	m->numskins = head.numskins;
 	m->numframes = head.numframes;
@@ -605,22 +605,22 @@ static md2model *md2load (int fil, const char *filnam)
 	m->skinysiz = head.skinysiz;
 
 	m->uvs = (md2uv_t *)calloc(m->numuv,sizeof(md2uv_t));
-	if (!m->uvs) { md2free(m); return(0); }
+	if (!m->uvs) { md2free(m); return(nullptr); }
 	klseek(fil,head.ofsuv,SEEK_SET);
 	if (kread(fil,(char *)m->uvs,m->numuv*sizeof(md2uv_t)) != m->numuv*sizeof(md2uv_t))
-		{ md2free(m); return(0); }
+		{ md2free(m); return(nullptr); }
 
 	m->tris = (md2tri_t *)calloc(m->numtris,sizeof(md2tri_t));
-	if (!m->tris) { md2free(m); return(0); }
+	if (!m->tris) { md2free(m); return(nullptr); }
 	klseek(fil,head.ofstris,SEEK_SET);
 	if (kread(fil,(char *)m->tris,m->numtris*sizeof(md2tri_t)) != m->numtris*sizeof(md2tri_t))
-		{ md2free(m); return(0); }
+		{ md2free(m); return(nullptr); }
 
 	m->frames = (char *)calloc(m->numframes,m->framebytes);
-	if (!m->frames) { md2free(m); return(0); }
+	if (!m->frames) { md2free(m); return(nullptr); }
 	klseek(fil,head.ofsframes,SEEK_SET);
 	if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
-		{ md2free(m); return(0); }
+		{ md2free(m); return(nullptr); }
 
 #if B_BIG_ENDIAN != 0
 	{
@@ -644,16 +644,16 @@ static md2model *md2load (int fil, const char *filnam)
 		if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
 	if (i<0) i=0;
 	st[i] = 0;
-	m->basepath = (char *)malloc(i+1); if (!m->basepath) { md2free(m); return(0); }
+	m->basepath = (char *)malloc(i+1); if (!m->basepath) { md2free(m); return(nullptr); }
 	strcpy(m->basepath, st);
 
-	m->skinfn = (char *)calloc(m->numskins,64); if (!m->skinfn) { md2free(m); return(0); }
+	m->skinfn = (char *)calloc(m->numskins,64); if (!m->skinfn) { md2free(m); return(nullptr); }
 	klseek(fil,head.ofsskins,SEEK_SET);
 	if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
-		{ md2free(m); return(0); }
+		{ md2free(m); return(nullptr); }
 
 	m->tex = (PTMHead **)calloc(m->numskins, sizeof(PTMHead *) * (HICEFFECTMASK+1));
-	if (!m->tex) { md2free(m); return(0); }
+	if (!m->tex) { md2free(m); return(nullptr); }
 
 	maxmodelverts = std::max(maxmodelverts, m->numverts);
 	maxelementvbo = std::max(maxelementvbo, m->numtris * 3);
@@ -677,7 +677,7 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 	float k7;
 	float mat[16];
 	float pc[4];
-	PTMHead *ptmh = 0;
+	PTMHead *ptmh = nullptr;
 	struct polymostdrawpolycall draw;
 
 	updateanimation(m,tspr);
@@ -900,11 +900,11 @@ static md3model *md3load (int fil)
 	auto* m = (md3model *)calloc(1,sizeof(md3model));
 
 	if (!m) {
-		return 0;
+		return nullptr;
 	}
 
 	m->mdnum = 3;
-	m->tex = 0;
+	m->tex = nullptr;
 	m->scale = .01F;
 
 	kread(fil,&filehead,sizeof(md3filehead_t));
@@ -923,7 +923,7 @@ static md3model *md3load (int fil)
 
 	if ((m->head.id != 0x33504449) && (m->head.vers != 15)) {
 		md3free(m);
-		return 0;
+		return nullptr;
 	}//"IDP3"
 
 	m->numskins = m->head.numskins; //<- dead code?
@@ -931,20 +931,20 @@ static md3model *md3load (int fil)
 
 	klseek(fil,filehead.frames,SEEK_SET);
 	m->head.frames = (md3frame_t *)calloc(m->head.numframes, sizeof(md3frame_t));
-	if (!m->head.frames) { md3free(m); return(0); }
+	if (!m->head.frames) { md3free(m); return(nullptr); }
 	kread(fil,m->head.frames,m->head.numframes*sizeof(md3frame_t));
 
 	if (m->head.numtags == 0) m->head.tags = nullptr;
 	else {
 		klseek(fil,filehead.tags,SEEK_SET);
 		m->head.tags = (md3tag_t *)calloc(m->head.numtags, sizeof(md3tag_t));
-		if (!m->head.tags) { md3free(m); return(0); }
+		if (!m->head.tags) { md3free(m); return(nullptr); }
 		kread(fil,m->head.tags,m->head.numtags*sizeof(md3tag_t));
 	}
 
 	klseek(fil,filehead.surfs,SEEK_SET);
 	m->head.surfs = (md3surf_t *)calloc(m->head.numsurfs, sizeof(md3surf_t));
-	if (!m->head.surfs) { md3free(m); return(0); }
+	if (!m->head.surfs) { md3free(m); return(nullptr); }
 
 #if B_BIG_ENDIAN != 0
 	{
@@ -991,7 +991,7 @@ static md3model *md3load (int fil)
 		if (!s->tris)
 		{
 			md3free(m);
-			return(0);
+			return(nullptr);
 		}
 		s->shaders = (md3shader_t *)(((intptr_t)s->tris   )+leng[0]);
 		s->uv      = (md3uv_t     *)(((intptr_t)s->shaders)+leng[1]);
@@ -1301,7 +1301,7 @@ static int xsiz;
 static int ysiz;
 static int zsiz;
 static int yzsiz;
-static int* vbit{0}; //vbit: 1 bit per voxel: 0=air,1=solid
+static int* vbit{nullptr}; //vbit: 1 bit per voxel: 0=air,1=solid
 static float xpiv;
 static float ypiv;
 static float zpiv; //Might want to use more complex/unique names!
@@ -1359,7 +1359,7 @@ unsigned gloadtex (int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 	}
 	else
 	{
-		if (palookup[dapal] == 0) dapal = 0;
+		if (palookup[dapal] == nullptr) dapal = 0;
 		for(i=xsiz*ysiz-1;i>=0;i--)
 		{
 			pic2[i].b = cptr[palette[(int)palookup[dapal][pic[i].a]*3+2]*4];
@@ -1635,7 +1635,7 @@ static voxmodel *vox2poly ()
 	int *by0;
 	void (*daquad)(int, int, int, int, int, int, int, int, int, int);
 
-	gvox = (voxmodel *)malloc(sizeof(voxmodel)); if (!gvox) return(0);
+	gvox = (voxmodel *)malloc(sizeof(voxmodel)); if (!gvox) return(nullptr);
 	std::memset(gvox,0,sizeof(voxmodel));
 
 		//x is largest dimension, y is 2nd largest dimension
@@ -1643,7 +1643,7 @@ static voxmodel *vox2poly ()
 	if ((x < y) && (x < z)) x = z; else if (y < z) y = z;
 	if (x < y) { z = x; x = y; y = z; }
 	shcntp = x; i = x*y*sizeof(int);
-	shcntmal = (int *)malloc(i); if (!shcntmal) { free(gvox); return(0); }
+	shcntmal = (int *)malloc(i); if (!shcntmal) { free(gvox); return(nullptr); }
 	std::memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
 	gmaxx = gmaxy = garea = 0;
 
@@ -1651,7 +1651,7 @@ static voxmodel *vox2poly ()
 	for(i=0;i<7;i++) gvox->qfacind[i] = -1;
 
 	i = (std::max(ysiz, zsiz) + 1) << 2;
-	bx0 = (int *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
+	bx0 = (int *)malloc(i<<1); if (!bx0) { free(gvox); return(nullptr); }
 	by0 = (int *)(((intptr_t)bx0)+i);
 
 	for(cnt=0;cnt<2;cnt++)
@@ -1699,7 +1699,7 @@ static voxmodel *vox2poly ()
 		if (!cnt)
 		{
 			shp = (spoint2d *)malloc(gvox->qcnt*sizeof(spoint2d));
-			if (!shp) { free(bx0); free(gvox); return(0); }
+			if (!shp) { free(bx0); free(gvox); return(nullptr); }
 
 			sc = 0;
 			for(y=gmaxy;y;y--)
@@ -1719,7 +1719,7 @@ skindidntfit:;
 			mytexo5 = (gvox->mytexx>>5);
 
 			i = (((gvox->mytexx*gvox->mytexy+31)>>5)<<2);
-			zbit = (int *)malloc(i); if (!zbit) { free(bx0); free(gvox); free(shp); return(0); }
+			zbit = (int *)malloc(i); if (!zbit) { free(bx0); free(gvox); free(shp); return(nullptr); }
 			std::memset(zbit,0,i);
 
 			v = gvox->mytexx*gvox->mytexy;
@@ -1761,10 +1761,10 @@ skindidntfit:;
 			}
 
 			gvox->quad = (voxrect_t *)malloc(gvox->qcnt*sizeof(voxrect_t));
-			if (!gvox->quad) { free(zbit); free(shp); free(bx0); free(gvox); return(0); }
+			if (!gvox->quad) { free(zbit); free(shp); free(bx0); free(gvox); return(nullptr); }
 
 			gvox->mytex = (int *)malloc(gvox->mytexx*gvox->mytexy*sizeof(int));
-			if (!gvox->mytex) { free(gvox->quad); free(zbit); free(shp); free(bx0); free(gvox); return(0); }
+			if (!gvox->mytex) { free(gvox->quad); free(zbit); free(shp); free(bx0); free(gvox); return(nullptr); }
 		}
 	}
 	free(shp); free(zbit); free(bx0);
@@ -2044,7 +2044,7 @@ voxmodel* voxload (const char *filnam)
 	auto* dot = std::strrchr(filnam, '.');
 	
 	if (!dot)
-		return 0;
+		return nullptr;
 
 	bool is8bit{};
     int ret{};
@@ -2063,7 +2063,7 @@ voxmodel* voxload (const char *filnam)
 	}
 	//else if (!strcasecmp(dot,".vxl")) { ret = loadvxl(filnam); is8bit = 0; }
 	else
-		return 0;
+		return nullptr;
 
 	auto* vm = [ret]() -> voxmodel* {
           if (ret >= 0)
@@ -2421,7 +2421,7 @@ mdmodel *mdload (const char *filnam)
 	const int fil = kopen4load((char *)filnam,0);
 	
 	if (fil < 0)
-		return 0;
+		return nullptr;
 
 	int i{0};
 	kread(fil, &i, 4);

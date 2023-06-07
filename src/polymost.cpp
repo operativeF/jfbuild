@@ -387,7 +387,7 @@ void polymost_texinvalidate (int dapicnum, int dapalnum, int dameth)
 		PTITER_PICNUM | PTITER_PALNUM | PTITER_FLAGS,
 		dapicnum, dapalnum, PTH_CLAMPED, (dameth & METH_CLAMPED) ? PTH_CLAMPED : 0
 		);
-	while ((pth = PTIterNext(iter)) != 0) {
+	while ((pth = PTIterNext(iter)) != nullptr) {
 		if (pth->pic[PTHPIC_BASE]) {
 			pth->pic[PTHPIC_BASE]->flags |= PTH_DIRTY;
 		}
@@ -407,7 +407,7 @@ void polymost_texinvalidateall()
 	PTHead * pth; // FIXME: Move to while loop?
 
 	PTIter iter = PTIterNew();
-	while ((pth = PTIterNext(iter)) != 0) {
+	while ((pth = PTIterNext(iter)) != nullptr) {
 		if (pth->pic[PTHPIC_BASE]) {
 			pth->pic[PTHPIC_BASE]->flags |= PTH_DIRTY;
 		}
@@ -436,9 +436,9 @@ void gltexapplyprops ()
 
 	PTIter iter = PTIterNew();
 	PTHead * pth; // FIXME: Move to while loop?
-	while ((pth = PTIterNext(iter)) != 0) {
+	while ((pth = PTIterNext(iter)) != nullptr) {
 		for (int i{0}; i < PTHPIC_SIZE; i++) {
-			if (pth->pic[i] == 0 || pth->pic[i]->glpic == 0) {
+			if (pth->pic[i] == nullptr || pth->pic[i]->glpic == 0) {
 				continue;
 			}
 			glfunc.glBindTexture(GL_TEXTURE_2D,pth->pic[i]->glpic);
@@ -924,7 +924,7 @@ void polymost_drawpoly_glcall(GLenum mode, struct polymostdrawpolycall const *dr
 	glfunc.glUniformMatrix4fv(polymostglsl.uniform_modelview, 1, GL_FALSE, draw->modelview);
 	glfunc.glUniformMatrix4fv(polymostglsl.uniform_projection, 1, GL_FALSE, draw->projection);
 
-	glfunc.glDrawElements(mode, draw->indexcount, GL_UNSIGNED_SHORT, 0);
+	glfunc.glDrawElements(mode, draw->indexcount, GL_UNSIGNED_SHORT, nullptr);
 
 #if (USE_OPENGL == USE_GL3)
     glfunc.glBindVertexArray(0);
@@ -980,7 +980,7 @@ static void polymost_drawaux_glcall(GLenum mode, struct polymostdrawauxcall cons
 
 	glfunc.glUniformMatrix4fv(polymostauxglsl.uniform_projection, 1, GL_FALSE, &gorthoprojmat[0][0]);
 
-	glfunc.glDrawElements(mode, draw->indexcount, GL_UNSIGNED_SHORT, 0);
+	glfunc.glDrawElements(mode, draw->indexcount, GL_UNSIGNED_SHORT, nullptr);
 
 #if (USE_OPENGL == USE_GL3)
     glfunc.glBindVertexArray(0);
@@ -4567,7 +4567,7 @@ static void tessectrap (const float *px, const float *py, std::span<const int> p
 	static int* slist{nullptr};
 	static int* npoint2{nullptr};
 	struct raster { float x, y, xi; int i; };
-	static raster *rst = 0;
+	static raster *rst = nullptr;
 	static struct polymostvboitem *vboitem = nullptr;
 	if (numpoints + 16 > allocpoints) //16 for safety
 	{

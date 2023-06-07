@@ -6583,7 +6583,7 @@ killsprite:
 			    && (!polymost_texmayhavealpha(tspriteptr[i]->picnum,tspriteptr[i]->pal))
 #endif
 			   )
-				{ drawsprite(i); tspriteptr[i] = 0; } //draw only if it is fully opaque
+				{ drawsprite(i); tspriteptr[i] = nullptr; } //draw only if it is fully opaque
 		for(i=j=0;i<spritesortcnt;i++)
 		{
 			if (!tspriteptr[i]) continue;
