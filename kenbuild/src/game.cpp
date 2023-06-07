@@ -645,7 +645,7 @@ int app_main(int argc, char const * const argv[])
 
 	initsb(option[1],option[2],digihz[option[7]>>4],((option[7]&4)>0)+1,((option[7]&2)>0)+1,60,option[7]&1);
 	if (Bstrcmp(boardfilename,"klab.map") == 0)
-	    loadsong("std::absong.kdm");
+	    loadsong("klabsong.kdm");
 	else
 		loadsong("neatsong.kdm");
 	musicon();
