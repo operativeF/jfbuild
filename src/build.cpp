@@ -3695,11 +3695,11 @@ void overheadeditor()
 					getpoint(highlightx2,highlighty2,&highlightx2,&highlighty2);
 					if (highlightx1 > highlightx2)
 					{
-						templong = highlightx1; highlightx1 = highlightx2; highlightx2 = templong;
+						std::swap(highlightx1, highlightx2);
 					}
 					if (highlighty1 > highlighty2)
 					{
-						templong = highlighty1; highlighty1 = highlighty2; highlighty2 = templong;
+						std::swap(highlighty1, highlighty2);
 					}
 
 					if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
@@ -3790,11 +3790,11 @@ void overheadeditor()
 					getpoint(highlightx2,highlighty2,&highlightx2,&highlighty2);
 					if (highlightx1 > highlightx2)
 					{
-						templong = highlightx1; highlightx1 = highlightx2; highlightx2 = templong;
+						std::swap(highlightx1, highlightx2);
 					}
 					if (highlighty1 > highlighty2)
 					{
-						templong = highlighty1; highlighty1 = highlighty2; highlighty2 = templong;
+						std::swap(highlighty1, highlighty2);
 					}
 
 					for(i=0;i<numsectors;i++)
@@ -5927,20 +5927,10 @@ int checkautoinsert(int dax, int day, short danumwalls)
 
 int clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
 {
-	short i;
-	short themin;
-	int minx;
-	int templong;
-	int x0;
-	int x1;
-	int x2;
-	int y0;
-	int y1;
-	int y2;
+	short i{wallstart - 1};
+	short themin{-1};
+	int minx{0x7FFFFFFF};
 
-	minx = 0x7fffffff;
-	themin = -1;
-	i = wallstart-1;
 	do
 	{
 		i++;
@@ -5949,40 +5939,38 @@ int clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
 			minx = wall[wall[i].point2].x;
 			themin = i;
 		}
-	}
-	while ((wall[i].point2 != wallstart) && (i < MAXWALLS));
+	} while ((wall[i].point2 != wallstart) && (i < MAXWALLS));
 
-	x0 = wall[themin].x;
-	y0 = wall[themin].y;
-	x1 = wall[wall[themin].point2].x;
-	y1 = wall[wall[themin].point2].y;
-	x2 = wall[wall[wall[themin].point2].point2].x;
-	y2 = wall[wall[wall[themin].point2].point2].y;
+	int x0 = wall[themin].x;
+	int y0 = wall[themin].y;
+	int x1 = wall[wall[themin].point2].x;
+	int y1 = wall[wall[themin].point2].y;
+	int x2 = wall[wall[wall[themin].point2].point2].x;
+	int y2 = wall[wall[wall[themin].point2].point2].y;
 
-	if ((y1 >= y2) && (y1 <= y0)) return(0);
-	if ((y1 >= y0) && (y1 <= y2)) return(1);
+	if ((y1 >= y2) && (y1 <= y0)) return 0;
+	if ((y1 >= y0) && (y1 <= y2)) return 1;
 
-	templong = (x0-x1)*(y2-y1) - (x2-x1)*(y0-y1);
+	int templong = (x0 - x1) * (y2 - y1) - (x2 - x1) * (y0 - y1);
+
 	if (templong < 0)
-		return(0);
+		return 0;
 	else
-		return(1);
+		return 1;
 }
 
 void flipwalls(short numwalls, short newnumwalls)
 {
 	int i;
 	int j;
-	int nume;
-	int templong;
 
-	nume = newnumwalls-numwalls;
+	int nume = newnumwalls-numwalls;
 
 	for(i=numwalls;i<numwalls+(nume>>1);i++)
 	{
 		j = numwalls+newnumwalls-i-1;
-		templong = wall[i].x; wall[i].x = wall[j].x; wall[j].x = templong;
-		templong = wall[i].y; wall[i].y = wall[j].y; wall[j].y = templong;
+		std::swap(wall[i].x, wall[j].x);
+		std::swap(wall[i].y, wall[j].y);
 	}
 }
 
@@ -6069,26 +6057,22 @@ void deletepoint(short point)
 int deletesector(short sucksect)
 {
 	int i;
-	int j;
-	int k;
-	int nextk;
-	int startwall;
-	int endwall;
 
 	while (headspritesect[sucksect] >= 0)
 		deletesprite(headspritesect[sucksect]);
 	updatenumsprites();
 
-	startwall = sector[sucksect].wallptr;
-	endwall = startwall + sector[sucksect].wallnum - 1;
-	j = sector[sucksect].wallnum;
+	int startwall = sector[sucksect].wallptr;
+	int endwall = startwall + sector[sucksect].wallnum - 1;
+	int j = sector[sucksect].wallnum;
 
 	for(i=sucksect;i<numsectors-1;i++)
 	{
-		k = headspritesect[i+1];
+		int k = headspritesect[i + 1];
+		
 		while (k != -1)
 		{
-			nextk = nextspritesect[k];
+			int nextk = nextspritesect[k];
 			changespritesect((short)k,(short)i);
 			k = nextk;
 		}
@@ -6096,6 +6080,7 @@ int deletesector(short sucksect)
 		std::memcpy(&sector[i],&sector[i+1],sizeof(sectortype));
 		sector[i].wallptr -= j;
 	}
+	
 	numsectors--;
 
 	j = endwall-startwall+1;
@@ -6114,35 +6099,35 @@ int deletesector(short sucksect)
 
 void fixspritesectors()
 {
-	int i;
-	int j;
-	int dax;
-	int day;
-	int daz;
-
-	for(i=numsectors-1;i>=0;i--)
+	for(int i = numsectors - 1; i >= 0; --i) {
 		if ((sector[i].wallnum <= 0) || (sector[i].wallptr >= numwalls))
 			deletesector((short)i);
+	}
 
-	for(i=0;i<MAXSPRITES;i++)
+	for(int i{0}; i < MAXSPRITES; ++i) {
 		if (sprite[i].statnum < MAXSTATUS)
 		{
-			dax = sprite[i].x;
-			day = sprite[i].y;
-			if (inside(dax,day,sprite[i].sectnum) != 1)
-			{
-				daz = ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
+			const int dax = sprite[i].x;
+			const int day = sprite[i].y;
 
-				for(j=0;j<numsectors;j++)
-					if (inside(dax,day,(short)j) == 1)
-						if (sprite[i].z >= getceilzofslope(j,dax,day))
-							if (sprite[i].z-daz <= getflorzofslope(j,dax,day))
+			if (inside(dax, day, sprite[i].sectnum) != 1)
+			{
+				const int daz = ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
+
+				for(int j{0}; j < numsectors; ++j) {
+					if (inside(dax, day, (short)j) == 1) {
+						if (sprite[i].z >= getceilzofslope(j, dax, day)) {
+							if (sprite[i].z - daz <= getflorzofslope(j, dax, day))
 							{
 								changespritesect((short)i,(short)j);
 								break;
 							}
+						}
+					}
+				}
 			}
 		}
+	}
 }
 
 int movewalls(int start, int offs)
@@ -6170,11 +6155,6 @@ int movewalls(int start, int offs)
 
 int checksectorpointer(short i, short sectnum)
 {
-	int j;
-	int k;
-	int startwall;
-	int endwall;
-
 	const int x1 = wall[i].x;
 	const int y1 = wall[i].y;
 	const int x2 = wall[wall[i].point2].x;
@@ -6182,7 +6162,7 @@ int checksectorpointer(short i, short sectnum)
 
 	if (wall[i].nextwall >= 0)          //Check for early exit
 	{
-		k = wall[i].nextwall;
+		const int k = wall[i].nextwall;
 		if ((wall[k].x == x2) && (wall[k].y == y2))
 			if ((wall[wall[k].point2].x == x1) && (wall[wall[k].point2].y == y1))
 				return(0);
@@ -6190,11 +6170,13 @@ int checksectorpointer(short i, short sectnum)
 
 	wall[i].nextsector = -1;
 	wall[i].nextwall = -1;
-	for(j=0;j<numsectors;j++)
+
+	for(int j{0}; j < numsectors; ++j)
 	{
-		startwall = sector[j].wallptr;
-		endwall = startwall + sector[j].wallnum - 1;
-		for(k=startwall;k<=endwall;k++)
+		const int startwall = sector[j].wallptr;
+		const int endwall = startwall + sector[j].wallnum - 1;
+
+		for(int k{startwall}; k <= endwall; ++k)
 		{
 			if ((wall[k].x == x2) && (wall[k].y == y2))
 				if ((wall[wall[k].point2].x == x1) && (wall[wall[k].point2].y == y1))
@@ -6207,19 +6189,17 @@ int checksectorpointer(short i, short sectnum)
 					}
 		}
 	}
-	return(0);
+
+	return 0;
 }
 
 void fixrepeats(short i)
 {
-	int dax;
-	int day;
-	int dist;
-
-	dax = wall[wall[i].point2].x-wall[i].x;
-	day = wall[wall[i].point2].y-wall[i].y;
-	dist = ksqrt(dax*dax+day*day);
-	dax = wall[i].xrepeat; day = wall[i].yrepeat;
+	int dax = wall[wall[i].point2].x-wall[i].x;
+	int day = wall[wall[i].point2].y-wall[i].y;
+	const int dist = ksqrt(dax * dax + day * day);
+	dax = wall[i].xrepeat; // TODO: Why set this again?
+	day = wall[i].yrepeat;
 	wall[i].xrepeat = static_cast<unsigned char>(std::min(std::max(mulscale10(dist, day), 1), 255));
 }
 
@@ -6234,50 +6214,49 @@ void clearmidstatbar16()
 
 short loopinside(int x, int y, short startwall)
 {
-	int x1;
-	int y1;
-	int x2;
-	int y2;
 	int templong;
-	short i;
-	short cnt;
 
-	cnt = clockdir(startwall);
-	i = startwall;
+	short cnt = clockdir(startwall);
+	short i{startwall};
+
 	do
 	{
-		x1 = wall[i].x; x2 = wall[wall[i].point2].x;
+		int x1 = wall[i].x;
+		int x2 = wall[wall[i].point2].x;
+
 		if ((x1 >= x) || (x2 >= x))
 		{
-			y1 = wall[i].y; y2 = wall[wall[i].point2].y;
+			int y1 = wall[i].y;
+			int y2 = wall[wall[i].point2].y;
+
 			if (y1 > y2)
 			{
-				templong = x1, x1 = x2, x2 = templong;
-				templong = y1, y1 = y2, y2 = templong;
+				std::swap(x1, x2);
+				std::swap(y1, y2);
 			}
+
 			if ((y1 <= y) && (y2 > y))
 				if (x1*(y-y2)+x2*(y1-y) <= x*(y1-y2))
 					cnt ^= 1;
 		}
+
 		i = wall[i].point2;
-	}
-	while (i != startwall);
-	return(cnt);
+	} while (i != startwall);
+	
+	return cnt;
 }
 
 int numloopsofsector(short sectnum)
 {
-	int i;
-	int numloops;
-	int startwall;
-	int endwall;
+	int numloops{0};
+	const int startwall = sector[sectnum].wallptr;
+	const int endwall = startwall + sector[sectnum].wallnum;
 
-	numloops = 0;
-	startwall = sector[sectnum].wallptr;
-	endwall = startwall + sector[sectnum].wallnum;
-	for(i=startwall;i<endwall;i++)
-		if (wall[i].point2 < i) numloops++;
-	return(numloops);
+	for(int i{startwall}; i < endwall; ++i)
+		if (wall[i].point2 < i)
+			++numloops;
+
+	return numloops;
 }
 
 short getnumber16(char *namestart, short num, int maxnumber, char sign)
@@ -6589,7 +6568,6 @@ int fillsector(short sectnum, unsigned char fillcolor)
 	int y2;
 	int sy;
 	int y;
-	int templong;
 	int dax;
 	short z;
 	short zz;
@@ -6633,8 +6611,8 @@ int fillsector(short sectnum, unsigned char fillcolor)
 			y1 = wall[z].y; y2 = wall[wall[z].point2].y;
 			if (y1 > y2)
 			{
-				templong = x1; x1 = x2; x2 = templong;
-				templong = y1; y1 = y2; y2 = templong;
+				std::swap(x1, x2);
+				std::swap(y1, y2);
 			}
 			if ((y1 <= y) && (y2 > y))
 				//if (x1*(y-y2) + x2*(y1-y) <= 0)
@@ -6651,7 +6629,7 @@ int fillsector(short sectnum, unsigned char fillcolor)
 				for (zz=0;zz<z;zz++)
 					if (fillist[z] < fillist[zz])
 					{
-						templong = fillist[z]; fillist[z] = fillist[zz]; fillist[zz] = templong;
+						std::swap(fillist[z], fillist[zz]);
 					}
 
 			for (z=(fillcnt&1);z<fillcnt-1;z+=2)
