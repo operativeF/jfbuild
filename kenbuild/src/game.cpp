@@ -493,7 +493,7 @@ int app_main(int argc, char const * const argv[])
 
 	wm_setapptitle("KenBuild by Ken Silverman");
 
-	Bstrcpy(boardfilename, "nukeland.map");
+	std::strcpy(boardfilename, "nukeland.map");
 	for (i=1;i<argc;i++) {
 #ifdef _WIN32
 		if (argv[i][0] == '-' || argv[i][0] == '/') {
@@ -512,8 +512,8 @@ int app_main(int argc, char const * const argv[])
 #endif
 		}
 		else {
-			Bstrcpy(boardfilename, argv[i]);
-			if (!Bstrrchr(boardfilename,'.')) Bstrcat(boardfilename,".map");
+			std::strcpy(boardfilename, argv[i]);
+			if (!std::strrchr(boardfilename,'.')) std::strcat(boardfilename,".map");
 		}
 	}
 
@@ -644,7 +644,7 @@ int app_main(int argc, char const * const argv[])
 	prepareboard(boardfilename);                   //Load board
 
 	initsb(option[1],option[2],digihz[option[7]>>4],((option[7]&4)>0)+1,((option[7]&2)>0)+1,60,option[7]&1);
-	if (Bstrcmp(boardfilename,"klab.map") == 0)
+	if (std::strcmp(boardfilename,"klab.map") == 0)
 	    loadsong("klabsong.kdm");
 	else
 		loadsong("neatsong.kdm");
@@ -5227,8 +5227,8 @@ void movelava(unsigned char *dapic)
 
 	for(z = std::min(LAVAMAXDROPS - lavanumdrops - 1, 3); z >= 0; z--)
 	{
-		lavadropx[lavanumdrops] = (Brand()&(LAVASIZ-1));
-		lavadropy[lavanumdrops] = (Brand()&(LAVASIZ-1));
+		lavadropx[lavanumdrops] = (std::rand()&(LAVASIZ-1));
+		lavadropy[lavanumdrops] = (std::rand()&(LAVASIZ-1));
 		lavadropsiz[lavanumdrops] = 1;
 		lavanumdrops++;
 	}
@@ -5627,10 +5627,10 @@ int loadgame()
 int savegame()
 {
 	int i;
-	BFILE *fil;
+	std::FILE *fil;
 	int tmpanimateptr[MAXANIMATES];
 
-	if ((fil = Bfopen("save0000.gam","wb")) == nullptr) return(-1);
+	if ((fil = std::fopen("save0000.gam","wb")) == nullptr) return(-1);
 
 	dfwrite(&numplayers,4,1,fil);
 	dfwrite(&myconnectindex,4,1,fil);
@@ -5785,7 +5785,7 @@ int savegame()
 	dfwrite(mirrorwall,2,mirrorcnt,fil);
 	dfwrite(mirrorsector,2,mirrorcnt,fil);
 
-	Bfclose(fil);
+	std::fclose(fil);
 
 	strcpy(getmessage,"Game saved.");
 	getmessageleng = (int)strlen(getmessage);

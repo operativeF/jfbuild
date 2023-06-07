@@ -5085,7 +5085,7 @@ static int polymost_preparetext()
 	if (!texttexture)
 		return -1;
 
-	auto* tbuf = (unsigned int *)Bcalloc(256*256, sizeof(unsigned int));
+	auto* tbuf = (unsigned int *) std::calloc(256*256, sizeof(unsigned int));
 
 	if (!tbuf) {
 		glfunc.glDeleteTextures(1,&texttexture);

@@ -298,8 +298,6 @@ int Bwildmatch (const char *i, const char *j);
 
 // One day, when all these are flushed from existence, this can be removed.
 #if defined(USE_COMPAT_H_BMACROS) && USE_COMPAT_H_BMACROS
-# define bsize_t size_t
-# define BFILE FILE
 # define BO_BINARY O_BINARY
 # define BO_TEXT   O_TEXT
 # define BO_RDONLY O_RDONLY
@@ -321,60 +319,21 @@ int Bwildmatch (const char *i, const char *j);
 # define BSEEK_SET SEEK_SET
 # define BSEEK_CUR SEEK_CUR
 # define BSEEK_END SEEK_END
-# define Brand rand
-# define Balloca alloca
-# define Bcalloc calloc
-# define Brealloc realloc
 # define Bopen open
 # define Bclose close
 # define Bwrite write
 # define Bread read
 # define Blseek lseek
 # define Bstat stat
-# define Bfopen fopen
-# define Bfclose fclose
-# define Bfeof feof
-# define Bfgetc fgetc
-# define Brewind rewind
-# define Bfgets fgets
-# define Bfputc fputc
-# define Bfputs fputs
-# define Bfread fread
-# define Bfwrite fwrite
-# define Bfprintf fprintf
 # define Bstrdup strdup
-# define Bstrcpy strcpy
-# define Bstrncpy strncpy
-# define Bstrcmp strcmp
-# define Bstrncmp strncmp
 # define Bstrcasecmp strcasecmp
 # define Bstrncasecmp strncasecmp
 # define Bstrlwr strlwr
 # define Bstrupr strupr
 # define Bmkdir mkdir
-# define Bstrcat strcat
-# define Bstrncat strncat
-# define Bstrlen strlen
-# define Bstrchr strchr
-# define Bstrrchr strrchr
-# define Batoi atoi
-# define Batol atol
-# define Bstrtol strtol
-# define Bstrtoul strtoul
-# define Bstrtod strtod
-# define Btoupper toupper
-# define Btolower tolower
-# define Bmemmove memmove
-# define Bmemchr memchr
-# define Bmemcmp memcmp
-# define Bprintf printf
-# define Bsprintf sprintf
 # define Bsnprintf snprintf
 # define Bvsnprintf vsnprintf
-# define Bvfprintf vfprintf
 # define Bgetcwd getcwd
-# define Bgetenv getenv
-# define Btime time
 #endif
 
 #endif // __compat_h__

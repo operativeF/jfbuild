@@ -9,7 +9,7 @@
 
 // Glibc doesn't provide this function, so for the sake of less ugliness
 // for all platforms, here's a replacement just for this program.
-static void jstrupr(char *s) { while (*s) { *s = Btoupper(*s); s++; } }
+static void jstrupr(char *s) { while (*s) { *s = std::toupper(*s); s++; } }
 
 constexpr auto MAXFILES{4096};
 

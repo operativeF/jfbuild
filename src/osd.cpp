@@ -473,7 +473,7 @@ static void OSD_Manipulate(int op) {
 			if (!osdeditcursor || !osdeditlen) return;
 			if (!osdovertype) {
 				if (osdeditcursor < osdeditlen)
-					Bmemmove(osdeditbuf+osdeditcursor-1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
+					std::memmove(osdeditbuf+osdeditcursor-1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
 				osdeditlen--;
 			}
 			osdeditcursor--;
@@ -484,13 +484,13 @@ static void OSD_Manipulate(int op) {
 			break;
 		case OSDOP_DELETE:
 			if (osdeditcursor == osdeditlen || !osdeditlen) return;
-			if (osdeditcursor <= osdeditlen-1) Bmemmove(osdeditbuf+osdeditcursor, osdeditbuf+osdeditcursor+1, osdeditlen-osdeditcursor-1);
+			if (osdeditcursor <= osdeditlen-1) std::memmove(osdeditbuf+osdeditcursor, osdeditbuf+osdeditcursor+1, osdeditlen-osdeditcursor-1);
 			osdeditlen--;
 			break;
 		case OSDOP_DELETE_START:
 			if (osdeditcursor>0 && osdeditlen) {
 				if (osdeditcursor<osdeditlen)
-					Bmemmove(osdeditbuf, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
+					std::memmove(osdeditbuf, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
 				osdeditlen-=osdeditcursor;
 				osdeditcursor = 0;
 				osdeditwinstart = 0;
@@ -506,7 +506,7 @@ static void OSD_Manipulate(int op) {
 				while (i>0 && osdeditbuf[i-1]==32) i--;
 				while (i>0 && osdeditbuf[i-1]!=32) i--;
 				if (osdeditcursor<osdeditlen)
-					Bmemmove(osdeditbuf+i, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
+					std::memmove(osdeditbuf+i, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
 				osdeditlen -= (osdeditcursor-i);
 				osdeditcursor = i;
 				if (osdeditcursor < osdeditwinstart) {
@@ -555,8 +555,8 @@ static void OSD_Manipulate(int op) {
 		case OSDOP_SUBMIT:
 			if (osdeditlen>0) {
 				osdeditbuf[osdeditlen] = 0;
-				Bmemmove(osdhistorybuf[1], osdhistorybuf[0], (HISTORYDEPTH-1)*(EDITLENGTH+1));
-				Bmemmove(osdhistorybuf[0], osdeditbuf, EDITLENGTH+1);
+				std::memmove(osdhistorybuf[1], osdhistorybuf[0], (HISTORYDEPTH-1)*(EDITLENGTH+1));
+				std::memmove(osdhistorybuf[0], osdeditbuf, EDITLENGTH+1);
 				if (osdhistorysize < HISTORYDEPTH) osdhistorysize++;
 				if (osdexeccount == HISTORYDEPTH)
 					OSD_Printf("Command Buffer Warning: Failed queueing command "
@@ -649,7 +649,7 @@ static void OSD_InsertChar(int ch)
 
 	if (!osdovertype) {
 		if (osdeditcursor < osdeditlen)
-			Bmemmove(osdeditbuf+osdeditcursor+1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
+			std::memmove(osdeditbuf+osdeditcursor+1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
 		osdeditlen++;
 	} else {
 		if (osdeditcursor == osdeditlen)
@@ -906,7 +906,7 @@ void OSD_Draw()
 
 static inline void linefeed()
 {
-	Bmemmove(osdtext+osdcols, osdtext, TEXTSIZE-osdcols);
+	std::memmove(osdtext+osdcols, osdtext, TEXTSIZE-osdcols);
 	std::memset(osdtext, 0, osdcols);
 
 	if (osdlines < osdmaxlines) osdlines++;
@@ -1226,7 +1226,7 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat)
 	if (!startingat) return nullptr;
 
 	for (; startingat; startingat=startingat->next)
-		if (!Bstrncasecmp(name, startingat->name, Bstrlen(name))) return startingat;
+		if (!Bstrncasecmp(name, startingat->name, std::strlen(name))) return startingat;
 
 	return nullptr;
 }

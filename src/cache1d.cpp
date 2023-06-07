@@ -406,10 +406,10 @@ int openfrompath(const char *fn, int flags, int mode)
 	return h;
 }
 
-BFILE* fopenfrompath(const char *fn, const char *mode)
+std::FILE* fopenfrompath(const char *fn, const char *mode)
 {
 	int fh;
-	BFILE *h;
+	std::FILE *h;
 	int bmode = 0;
 	int smode = 0;
 	const char *c;
@@ -862,7 +862,7 @@ static int klistaddentry(CACHE1D_FIND_REC **rec, const char* name, int type, int
 				insensitive = 0;
 #endif
 			if (insensitive) v = Bstrcasecmp(name, attach->name);
-			else v = Bstrcmp(name, attach->name);
+			else v = std::strcmp(name, attach->name);
 			
 			// sorted list
 			if (v > 0) continue;	// item to add is bigger than the current one
@@ -1177,7 +1177,7 @@ unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
 	return count;
 }
 
-unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
+unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil)
 {
 	size_t i;
 	size_t j;
@@ -1194,9 +1194,9 @@ unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
 	
 	auto* ptr = (unsigned char *)buffer;
 
-	if (Bfread(&leng,2,1,fil) != 1) { lzwrelease(); return -1; }
+	if (std::fread(&leng,2,1,fil) != 1) { lzwrelease(); return -1; }
 	leng = B_LITTLE16(leng);
-	if (Bfread(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return -1; }
+	if (std::fread(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return -1; }
 	k = 0; kgoal = lzwuncompress(lzwbuf5,(int)leng,lzwbuf4);
 
 	copybufbyte(lzwbuf4,ptr,(int)dasizeof);
@@ -1206,9 +1206,9 @@ unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
 	{
 		if (k >= kgoal)
 		{
-			if (Bfread(&leng,2,1,fil) != 1) { lzwrelease(); return -1; }
+			if (std::fread(&leng,2,1,fil) != 1) { lzwrelease(); return -1; }
 			leng = B_LITTLE16(leng);
-			if (Bfread(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return -1; }
+			if (std::fread(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return -1; }
 			k = 0; kgoal = lzwuncompress(lzwbuf5,(int)leng,lzwbuf4);
 		}
 		for(j=0;j<dasizeof;j++) ptr[j+dasizeof] = ((ptr[j]+lzwbuf4[j+k])&255);
@@ -1265,7 +1265,7 @@ unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil)
 	return count;
 }
 
-unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
+unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil)
 {
 	unsigned i;
 	unsigned j;
@@ -1285,8 +1285,8 @@ unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
 	if (k > LZWSIZE-dasizeof)
 	{
 		leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5); k = 0; swleng = B_LITTLE16(leng);
-		if (Bfwrite(&swleng,2,1,fil) != 1) { lzwrelease(); return 0; }
-		if (Bfwrite(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return 0; }
+		if (std::fwrite(&swleng,2,1,fil) != 1) { lzwrelease(); return 0; }
+		if (std::fwrite(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return 0; }
 	}
 
 	for(i=1;i<count;i++)
@@ -1296,16 +1296,16 @@ unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
 		if (k > LZWSIZE-dasizeof)
 		{
 			leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5); k = 0; swleng = B_LITTLE16(leng);
-			if (Bfwrite(&swleng,2,1,fil) != 1) { lzwrelease(); return 0; }
-			if (Bfwrite(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return 0; }
+			if (std::fwrite(&swleng,2,1,fil) != 1) { lzwrelease(); return 0; }
+			if (std::fwrite(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return 0; }
 		}
 		ptr += dasizeof;
 	}
 	if (k > 0)
 	{
 		leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5); swleng = B_LITTLE16(leng);
-		if (Bfwrite(&swleng,2,1,fil) != 1) { lzwrelease(); return 0; }
-		if (Bfwrite(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return 0; }
+		if (std::fwrite(&swleng,2,1,fil) != 1) { lzwrelease(); return 0; }
+		if (std::fwrite(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return 0; }
 	}
 	lzwrelease();
 	return count;

@@ -108,7 +108,7 @@ int fpuasm;
 unsigned char britable[16][256];
 
 static std::array<char, 128> kensmessage;
-static BFILE *logfile{nullptr};		// log filehandle
+static std::FILE *logfile{nullptr};		// log filehandle
 
 const struct textfontspec textfonts[3] = {
 	{	//8x8
@@ -6093,7 +6093,7 @@ int preinitengine()
 #ifndef USING_A_C
 	makeasmwriteable();
 
-	if (Bgetenv("BUILD_NOP6")) {
+	if (std::getenv("BUILD_NOP6")) {
 		buildprintf("Disabling P6 optimizations.\n");
 		dommxoverlay = 0;
 	}
@@ -6212,7 +6212,7 @@ void uninitengine()
 	uninitsystem();
 
 	if (logfile) {
-		Bfclose(logfile);
+		std::fclose(logfile);
 	}
 
 	logfile = nullptr;
@@ -12080,10 +12080,10 @@ void printext256(int xpos, int ypos, short col, short backcol, std::span<const c
 //
 // screencapture
 //
-static BFILE *screencapture_openfile(const char *ext)
+static std::FILE *screencapture_openfile(const char *ext)
 {
 	char *seq;
-	BFILE *fil;
+	std::FILE *fil;
 
 	do {	// JBF 2004022: So we don't overwrite existing screenshots
 		if (capturecount > 9999) {
@@ -12100,17 +12100,17 @@ static BFILE *screencapture_openfile(const char *ext)
 		seq[6] = ext[1];
 		seq[7] = ext[2];
 
-		if ((fil = Bfopen(capturename, "rb")) == nullptr) break;
-		Bfclose(fil);
+		if ((fil = std::fopen(capturename, "rb")) == nullptr) break;
+		std::fclose(fil);
 		capturecount++;
 	} while (1);
-	fil = Bfopen(capturename, "wb");
+	fil = std::fopen(capturename, "wb");
 	if (fil) capturecount++;
 	return fil;
 }
 
-static int screencapture_writeframe(BFILE *fil, char mode, void *v,
-	void (*writeline)(unsigned char *, int, int, BFILE *, void *))
+static int screencapture_writeframe(std::FILE *fil, char mode, void *v,
+	void (*writeline)(unsigned char *, int, int, std::FILE *, void *))
 {
 	int y;
 	int ystart;
@@ -12187,7 +12187,7 @@ static int screencapture_writeframe(BFILE *fil, char mode, void *v,
 	return(0);
 }
 
-static void screencapture_writetgaline(unsigned char *buf, int bytes, int elements, BFILE *fp, void *v)
+static void screencapture_writetgaline(unsigned char *buf, int bytes, int elements, std::FILE *fp, void *v)
 {
 	(void)v;
 	std::fwrite(buf, bytes, elements, fp);
@@ -12246,7 +12246,7 @@ static int screencapture_tga(char mode)
 }
 
 // PCX is nasty, which is why I've lifted these functions from the PCX spec by ZSoft
-static int writepcxbyte(unsigned char colour, unsigned char count, BFILE *fp)
+static int writepcxbyte(unsigned char colour, unsigned char count, std::FILE *fp)
 {
 	if (!count)
 		return 0;
@@ -12298,7 +12298,7 @@ static void writepcxline(unsigned char *buf, int bytes, int step, FILE* fp)
 		writepcxbyte(0, 1, fp);
 }
 
-static void screencapture_writepcxline(unsigned char *buf, int bytes, int elements, BFILE *fp, void *v)
+static void screencapture_writepcxline(unsigned char *buf, int bytes, int elements, std::FILE *fp, void *v)
 {
 	(void)v;
 
@@ -12662,12 +12662,12 @@ void buildprintf(const char *fmt, ...)
 	va_start(va, fmt);
 
 	va_copy(vac, va);
-	vfprintf(stdout, fmt, vac);
+	std::vfprintf(stdout, fmt, vac);
 	va_end(vac);
 
 	if (logfile) {
 		va_copy(vac, va);
-		vfprintf(logfile, fmt, vac);
+		std::vfprintf(logfile, fmt, vac);
 		va_end(vac);
 	}
 
@@ -12695,12 +12695,12 @@ void buildputs(const char *str)
 void buildsetlogfile(const char *fn)
 {
 	if (logfile)
-		Bfclose(logfile);
+		std::fclose(logfile);
 
 	logfile = nullptr;
 
 	if (fn)
-		logfile = Bfopen(fn,"w");
+		logfile = std::fopen(fn,"w");
 
 	if (logfile)
 		setvbuf(logfile, (char*)nullptr, _IONBF, 0);

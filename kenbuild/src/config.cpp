@@ -293,10 +293,10 @@ int loadsetup(const char *fn)
 
 int writesetup(const char *fn)
 {
-	BFILE *fp;
+	std::FILE *fp;
 	int item;
 
-	fp = Bfopen(fn,"wt");
+	fp = std::fopen(fn,"wt");
 	if (!fp) return -1;
 
 	tmpbrightness = brightness;
@@ -342,7 +342,7 @@ int writesetup(const char *fn)
 		}
 	}
 
-	Bfclose(fp);
+	std::fclose(fp);
 
 	return 0;
 }

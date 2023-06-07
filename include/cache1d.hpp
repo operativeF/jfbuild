@@ -22,7 +22,7 @@ inline int pathsearchmode{0};
 int     addsearchpath(const char *p);
 int		findfrompath(const char *fn, char **where);
 int     openfrompath(const char *fn, int flags, int mode);
-BFILE  *fopenfrompath(const char *fn, const char *mode);
+std::FILE  *fopenfrompath(const char *fn, const char *mode);
 
 int 	initgroupfile(const char *filename);
 void	uninitsinglegroupfile(int grphandle);
@@ -64,9 +64,9 @@ void klistfree(CACHE1D_FIND_REC *rec);
 CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int type);
 
 unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil);
-unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil);
+unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil);
 unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil);
-unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil);
+unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil);
 
 #endif // __cache1d_h__
 

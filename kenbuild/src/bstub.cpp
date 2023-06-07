@@ -341,7 +341,7 @@ void ExtCheckKeys()
 			}
 			walock[4094] = 1;
 
-			Bsprintf(tempbuf,"%d",(hang*180)>>10);
+			std::sprintf(tempbuf,"%d",(hang*180)>>10);
 			printext256(0L,8L,31,-1,tempbuf,1);
 		}
 #endif
@@ -356,7 +356,7 @@ void ExtCheckKeys()
 		i = frameval[framecnt&(AVERAGEFRAMES-1)];
 		j = frameval[framecnt&(AVERAGEFRAMES-1)] = getticks(); framecnt++;
 		if (i != j) averagefps = ((mul3(averagefps)+((AVERAGEFRAMES*1000)/(j-i)) )>>2);
-		Bsprintf((char *)tempbuf, "%d", averagefps);
+		std::sprintf((char *)tempbuf, "%d", averagefps);
 		printext256(0L,0L,31,-1, (char *)&tempbuf[0], 1);
 
 		editinput();
@@ -396,7 +396,7 @@ const char *ExtGetSectorCaption(short sectnum)
 	}
 	else
 	{
-		Bsprintf((char *)&tempbuf[0],"%hu,%hu",(unsigned short)sector[sectnum].hitag,
+		std::sprintf((char *)&tempbuf[0],"%hu,%hu",(unsigned short)sector[sectnum].hitag,
 								  (unsigned short)sector[sectnum].lotag);
 	}
 	return((char *)&tempbuf[0]);
@@ -410,7 +410,7 @@ const char *ExtGetWallCaption(short wallnum)
 	}
 	else
 	{
-		Bsprintf((char *)&tempbuf[0],"%hu,%hu",(unsigned short)wall[wallnum].hitag,
+		std::sprintf((char *)&tempbuf[0],"%hu,%hu",(unsigned short)wall[wallnum].hitag,
 								  (unsigned short)wall[wallnum].lotag);
 	}
 	return((char *)&tempbuf[0]);
@@ -424,7 +424,7 @@ const char *ExtGetSpriteCaption(short spritenum)
 	}
 	else
 	{
-		Bsprintf((char *)&tempbuf[0],"%hu,%hu",(unsigned short)sprite[spritenum].hitag,
+		std::sprintf((char *)&tempbuf[0],"%hu,%hu",(unsigned short)sprite[spritenum].hitag,
 								  (unsigned short)sprite[spritenum].lotag);
 	}
 	return((char *)&tempbuf[0]);
@@ -455,7 +455,7 @@ void ExtShowSectorData(short sectnum)   //F5
 	{
 		clearmidstatbar16();             //Clear middle of status bar
 
-		Bsprintf((char *)&tempbuf[0],"Sector %d",sectnum);
+		std::sprintf((char *)&tempbuf[0],"Sector %d",sectnum);
 		printext16(8,32,11,-1, (char *)&tempbuf[0], 0);
 
 		printext16(8,48,11,-1,"8*8 font:  ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789",0);
@@ -479,7 +479,7 @@ void ExtShowWallData(short wallnum)       //F6
 	{
 		clearmidstatbar16();             //Clear middle of status bar
 
-		Bsprintf((char *)&tempbuf[0],"Wall %d",wallnum);
+		std::sprintf((char *)&tempbuf[0],"Wall %d",wallnum);
 		printext16(8,32,11,-1,(char *)&tempbuf[0], 0);
 	}
 }
@@ -493,7 +493,7 @@ void ExtShowSpriteData(short spritenum)   //F6
 	{
 		clearmidstatbar16();             //Clear middle of status bar
 
-		Bsprintf((char *)&tempbuf[0],"Sprite %d",spritenum);
+		std::sprintf((char *)&tempbuf[0],"Sprite %d",spritenum);
 		printext16(8,32,11,-1, (char *)&tempbuf[0], 0);
 	}
 }
@@ -514,7 +514,7 @@ void ExtEditSectorData(short sectnum)    //F7
 	}
 	else                    //In 2D mode
 	{
-		Bsprintf((char *)&tempbuf[0],"Sector (%d) Nick's variable: ",sectnum);
+		std::sprintf((char *)&tempbuf[0],"Sector (%d) Nick's variable: ",sectnum);
 		nickdata = 0;
 		nickdata = getnumber16((char *)&tempbuf[0], nickdata, 65536L, 0);
 
@@ -532,7 +532,7 @@ void ExtEditWallData(short wallnum)       //F8
 	}
 	else
 	{
-		Bsprintf((char *)&tempbuf[0],"Wall (%d) Nick's variable: ",wallnum);
+		std::sprintf((char *)&tempbuf[0],"Wall (%d) Nick's variable: ",wallnum);
 		nickdata = 0;
 		nickdata = getnumber16((char *)&tempbuf[0], nickdata, 65536L, 0);
 
@@ -550,7 +550,7 @@ void ExtEditSpriteData(short spritenum)   //F8
 	}
 	else
 	{
-		Bsprintf((char *)&tempbuf[0],"Sprite (%d) Nick's variable: ",spritenum);
+		std::sprintf((char *)&tempbuf[0],"Sprite (%d) Nick's variable: ",spritenum);
 		nickdata = 0;
 		nickdata = getnumber16((char *)&tempbuf[0], nickdata, 65536L, 0);
 		printmessage16("");

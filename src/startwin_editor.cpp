@@ -90,7 +90,7 @@ static void populate_video_modes(BOOL firstTime)
     for (i=0; i<validmodecnt; i++) {
         if (validmode[i].fs != fullscreen) continue;
 
-        Bsprintf(modestr, "%d x %d %d-bpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+        std::sprintf(modestr, "%d x %d %d-bpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
         j = ComboBox_AddString(hwnd, modestr);
         ComboBox_SetItemData(hwnd, j, i);
         if (i == mode3d) {
@@ -98,7 +98,7 @@ static void populate_video_modes(BOOL firstTime)
         }
 
         if (validmode[i].bpp == 8 && validmode[i].xdim >= 640 && validmode[i].ydim >= 480) {
-            Bsprintf(modestr, "%d x %d", validmode[i].xdim, validmode[i].ydim);
+            std::sprintf(modestr, "%d x %d", validmode[i].xdim, validmode[i].ydim);
             j = ComboBox_AddString(hwnd2d, modestr);
             ComboBox_SetItemData(hwnd2d, j, i);
             if (i == mode2d) {

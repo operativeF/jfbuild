@@ -332,7 +332,7 @@ int wm_filechooser(const char *initialdir, const char *initialfile, const char *
 void wm_setapptitle(const char *name)
 {
 	if (name) {
-		Bstrncpy(apptitle, name, sizeof(apptitle)-1);
+		std::strncpy(apptitle, name, sizeof(apptitle)-1);
 		apptitle[ sizeof(apptitle)-1 ] = 0;
 	}
 
@@ -346,7 +346,7 @@ void wm_setapptitle(const char *name)
 void wm_setwindowtitle(const char *name)
 {
 	if (name) {
-		Bstrncpy(wintitle, name, sizeof(wintitle)-1);
+		std::strncpy(wintitle, name, sizeof(wintitle)-1);
 		wintitle[ sizeof(wintitle)-1 ] = 0;
 	}
 
@@ -455,7 +455,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, 
 	// pipe standard outputs to files
 	char *argp;
 
-	if ((argp = Bgetenv("BUILD_LOGSTDOUT")) != nullptr) {
+	if ((argp = std::getenv("BUILD_LOGSTDOUT")) != nullptr) {
 		if (!Bstrcasecmp(argp, "TRUE")) {
 			FILE* fp = freopen("stdout.txt", "w", stdout);
 

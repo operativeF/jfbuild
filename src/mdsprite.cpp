@@ -195,7 +195,7 @@ static int framename2index (mdmodel *vm, const char *nam)
 			for(i=0;i<m->numframes;i++)
 			{
 				fr = (md2frame_t *)&m->frames[i*m->framebytes];
-				if (!Bstrcmp(fr->name, nam)) break;
+				if (!std::strcmp(fr->name, nam)) break;
 			}
 			}
 			break;
@@ -203,7 +203,7 @@ static int framename2index (mdmodel *vm, const char *nam)
 			{
 			const auto* m = (md3model *)vm;
 			for(i=0;i<m->numframes;i++)
-				if (!Bstrcmp(m->head.frames[i].nam,nam)) break;
+				if (!std::strcmp(m->head.frames[i].nam,nam)) break;
 			}
 			break;
 	}

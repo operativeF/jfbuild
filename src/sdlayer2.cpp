@@ -219,7 +219,7 @@ int wm_idle(void *ptr)
 void wm_setapptitle(const char *name)
 {
 	if (name) {
-		Bstrncpy(apptitle, name, sizeof(apptitle)-1);
+		std::strncpy(apptitle, name, sizeof(apptitle)-1);
 		apptitle[ sizeof(apptitle)-1 ] = 0;
 	}
 #if defined HAVE_GTK
@@ -230,7 +230,7 @@ void wm_setapptitle(const char *name)
 void wm_setwindowtitle(const char *name)
 {
 	if (name) {
-		Bstrncpy(wintitle, name, sizeof(wintitle)-1);
+		std::strncpy(wintitle, name, sizeof(wintitle)-1);
 		wintitle[ sizeof(wintitle)-1 ] = 0;
 	}
 
@@ -378,7 +378,7 @@ void debugprintf(const char *f, ...)
 	va_list va;
 
 	va_start(va,f);
-	Bvfprintf(stderr, f, va);
+	std::vfprintf(stderr, f, va);
 	va_end(va);
 #endif
 	(void)f;

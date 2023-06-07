@@ -270,7 +270,7 @@ int loadsetup(const char *fn)
 
 int writesetup(const char *fn)
 {
-	BFILE* fp = Bfopen(fn, "wt");
+	std::FILE* fp = std::fopen(fn, "wt");
 
 	if (!fp) {
 		return -1;
@@ -325,7 +325,7 @@ int writesetup(const char *fn)
 		}
 	}
 
-	Bfclose(fp);
+	std::fclose(fp);
 
 	return 0;
 }
