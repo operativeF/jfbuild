@@ -116,7 +116,6 @@ int zoom{768};
 int gettilezoom{1};
 
 int numsprites;
-extern int mapversion;
 
 std::array<short, MAXWALLS> highlight;
 std::array<short, MAXSECTORS> highlightsector;
@@ -6823,7 +6822,6 @@ badline:
 //
 // JBF: Had to add extra tests to make sure x-coordinates weren't winding up -'ve
 //   after clipping or crashes would ensue
-unsigned int drawlinepat = 0xffffffff;
 
 void drawline16(int x1, int y1, int x2, int y2, unsigned char col)
 {

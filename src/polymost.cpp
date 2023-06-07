@@ -89,8 +89,6 @@ Low priority:
 #include <span>
 
 int rendmode{0};
-int usemodels{1};
-int usehightile{1};
 int usegoodalpha{0};
 
 struct vsptyp {
@@ -158,7 +156,6 @@ int* zbufoff{nullptr};
 int gfogpalnum{0};
 float gfogdensity{0.F};
 
-int glredbluemode{0};
 static int lastglredbluemode{0};
 static int redblueclearcnt{0};
 
@@ -171,16 +168,6 @@ struct glfiltermodes glfiltermodes[numglfiltermodes] = {
 	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR,GL_LINEAR}
 };
 
-int glanisotropy{0};            // 0 = maximum supported by card
-int glusetexcompr{1};
-int gltexcomprquality{0};	// 0 = fast, 1 = slow and pretty, 2 = very slow and pretty
-int gltexfiltermode{5};   // GL_LINEAR_MIPMAP_LINEAR
-int glusetexcache{1};
-int glmultisample{0};
-int glnvmultisamplehint{0};
-int glsampleshading{0};
-int gltexmaxsize{0};      // 0 means autodetection on first run
-int gltexmiplevel{0};		// discards this many mipmap levels
 static int lastglpolygonmode{0};
 int glpolygonmode{0};     // 0:GL_FILL,1:GL_LINE,2:GL_POINT,3:clear+GL_FILL
 
@@ -816,6 +803,7 @@ void resizeglcheck ()
 	}
 #endif
 
+	// FIXME: Float comparisons
 	if ((glox1 != windowx1) || (gloy1 != windowy1) || (glox2 != windowx2) || (gloy2 != windowy2))
 	{
 		glox1 = windowx1;

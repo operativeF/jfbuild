@@ -326,7 +326,7 @@ inline std::array<unsigned char, SHOWN_TILES> gotpic;
 inline std::array<unsigned char, SHOWN_SECTORS> gotsector;
 
 inline int captureformat{0};
-extern unsigned int drawlinepat;
+inline unsigned int drawlinepat{0xFFFFFFFF};
 
 extern void faketimerhandler();
 
@@ -337,24 +337,24 @@ struct palette_t {
 	unsigned char f;
 };
 
-extern std::array<palette_t, 256> curpalette;
-extern std::array<palette_t, 256> curpalettefaded;
-extern palette_t palfadergb;
-extern unsigned char palfadedelta;
+inline std::array<palette_t, 256> curpalette{}; // the current palette, unadjusted for brightness or tint
+inline std::array<palette_t, 256> curpalettefaded{}; // the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
+inline palette_t palfadergb{0, 0, 0, 0};
+inline unsigned char palfadedelta{0};
 
-extern int dommxoverlay;
-extern int novoxmips;
+inline int dommxoverlay{1};
+inline int novoxmips{0};
 
-extern std::array<int, MAXTILES> tiletovox;
-extern int usevoxels;
-extern std::array<int, MAXVOXELS> voxscale;
+inline std::array<int, MAXTILES> tiletovox{};
+inline int usevoxels{1};
+inline std::array<int, MAXVOXELS> voxscale{};
 
 #if USE_POLYMOST && USE_OPENGL
-extern int usemodels;
-extern int usehightile;
+inline int usemodels{1};
+inline int usehightile{1};
 #endif
 
-extern std::string engineerrstr;
+inline std::string engineerrstr{};
 
 inline constexpr auto MAXVOXMIPS{5};
 inline intptr_t voxoff[MAXVOXELS][MAXVOXMIPS];
@@ -555,7 +555,7 @@ void    setrollangle(int rolla);
 #endif
 
 #if USE_OPENGL
-extern int glswapinterval;
+inline int glswapinterval{1};
 #endif
 
 #if USE_POLYMOST && USE_OPENGL
@@ -580,15 +580,18 @@ void polymost_precache_begin();
 void polymost_precache(int dapicnum, int dapalnum, int datype);
 int  polymost_precache_run(int* done, int* total);
 
-extern int glanisotropy;
-extern int glusetexcompr;
-extern int gltexfiltermode;
-extern int glredbluemode;
-extern int glusetexcache;
-extern int glmultisample, glnvmultisamplehint, glsampleshading;
+inline int glanisotropy{0}; // 0 = maximum supported by card
+inline int glusetexcompr{1};
+inline int gltexfiltermode{5}; // GL_LINEAR_MIPMAP_LINEAR
+inline int glredbluemode{0};
+inline int glusetexcache{1};
+inline int glmultisample{0};
+inline int glnvmultisamplehint{0};
+inline int glsampleshading{0};
+
 void gltexapplyprops ();
 
-extern int polymosttexfullbright;	// set to the first index of the fullbright palette
+inline int polymosttexfullbright{256};	// set to the first index of the fullbright palette
 
 // effect bitset: 1 = greyscale, 2 = invert
 void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect);
@@ -611,7 +614,8 @@ int md_undefinemodel(int modelid);
 
 int loaddefinitionsfile(const char *fn);
 
-extern int mapversion;	// if loadboard() fails with -2 return, try loadoldboard(). if it fails with -2, board is dodgy
+inline int mapversion{7L};	// JBF 20040211: default mapversion to 7;
+                            // if loadboard() fails with -2 return, try loadoldboard(). if it fails with -2, board is dodgy
 int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
 
 void buildprintf(const char *fmt, ...) PRINTF_FORMAT(1, 2);

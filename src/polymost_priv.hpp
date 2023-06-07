@@ -73,9 +73,9 @@ struct glfiltermodes {
 inline constexpr auto numglfiltermodes{6};
 extern struct glfiltermodes glfiltermodes[numglfiltermodes];
 
-extern int gltexcomprquality;	// 0 = fast, 1 = slow and pretty, 2 = very slow and pretty
-extern int gltexmaxsize;	// 0 means autodetection on first run
-extern int gltexmiplevel;	// discards this many mipmap levels
+inline int gltexcomprquality{0};	// 0 = fast, 1 = slow and pretty, 2 = very slow and pretty
+inline int gltexmaxsize{0};	// 0 means autodetection on first run
+inline int gltexmiplevel{0};	// discards this many mipmap levels
 
 extern const GLfloat gidentitymat[4][4];
 extern GLfloat gdrawroomsprojmat[4][4];      // Proj. matrix for drawrooms() calls.

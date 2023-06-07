@@ -46,12 +46,8 @@ void *kmalloc(bsize_t size) { return(Bmalloc(size)); }
 void kfree(void *buffer) { Bfree(buffer); }
 
 void loadvoxel(int voxindex) { (void)voxindex; }
-std::array<int, MAXTILES> tiletovox;
-int usevoxels = 1;
 
 #define kloadvoxel loadvoxel
-
-int novoxmips = 0;
 
 	//These variables need to be copied into BUILD
 constexpr auto MAXXSIZ{256};
@@ -59,7 +55,6 @@ constexpr auto MAXYSIZ{256};
 constexpr auto MAXZSIZ{255};
 
 unsigned char voxlock[MAXVOXELS][MAXVOXMIPS];
-std::array<int, MAXVOXELS> voxscale;
 
 static std::array<int, MAXXSIZ + 1> ggxinc;
 static std::array<int, MAXXSIZ + 1> ggyinc;
@@ -69,7 +64,6 @@ static int nytoofar;
 static std::array<unsigned int, 65536> distrecip;
 
 static int* lookups{nullptr};
-int dommxoverlay{1};
 int beforedrawrooms{1};
 
 static int oxdimen{-1};
@@ -97,7 +91,6 @@ palette_t palookupfog[MAXPALOOKUPS];
 #endif
 
 int artversion;
-int mapversion{7L};	// JBF 20040211: default mapversion to 7
 void *pic{nullptr};
 std::array<unsigned char, MAXTILES> picsiz;
 std::array<unsigned char, MAXTILES> tilefilenum;
@@ -119,7 +112,6 @@ int fpuasm;
 unsigned char britable[16][256];
 
 static std::array<char, 128> kensmessage;
-std::string engineerrstr{};
 static BFILE *logfile{nullptr};		// log filehandle
 
 const struct textfontspec textfonts[3] = {
@@ -693,13 +685,6 @@ static int baktile;
 #endif
 
 int totalclocklock;
-
-std::array<palette_t, 256> curpalette;			// the current palette, unadjusted for brightness or tint
-std::array<palette_t, 256> curpalettefaded;		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
-palette_t palfadergb = { 0,0,0,0 };
-unsigned char palfadedelta{0};
-
-
 
 //
 // Internal Engine Functions

@@ -17,7 +17,6 @@
 #if USE_OPENGL
 #include "glbuild.hpp"
 struct glbuild_info glinfo;
-int glswapinterval = 1;
 int glunavailable;
 #endif //USE_OPENGL
 

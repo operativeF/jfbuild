@@ -63,9 +63,6 @@ static int primecnt   = 0;	// expected number of textures to load during priming
 static int primedone  = 0;	// running total of how many textures have been primed
 static int primepos   = 0;	// the position in pthashhead where we are up to in priming
 
-int polymosttexverbosity = 1;	// 0 = none, 1 = errors, 2 = all
-int polymosttexfullbright = 256;	// first index of the fullbright palette entries
-
 constexpr auto PTHASHHEADSIZ{4096};
 static PTHash * pthashhead[PTHASHHEADSIZ];	// will be initialised 0 by .bss segment
 

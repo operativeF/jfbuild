@@ -76,7 +76,7 @@ enum {
 struct PTIter_typ;	// an opaque iterator type for walking the internal hash
 typedef struct PTIter_typ * PTIter;
 
-extern int polymosttexverbosity;	// 0 = none, 1 = errors (default), 2 = all
+inline int polymosttexverbosity{1};	// 0 = none, 1 = errors (default), 2 = all
 
 /**
  * Prepare for priming by sweeping through the textures and marking them as all unused
