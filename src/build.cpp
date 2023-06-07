@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <array>
+#include <numeric>
 
 constexpr auto TIMERINTSPERSECOND{120};
 
@@ -444,8 +445,13 @@ int app_main(int argc, char const * const argv[])
 		if (j < dark) { dark = j; blackcol = i; }
 	}
 
-	for(i=0;i<MAXWALLS;i++) wall[i].extra = -1;
-	for(i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
+	for(auto& aWall : wall) {
+		aWall.extra = -1; 
+	}
+
+	for(auto& aSprite : sprite) {
+		aSprite.extra = -1;
+	}
 
 	wm_setwindowtitle("(new board)");
 
@@ -2347,8 +2353,8 @@ void editinput()
 				sprite[i].hitag = 0;
 				sprite[i].extra = -1;
 
-				for(k=0;k<MAXTILES;k++)
-					localartfreq[k] = 0;
+				std::ranges::fill(localartfreq, 0);
+
 				for(k=0;k<MAXSPRITES;k++)
 					if (sprite[k].statnum < MAXSTATUS)
 						localartfreq[sprite[k].picnum]++;
@@ -2502,11 +2508,10 @@ int gettile(int tilenum)
 	otilenum = tilenum;
 
 	keystatus[0x2f] = 0;
-	for(i=0;i<MAXTILES;i++)
-	{
-		localartfreq[i] = 0;
-		localartlookup[i] = i;
-	}
+
+	std::ranges::fill(localartfreq, 0);
+	std::iota(localartlookup.begin(), localartlookup.end(), 0);
+
 	if ((searchstat == 1) || (searchstat == 2))
 		for(i=0;i<numsectors;i++)
 		{
@@ -2557,8 +2562,7 @@ int gettile(int tilenum)
 	{
 		tilenum = otilenum;
 		localartlookupnum = MAXTILES;
-		for(i=0;i<MAXTILES;i++)
-			localartlookup[i] = i;
+		std::iota(localartlookup.begin(), localartlookup.end(), 0);
 	}
 
 	topleft = ((tilenum/(xtiles<<gettilezoom))*(xtiles<<gettilezoom))-(xtiles<<gettilezoom);
@@ -2621,8 +2625,7 @@ int gettile(int tilenum)
 			else
 				tilenum = 0;
 			localartlookupnum = MAXTILES;
-			for(i=0;i<MAXTILES;i++)
-				localartlookup[i] = i;
+			std::iota(localartlookup.begin(), localartlookup.end(), 0);
 		}
 		if (keystatus[0x22] > 0)       //G (goto)
 		{
@@ -2631,8 +2634,7 @@ int gettile(int tilenum)
 			else
 				tilenum = 0;
 			localartlookupnum = MAXTILES;
-			for(i=0;i<MAXTILES;i++)
-				localartlookup[i] = i;
+			std::iota(localartlookup.begin(), localartlookup.end(), 0);
 
 			keystatus[0x22] = 0;
 			bflushchars();
@@ -2925,10 +2927,8 @@ void overheadeditor()
 		}
 	}
 
-	for(i=0;i<(MAXWALLS>>3);i++)   //Clear all highlights
-		show2dwall[i] = 0;
-	for(i=0;i<(MAXSPRITES>>3);i++)
-		show2dsprite[i] = 0;
+	std::ranges::fill(show2dwall, 0);  // Clear all highlights
+	std::ranges::fill(show2dsprite, 0);
 
 	sectorhighlightstat = -1;
 	newnumwalls = -1;
@@ -3683,10 +3683,8 @@ void overheadeditor()
 					highlighty2 = searchx;
 					highlightcnt = 0;
 
-					for(i=0;i<(MAXWALLS>>3);i++)   //Clear all highlights
-						show2dwall[i] = 0;
-					for(i=0;i<(MAXSPRITES>>3);i++)
-						show2dsprite[i] = 0;
+					std::ranges::fill(show2dwall, 0);  // Clear all highlights
+					std::ranges::fill(show2dsprite, 0);
 				}
 			}
 			else
@@ -4279,8 +4277,8 @@ void overheadeditor()
 				if ((sprite[i].cstat&128) != 0)
 					sprite[i].z -= ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
 
-				for(k=0;k<MAXTILES;k++)
-					localartfreq[k] = 0;
+				std::ranges::fill(localartfreq, 0);
+
 				for(k=0;k<MAXSPRITES;k++)
 					if (sprite[k].statnum < MAXSTATUS)
 						localartfreq[sprite[k].picnum]++;
@@ -5259,14 +5257,20 @@ void overheadeditor()
 							highlightsectorcnt = -1;
 							highlightcnt = -1;
 
-							for(i=0;i<(MAXWALLS>>3);i++)   //Clear all highlights
-								show2dwall[i] = 0;
-							for(i=0;i<(MAXSPRITES>>3);i++)
-								show2dsprite[i] = 0;
+							std::ranges::fill(show2dwall, 0); //Clear all highlights
+							std::ranges::fill(show2dsprite, 0);
 
-							for(i=0;i<MAXSECTORS;i++) sector[i].extra = -1;
-							for(i=0;i<MAXWALLS;i++) wall[i].extra = -1;
-							for(i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
+							for(auto& aSector : sector) {
+								aSector.extra = -1;
+							}
+
+							for(auto& aWall : wall) {
+								aWall.extra = -1;
+							}
+
+							for(auto& aSprite : sprite) {
+								aSprite.extra = -1;
+							}
 
 							sectorhighlightstat = -1;
 							newnumwalls = -1;
@@ -5417,9 +5421,17 @@ void overheadeditor()
 						circlewall = -1;
 						circlepoints = 7;
 
-						for(i=0;i<MAXSECTORS;i++) sector[i].extra = -1;
-						for(i=0;i<MAXWALLS;i++) wall[i].extra = -1;
-						for(i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
+						for(auto& aSector : sector) {
+							aSector.extra = -1;
+						}
+
+						for(auto& aWall : wall) {
+							aWall.extra = -1;
+						}
+
+						for(auto& aSprite : sprite) {
+							aSprite.extra = -1;
+						}
 
 						ExtPreLoadMap();
 						j = pathsearchmode == PATHSEARCH_GAME && grponlymode ? KOPEN4LOAD_ANYGRP : KOPEN4LOAD_ANY;

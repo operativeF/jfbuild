@@ -6155,13 +6155,14 @@ int initengine()
 			voxoff[i][j] = 0L;
 			voxlock[i][j] = 200;
 		}
-	for(i=0;i<MAXTILES;i++)
-		tiletovox[i] = -1;
+	
+	std::ranges::fill(tiletovox, -1);
+
 	clearbuf(&voxscale[0],sizeof(voxscale)>>2,65536L);
 
 	searchit = 0; searchstat = -1;
 
-	for(i=0;i<MAXPALOOKUPS;i++) palookup[i] = nullptr;
+	std::ranges::fill(palookup, nullptr);
 
 	clearbuf(&waloff[0],(int)MAXTILES,0L);
 
