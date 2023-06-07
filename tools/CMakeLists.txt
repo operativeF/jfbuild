@@ -19,7 +19,10 @@ add_executable(kextract
 )
 
 if(WIN32)
-  set(kextract_libs msvcrt.lib)
+  set(kextract_libs
+    $<$<CONFIG:Debug>:msvcrtd.lib>
+    $<$<CONFIG:Release>:msvcrt.lib>
+    $<$<CONFIG:RelWithDebInfo>:msvcrtd.lib>)
 endif()
 
 target_link_libraries(kextract

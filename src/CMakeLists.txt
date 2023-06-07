@@ -87,7 +87,9 @@ if(WIN32)
     Microsoft::XApoBase
     Microsoft::XAudio2Redist
     ws2_32.lib
-    msvcrt.lib
+    $<$<CONFIG:Debug>:msvcrtd.lib>
+    $<$<CONFIG:Release>:msvcrt.lib>
+    $<$<CONFIG:RelWithDebInfo>:msvcrt.lib>
     comctl32.lib
     uxtheme.lib
     xinput.lib
