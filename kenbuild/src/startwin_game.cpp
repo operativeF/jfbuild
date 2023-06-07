@@ -32,8 +32,13 @@ static int retval = -1;
 
 static void populate_video_modes(BOOL firstTime)
 {
-    int i, j, mode3d = -1;
-    int xdim = 0, ydim = 0, bpp = 0, fullscreen = 0;
+    int i;
+    int j;
+    int mode3d = -1;
+    int xdim = 0;
+    int ydim = 0;
+    int bpp = 0;
+    int fullscreen = 0;
     TCHAR modestr[64];
     int cd[] = { 32, 24, 16, 15, 8, 0 };
     HWND hwnd;
@@ -198,7 +203,8 @@ static void startbutton_clicked()
     if (IsDlgButtonChecked(pages[TAB_CONFIG], IDC_SINGLEPLAYER) == BST_CHECKED) {
         settings->numplayers = 1;
     } else if (IsDlgButtonChecked(pages[TAB_CONFIG], IDC_JOINMULTIPLAYER) == BST_CHECKED) {
-        int joinhostlen, wcharlen;
+        int joinhostlen;
+        int wcharlen;
         WCHAR *wcharstr;
 
         settings->numplayers = 2;
@@ -393,10 +399,13 @@ int startwin_close()
 
 int startwin_puts(const char *buf)
 {
-    const char *p = nullptr, *q = nullptr;
+    const char *p = nullptr;
+    const char *q = nullptr;
     char workbuf[1024];
     static int newline = 0;
-    int curlen, linesbefore, linesafter;
+    int curlen;
+    int linesbefore;
+    int linesafter;
     HWND edctl;
     int vis;
 

@@ -339,7 +339,10 @@ static int osdcmd_restartvid(const osdfuncparm_t *parm)
 
 static int osdcmd_vidmode(const osdfuncparm_t *parm)
 {
-	int newx = xdim, newy = ydim, newbpp = bpp, newfullscreen = fullscreen;
+	int newx = xdim;
+	int newy = ydim;
+	int newbpp = bpp;
+	int newfullscreen = fullscreen;
 
 	if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
 
@@ -369,7 +372,8 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 
 static int osdcmd_map(const osdfuncparm_t *parm) {
     int i;
-    char *dot, namebuf[BMAX_PATH+1];
+    char *dot;
+    char namebuf[BMAX_PATH+1];
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
@@ -401,7 +405,14 @@ static int osdcmd_map(const osdfuncparm_t *parm) {
 
 int app_main(int argc, char const * const argv[])
 {
-	int i, j, k, waitplayers, x1, y1, x2, y2;
+	int i;
+	int j;
+	int k;
+	int waitplayers;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
 	int other, netparm = 0, endnetparm = 0, netsuccess = 0;
 
 #ifdef HAVE_STARTWIN
@@ -791,9 +802,17 @@ int app_main(int argc, char const * const argv[])
 
 void operatesector(short dasector)
 {     //Door code
-	int i, j, datag;
-	int daz, dax2, day2, centx, centy;
-	short startwall, endwall, wallfind[2];
+	int i;
+	int j;
+	int datag;
+	int daz;
+	int dax2;
+	int day2;
+	int centx;
+	int centy;
+	short startwall;
+	short endwall;
+	short wallfind[2];
 
 	datag = sector[dasector].lotag;
 
@@ -1167,8 +1186,17 @@ void drawstatusbar(short snum) {   // Andy did this
 
 void prepareboard(char *daboardfilename)
 {
-	short startwall, endwall, dasector;
-	int i, j, k=0, s, dax, day, dax2, day2;
+	short startwall;
+	short endwall;
+	short dasector;
+	int i;
+	int j;
+	int k=0;
+	int s;
+	int dax;
+	int day;
+	int dax2;
+	int day2;
 
 	getmessageleng = 0;
 	typemessageleng = 0;
@@ -1191,7 +1219,8 @@ void prepareboard(char *daboardfilename)
 		printf("Board not found\n");
 		exit(0);
 	} else {
-		char tempfn[BMAX_PATH + 1], *fp;
+		char tempfn[BMAX_PATH + 1];
+		char *fp;
 
 		wm_setwindowtitle(daboardfilename);
 
@@ -1630,7 +1659,8 @@ void prepareboard(char *daboardfilename)
 
 void checktouchsprite(short snum, short sectnum)
 {
-	int i, nexti;
+	int i;
+	int nexti;
 
 	if ((sectnum < 0) || (sectnum >= numsectors)) return;
 
@@ -1734,7 +1764,8 @@ void checktouchsprite(short snum, short sectnum)
 
 void checkgrabbertouchsprite(short snum, short sectnum)   // Andy did this
 {
-	int i, nexti;
+	int i;
+	int nexti;
 	short onum;
 
 	if ((sectnum < 0) || (sectnum >= numsectors)) return;
@@ -1841,8 +1872,15 @@ void checkgrabbertouchsprite(short snum, short sectnum)   // Andy did this
 void shootgun(short snum, int x, int y, int z,
 	short daang, int dahoriz, short dasectnum, unsigned char guntype)
 {
-	short hitsect, hitwall, hitsprite, daang2;
-	int j, daz2, hitx, hity, hitz;
+	short hitsect;
+	short hitwall;
+	short hitsprite;
+	short daang2;
+	int j;
+	int daz2;
+	int hitx;
+	int hity;
+	int hitz;
 
 	switch(guntype)
 	{
@@ -1957,7 +1995,10 @@ void shootgun(short snum, int x, int y, int z,
 
 void analyzesprites(int dax, int day)
 {
-	int i, j=0, k, *intptr;
+	int i;
+	int j=0;
+	int k;
+	int *intptr;
 	point3di *ospr;
 	spritetype *tspr;
 
@@ -2037,8 +2078,20 @@ void analyzesprites(int dax, int day)
 
 void tagcode()
 {
-	int i, j, k, l, s, dax, day, cnt, good;
-	short startwall, endwall, dasector, p, oldang;
+	int i;
+	int j;
+	int k;
+	int l;
+	int s;
+	int dax;
+	int day;
+	int cnt;
+	int good;
+	short startwall;
+	short endwall;
+	short dasector;
+	short p;
+	short oldang;
 
 	for(p=connecthead;p>=0;p=connectpoint2[p])
 	{
@@ -2337,9 +2390,28 @@ void tagcode()
 
 void statuslistcode()
 {
-	short p, target, hitobject, daang, osectnum, movestat;
-	int i, nexti, j, nextj, k, l, dax, day, daz, dist=0, ox, oy, mindist;
-	int doubvel, xvect, yvect;
+	short p;
+	short target;
+	short hitobject;
+	short daang;
+	short osectnum;
+	short movestat;
+	int i;
+	int nexti;
+	int j;
+	int nextj;
+	int k;
+	int l;
+	int dax;
+	int day;
+	int daz;
+	int dist=0;
+	int ox;
+	int oy;
+	int mindist;
+	int doubvel;
+	int xvect;
+	int yvect;
 
 		//Go through active BROWNMONSTER list
 	for(i=headspritestat[1];i>=0;i=nexti)
@@ -3093,7 +3165,8 @@ bulletisdeletedskip: continue;
 
 void activatehitag(short dahitag)
 {
-	int i, nexti;
+	int i;
+	int nexti;
 
 	for(i=0;i<numsectors;i++)
 		if (sector[i].hitag == dahitag) operatesector(i);
@@ -3107,7 +3180,13 @@ void activatehitag(short dahitag)
 
 void bombexplode(int i)
 {
-	int j, nextj, k, daang, dax, day, dist;
+	int j;
+	int nextj;
+	int k;
+	int daang;
+	int dax;
+	int day;
+	int dist;
 
 	spawnsprite(j,sprite[i].x,sprite[i].y,sprite[i].z,0,-4,0,
 		32,64,64,0,0,EXPLOSION,sprite[i].ang,
@@ -3191,8 +3270,15 @@ void bombexplode(int i)
 
 void processinput(short snum)
 {
-	int i, j, k, doubvel, xvect, yvect, goalz;
-	int dax, day;
+	int i;
+	int j;
+	int k;
+	int doubvel;
+	int xvect;
+	int yvect;
+	int goalz;
+	int dax;
+	int day;
 
 		//SHARED KEYS:
 		//Movement code
@@ -3587,8 +3673,20 @@ void processinput(short snum)
 void view(short snum, int *vx, int *vy, int *vz, short *vsectnum, short ang, int horiz)
 {
 	spritetype *sp;
-	int i, nx, ny, nz, hx, hy, hitx, hity, hitz;
-	short bakcstat, hitsect, hitwall, hitsprite, daang;
+	int i;
+	int nx;
+	int ny;
+	int nz;
+	int hx;
+	int hy;
+	int hitx;
+	int hity;
+	int hitz;
+	short bakcstat;
+	short hitsect;
+	short hitwall;
+	short hitsprite;
+	short daang;
 
 	nx = (sintable[(ang+1536)&2047]>>4);
 	ny = (sintable[(ang+1024)&2047]>>4);
@@ -3634,12 +3732,41 @@ void view(short snum, int *vx, int *vy, int *vz, short *vsectnum, short ang, int
 
 void drawscreen(short snum, int dasmoothratio)
 {
-	int i, j, k=0, l, charsperline, tempint;
-	int x1, y1, x2, y2, ox1, oy1, ox2, oy2, dist, maxdist;
-	int cposx, cposy, cposz, choriz, czoom, tposx, tposy;
-	int tiltlock, *intptr, ovisibility, oparallaxvisibility;
-	short cang, tang, csect;
-	unsigned char ch, *ptr, *ptr2, *ptr3, *ptr4;
+	int i;
+	int j;
+	int k=0;
+	int l;
+	int charsperline;
+	int tempint;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int ox1;
+	int oy1;
+	int ox2;
+	int oy2;
+	int dist;
+	int maxdist;
+	int cposx;
+	int cposy;
+	int cposz;
+	int choriz;
+	int czoom;
+	int tposx;
+	int tposy;
+	int tiltlock;
+	int *intptr;
+	int ovisibility;
+	int oparallaxvisibility;
+	short cang;
+	short tang;
+	short csect;
+	unsigned char ch;
+	unsigned char *ptr;
+	unsigned char *ptr2;
+	unsigned char *ptr3;
+	unsigned char *ptr4;
 	spritetype *tspr;
 
 	smoothratio = std::max(std::min(dasmoothratio, 65536), 0);
@@ -4286,7 +4413,10 @@ void movethings()
 void fakedomovethings()
 {
 	input *syn;
-	int doubvel, xvect, yvect, goalz;
+	int doubvel;
+	int xvect;
+	int yvect;
+	int goalz;
 	short bakcstat;
 
 	syn = (input *)&baksync[fakemovefifoplc][myconnectindex];
@@ -4434,7 +4564,10 @@ void fakedomovethingscorrect()
 
 void domovethings()
 {
-	short i, j, startwall, endwall;
+	short i;
+	short j;
+	short startwall;
+	short endwall;
 	walltype *wal;
 
 	nummoves++;
@@ -4517,8 +4650,11 @@ void domovethings()
 void getinput()
 {
 	unsigned char ch;
-	int i, j;
-	int mousx, mousy, bstatus;
+	int i;
+	int j;
+	int mousx;
+	int mousy;
+	int bstatus;
 
 	if (typemode == 0)           //if normal game keys active
 	{
@@ -4747,7 +4883,9 @@ void initplayersprite(short snum)
 
 void playback()
 {
-	int i, j, k;
+	int i;
+	int j;
+	int k;
 
 	ready2send = 0;
 	recstat = 0; i = reccnt;
@@ -4810,7 +4948,11 @@ void playback()
 
 void setup3dscreen()
 {
-	int i, dax, day, dax2, day2;
+	int i;
+	int dax;
+	int day;
+	int dax2;
+	int day2;
 
 	i = setgamemode(fullscreen,xdimgame,ydimgame,bppgame);
 	if (i < 0)
@@ -4866,8 +5008,18 @@ void setup3dscreen()
 
 void findrandomspot(int *x, int *y, short *sectnum)
 {
-	short startwall, endwall, s, dasector;
-	int dax, day, daz, minx, maxx, miny, maxy, cnt;
+	short startwall;
+	short endwall;
+	short s;
+	short dasector;
+	int dax;
+	int day;
+	int daz;
+	int minx;
+	int maxx;
+	int miny;
+	int maxy;
+	int cnt;
 
 	for(cnt=256;cnt>=0;cnt--)
 	{
@@ -4912,8 +5064,15 @@ void findrandomspot(int *x, int *y, short *sectnum)
 
 void warp(int *x, int *y, int *z, short *daang, short *dasector)
 {
-	short startwall, endwall, s;
-	int i, j, dax, day, ox, oy;
+	short startwall;
+	short endwall;
+	short s;
+	int i;
+	int j;
+	int dax;
+	int day;
+	int ox;
+	int oy;
 
 	ox = *x; oy = *y;
 
@@ -4970,7 +5129,10 @@ void warpsprite(short spritenum)
 
 void initlava()
 {
-	int x, y, z, r;
+	int x;
+	int y;
+	int z;
+	int r;
 
 	for(z=0;z<32;z++) lavaradcnt[z] = 0;
 	for(x=-16;x<=16;x++)
@@ -5048,9 +5210,20 @@ int addlava(void *bx)
 
 void movelava(unsigned char *dapic)
 {
-	int i, x, y, z, zz, dalavadropsiz, dadropsizlookup;
-	int dalavax, dalavay, *ptr, *ptr2;
-	unsigned char *pi, *pj, *py;
+	int i;
+	int x;
+	int y;
+	int z;
+	int zz;
+	int dalavadropsiz;
+	int dadropsizlookup;
+	int dalavax;
+	int dalavay;
+	int *ptr;
+	int *ptr2;
+	unsigned char *pi;
+	unsigned char *pj;
+	unsigned char *py;
 
 	for(z = std::min(LAVAMAXDROPS - lavanumdrops - 1, 3); z >= 0; z--)
 	{
@@ -5127,7 +5300,8 @@ void movelava(unsigned char *dapic)
 
 void doanimations()
 {
-	int i, j;
+	int i;
+	int j;
 
 	for(i=animatecnt-1;i>=0;i--)
 	{
@@ -5167,7 +5341,8 @@ int getanimationgoal(int *animptr)
 
 int setanimation(int *animptr, int thegoal, int thevel, int theacc)
 {
-	int i, j;
+	int i;
+	int j;
 
 	if (animatecnt >= MAXANIMATES) return(-1);
 
@@ -5188,7 +5363,8 @@ int setanimation(int *animptr, int thegoal, int thevel, int theacc)
 
 void checkmasterslaveswitch()
 {
-	int i, j;
+	int i;
+	int j;
 
 	if (option[4] == 0) return;
 
@@ -5243,7 +5419,10 @@ void checkmasterslaveswitch()
 
 int testneighborsectors(short sect1, short sect2)
 {
-	short i, startwall, num1, num2;
+	short i;
+	short startwall;
+	short num1;
+	short num2;
 
 	num1 = sector[sect1].wallnum;
 	num2 = sector[sect2].wallnum;
@@ -5617,7 +5796,10 @@ int savegame()
 void faketimerhandler()
 {
 	short other;
-	int i, j, k, l;
+	int i;
+	int j;
+	int k;
+	int l;
 
 	sampletimer();
 	if ((totalclock < ototalclock+(TIMERINTSPERSECOND/MOVESPERSECOND)) || (ready2send == 0)) return;
@@ -5761,8 +5943,13 @@ void faketimerhandler()
 
 void getpackets()
 {
-	int i, j, k, l;
-	int other, packbufleng, movecnt;
+	int i;
+	int j;
+	int k;
+	int l;
+	int other;
+	int packbufleng;
+	int movecnt;
 
 	if (option[4] == 0) return;
 
@@ -5874,12 +6061,45 @@ void getpackets()
 
 void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 {
-	int i, j, k, l=0, x1, y1, x2=0, y2=0, x3, y3, x4, y4, ox, oy, xoff, yoff;
-	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
-	int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
-	int xvect, yvect, xvect2, yvect2;
+	int i;
+	int j;
+	int k;
+	int l=0;
+	int x1;
+	int y1;
+	int x2=0;
+	int y2=0;
+	int x3;
+	int y3;
+	int x4;
+	int y4;
+	int ox;
+	int oy;
+	int xoff;
+	int yoff;
+	int dax;
+	int day;
+	int cosang;
+	int sinang;
+	int xspan;
+	int yspan;
+	int sprx;
+	int spry;
+	int xrepeat;
+	int yrepeat;
+	int z1;
+	int z2;
+	int startwall;
+	int endwall;
+	int tilenum;
+	int daang;
+	int xvect;
+	int yvect;
+	int xvect2;
+	int yvect2;
 	unsigned char col;
-	walltype *wal, *wal2;
+	walltype *wal;
+	walltype *wal2;
 	spritetype *spr;
 
 	xvect = sintable[(-cang)&2047] * czoom;
@@ -6121,8 +6341,11 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 	//movesprite function compatible with the older movesprite functions.
 int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, int clipmask)
 {
-	int daz, zoffs;
-	short retval, dasectnum, datempshort;
+	int daz;
+	int zoffs;
+	short retval;
+	short dasectnum;
+	short datempshort;
 	spritetype *spr;
 
 	spr = &sprite[spritenum];
@@ -6237,7 +6460,13 @@ void waitforeverybody ()
 
 void searchmap(short startsector)
 {
-	int i, j, dasect, splc, send, startwall, endwall;
+	int i;
+	int j;
+	int dasect;
+	int splc;
+	int send;
+	int startwall;
+	int endwall;
 	short dapic;
 	walltype *wal;
 
@@ -6326,7 +6555,10 @@ void updateinterpolations()  //Stick at beginning of domovethings
 
 void dointerpolations()       //Stick at beginning of drawscreen
 {
-	int i, j, odelta, ndelta;
+	int i;
+	int j;
+	int odelta;
+	int ndelta;
 
 	ndelta = 0; j = 0;
 	for(i=numinterpolations-1;i>=0;i--)
@@ -6365,7 +6597,14 @@ void drawtilebackground (int thex, int they, short tilenum,
 			  signed char shade, int cx1, int cy1,
 			  int cx2, int cy2, unsigned char dapalnum)
 {
-	int x, y, xsiz, ysiz, tx1, ty1, tx2, ty2;
+	int x;
+	int y;
+	int xsiz;
+	int ysiz;
+	int tx1;
+	int ty1;
+	int tx2;
+	int ty2;
 
 	(void)thex; (void)they;
 

@@ -109,7 +109,8 @@ static int stereohicomb(int unused, int *volptr, int cnt, int dasinc, int dasplc
 
 int initkdm(char dadigistat, char damusistat, int dasamplerate, char danumspeakers, char dabytespersample)
 {
-    int i, j;
+    int i;
+    int j;
 
     digistat = dadigistat;
     musistat = damusistat;
@@ -196,8 +197,12 @@ void setears(int daposx, int daposy, int daxvect, int dayvect)
 
 void wsayfollow(const char *dafilename, int dafreq, int davol, int *daxplc, int *dayplc, char followstat)
 {
-    char ch1, ch2, bad;
-    int i, wavnum, chanum;
+    char ch1;
+    char ch2;
+    char bad;
+    int i;
+    int wavnum;
+    int chanum;
 
     if (digistat == 0) return;
     if (davol <= 0) return;
@@ -254,8 +259,11 @@ void wsayfollow(const char *dafilename, int dafreq, int davol, int *daxplc, int 
 
 void wsay(const char* dafilename, int dafreq, int volume1, int volume2)
 {
-    char ch1, ch2;
-    int i, j, bad;
+    char ch1;
+    char ch2;
+    int i;
+    int j;
+    int bad;
 
     if (digistat == 0) return;
 
@@ -286,7 +294,11 @@ void wsay(const char* dafilename, int dafreq, int volume1, int volume2)
 
 void loadwaves(char *wavename)
 {
-    int fil, i, j, dawaversionum, totsndbytes;
+    int fil;
+    int i;
+    int j;
+    int dawaversionum;
+    int totsndbytes;
 
     fil = kopen4load(wavename,0);
     if (fil < 0) return;
@@ -341,7 +353,8 @@ void loadwaves(char *wavename)
 
 int loadsong(const char* filename)
 {
-    int i, fil;
+    int i;
+    int fil;
     int kdmversionum;
 
     if (musistat != 1) return(0);
@@ -415,9 +428,20 @@ void musicoff()
 
 void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
 {
-    int i, j, k, voloffs1, voloffs2, *volptr;
-    int daswave, dasinc, dacnt, sndbufsamples;
-    int ox, oy, x, y;
+    int i;
+    int j;
+    int k;
+    int voloffs1;
+    int voloffs2;
+    int *volptr;
+    int daswave;
+    int dasinc;
+    int dacnt;
+    int sndbufsamples;
+    int ox;
+    int oy;
+    int x;
+    int y;
 
     sndbufsamples = sndbufsiz >> (bytespersample + numspeakers - 2);
 
@@ -578,7 +602,8 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
 
 static void startwave(int wavnum, int dafreq, int davolume1, int davolume2, int dafrqeff, int davoleff, int dapaneff)
 {
-    int i, chanum;
+    int i;
+    int chanum;
 
     if ((davolume1|davolume2) == 0) return;
 
@@ -616,7 +641,8 @@ static void fsin(int *eax)
 
 static inline int msqrtasm(unsigned int c)
 {
-    unsigned int a,b;
+    unsigned int a;
+    unsigned int b;
 
     a = 0x40000000l;    // mov eax, 0x40000000
     b = 0x20000000l;    // mov ebx, 0x20000000
@@ -637,7 +663,8 @@ static inline int msqrtasm(unsigned int c)
 
 static inline void bound2char(int count, int *stemp, unsigned char *charptr)
 {
-    int i, j;
+    int i;
+    int j;
 
     count <<= 1;
     for(i=0;i<count;i++)
@@ -652,7 +679,8 @@ static inline void bound2char(int count, int *stemp, unsigned char *charptr)
 
 static inline void bound2short(int count, int *stemp, short *shortptr)
 {
-    int i, j;
+    int i;
+    int j;
 
     count <<= 1;
     for(i=0;i<count;i++)
@@ -667,7 +695,8 @@ static inline void bound2short(int count, int *stemp, short *shortptr)
 
 static void calcvolookupmono(int *edi, int eax, int ebx)
 {
-    int ecx, edx;
+    int ecx;
+    int edx;
 
     ecx = 64;           // mov ecx, 64
     edx = eax+ebx;      // lea edx, [eax+ebx]
@@ -716,7 +745,12 @@ static void calcvolookupstereo(int *edi, int eax, int ebx, int ecx, int edx)
     // stemp   = Output buffer.
 static int monohicomb(int unused, int *volptr, int cnt, int dasinc, int dasplc, int *stemp)
 {
-    unsigned char al, ah, bl, bh, dl, cf;
+    unsigned char al;
+    unsigned char ah;
+    unsigned char bl;
+    unsigned char bh;
+    unsigned char dl;
+    unsigned char cf;
     int ocnt = 0;
 
     (void)unused;
@@ -752,7 +786,12 @@ static int monohicomb(int unused, int *volptr, int cnt, int dasinc, int dasplc, 
 
 static int stereohicomb(int unused, int *volptr, int cnt, int dasinc, int dasplc, int *stemp)
 {
-    unsigned char al, ah, bl, bh, dl, cf;
+    unsigned char al;
+    unsigned char ah;
+    unsigned char bl;
+    unsigned char bh;
+    unsigned char dl;
+    unsigned char cf;
     int ocnt = 0;
 
     (void)unused;

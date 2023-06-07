@@ -1241,7 +1241,17 @@ static void slowhline(int xr, int yp)
 //
 static void prepwall(int z, const walltype *wal)
 {
-	int i, l=0, ol=0, splc, sinc, x, topinc, top, botinc, bot, walxrepeat;
+	int i;
+	int l=0;
+	int ol=0;
+	int splc;
+	int sinc;
+	int x;
+	int topinc;
+	int top;
+	int botinc;
+	int bot;
+	int walxrepeat;
 
 	walxrepeat = (wal->xrepeat<<3);
 
@@ -2085,9 +2095,18 @@ static void florscan(int x1, int x2, int sectnum)
 //
 static void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short> dwal, std::span<const int> swal, std::span<const int> lwal)
 {
-	int x, xnice, ynice;
-	intptr_t i, fpalookup;
-	int y1ve[4], y2ve[4], u4, d4, z, tsizx, tsizy;
+	int x;
+	int xnice;
+	int ynice;
+	intptr_t i;
+	intptr_t fpalookup;
+	int y1ve[4];
+	int y2ve[4];
+	int u4;
+	int d4;
+	int z;
+	int tsizx;
+	int tsizy;
 	char bad;
 
 	if (x2 >= xdim) x2 = xdim-1;
@@ -2240,9 +2259,14 @@ static void wallscan(int x1, int x2, std::span<const short> uwal, std::span<cons
 //
 static void transmaskvline(int x)
 {
-	int vplc, vinc, i;
-	intptr_t p, palookupoffs, bufplc;
-	short y1v, y2v;
+	int vplc;
+	int vinc;
+	int i;
+	intptr_t p;
+	intptr_t palookupoffs;
+	intptr_t bufplc;
+	short y1v;
+	short y2v;
 
 	if ((x < 0) || (x >= xdimen)) return;
 
@@ -2370,7 +2394,10 @@ static void transmaskwallscan(int x1, int x2)
 //
 static void ceilspritehline(int x2, int y)
 {
-	int x1, v, bx, by;
+	int x1;
+	int v;
+	int bx;
+	int by;
 
 	//x = x1 + (x2-x1)t + (y1-y2)u  ~  x = 160v
 	//y = y1 + (y2-y1)t + (x2-x1)u  ~  y = (scrx-160)v
@@ -2400,7 +2427,11 @@ static void ceilspritehline(int x2, int y)
 //
 static void ceilspritescan(int x1, int x2)
 {
-	int x, y1, y2, twall, bwall;
+	int x;
+	int y1;
+	int y2;
+	int twall;
+	int bwall;
 
 	y1 = uwall[x1]; y2 = y1;
 	for(x=x1;x<=x2;x++)
@@ -2439,10 +2470,28 @@ static void ceilspritescan(int x1, int x2)
 constexpr auto BITSOFPRECISION{3};  //Don't forget to change this in A.ASM also!
 static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 {
-	int i, j, l, x, y, dx, dy, wx, wy, y1, y2, daz;
-	int daslope, dasqr;
-	int shoffs, shinc, m1, m2;
-	intptr_t *mptr1, *mptr2, *nptr1, *nptr2;
+	int i;
+	int j;
+	int l;
+	int x;
+	int y;
+	int dx;
+	int dy;
+	int wx;
+	int wy;
+	int y1;
+	int y2;
+	int daz;
+	int daslope;
+	int dasqr;
+	int shoffs;
+	int shinc;
+	int m1;
+	int m2;
+	intptr_t *mptr1;
+	intptr_t *mptr2;
+	intptr_t *nptr1;
+	intptr_t *nptr2;
 	walltype *wal;
 	sectortype *sec;
 
@@ -2616,7 +2665,16 @@ static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int bunch)
 {
 	sectortype *sec;
-	int j, k, l, m, n, x, z, wallnum, nextsectnum, globalhorizbak;
+	int j;
+	int k;
+	int l;
+	int m;
+	int n;
+	int x;
+	int z;
+	int wallnum;
+	int nextsectnum;
+	int globalhorizbak;
 	std::span<short> topptr;
 	std::span<short> botptr;
 
@@ -2763,9 +2821,17 @@ static void drawalls(int bunch)
 {
 	sectortype *nextsec;
 	walltype *wal;
-	int i, x, x1, x2, cz[5], fz[5];
-	int wallnum, nextsectnum;
-	int startsmostwallcnt, startsmostcnt, gotswall;
+	int i;
+	int x;
+	int x1;
+	int x2;
+	int cz[5];
+	int fz[5];
+	int wallnum;
+	int nextsectnum;
+	int startsmostwallcnt;
+	int startsmostcnt;
+	int gotswall;
 
 	int z = bunchfirst[bunch];
 	const int sectnum = thesector[z];
@@ -4500,8 +4566,23 @@ static void drawmaskwall(short damaskwallcnt)
 //
 static void fillpolygon(int npoints)
 {
-	int z, zz, x1, y1, x2, y2, miny, maxy, y, xinc, cnt;
-	int ox, oy, bx, by, day1, day2;
+	int z;
+	int zz;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int miny;
+	int maxy;
+	int y;
+	int xinc;
+	int cnt;
+	int ox;
+	int oy;
+	int bx;
+	int by;
+	int day1;
+	int day2;
 	intptr_t p;
 	short *ptr, *ptr2;
 
@@ -5409,7 +5490,9 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 //
 static void initksqrt()
 {
-	int i, j, k;
+	int i;
+	int j;
+	int k;
 
 	j = 1; k = 0;
 	for(i=0;i<4096;i++)
@@ -5519,7 +5602,10 @@ static int loadtables()
 //
 static void initfastcolorlookup(int rscale, int gscale, int bscale)
 {
-	int i, x, y, z;
+	int i;
+	int x;
+	int y;
+	int z;
 
 	int j{0};
 
@@ -5628,7 +5714,9 @@ badpalette:
 //
 int getclosestcol(int r, int g, int b)
 {
-	int i, k, dist;
+	int i;
+	int k;
+	int dist;
 	unsigned char *pal1;
 
 	const int j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(g>>3)*FASTPALGRIDSIZ+(b>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
@@ -5849,7 +5937,14 @@ static int lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 static int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3,
 		  int y3, int x4, int y4, int *intx, int *inty, int *intz)
 {     //p1 towards p2 is a ray
-	int x34, y34, x31, y31, bot, topt, topu, t;
+	int x34;
+	int y34;
+	int x31;
+	int y31;
+	int bot;
+	int topt;
+	int topu;
+	int t;
 
 	x34 = x3-x4; y34 = y3-y4;
 	bot = vx*y34 - vy*x34;
@@ -6209,7 +6304,12 @@ void initspritelists()
 void drawrooms(int daposx, int daposy, int daposz,
 		 short daang, int dahoriz, short dacursectnum)
 {
-	int i, j, z, cz, fz, closest;
+	int i;
+	int j;
+	int z;
+	int cz;
+	int fz;
+	int closest;
 	short *shortptr1, *shortptr2;
 
 #if defined(DEBUGGINGAIDS)
@@ -11975,7 +12075,10 @@ void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 //
 void printext256(int xpos, int ypos, short col, short backcol, std::span<const char> name, char fontsize)
 {
-	int stx, i, x, y;
+	int stx;
+	int i;
+	int x;
+	int y;
 	const unsigned char *letptr;
 	unsigned char *ptr;
 
@@ -12041,9 +12144,15 @@ static BFILE *screencapture_openfile(const char *ext)
 static int screencapture_writeframe(BFILE *fil, char mode, void *v,
 	void (*writeline)(unsigned char *, int, int, BFILE *, void *))
 {
-	int y, ystart, yend, yinc, j;
-	unsigned char *ptr, *buf;
-	char inverseit = 0, bottotop = 0;
+	int y;
+	int ystart;
+	int yend;
+	int yinc;
+	int j;
+	unsigned char *ptr;
+	unsigned char *buf;
+	char inverseit = 0;
+	char bottotop = 0;
 
 	inverseit = (mode & 1);
 	bottotop = (mode & 2);
@@ -12353,7 +12462,8 @@ static int screencapture_png(char mode)
 }
 
 	unsigned char buf[1024];
-	int length, i;
+	int length;
+	int i;
 	int acclen;
 	int glmode{0};
 	unsigned short s;
@@ -12578,7 +12688,8 @@ void setpolymost2dview()
 void buildprintf(const char *fmt, ...)
 {
 	char tmpstr[1024];
-	va_list va, vac;
+	va_list va;
+	va_list vac;
 
 	va_start(va, fmt);
 

@@ -64,7 +64,9 @@ static std::array<unsigned int, 256> crc32table;
 
 void initcrc32table()
 {
-	unsigned int i,j,k;
+	unsigned int i;
+	unsigned int j;
+	unsigned int k;
 	
 	// algorithm and polynomial same as that used by infozip's zip
 	for (i=0; i<256; i++) {

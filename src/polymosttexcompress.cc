@@ -40,7 +40,12 @@ static void compressetc1(uint8_t *bgra, int width, int height, uint8_t *out)
 {
 	rg_etc1::etc1_pack_params params;
 	uint8_t block[4][4][4];
-	int x, y, s, t, xyoff, stride;
+	int x;
+	int y;
+	int s;
+	int t;
+	int xyoff;
+	int stride;
 
 	static int initonce = 0;
 	if (!initonce) {

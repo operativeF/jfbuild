@@ -66,8 +66,10 @@ hicreplctyp* hicfindsubst(int picnum, int palnum, int skybox)
  */
 void hicinit()
 {
-	int i,j;
-	hicreplctyp *hr, *next;
+	int i;
+	int j;
+	hicreplctyp *hr;
+	hicreplctyp *next;
 
 	for (i=0;i<MAXPALOOKUPS;i++) {	// all tints should be 100%
 		hictinting[i].r = hictinting[i].g = hictinting[i].b = 0xff;

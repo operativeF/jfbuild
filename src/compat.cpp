@@ -200,8 +200,14 @@ int Bcorrectfilename(char *filename, int removefn)
 {
 	char *fn;
 	constexpr int MAXTOKARR{ 64 };
-	char *tokarr[64], *first, *next, *token;
-	int i, ntok = 0, leadslash = 0, trailslash = 0;
+	char *tokarr[64];
+	char *first;
+	char *next;
+	char *token;
+	int i;
+	int ntok = 0;
+	int leadslash = 0;
+	int trailslash = 0;
 	
 	fn = strdup(filename);
 	if (!fn) return -1;
@@ -309,8 +315,10 @@ int Bcanonicalisefilename(char *filename, int removefn)
 char *Bgetsystemdrives()
 {
 #ifdef _WIN32
-	char *str, *p;
-	DWORD drv, mask;
+	char *str;
+	char *p;
+	DWORD drv;
+	DWORD mask;
 	int number=0;
 	
 	drv = ::GetLogicalDrives();
@@ -493,7 +501,8 @@ int Bclosedir(BDIR *dir)
 
 char *Bstrtoken(char *s, const char* delim, char **ptrptr, int chop)
 {
-	char *p, *start;
+	char *p;
+	char *start;
 
 	if (!ptrptr) return nullptr;
 	
@@ -525,7 +534,8 @@ char *Bstrtoken(char *s, const char* delim, char **ptrptr, int chop)
 int Bwildmatch (const char *i, const char *j)
 {
 	const char *k;
-	char c0, c1;
+	char c0;
+	char c1;
 
 	if (!*j) return(1);
 	do

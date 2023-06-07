@@ -108,7 +108,8 @@ static void findwhite()
 static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
 	char st[2] = { 0,0 };
-	int colour, shadow;
+	int colour;
+	int shadow;
 
 	(void)shade;
 
@@ -153,7 +154,8 @@ static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shad
 static void _internal_drawosdcursor(int x, int y, int type, int lastkeypress)
 {
 	char st[2] = { '\x16', 0 };  // solid lower third of character cell
-	int colour, yoff = 2;
+	int colour;
+	int yoff = 2;
 
 	const unsigned int blinkcycle = gettime() - (unsigned)lastkeypress;
 	if (blinkcycle % 1000 > 500) return;  // blink each half-second.
@@ -398,7 +400,8 @@ enum {
 	OSDOP_PAGE_DOWN,
 };
 static void OSD_Manipulate(int op) {
-	int i, j;
+	int i;
+	int j;
 	symbol_t *tabc = nullptr;
 
 	switch (op) {
@@ -872,7 +875,8 @@ void OSD_ShowDisplay(int onf)
 //
 void OSD_Draw()
 {
-	int x, len;
+	int x;
+	int len;
 
 	if (!osdvisible || !osdinited) {
 		return;
@@ -978,7 +982,9 @@ void OSD_DispatchQueued()
 
 static char *strtoken(char *s, char **ptrptr, int *restart)
 {
-	char *p, *p2, *start;
+	char *p;
+	char *p2;
+	char *start;
 
 	*restart = 0;
 	if (!ptrptr) return nullptr;
@@ -1055,9 +1061,13 @@ static constexpr auto MAXPARMS{512};
 
 int OSD_Dispatch(const char *cmd)
 {
-	char *workbuf, *wp, *wtp, *state;
+	char *workbuf;
+	char *wp;
+	char *wtp;
+	char *state;
 	char *parms[MAXPARMS];
-	int  numparms, restart = 0;
+	int  numparms;
+	int  restart = 0;
 	osdfuncparm_t ofp;
 	symbol_t *symb;
 	//int i;
@@ -1175,7 +1185,9 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 //
 static symbol_t *addnewsymbol(const char *name)
 {
-	symbol_t *newsymb, *s, *t;
+	symbol_t *newsymb;
+	symbol_t *s;
+	symbol_t *t;
 
 	newsymb = (symbol_t *)Bmalloc(sizeof(symbol_t));
 	if (!newsymb) { return nullptr; }

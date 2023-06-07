@@ -312,7 +312,11 @@ static int defsparser(scriptfile *script)
 				break;
 			case TokenType::T_DEFINETINT:
 				{
-					int pal, r,g,b,f;
+					int pal;
+					int r;
+					int g;
+					int b;
+					int f;
 
 					if (scriptfile_getsymbol(script,&pal)) break;
 					if (scriptfile_getnumber(script,&r)) break;
@@ -350,7 +354,9 @@ static int defsparser(scriptfile *script)
 			case TokenType::T_DEFINEMODELFRAME:
 				{
 					char *framename;
-					int ftilenume, ltilenume, tilex;
+					int ftilenume;
+					int ltilenume;
+					int tilex;
 
 					if (scriptfile_getstring(script,&framename)) break;
 					if (scriptfile_getnumber(script,&ftilenume)) break; //first tile number
@@ -485,7 +491,9 @@ static int defsparser(scriptfile *script)
 				break;
 			case TokenType::T_DEFINEVOXELTILES:
 				{
-					int ftilenume, ltilenume, tilex;
+					int ftilenume;
+					int ltilenume;
+					int tilex;
 
 					if (scriptfile_getnumber(script,&ftilenume)) break; //1st tile #
 					if (scriptfile_getnumber(script,&ltilenume)) break; //last tile #
@@ -546,8 +554,12 @@ static int defsparser(scriptfile *script)
 							case TokenType::T_FRAME:
 							{
 								char *frametokptr = script->ltextptr;
-								char *frameend, *framename = nullptr, happy=1;
-								int ftilenume = -1, ltilenume = -1, tilex = 0;
+								char *frameend;
+								char *framename = nullptr;
+								char happy=1;
+								int ftilenume = -1;
+								int ltilenume = -1;
+								int tilex = 0;
 
 								if (scriptfile_getbraces(script,&frameend)) break;
 								while (script->textptr < frameend) {
@@ -602,7 +614,10 @@ static int defsparser(scriptfile *script)
 							case TokenType::T_ANIM:
 							{
 								char *animtokptr = script->ltextptr;
-								char *animend, *startframe = nullptr, *endframe = nullptr, happy=1; // FIXME: char* == 1?
+								char *animend;
+								char *startframe = nullptr;
+								char *endframe = nullptr;
+								char happy=1; // FIXME: char* == 1?
 								int flags{0};
 								double dfps{1.0};
 
@@ -649,7 +664,8 @@ static int defsparser(scriptfile *script)
 							case TokenType::T_SKIN:
 							{
 								char *skintokptr = script->ltextptr;
-								char *skinend, *skinfn = nullptr;
+								char *skinend;
+								char *skinfn = nullptr;
 								int palnum{0};
 								int surfnum{0};
 
@@ -689,9 +705,16 @@ static int defsparser(scriptfile *script)
 							case TokenType::T_HUD:
 							{
 								char *hudtokptr = script->ltextptr;
-								char happy=1, *frameend;
-								int ftilenume = -1, ltilenume = -1, tilex = 0, flags = 0;
-								double xadd = 0.0, yadd = 0.0, zadd = 0.0, angadd = 0.0;
+								char happy=1;
+								char *frameend;
+								int ftilenume = -1;
+								int ltilenume = -1;
+								int tilex = 0;
+								int flags = 0;
+								double xadd = 0.0;
+								double yadd = 0.0;
+								double zadd = 0.0;
+								double angadd = 0.0;
 
 								if (scriptfile_getbraces(script,&frameend)) break;
 								while (script->textptr < frameend) {
@@ -763,8 +786,11 @@ static int defsparser(scriptfile *script)
 			case TokenType::T_VOXEL:
 				{
 					char *voxeltokptr = script->ltextptr;
-					char *fn, *modelend;
-					int tile0 = MAXTILES, tile1 = -1, tilex = -1;
+					char *fn;
+					char *modelend;
+					int tile0 = MAXTILES;
+					int tile1 = -1;
+					int tilex = -1;
 
 					if (scriptfile_getstring(script,&fn)) break; //voxel filename
 					if (nextvoxid == MAXVOXELS) { buildputs("Maximum number of voxels already defined.\n"); break; }
@@ -807,8 +833,12 @@ static int defsparser(scriptfile *script)
 			case TokenType::T_SKYBOX:
 				{
 					char *skyboxtokptr = script->ltextptr;
-					char *fn[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}, *modelend, happy=1;
-					int i, tile = -1, pal = 0;
+					char *fn[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+					char *modelend;
+					char happy=1;
+					int i;
+					int tile = -1;
+					int pal = 0;
 
 					if (scriptfile_getbraces(script,&modelend)) break;
 					while (script->textptr < modelend) {
@@ -846,7 +876,11 @@ static int defsparser(scriptfile *script)
 			case TokenType::T_TINT:
 				{
 					char *tinttokptr = script->ltextptr;
-					int red=255, green=255, blue=255, pal=-1, flags=0;
+					int red=255;
+					int green=255;
+					int blue=255;
+					int pal=-1;
+					int flags=0;
 					char *tintend;
 
 					if (scriptfile_getbraces(script,&tintend)) break;
@@ -872,7 +906,8 @@ static int defsparser(scriptfile *script)
 				break;
 			case TokenType::T_TEXTURE:
 				{
-					char *texturetokptr = script->ltextptr, *textureend;
+					char *texturetokptr = script->ltextptr;
+					char *textureend;
 					int tile=-1;
 
 					if (scriptfile_getsymbol(script,&tile)) break;
@@ -880,7 +915,8 @@ static int defsparser(scriptfile *script)
 					while (script->textptr < textureend) {
 						switch (getatoken(script, texturetokens)) {
 							case TokenType::T_PAL: {
-								char *paltokptr = script->ltextptr, *palend;
+								char *paltokptr = script->ltextptr;
+								char *palend;
 								int pal=-1;
 								char *fn = nullptr;
 								double alphacut = -1.0;
@@ -957,7 +993,8 @@ static int defsparser(scriptfile *script)
 			case TokenType::T_UNDEFMODEL:
 			case TokenType::T_UNDEFMODELRANGE:
 				{
-					int r0,r1;
+					int r0;
+					int r1;
 
 					if (scriptfile_getsymbol(script,&r0)) break;
 					if (tokn == TokenType::T_UNDEFMODELRANGE) {
@@ -1010,7 +1047,8 @@ static int defsparser(scriptfile *script)
 			case TokenType::T_UNDEFTEXTURE:
 			case TokenType::T_UNDEFTEXTURERANGE:
 				{
-					int r0,r1;
+					int r0;
+					int r1;
 
 					if (scriptfile_getsymbol(script,&r0)) break;
 					if (tokn == TokenType::T_UNDEFTEXTURERANGE) {

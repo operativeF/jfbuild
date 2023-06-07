@@ -185,7 +185,8 @@ int netinit (int portnum)
 
 #ifdef _WIN32
 		DWORD len;
-		GUID sendguid = WSAID_WSASENDMSG, recvguid = WSAID_WSARECVMSG;
+		GUID sendguid = WSAID_WSASENDMSG;
+		GUID recvguid = WSAID_WSARECVMSG;
 		if (WSAIoctl(mysock, SIO_GET_EXTENSION_FUNCTION_POINTER,
 				&sendguid, sizeof(sendguid), &WSASendMsgPtr, sizeof(WSASendMsgPtr),
 				&len, nullptr, nullptr) == SOCKET_ERROR) {
@@ -587,7 +588,10 @@ void sendlogoff () {}
 static int crctab16[256];
 static void initcrc16 ()
 {
-	int i, j, k, a;
+	int i;
+	int j;
+	int k;
+	int a;
 	for(j=0;j<256;j++)
 	{
 		for(i=7,k=(j<<8),a=0;i>=0;i--,k=((k<<1)&65535))
@@ -601,7 +605,8 @@ static void initcrc16 ()
 #define updatecrc16(crc,dat) crc = (((crc<<8)&65535)^crctab16[((((unsigned short)crc)>>8)&65535)^dat])
 static unsigned short getcrc16 (const unsigned char *buffer, int bufleng)
 {
-	int i, j;
+	int i;
+	int j;
 
 	j = 0;
 	for(i=bufleng-1;i>=0;i--) updatecrc16(j,buffer[i]);
@@ -661,7 +666,12 @@ void initsingleplayers()
 	// Note: '.' may also be used in place of '*'
 int initmultiplayersparms(int argc, char const * const argv[])
 {
-	int i, j, daindex, danumplayers, danetmode, portnum = NETPORT;
+	int i;
+	int j;
+	int daindex;
+	int danumplayers;
+	int danetmode;
+	int portnum = NETPORT;
 	struct sockaddr_storage resolvhost;
 
 	initmultiplayers_reset();
@@ -787,7 +797,9 @@ int initmultiplayersparms(int argc, char const * const argv[])
 
 int initmultiplayerscycle()
 {
-	int i, k, dnetready = 1;
+	int i;
+	int k;
+	int dnetready = 1;
 
 	getpacket(&i, nullptr);
 
@@ -905,10 +917,14 @@ void initmultiplayers (int argc, char const * const argv[])
 
 static int lookuphost(const char *name, struct sockaddr *host, int warnifmany)
 {
-	struct addrinfo * result, *res;
+	struct addrinfo * result;
+	struct addrinfo *res;
 	struct addrinfo hints;
-	char *wname, *portch;
-	int error, port = 0, found = 0;
+	char *wname;
+	char *portch;
+	int error;
+	int port = 0;
+	int found = 0;
 
 	// ipv6 for future thought:
 	//  [2001:db8::1]:1234
@@ -965,7 +981,9 @@ static int lookuphost(const char *name, struct sockaddr *host, int warnifmany)
 
 void dosendpackets (int other)
 {
-	int i, j, k;
+	int i;
+	int j;
+	int k;
 
 	if (otherhost[other].ss_family == AF_UNSPEC) return;
 
@@ -1032,7 +1050,13 @@ void sendpacket (int other, const unsigned char *bufptr, int messleng)
 	//(used as hack for player collection)
 int getpacket (int *retother, unsigned char *bufptr)
 {
-	int i, j, k, ic0, crc16ofs, messleng, other;
+	int i;
+	int j;
+	int k;
+	int ic0;
+	int crc16ofs;
+	int messleng;
+	int other;
 	static int warned = 0;
 
 	if (numplayers < 2) return(0);

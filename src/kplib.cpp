@@ -374,7 +374,8 @@ static inline unsigned int bswap (unsigned int a)
 
 static inline int bitrev (int b, int c)
 {
-	int i, j;
+	int i;
+	int j;
 	for(i=1,j=0,c=(1<<c);i<c;i+=i) { j += j; if (b&i) j++; }
 	return(j);
 }
@@ -389,7 +390,9 @@ static inline void cpuid (int a, const int *s) { (void)a; (void)s; }
 	//0:FPU, 4:RDTSC, 15:CMOV, 22:MMX+, 23:MMX, 25:SSE, 26:SSE2, 30:3DNow!+, 31:3DNow!
 static int getcputype ()
 {
-	int i, cpb[4], cpid[4];
+	int i;
+	int cpb[4];
+	int cpid[4];
 	if (!testflag(0x200000)) return(0);
 	cpuid(0,cpid); if (!cpid[0]) return(0);
 	cpuid(1,cpb); i = (cpb[3]&~((1<<22)|(1<<30)|(1<<31)));
@@ -450,7 +453,8 @@ static inline int getbits (int n) { const int i = peekbits(n); suckbits(n); retu
 
 static int hufgetsym (const int *hitab, const int *hbmax)
 {
-	int v, n;
+	int v;
+	int n;
 
 	v = n = 0;
 	do { v = (v<<1)+getbits(1)+hbmax[n]-hbmax[n+1]; n++; } while (v >= 0);
@@ -469,7 +473,11 @@ static int hufgetsym (const int *hitab, const int *hbmax)
 
 static void qhufgencode (const int *hitab, const int *hbmax, int *qhval, unsigned char *qhbit, int numbits)
 {
-	int i, j, k, n, r;
+	int i;
+	int j;
+	int k;
+	int n;
+	int r;
 
 		//r is the bit reverse of i. Ex: if: i = 1011100111, r = 1110011101
 	i = r = 0;
@@ -516,7 +524,8 @@ static void qhufgencode (const int *hitab, const int *hbmax, int *qhval, unsigne
 	//hbmax[0-31] : Highest index (+1) of n-bit symbol
 static void hufgencode (int *inbuf, int inum, int *hitab, int *hbmax)
 {
-	int i, tbuf[31];
+	int i;
+	int tbuf[31];
 
 	for(i=30;i;i--) tbuf[i] = 0;
 	for(i=inum-1;i>=0;i--) tbuf[inbuf[i]]++;
@@ -527,7 +536,9 @@ static void hufgencode (int *inbuf, int inum, int *hitab, int *hbmax)
 
 static int initpass () //Interlaced images have 7 "passes", non-interlaced have 1
 {
-	int i, j, k;
+	int i;
+	int j;
+	int k;
 
 	do
 	{
@@ -592,7 +603,9 @@ static int initpass () //Interlaced images have 7 "passes", non-interlaced have 
 
 static int Paeth (int a, int b, int c)
 {
-	int pa, pb, pc;
+	int pa;
+	int pb;
+	int pc;
 
 	pa = b-c; pb = a-c; pc = abs(pa+pb); pa = abs(pa); pb = abs(pb);
 	if ((pa <= pb) && (pa <= pc)) return(a);
@@ -857,7 +870,8 @@ static inline void pal8hlineasm (int x, int xr1, intptr_t p, int ixstp)
 static int filter1st, filterest;
 static void putbuf (const unsigned char *buf, int leng)
 {
-	int i, x;
+	int i;
+	int x;
 	intptr_t p;
 
 	if (filt < 0)
@@ -986,7 +1000,9 @@ static void putbuf (const unsigned char *buf, int leng)
 
 static void initpngtables()
 {
-	int i, j, k;
+	int i;
+	int j;
+	int k;
 
 		//hxbit[0-58][0-1] is a combination of 4 different tables:
 		//   1st parameter: [0-29] are distances, [30-58] are lengths
@@ -1384,7 +1400,9 @@ static int crmul[4096], cbmul[4096];
 
 static void initkpeg ()
 {
-	int i, x, y;
+	int i;
+	int x;
+	int y;
 
 	x = 0;  //Back & forth diagonal pattern (aligning bytes for best compression)
 	for(i=0;i<16;i+=2)
@@ -1428,7 +1446,10 @@ static void initkpeg ()
 
 static void huffgetval (int index, int curbits, int num, int *daval, int *dabits)
 {
-	int b, v, pow2, *hmax;
+	int b;
+	int v;
+	int pow2;
+	int *hmax;
 
 	hmax = &hufmaxatbit[index][0];
 	pow2 = pow2long[curbits-1];
@@ -1453,7 +1474,15 @@ static void invdct8x8 (int *dc, unsigned char dcflag)
 	#define C182 31000253    //(cos(PI/8)*2)<<24
 	#define C18S22 43840978  //(cos(PI/8)*sqrt(2)*2)<<24
 	#define C38S22 18159528  //(cos(PI*3/8)*sqrt(2)*2)<<24
-	int *edc, t0, t1, t2, t3, t4, t5, t6, t7;
+	int *edc;
+	int t0;
+	int t1;
+	int t2;
+	int t3;
+	int t4;
+	int t5;
+	int t6;
+	int t7;
 
 	edc = dc+64;
 	do
@@ -1494,8 +1523,24 @@ static void invdct8x8 (int *dc, unsigned char dcflag)
 
 static void yrbrend (int x, int y)
 {
-	int i, j, ox, oy, xx, yy, xxx, yyy, xxxend, yyyend, yv, cr=0, cb=0, *odc, *dc, *dc2;
-	intptr_t p, pp;
+	int i;
+	int j;
+	int ox;
+	int oy;
+	int xx;
+	int yy;
+	int xxx;
+	int yyy;
+	int xxxend;
+	int yyyend;
+	int yv;
+	int cr=0;
+	int cb=0;
+	int *odc;
+	int *dc;
+	int *dc2;
+	intptr_t p;
+	intptr_t pp;
 
 	odc = dct[0]; dc2 = dct[10];
 	for(yy=0;yy<(lcompvsamp[0]<<3);yy+=8)
@@ -1586,12 +1631,57 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
-	int i, j, v, leng=0, xdim=0, ydim=0, index, prec, restartcnt, restartinterval;
-	int x, y, z, xx, yy, zz, *dc=nullptr, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr;
-	int passcnt = 0, ghsampmax=0, gvsampmax=0, glhsampmax=0, glvsampmax=0, glhstep, glvstep;
-	int eobrun, Ss, Se, Ah, Al, Alut[2], dctx[12], dcty[12], ldctx[12], /*ldcty[12],*/ lshx[4], lshy[4];
-	short *dctbuf = nullptr, *dctptr[12], *ldctptr[12], *dcs=nullptr;
-	unsigned char ch, marker, dcflag;
+	int i;
+	int j;
+	int v;
+	int leng=0;
+	int xdim=0;
+	int ydim=0;
+	int index;
+	int prec;
+	int restartcnt;
+	int restartinterval;
+	int x;
+	int y;
+	int z;
+	int xx;
+	int yy;
+	int zz;
+	int *dc=nullptr;
+	int num;
+	int curbits;
+	int c;
+	int daval;
+	int dabits;
+	int *hqval;
+	int *hqbits;
+	int hqcnt;
+	int *quanptr;
+	int passcnt = 0;
+	int ghsampmax=0;
+	int gvsampmax=0;
+	int glhsampmax=0;
+	int glvsampmax=0;
+	int glhstep;
+	int glvstep;
+	int eobrun;
+	int Ss;
+	int Se;
+	int Ah;
+	int Al;
+	int Alut[2];
+	int dctx[12];
+	int dcty[12];
+	int ldctx[12];
+	int /*ldcty[12],*/ lshx[4];
+	int lshy[4];
+	short *dctbuf = nullptr;
+	short *dctptr[12];
+	short *ldctptr[12];
+	short *dcs=nullptr;
+	unsigned char ch;
+	unsigned char marker;
+	unsigned char dcflag;
 	const unsigned char *kfileptr;
 
 	if (!kpeginited) { kpeginited = 1; initkpeg(); }
@@ -1992,14 +2082,33 @@ static int kgifrend (const char *kfilebuf, int kfilelength,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
-	int i, x, y, xsiz, ysiz, yinc, xend, xspan, yspan, currstr, numbitgoal;
-	int lzcols, dat, blocklen, bitcnt, xoff, yoff, transcol, backcol, *lptr;
+	int i;
+	int x;
+	int y;
+	int xsiz;
+	int ysiz;
+	int yinc;
+	int xend;
+	int xspan;
+	int yspan;
+	int currstr;
+	int numbitgoal;
+	int lzcols;
+	int dat;
+	int blocklen;
+	int bitcnt;
+	int xoff;
+	int yoff;
+	int transcol;
+	int backcol;
+	int *lptr;
 	intptr_t p=0;
 	unsigned char numbits;
 	unsigned char startnumbits;
 	unsigned char chunkind;
 	unsigned char ilacefirst;
-	const unsigned char *ptr, *cptr=nullptr;
+	const unsigned char *ptr;
+	const unsigned char *cptr=nullptr;
 
 	(void)kfilelength;
 
@@ -2041,7 +2150,8 @@ static int kgifrend (const char *kfilebuf, int kfilelength,
 	ysiz = SSWAPIB(*(unsigned short *)&kfilebuf[8]);
 	if ((xoff != 0) || (yoff != 0) || (xsiz != xspan) || (ysiz != yspan))
 	{
-		int xx[4], yy[4];
+		int xx[4];
+		int yy[4];
 		if (kfilebuf[10]&128) backcol = palcol[(unsigned char)kfilebuf[11]]; else backcol = 0;
 
 			//Fill border to backcol
@@ -2144,7 +2254,15 @@ static int kcelrend (const char *buf, int fleng,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
-	int i, x, y, x0, x1, y0, y1, xsiz, ysiz;
+	int i;
+	int x;
+	int y;
+	int x0;
+	int x1;
+	int y0;
+	int y1;
+	int xsiz;
+	int ysiz;
 	const unsigned char *cptr;
 
 	(void)fleng; (void)daglobxoffs;
@@ -2187,9 +2305,25 @@ static int ktgarend (const char *header, int fleng,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
-	int i=0, x, y, pi, xi, yi, x0, x1, y0, y1, xsiz, ysiz, rlestat, colbyte, pixbyte;
+	int i=0;
+	int x;
+	int y;
+	int pi;
+	int xi;
+	int yi;
+	int x0;
+	int x1;
+	int y0;
+	int y1;
+	int xsiz;
+	int ysiz;
+	int rlestat;
+	int colbyte;
+	int pixbyte;
 	intptr_t p;
-	const unsigned char *fptr, *cptr = nullptr, *nptr;
+	const unsigned char *fptr;
+	const unsigned char *cptr = nullptr;
+	const unsigned char *nptr;
 
 		//Ugly and unreliable identification for .TGA!
 	if ((fleng < 20) || (header[1]&0xfe)) return(-1);
@@ -2283,8 +2417,24 @@ static int kbmprend (const char *buf, int fleng,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
-	int i, j, x, y, x0, x1, y0, y1, rastoff, headsiz, xsiz, ysiz, cdim, comp, cptrinc, *lptr;
-	const unsigned char *cptr, *ubuf = (const unsigned char *)buf;
+	int i;
+	int j;
+	int x;
+	int y;
+	int x0;
+	int x1;
+	int y0;
+	int y1;
+	int rastoff;
+	int headsiz;
+	int xsiz;
+	int ysiz;
+	int cdim;
+	int comp;
+	int cptrinc;
+	int *lptr;
+	const unsigned char *cptr;
+	const unsigned char *ubuf = (const unsigned char *)buf;
 
 	(void)fleng;
 
@@ -2397,9 +2547,20 @@ static int kpcxrend (const char *buf, int fleng,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
-	int i, j, x, y, nplanes, x0, x1, y0, y1, xsiz, ysiz;
+	int i;
+	int j;
+	int x;
+	int y;
+	int nplanes;
+	int x0;
+	int x1;
+	int y0;
+	int y1;
+	int xsiz;
+	int ysiz;
 	intptr_t p;
-	unsigned char c, *cptr;
+	unsigned char c;
+	unsigned char *cptr;
 
 	if (*(int *)buf != LSWAPIB(0x0801050a)) return(-1);
 	xsiz = SSWAPIB(*(short *)&buf[ 8])-SSWAPIB(*(short *)&buf[4])+1; if (xsiz <= 0) return(-1);
@@ -2481,10 +2642,33 @@ static int kpcxrend (const char *buf, int fleng,
 static int kddsrend (const char *buf, int leng,
 	intptr_t frameptr, int bpl, int xdim, int ydim, int xoff, int yoff)
 {
-	int x, y, z=0, xx, yy, xsiz, ysiz, dxt, al[2], ai, j, k, v, c0, c1, stride;
+	int x;
+	int y;
+	int z=0;
+	int xx;
+	int yy;
+	int xsiz;
+	int ysiz;
+	int dxt;
+	int al[2];
+	int ai;
+	int j;
+	int k;
+	int v;
+	int c0;
+	int c1;
+	int stride;
 	intptr_t p;
-	unsigned int lut[256], r[4], g[4], b[4], a[8], rr, gg, bb;
-	unsigned char *uptr, *wptr;
+	unsigned int lut[256];
+	unsigned int r[4];
+	unsigned int g[4];
+	unsigned int b[4];
+	unsigned int a[8];
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
+	unsigned char *uptr;
+	unsigned char *wptr;
 
 	(void)leng;
 
@@ -2730,7 +2914,8 @@ int kprender (const char *buf, int leng, intptr_t frameptr, int bpl,
 static int wildmatch (const char *i, const char *j)
 {
 	const char *k;
-	char c0, c1;
+	char c0;
+	char c1;
 
 	if (!*j) return(1);
 	do
@@ -2827,7 +3012,8 @@ static int kzcheckhashsiz (int siz)
 
 static int kzcalchash (const char *st)
 {
-	int i, hashind;
+	int i;
+	int hashind;
 	char ch;
 
 	for(i=0,hashind=0;st[i];i++)
@@ -2866,7 +3052,11 @@ void kzuninit ()
 int kzaddstack (const char *zipnam)
 {
 	FILE *fil;
-	int i, j, hashind, zipnamoffs, numfiles;
+	int i;
+	int j;
+	int hashind;
+	int zipnamoffs;
+	int numfiles;
 	char tempbuf[260+46];
 
 	fil = fopen(zipnam,"rb"); if (!fil) return(-1);
@@ -2929,7 +3119,8 @@ int kzopen (const char *filnam)
 {
 	FILE *fil;
 	unsigned int zipseek;
-	char tempbuf[46+260], *zipnam;
+	char tempbuf[46+260];
+	char *zipnam;
 
 	//kzfs.fil = 0;
 	if (filnam[0] != '|')
@@ -3136,7 +3327,13 @@ static void putbuf4zip (const unsigned char *buf, int uncomp0, int uncomp1)
 	//returns number of bytes copied
 int kzread (void *buffer, int leng)
 {
-	int i, j, k, bfinal, btype, hlit, hdist;
+	int i;
+	int j;
+	int k;
+	int bfinal;
+	int btype;
+	int hlit;
+	int hdist;
 
 	if ((!kzfs.fil) || (leng <= 0)) return(0);
 

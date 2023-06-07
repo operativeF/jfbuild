@@ -658,7 +658,9 @@ namespace rg_etc1
 
       inline uint16 get_base4_color(uint idx) const
       {
-         uint r, g, b;
+         uint r;
+         uint g;
+         uint b;
          if (idx)
          {
             r = get_byte_bits(cETC1AbsColor4R2BitOffset, 4);
@@ -978,7 +980,9 @@ namespace rg_etc1
 
    bool etc1_block::unpack_color5(color_quad_u8& result, uint16 packed_color5, uint16 packed_delta3, bool scaled, uint alpha)
    {
-      int dc_r, dc_g, dc_b;
+      int dc_r;
+      int dc_g;
+      int dc_b;
       unpack_delta3(dc_r, dc_g, dc_b, packed_delta3);
       
       int b = (packed_color5 & 31U) + dc_b;
@@ -1086,10 +1090,14 @@ namespace rg_etc1
       RG_ETC1_ASSERT(table_idx < cETC1IntenModifierValues);
       const int *pInten_modifer_table = &g_etc1_inten_tables[table_idx][0];
 
-      uint r, g, b;
+      uint r;
+      uint g;
+      uint b;
       unpack_color5(r, g, b, packed_color5, true);
 
-      const int ir = static_cast<int>(r), ig = static_cast<int>(g), ib = static_cast<int>(b);
+      const int ir = static_cast<int>(r);
+      const int ig = static_cast<int>(g);
+      const int ib = static_cast<int>(b);
 
       const int y0 = pInten_modifer_table[0];
       pDst[0].set(ir + y0, ig + y0, ib + y0);
@@ -1109,10 +1117,14 @@ namespace rg_etc1
       RG_ETC1_ASSERT(table_idx < cETC1IntenModifierValues);
       const int *pInten_modifer_table = &g_etc1_inten_tables[table_idx][0];
 
-      uint r, g, b;
+      uint r;
+      uint g;
+      uint b;
       const bool success = unpack_color5(r, g, b, packed_color5, packed_delta3, true);
 
-      const int ir = static_cast<int>(r), ig = static_cast<int>(g), ib = static_cast<int>(b);
+      const int ir = static_cast<int>(r);
+      const int ig = static_cast<int>(g);
+      const int ib = static_cast<int>(b);
 
       const int y0 = pInten_modifer_table[0];
       pDst[0].set(ir + y0, ig + y0, ib + y0);
@@ -1134,10 +1146,14 @@ namespace rg_etc1
       RG_ETC1_ASSERT(table_idx < cETC1IntenModifierValues);
       const int *pInten_modifer_table = &g_etc1_inten_tables[table_idx][0];
 
-      uint r, g, b;
+      uint r;
+      uint g;
+      uint b;
       unpack_color4(r, g, b, packed_color4, true);
       
-      const int ir = static_cast<int>(r), ig = static_cast<int>(g), ib = static_cast<int>(b);
+      const int ir = static_cast<int>(r);
+      const int ig = static_cast<int>(g);
+      const int ib = static_cast<int>(b);
 
       const int y0 = pInten_modifer_table[0];
       pDst[0].set(ir + y0, ig + y0, ib + y0);
@@ -1309,7 +1325,9 @@ namespace rg_etc1
 
       inline color_quad_u8 get_scaled_color() const
       {
-         int br, bg, bb;
+         int br;
+         int bg;
+         int bb;
          if (m_color4)
          {
             br = m_unscaled_color.r | (m_unscaled_color.r << 4);
@@ -1327,7 +1345,9 @@ namespace rg_etc1
 
       inline void get_block_colors(color_quad_u8* pBlock_colors)
       {
-         int br, bg, bb;
+         int br;
+         int bg;
+         int bb;
          
          if (m_color4)
          {
@@ -1543,7 +1563,9 @@ namespace rg_etc1
                   const uint8* pSelectors = m_best_solution.m_selectors;
                   const int* pInten_table = g_etc1_inten_tables[m_best_solution.m_coords.m_inten_table];
 
-                  int delta_sum_r = 0, delta_sum_g = 0, delta_sum_b = 0;
+                  int delta_sum_r = 0;
+                  int delta_sum_g = 0;
+                  int delta_sum_b = 0;
                   const color_quad_u8 base_color(m_best_solution.m_coords.get_scaled_color());
                   for (uint r = 0; r < n; r++)
                   {
@@ -1840,7 +1862,8 @@ namespace rg_etc1
          }
          else
          {
-            uint cur_selector = 0, c;
+            uint cur_selector = 0;
+            uint c;
             for (c = 0; c < n; c++)
             {
                const uint y = m_pSorted_luma[c];
@@ -1922,7 +1945,8 @@ done:
                const uint inverse_table_index = diff + (inten << 1) + (selector << 4);
                for (uint color = 0; color < 256; color++)
                {
-                  uint best_error = cUINT32_MAX, best_packed_c = 0;
+                  uint best_error = cUINT32_MAX;
+                  uint best_packed_c = 0;
                   for (uint packed_c = 0; packed_c < limit; packed_c++)
                   {
                      const int v = etc1_decode_value(diff, inten, selector, packed_c);
@@ -1962,13 +1986,17 @@ done:
             
       static uint s_next_comp[4] = { 1, 2, 0, 1 };
             
-      uint best_error = cUINT32_MAX, best_i = 0;
-      int best_x = 0, best_packed_c1 = 0, best_packed_c2 = 0;
+      uint best_error = cUINT32_MAX;
+      uint best_i = 0;
+      int best_x = 0;
+      int best_packed_c1 = 0;
+      int best_packed_c2 = 0;
 
       // For each possible 8-bit value, there is a precomputed list of diff/inten/selector configurations that allow that 8-bit value to be encoded with no error.
       for (uint i = 0; i < 3; i++)
       {
-         const uint c1 = pColor[s_next_comp[i]], c2 = pColor[s_next_comp[i + 1]];
+         const uint c1 = pColor[s_next_comp[i]];
+         const uint c2 = pColor[s_next_comp[i + 1]];
 
          constexpr int delta_range{ 1 };
          for (int delta = -delta_range; delta <= delta_range; delta++)
@@ -2052,13 +2080,17 @@ found_perfect_match:
       (void)pack_params;    //JonoF
       static uint s_next_comp[4] = { 1, 2, 0, 1 };
 
-      uint best_error = cUINT32_MAX, best_i = 0;
-      int best_x = 0, best_packed_c1 = 0, best_packed_c2 = 0;
+      uint best_error = cUINT32_MAX;
+      uint best_i = 0;
+      int best_x = 0;
+      int best_packed_c1 = 0;
+      int best_packed_c2 = 0;
 
       // For each possible 8-bit value, there is a precomputed list of diff/inten/selector configurations that allow that 8-bit value to be encoded with no error.
       for (uint i = 0; i < 3; i++)
       {
-         const uint c1 = pColor[s_next_comp[i]], c2 = pColor[s_next_comp[i + 1]];
+         const uint c1 = pColor[s_next_comp[i]];
+         const uint c2 = pColor[s_next_comp[i + 1]];
 
          constexpr int delta_range{1};
          for (int delta = -delta_range; delta <= delta_range; delta++)
@@ -2159,7 +2191,9 @@ found_perfect_match:
    // Function originally from RYG's public domain real-time DXT1 compressor, modified for 555.
    static void dither_block_555(color_quad_u8* dest, const color_quad_u8* block)
    {
-      int err[8],*ep1 = err,*ep2 = err+4;
+      int err[8];
+      int *ep1 = err;
+      int *ep2 = err+4;
       const uint8 *quant = g_quant5_tab + 8;
 
       std::memset(dest, 0xFF, sizeof(color_quad_u8)*16);
@@ -2233,7 +2267,8 @@ found_perfect_match:
       etc1_optimizer optimizer;
 
       uint64 best_error = cUINT64_MAX;
-      uint best_flip = false, best_use_color4 = false;
+      uint best_flip = false;
+      uint best_use_color4 = false;
       
       uint8 best_selectors[2][8];
       etc1_optimizer::results best_results[2];
@@ -2396,7 +2431,8 @@ found_perfect_match:
       
       dst_block.m_bytes[3] = static_cast<uint8>( (best_results[1].m_block_inten_table << 2) | (best_results[0].m_block_inten_table << 5) | ((~best_use_color4 & 1) << 1) | best_flip );
       
-      uint selector0 = 0, selector1 = 0;
+      uint selector0 = 0;
+      uint selector1 = 0;
       if (best_flip)
       {
          // flipped:

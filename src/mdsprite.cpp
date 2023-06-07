@@ -82,7 +82,8 @@ void freeallmodels ()
 void clearskins ()
 {
 	mdmodel *m;
-	int i, j;
+	int i;
+	int j;
 
 	for(i=0;i<nextmodelid;i++)
 	{
@@ -144,7 +145,8 @@ void mdinit ()
 
 int md_loadmodel (const char *fn)
 {
-	mdmodel *vm, **ml;
+	mdmodel *vm;
+	mdmodel **ml;
 
 	if (!mdinited) mdinit();
 
@@ -240,7 +242,8 @@ int md_defineframe (int modelid, const char *framename, int tilenume, int skinnu
 int md_defineanimation (int modelid, const char *framestart, const char *frameend, int fpssc, int flags)
 {
 	md2model *m;
-	mdanim_t ma, *map;
+	mdanim_t ma;
+	mdanim_t *map;
 	int i;
 
 	if (!mdinited) mdinit();
@@ -276,7 +279,8 @@ int md_defineanimation (int modelid, const char *framestart, const char *frameen
 
 int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int surfnum)
 {
-	mdskinmap_t *sk, *skl;
+	mdskinmap_t *sk;
+	mdskinmap_t *skl;
 	md2model *m;
 
 	if (!mdinited) mdinit();
@@ -451,7 +455,8 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 	{
 		if ((*tex)->sizx != (*tex)->tsizx || (*tex)->sizy != (*tex)->tsizy)
 		{
-			float fx, fy;
+			float fx;
+			float fy;
 			fx = ((float)(*tex)->tsizx)/((float)(*tex)->sizx);
 			fy = ((float)(*tex)->tsizy)/((float)(*tex)->sizy);
 			if (m->mdnum == 2)
@@ -493,7 +498,8 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 static void updateanimation (md2model *m, spritetype *tspr)
 {
 	mdanim_t *anim;
-	int i, j;
+	int i;
+	int j;
 
 	m->cframe = m->nframe = tile2model[tspr->picnum].framenum;
 
@@ -657,9 +663,20 @@ static md2model *md2load (int fil, const char *filnam)
 
 static int md2draw (md2model *m, spritetype *tspr, int method)
 {
-	point3d m0, m1, a0;
-	int i, j, vbi;
-	float k2, k3, k4, k5, k6, k7, mat[16], pc[4];
+	point3d m0;
+	point3d m1;
+	point3d a0;
+	int i;
+	int j;
+	int vbi;
+	float k2;
+	float k3;
+	float k4;
+	float k5;
+	float k6;
+	float k7;
+	float mat[16];
+	float pc[4];
 	PTMHead *ptmh = 0;
 	struct polymostdrawpolycall draw;
 
@@ -1238,8 +1255,10 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 
 static void md3free (md3model *m)
 {
-	mdanim_t *anim, *nanim = nullptr;
-	mdskinmap_t *sk, *nsk = nullptr;
+	mdanim_t *anim;
+	mdanim_t *nanim = nullptr;
+	mdskinmap_t *sk;
+	mdskinmap_t *nsk = nullptr;
 	md3surf_t *s;
 	int surfi;
 
@@ -1320,7 +1339,8 @@ static voxmodel* gvox;
 unsigned gloadtex (int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 {
 	unsigned rtexid;
-	coltype *pic, *pic2;
+	coltype *pic;
+	coltype *pic2;
 	unsigned char *cptr;
 	int i;
 
@@ -1392,7 +1412,8 @@ static void setzrange0 (int *lptr, int z0, int z1)
 	//Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 1's
 static void setzrange1 (int *lptr, int z0, int z1)
 {
-	int z, ze;
+	int z;
+	int ze;
 	if (!((z0^z1)&~31)) { lptr[z0>>5] |= (~(-(1<<SHIFTMOD32(z1))))&(-(1<<SHIFTMOD32(z0))); return; }
 	z = (z0>>5); ze = (z1>>5);
 	lptr[z] |= (-(1<<SHIFTMOD32(z0))); for(z++;z<ze;z++) lptr[z] = -1;
@@ -1502,7 +1523,17 @@ static void cntquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int
 
 static void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
 {
-	int i, j, x, y, z, xx, yy, nx = 0, ny = 0, nz = 0, *lptr;
+	int i;
+	int j;
+	int x;
+	int y;
+	int z;
+	int xx;
+	int yy;
+	int nx = 0;
+	int ny = 0;
+	int nz = 0;
+	int *lptr;
 	voxrect_t *qptr;
 
 	x = abs(x2-x0); y = abs(y2-y0); z = abs(z2-z0);
@@ -1586,7 +1617,22 @@ static int isolid (int x, int y, int z)
 
 static voxmodel *vox2poly ()
 {
-	int i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy, *bx0, *by0;
+	int i;
+	int j;
+	int x;
+	int y;
+	int z;
+	int v;
+	int ov;
+	int oz = 0;
+	int cnt;
+	int sc;
+	int x0;
+	int y0;
+	int dx;
+	int dy;
+	int *bx0;
+	int *by0;
 	void (*daquad)(int, int, int, int, int, int, int, int, int, int);
 
 	gvox = (voxmodel *)malloc(sizeof(voxmodel)); if (!gvox) return(0);
@@ -1727,8 +1773,15 @@ skindidntfit:;
 
 static int loadvox (const char *filnam)
 {
-	int i, j, k, x, y, z, pal[256];
-	unsigned char c[3], *tbuf;
+	int i;
+	int j;
+	int k;
+	int x;
+	int y;
+	int z;
+	int pal[256];
+	unsigned char c[3];
+	unsigned char *tbuf;
 
 	const int fil = kopen4load(filnam, 0);
 
@@ -1797,9 +1850,22 @@ static int loadvox (const char *filnam)
 
 static int loadkvx (const char *filnam)
 {
-	int i, j, k, x, y, z, pal[256], z0, z1, mip1leng, ysizp1, fil;
+	int i;
+	int j;
+	int k;
+	int x;
+	int y;
+	int z;
+	int pal[256];
+	int z0;
+	int z1;
+	int mip1leng;
+	int ysizp1;
+	int fil;
 	unsigned short *xyoffs;
-	unsigned char c[3], *tbuf, *cptr;
+	unsigned char c[3];
+	unsigned char *tbuf;
+	unsigned char *cptr;
 
 	fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
 	kread(fil,&mip1leng,4); mip1leng = B_LITTLE32(mip1leng);
@@ -1855,7 +1921,13 @@ static int loadkvx (const char *filnam)
 
 static int loadkv6 (const char *filnam)
 {
-	int i, j, x, y, numvoxs, z0, z1;
+	int i;
+	int j;
+	int x;
+	int y;
+	int numvoxs;
+	int z0;
+	int z1;
 	float f;
 	unsigned short *ylen;
 	unsigned char c[8];

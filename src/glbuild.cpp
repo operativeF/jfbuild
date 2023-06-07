@@ -86,11 +86,14 @@ static void enumerate_configure(const char *ext) {
 }
 
 static void glbuild_enumerate_exts(void (*callback)(const char *)) {
-	char *workstr = nullptr, *workptr = nullptr, *nextptr = nullptr;
+	char *workstr = nullptr;
+	char *workptr = nullptr;
+	char *nextptr = nullptr;
 	const char *ext = nullptr;
 
 #if (USE_OPENGL == USE_GL3)
-	GLint extn = 0, numexts = 0;
+	GLint extn = 0;
+	GLint numexts = 0;
 	if (glinfo.majver >= 3) {
 		glfunc.glGetIntegerv(GL_NUM_EXTENSIONS, &numexts);
 	} else
@@ -498,7 +501,10 @@ void glbuild_check_errors(const char *file, int line)
 //
 static GLchar *glbuild_cook_source(const GLchar *source, const char *spec)
 {
-	GLchar *cooked, *pos, *match, *end;
+	GLchar *cooked;
+	GLchar *pos;
+	GLchar *match;
+	GLchar *end;
 	const char *marker = "#glbuild(";
 	constexpr int markerlen{ 9 };
 
@@ -620,14 +626,18 @@ GLuint glbuild_link_program(int shadercount, const GLuint *shaders)
 //
 int glbuild_prepare_8bit_shader(glbuild8bit *state, int resx, int resy, int stride, int winx, int winy)
 {
-	GLuint shaders[2] = {0,0}, prog = 0;
+	GLuint shaders[2] = {0,0};
+	GLuint prog = 0;
 
-	float tx = (float)resx / (float)stride, ty = 1.0;
-	int tsizx = stride, tsizy = resy;
+	float tx = (float)resx / (float)stride;
+	float ty = 1.0;
+	int tsizx = stride;
+	int tsizy = resy;
 
 	const float winaspect = (float)winx / (float)winy;
 	const float frameaspect = (float)resx / (float)resy;
-	float aspectx, aspecty;
+	float aspectx;
+	float aspecty;
 
 	if (!glinfo.texnpot) {
 		for (tsizx = 1; tsizx < stride; tsizx <<= 1) { }
@@ -661,7 +671,8 @@ int glbuild_prepare_8bit_shader(glbuild8bit *state, int resx, int resy, int stri
 	};
 
 	const GLint clamp = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
-	GLenum intfmt, extfmt;
+	GLenum intfmt;
+	GLenum extfmt;
 
 	// Initialise texture objects for the palette and framebuffer.
 	// The textures will be uploaded on the first rendered frame.

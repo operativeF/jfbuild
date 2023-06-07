@@ -615,7 +615,8 @@ static int pt_load(PTHash * pth)
  */
 static bool pt_load_art(PTHead * pth)
 {
-	PTTexture tex, fbtex;
+	PTTexture tex;
+	PTTexture fbtex;
 	coltype* wpptr;
 	coltype* fpptr;
 	int x;

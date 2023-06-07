@@ -405,7 +405,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, 
 		char instring{0};
 		char swallownext{0};
 
-		char *p,*wp; int i;
+		char *p;
+		char *wp; int i;
 		for (p=wp=argvbuf; *p; p++) {
 			if (*p == ' ') {
 				if (instring && !quoted) {
@@ -1322,7 +1323,8 @@ int setvideomode(int x, int y, int c, int fs)
 static void cdsenummodes()
 {
 	DEVMODE dm;
-	int i = 0, j = 0;
+	int i = 0;
+	int j = 0;
 
 	struct { unsigned x,y,bpp,freq; } modes[MAXVALIDMODES];
 	int nmodes=0;
@@ -1385,7 +1387,9 @@ void getvalidmodes()
 		{1280,1024},{1280,960},{1280,800},{1280,720},{1152,864},{1024,768},{800,600},{640,480},
 		{640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
 	};
-	int i, maxx=0, maxy=0;
+	int i;
+	int maxx=0;
+	int maxy=0;
 
 	if (modeschecked) return;
 
@@ -1468,7 +1472,10 @@ void showframe()
 		if ((xres == desktopxdim && yres == desktopydim) || !fullscreen) {
 			::BitBlt(hDCWindow, 0, 0, xres, yres, hDCSection, 0, 0, SRCCOPY);
 		} else {
-			int xpos, ypos, xscl, yscl;
+			int xpos;
+			int ypos;
+			int xscl;
+			int yscl;
 			const int desktopaspect = divscale16(desktopxdim, desktopydim);
 			const int frameaspect = divscale16(xres, yres);
 
@@ -1721,7 +1728,10 @@ static void UninitOpenGL()
 static void EnumWGLExts(HDC hdc)
 {
 	const GLchar *extstr;
-	char *workstr, *workptr, *nextptr = nullptr, *ext = nullptr;
+	char *workstr;
+	char *workptr;
+	char *nextptr = nullptr;
+	char *ext = nullptr;
 	int ack;
 
 	wglfunc.wglGetExtensionsStringARB = static_cast<wglExtStringARB_t>(getglprocaddress("wglGetExtensionsStringARB", 1));
@@ -1769,7 +1779,8 @@ static void EnumWGLExts(HDC hdc)
 //
 static int SetupOpenGL(int width, int height, unsigned char bitspp)
 {
-	int err, pixelformat;
+	int err;
+	int pixelformat;
 
 	// Step 1. Create a fake context with a safe pixel format descriptor.
 	GLuint dummyPixelFormat;
@@ -2038,7 +2049,14 @@ fail:
 static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refresh)
 {
 	RECT rect;
-	int ww, wh, wx, wy, vw, vh, stylebits = 0, stylebitsex = 0;
+	int ww;
+	int wh;
+	int wx;
+	int wy;
+	int vw;
+	int vh;
+	int stylebits = 0;
+	int stylebitsex = 0;
 
 	if (width == xres && height == yres && fs == fullscreen && bitspp == bpp && !videomodereset) return FALSE;
 
@@ -2436,7 +2454,8 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 					}
 
 					if (raw.data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) {
-						static LONG absx = 0, absy = 0;
+						static LONG absx = 0;
+						static LONG absy = 0;
 						static char first = 1;
 
 						if (!first) {

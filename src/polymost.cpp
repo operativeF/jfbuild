@@ -1066,12 +1066,62 @@ void polymost_nextpage()
 	//    +4 means it's a sprite, so wraparound isn't needed
 void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, int method)
 {
-	double ngdx = 0.0, ngdy = 0.0, ngdo = 0.0, ngux = 0.0, nguy = 0.0, nguo = 0.0;
-	double ngvx = 0.0, ngvy = 0.0, ngvo = 0.0, dp, up, vp, rdp;
-	double ngdx2, ngux2, ngvx2;
-	double f, r, ox, oy, oz, ox2, oy2, oz2, dd[16], uu[16], vv[16], px[16], py[16];
-	int i, j, k, x, y, z, ix0, ix1, mini, maxi, tsizx, tsizy, tsizxm1 = 0, tsizym1 = 0, ltsizy = 0;
-	int xx, yy, xi, d0, u0, v0, d1, u1, v1, xmodnice = 0, ymulnice = 0, dorot;
+	double ngdx = 0.0;
+	double ngdy = 0.0;
+	double ngdo = 0.0;
+	double ngux = 0.0;
+	double nguy = 0.0;
+	double nguo = 0.0;
+	double ngvx = 0.0;
+	double ngvy = 0.0;
+	double ngvo = 0.0;
+	double dp;
+	double up;
+	double vp;
+	double rdp;
+	double ngdx2;
+	double ngux2;
+	double ngvx2;
+	double f;
+	double r;
+	double ox;
+	double oy;
+	double oz;
+	double ox2;
+	double oy2;
+	double oz2;
+	double dd[16];
+	double uu[16];
+	double vv[16];
+	double px[16];
+	double py[16];
+	int i;
+	int j;
+	int k;
+	int x;
+	int y;
+	int z;
+	int ix0;
+	int ix1;
+	int mini;
+	int maxi;
+	int tsizx;
+	int tsizy;
+	int tsizxm1 = 0;
+	int tsizym1 = 0;
+	int ltsizy = 0;
+	int xx;
+	int yy;
+	int xi;
+	int d0;
+	int u0;
+	int v0;
+	int d1;
+	int u1;
+	int v1;
+	int xmodnice = 0;
+	int ymulnice = 0;
+	int dorot;
 	unsigned char dacol = 0, *walptr, *palptr = nullptr, *vidp, *vide;
 
 #ifdef DEBUGGINGAIDS
@@ -1160,7 +1210,11 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 
 #if USE_OPENGL
 	int nn;
-	double uoffs, du0 = 0.0, du1 = 0.0, dui, duj;
+	double uoffs;
+	double du0 = 0.0;
+	double du1 = 0.0;
+	double dui;
+	double duj;
 
 	if (rendmode == 3)
 	{
@@ -1763,7 +1817,10 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 	*/
 static void initmosts (const double *px, const double *py, int n)
 {
-	int i, j, k, imin;
+	int i;
+	int j;
+	int k;
+	int imin;
 
 	vcnt = 1; //0 is dummy solid node
 
@@ -2465,9 +2522,30 @@ static void polymost_drawalls (int bunch)
 #if USE_OPENGL
 			else  //NOTE: code copied from ceiling code... lots of duplicated stuff :/
 			{     //Skybox code for parallax ceiling!
-				double _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1, _nx0, _ny0, _nx1, _ny1;
-				double _ryp0, _ryp1, _x0, _x1, _cy0, _fy0, _cy1, _fy1, _ox0, _ox1;
-				double nfy0, nfy1;
+				double _xp0;
+				double _yp0;
+				double _xp1;
+				double _yp1;
+				double _oxp0;
+				double _oyp0;
+				double _t0;
+				double _t1;
+				double _nx0;
+				double _ny0;
+				double _nx1;
+				double _ny1;
+				double _ryp0;
+				double _ryp1;
+				double _x0;
+				double _x1;
+				double _cy0;
+				double _fy0;
+				double _cy1;
+				double _fy1;
+				double _ox0;
+				double _ox1;
+				double nfy0;
+				double nfy1;
 				constexpr int skywalx[4] = { -512,512,512,-512 };
 				constexpr int skywaly[4] = { -512,-512,512,512 };
 
@@ -2801,9 +2879,30 @@ static void polymost_drawalls (int bunch)
 #if USE_OPENGL
 			else
 			{     //Skybox code for parallax ceiling!
-				double _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1, _nx0, _ny0, _nx1, _ny1;
-				double _ryp0, _ryp1, _x0, _x1, _cy0, _fy0, _cy1, _fy1, _ox0, _ox1;
-				double ncy0, ncy1;
+				double _xp0;
+				double _yp0;
+				double _xp1;
+				double _yp1;
+				double _oxp0;
+				double _oyp0;
+				double _t0;
+				double _t1;
+				double _nx0;
+				double _ny0;
+				double _nx1;
+				double _ny1;
+				double _ryp0;
+				double _ryp1;
+				double _x0;
+				double _x1;
+				double _cy0;
+				double _fy0;
+				double _cy1;
+				double _fy1;
+				double _ox0;
+				double _ox1;
+				double ncy0;
+				double ncy1;
 				constexpr int skywalx[4] = { -512,  512, 512, -512 };
 				constexpr int skywaly[4] = { -512, -512, 512,  512 };
 
@@ -3152,11 +3251,28 @@ static int polymost_bunchfront (int b1, int b2)
 
 static void polymost_scansector (int sectnum)
 {
-	double d, xp1, yp1, xp2, yp2;
-	walltype *wal, *wal2;
+	double d;
+	double xp1;
+	double yp1;
+	double xp2;
+	double yp2;
+	walltype *wal;
+	walltype *wal2;
 	spritetype *spr;
-	int z, zz, startwall, endwall, numscansbefore, scanfirst, bunchfrst, nextsectnum;
-	int xs, ys, x1, y1, x2, y2;
+	int z;
+	int zz;
+	int startwall;
+	int endwall;
+	int numscansbefore;
+	int scanfirst;
+	int bunchfrst;
+	int nextsectnum;
+	int xs;
+	int ys;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
 
 	if (sectnum < 0) return;
 	if (automapping) show2dsector[sectnum >> 3] |= pow2char[sectnum & 7];
@@ -3245,8 +3361,26 @@ static void polymost_scansector (int sectnum)
 
 void polymost_drawrooms ()
 {
-	int i, j, n, n2, closest;
-	double ox, oy, oz, ox2, oy2, oz2, r, px[6], py[6], pz[6], px2[6], py2[6], pz2[6], sx[6], sy[6];
+	int i;
+	int j;
+	int n;
+	int n2;
+	int closest;
+	double ox;
+	double oy;
+	double oz;
+	double ox2;
+	double oy2;
+	double oz2;
+	double r;
+	double px[6];
+	double py[6];
+	double pz[6];
+	double px2[6];
+	double py2[6];
+	double pz2[6];
+	double sx[6];
+	double sy[6];
 	static unsigned char tempbuf[MAXWALLS];
 
 	if (!rendmode) return;
@@ -3364,8 +3498,15 @@ void polymost_drawrooms ()
 
 	if (searchit == 2)
 	{
-		short hitsect, hitwall, hitsprite;
-		int vx, vy, vz, hitx, hity, hitz;
+		short hitsect;
+		short hitwall;
+		short hitsprite;
+		int vx;
+		int vy;
+		int vz;
+		int hitx;
+		int hity;
+		int hitz;
 
 		ox2 = searchx - ghalfx;
 		oy2 = searchy - ghoriz;
@@ -3397,7 +3538,8 @@ void polymost_drawrooms ()
 			searchwall = hitwall; searchstat = 0;
 			if (wall[hitwall].nextwall >= 0)
 			{
-				int cz, fz;
+				int cz;
+				int fz;
 				getzsofslope(wall[hitwall].nextsector,hitx,hity,&cz,&fz);
 				if (hitz > fz)
 				{
@@ -3411,7 +3553,8 @@ void polymost_drawrooms ()
 		else if (hitsprite >= 0) { searchwall = hitsprite; searchstat = 3; }
 		else
 		{
-			int cz, fz;
+			int cz;
+			int fz;
 			getzsofslope(hitsect,hitx,hity,&cz,&fz);
 			if ((hitz<<1) < cz+fz) searchstat = 1; else searchstat = 2;
 			//if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
@@ -3492,9 +3635,31 @@ void polymost_drawrooms ()
 
 void polymost_drawmaskwall (int damaskwallcnt)
 {
-	double dpx[8], dpy[8], dpx2[8], dpy2[8];
-	float fy, x0, x1, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1;
-	float r, t, t0, t1, csy[4], fsy[4];
+	double dpx[8];
+	double dpy[8];
+	double dpx2[8];
+	double dpy2[8];
+	float fy;
+	float x0;
+	float x1;
+	float sx0;
+	float sy0;
+	float sx1;
+	float sy1;
+	float xp0;
+	float yp0;
+	float xp1;
+	float yp1;
+	float oxp0;
+	float oyp0;
+	float ryp0;
+	float ryp1;
+	float r;
+	float t;
+	float t0;
+	float t1;
+	float csy[4];
+	float fsy[4];
 	int i, j, n, n2, cz[4], fz[4], method;
 
 #ifdef DEBUGGINGAIDS
@@ -3666,9 +3831,44 @@ void polymost_drawsprite (int snum)
 {
 	double px[6];
 	double py[6];
-	float f, c, s, fx, fy, sx0, sy0, sx1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1, ft[4];
-	float x0, y0, x1, y1, sc0, sf0, sc1, sf1, px2[6], py2[6], xv, yv, t0, t1;
-	int i, j, spritenum, xoff=0, yoff=0, method, npoints;
+	float f;
+	float c;
+	float s;
+	float fx;
+	float fy;
+	float sx0;
+	float sy0;
+	float sx1;
+	float xp0;
+	float yp0;
+	float xp1;
+	float yp1;
+	float oxp0;
+	float oyp0;
+	float ryp0;
+	float ryp1;
+	float ft[4];
+	float x0;
+	float y0;
+	float x1;
+	float y1;
+	float sc0;
+	float sf0;
+	float sc1;
+	float sf1;
+	float px2[6];
+	float py2[6];
+	float xv;
+	float yv;
+	float t0;
+	float t1;
+	int i;
+	int j;
+	int spritenum;
+	int xoff=0;
+	int yoff=0;
+	int method;
+	int npoints;
 	spritetype *tspr;
 
 #ifdef DEBUGGINGAIDS
@@ -3997,16 +4197,41 @@ void polymost_drawsprite (int snum)
 void polymost_dorotatesprite (int sx, int sy, int z, short a, short picnum,
 	signed char dashade, unsigned char dapalnum, unsigned char dastat, int cx1, int cy1, int cx2, int cy2, int uniqid)
 {
-	int n, nn, x, zz, xoff, yoff, xsiz, ysiz, method;
-	int ogpicnum, ogshade, ogpal, oxdimen, oydimen;
+	int n;
+	int nn;
+	int x;
+	int zz;
+	int xoff;
+	int yoff;
+	int xsiz;
+	int ysiz;
+	int method;
+	int ogpicnum;
+	int ogshade;
+	int ogpal;
+	int oxdimen;
+	int oydimen;
 	intptr_t ofoffset;
-	double ogchang, ogshang, ogctang, ogstang, oghalfx, oghoriz, fx, fy, x1, y1, x2, y2;
-	double ogrhalfxdown10, ogrhalfxdown10x;
+	double ogchang;
+	double ogshang;
+	double ogctang;
+	double ogstang;
+	double oghalfx;
+	double oghoriz;
+	double fx;
+	double fy;
+	double x1;
+	double y1;
+	double x2;
+	double y2;
+	double ogrhalfxdown10;
+	double ogrhalfxdown10x;
 	double d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
 
 #if USE_OPENGL
 	double z1;
-	double ogxyaspect, ogfogdensity;
+	double ogxyaspect;
+	double ogfogdensity;
 	int oldviewingrange;
 	static int onumframes = 0;
 

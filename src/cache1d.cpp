@@ -122,8 +122,16 @@ void initcache(void *dacachestart, size_t dacachesize)
 
 void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
 {
-	int z, zz, bestz=0, suckz;
-	size_t i, daval, bestval, besto=0, o1, o2;
+	int z;
+	int zz;
+	int bestz=0;
+	int suckz;
+	size_t i;
+	size_t daval;
+	size_t bestval;
+	size_t besto=0;
+	size_t o1;
+	size_t o2;
 	ssize_t sucklen;
 
 	newbytes = ((newbytes+15)& ~15);
@@ -406,7 +414,8 @@ BFILE* fopenfrompath(const char *fn, const char *mode)
 {
 	int fh;
 	BFILE *h;
-	int bmode = 0, smode = 0;
+	int bmode = 0;
+	int smode = 0;
 	const char *c;
 
 	for (c=mode; c[0]; ) {
@@ -538,7 +547,8 @@ int initgroupfile(const char *filename)
 
 void uninitsinglegroupfile(int grphandle)
 {
-	int i, grpnum = -1;
+	int i;
+	int grpnum = -1;
 
 	for(i=numgroupfiles-1;i>=0;i--)
 		if (groupfil[i] != -1 && groupfil[i] == grphandle)
@@ -601,8 +611,13 @@ void uninitgroupfile()
 
 int kopen4load(const char *filename, char searchfirst)
 {
-	int i, j, k, fil, newhandle;
-	char bad, *gfileptr;
+	int i;
+	int j;
+	int k;
+	int fil;
+	int newhandle;
+	char bad;
+	char *gfileptr;
 
 	newhandle = MAXOPENFILES-1;
 	while (filehan[newhandle] != -1)
@@ -674,7 +689,9 @@ int kopen4load(const char *filename, char searchfirst)
 
 int kread(int handle, void *buffer, unsigned leng)
 {
-	int i, filenum, groupnum;
+	int i;
+	int filenum;
+	int groupnum;
 
 	filenum = filehan[handle];
 	groupnum = filegrp[handle];
@@ -726,7 +743,8 @@ int kgetc(int handle)
 
 int klseek(int handle, int offset, int whence)
 {
-	int i, groupnum;
+	int i;
+	int groupnum;
 
 	groupnum = filegrp[handle];
 
@@ -762,7 +780,8 @@ int klseek(int handle, int offset, int whence)
 
 int kfilelength(int handle)
 {
-	int i, groupnum;
+	int i;
+	int groupnum;
 
 	groupnum = filegrp[handle];
 	if (groupnum == 255) {
@@ -826,10 +845,12 @@ void kclose(int handle)
 
 static int klistaddentry(CACHE1D_FIND_REC **rec, const char* name, int type, int source)
 {
-	CACHE1D_FIND_REC *r = nullptr, *attach = nullptr;
+	CACHE1D_FIND_REC *r = nullptr;
+	CACHE1D_FIND_REC *attach = nullptr;
 
 	if (*rec) {
-		int insensitive, v;
+		int insensitive;
+		int v;
 		CACHE1D_FIND_REC *last = nullptr;
 		
 		for (attach = *rec; attach; last = attach, attach = attach->next) {
@@ -917,7 +938,8 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 
 	// we don't need any leading dots and slashes or trailing slashes either
 	{
-		int i,j;
+		int i;
+		int j;
 		for (i=0; path[i] == '.' || toupperlookup[(int)(unsigned char)path[i]] == '/'; ) i++;
 		for (j=0; (path[j] = path[i]); j++,i++) ;
 		while (j>0 && toupperlookup[(int)(unsigned char)path[j-1]] == '/') j--;
@@ -982,7 +1004,9 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 #ifdef WITHKPLIB
 	if (!pathsearchmode) {	// next, zip files
 		char buf[BMAX_PATH];
-		int i, j, ftype;
+		int i;
+		int j;
+		int ftype;
 		strcpy(buf,path);
 		if (*path) strcat(buf,"/");
 		strcat(buf,mask);
@@ -1042,7 +1066,8 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 	// then, grp files
 	if (!pathsearchmode && !*path && (type & CACHE1D_FIND_FILE)) {
 		std::array<char, 13> buf;
-		int i,j;
+		int i;
+		int j;
 		buf[12] = 0;
 		for (i=0;i<MAXGROUPFILES;i++) {
 			if (groupfil[i] == -1) continue;
@@ -1110,8 +1135,10 @@ static void lzwrelease()
 
 unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
 {
-	size_t i, j;
-	int k, kgoal;
+	size_t i;
+	size_t j;
+	int k;
+	int kgoal;
 	unsigned short leng;
 
 	lzwallocate();
@@ -1156,8 +1183,10 @@ unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
 
 unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
 {
-	size_t i, j;
-	int k, kgoal;
+	size_t i;
+	size_t j;
+	int k;
+	int kgoal;
 	unsigned short leng;
 
 	lzwallocate();
@@ -1196,8 +1225,11 @@ unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
 
 unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil)
 {
-	unsigned i, j, k;
-	unsigned short leng, swleng;
+	unsigned i;
+	unsigned j;
+	unsigned k;
+	unsigned short leng;
+	unsigned short swleng;
 	unsigned char *ptr;
 	
 	lzwallocate();
@@ -1239,8 +1271,11 @@ unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil)
 
 unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
 {
-	unsigned i, j, k;
-	unsigned short leng, swleng;
+	unsigned i;
+	unsigned j;
+	unsigned k;
+	unsigned short leng;
+	unsigned short swleng;
 	unsigned char *ptr;
 
 	lzwallocate();
@@ -1282,9 +1317,16 @@ unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, BFILE *fil)
 
 static int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned char *lzwoutbuf)
 {
-	int i, addr, newaddr, addrcnt, zx;
+	int i;
+	int addr;
+	int newaddr;
+	int addrcnt;
+	int zx;
 	int *intptr;
-	int bytecnt1, bitcnt, numbits, oneupnumbits;
+	int bytecnt1;
+	int bitcnt;
+	int numbits;
+	int oneupnumbits;
 	short *shortptr;
 
 	for(i=255;i>=0;i--) { lzwbuf1[i] = i; lzwbuf3[i] = (i+1)&255; }

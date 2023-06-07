@@ -68,7 +68,12 @@ char joynumbuttons{0};
 //
 int checkvideomode(int *x, int *y, int c, int fs, int forced)
 {
-	int i, nearest=-1, dx, dy, odx=INT_MAX, ody=INT_MAX;
+	int i;
+	int nearest=-1;
+	int dx;
+	int dy;
+	int odx=INT_MAX;
+	int ody=INT_MAX;
 
 	getvalidmodes();
 

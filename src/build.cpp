@@ -608,13 +608,39 @@ void restoreviewport()
 
 void editinput()
 {
-	unsigned char smooshyalign, repeatpanalign, buffer[80];
-	short startwall, endwall, dasector, daang;
-	int mousx, mousy, mousz, bstatus;
-	int i, j, k, templong=0, doubvel, changedir;
-	int dashade[2], goalz, xvect, yvect, hiz, loz;
-	short hitsect, hitwall, hitsprite;
-	int hitx, hity, hitz, dax, day, hihit, lohit;
+	unsigned char smooshyalign;
+	unsigned char repeatpanalign;
+	unsigned char buffer[80];
+	short startwall;
+	short endwall;
+	short dasector;
+	short daang;
+	int mousx;
+	int mousy;
+	int mousz;
+	int bstatus;
+	int i;
+	int j;
+	int k;
+	int templong=0;
+	int doubvel;
+	int changedir;
+	int dashade[2];
+	int goalz;
+	int xvect;
+	int yvect;
+	int hiz;
+	int loz;
+	short hitsect;
+	short hitwall;
+	short hitsprite;
+	int hitx;
+	int hity;
+	int hitz;
+	int dax;
+	int day;
+	int hihit;
+	int lohit;
 
 	if (keystatus[0x57] > 0)  //F11 - brightness
 	{
@@ -2665,9 +2691,21 @@ int gettile(int tilenum)
 
 int drawtilescreen(int pictopleft, int picbox)
 {
-	intptr_t vidpos, vidpos2;
-	int i, j, wallnum, xdime, ydime, cnt, pinc;
-	int dax, day, scaledown, xtiles, ytiles, tottiles;
+	intptr_t vidpos;
+	intptr_t vidpos2;
+	int i;
+	int j;
+	int wallnum;
+	int xdime;
+	int ydime;
+	int cnt;
+	int pinc;
+	int dax;
+	int day;
+	int scaledown;
+	int xtiles;
+	int ytiles;
+	int tottiles;
 	unsigned char *picptr;
 	std::array<char, 80> snotbuf;
 
@@ -2769,21 +2807,73 @@ void overheadeditor()
 {
 	char buffer[80];
 	const char *dabuffer;
-	int i, j, k, m=0, mousxplc, mousyplc, firstx=0, firsty=0, oposz, col, ch, sl;
-	int templong, templong1, templong2, doubvel;
-	int startwall, endwall, dax, day, daz, x1, y1, x2, y2, x3, y3, x4, y4;
-	int highlightx1, highlighty1, highlightx2, highlighty2, xvect, yvect;
-	short suckwall=0, sucksect, newnumwalls, newnumsectors, split=0, bad;
-	short splitsect=0, danumwalls, secondstartwall, joinsectnum;
+	int i;
+	int j;
+	int k;
+	int m=0;
+	int mousxplc;
+	int mousyplc;
+	int firstx=0;
+	int firsty=0;
+	int oposz;
+	int col;
+	int ch;
+	int sl;
+	int templong;
+	int templong1;
+	int templong2;
+	int doubvel;
+	int startwall;
+	int endwall;
+	int dax;
+	int day;
+	int daz;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int x3;
+	int y3;
+	int x4;
+	int y4;
+	int highlightx1;
+	int highlighty1;
+	int highlightx2;
+	int highlighty2;
+	int xvect;
+	int yvect;
+	short suckwall=0;
+	short sucksect;
+	short newnumwalls;
+	short newnumsectors;
+	short split=0;
+	short bad;
+	short splitsect=0;
+	short danumwalls;
+	short secondstartwall;
+	short joinsectnum;
 	std::array<short, 2> joinsector;
-	short splitstartwall=0, splitendwall, loopnum;
-	int mousx, mousy, bstatus;
+	short splitstartwall=0;
+	short splitendwall;
+	short loopnum;
+	int mousx;
+	int mousy;
+	int bstatus;
 	int circlerad;
-	short circlewall, circlepoints, circleang1, circleang2;
-	int sectorhighlightx=0, sectorhighlighty=0;
-	short cursectorhighlight, sectorhighlightstat;
-	short hitsect, hitwall, hitsprite;
-	int hitx, hity, hitz;
+	short circlewall;
+	short circlepoints;
+	short circleang1;
+	short circleang2;
+	int sectorhighlightx=0;
+	int sectorhighlighty=0;
+	short cursectorhighlight;
+	short sectorhighlightstat;
+	short hitsect;
+	short hitwall;
+	short hitsprite;
+	int hitx;
+	int hity;
+	int hitz;
 	walltype *wal;
 
 	qsetmodeany(xdim2d,ydim2d);
@@ -5688,7 +5778,16 @@ void getpoint(int searchxe, int searchye, int *x, int *y)
 
 int getlinehighlight(int xplc, int yplc)
 {
-	int i, dst, dist, closest, x1, y1, x2, y2, nx, ny;
+	int i;
+	int dst;
+	int dist;
+	int closest;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int nx;
+	int ny;
 
 	if (numwalls == 0)
 		return(-1);
@@ -5717,7 +5816,10 @@ int getlinehighlight(int xplc, int yplc)
 
 int getpointhighlight(int xplc, int yplc)
 {
-	int i, dst, dist, closest;
+	int i;
+	int dst;
+	int dist;
+	int closest;
 
 	if (numwalls == 0)
 		return(-1);
@@ -5745,7 +5847,12 @@ int getpointhighlight(int xplc, int yplc)
 
 int adjustmark(int *xplc, int *yplc, short danumwalls)
 {
-	int i, dst, dist, dax, day, pointlockdist;
+	int i;
+	int dst;
+	int dist;
+	int dax;
+	int day;
+	int pointlockdist;
 
 	if (danumwalls < 0)
 		danumwalls = numwalls;
@@ -5781,7 +5888,11 @@ int adjustmark(int *xplc, int *yplc, short danumwalls)
 
 int checkautoinsert(int dax, int day, short danumwalls)
 {
-	int i, x1, y1, x2, y2;
+	int i;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
 
 	if (danumwalls < 0)
 		danumwalls = numwalls;
@@ -5804,8 +5915,16 @@ int checkautoinsert(int dax, int day, short danumwalls)
 
 int clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
 {
-	short i, themin;
-	int minx, templong, x0, x1, x2, y0, y1, y2;
+	short i;
+	short themin;
+	int minx;
+	int templong;
+	int x0;
+	int x1;
+	int x2;
+	int y0;
+	int y1;
+	int y2;
 
 	minx = 0x7fffffff;
 	themin = -1;
@@ -5840,7 +5959,10 @@ int clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
 
 void flipwalls(short numwalls, short newnumwalls)
 {
-	int i, j, nume, templong;
+	int i;
+	int j;
+	int nume;
+	int templong;
 
 	nume = newnumwalls-numwalls;
 
@@ -5854,7 +5976,8 @@ void flipwalls(short numwalls, short newnumwalls)
 
 void insertpoint(short linehighlight, int dax, int day)
 {
-	int i, k;
+	int i;
+	int k;
 
 	int j = linehighlight;
 	short sucksect = sectorofwall((short)j);
@@ -5901,7 +6024,10 @@ void insertpoint(short linehighlight, int dax, int day)
 
 void deletepoint(short point)
 {
-	int i, j, k, sucksect;
+	int i;
+	int j;
+	int k;
+	int sucksect;
 
 	sucksect = sectorofwall(point);
 
@@ -5930,7 +6056,12 @@ void deletepoint(short point)
 
 int deletesector(short sucksect)
 {
-	int i, j, k, nextk, startwall, endwall;
+	int i;
+	int j;
+	int k;
+	int nextk;
+	int startwall;
+	int endwall;
 
 	while (headspritesect[sucksect] >= 0)
 		deletesprite(headspritesect[sucksect]);
@@ -5971,7 +6102,11 @@ int deletesector(short sucksect)
 
 void fixspritesectors()
 {
-	int i, j, dax, day, daz;
+	int i;
+	int j;
+	int dax;
+	int day;
+	int daz;
 
 	for(i=numsectors-1;i>=0;i--)
 		if ((sector[i].wallnum <= 0) || (sector[i].wallptr >= numwalls))
@@ -6023,7 +6158,10 @@ int movewalls(int start, int offs)
 
 int checksectorpointer(short i, short sectnum)
 {
-	int j, k, startwall, endwall;
+	int j;
+	int k;
+	int startwall;
+	int endwall;
 
 	const int x1 = wall[i].x;
 	const int y1 = wall[i].y;
@@ -6062,7 +6200,9 @@ int checksectorpointer(short i, short sectnum)
 
 void fixrepeats(short i)
 {
-	int dax, day, dist;
+	int dax;
+	int day;
+	int dist;
 
 	dax = wall[wall[i].point2].x-wall[i].x;
 	day = wall[wall[i].point2].y-wall[i].y;
@@ -6082,8 +6222,13 @@ void clearmidstatbar16()
 
 short loopinside(int x, int y, short startwall)
 {
-	int x1, y1, x2, y2, templong;
-	short i, cnt;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int templong;
+	short i;
+	short cnt;
 
 	cnt = clockdir(startwall);
 	i = startwall;
@@ -6110,7 +6255,10 @@ short loopinside(int x, int y, short startwall)
 
 int numloopsofsector(short sectnum)
 {
-	int i, numloops, startwall, endwall;
+	int i;
+	int numloops;
+	int startwall;
+	int endwall;
 
 	numloops = 0;
 	startwall = sector[sectnum].wallptr;
@@ -6122,8 +6270,11 @@ int numloopsofsector(short sectnum)
 
 short getnumber16(char *namestart, short num, int maxnumber, char sign)
 {
-	char buffer[80], ch;
-	int n, danum, oldnum;
+	char buffer[80];
+	char ch;
+	int n;
+	int danum;
+	int oldnum;
 
 	danum = (int)num;
 	oldnum = danum;
@@ -6162,8 +6313,11 @@ short getnumber16(char *namestart, short num, int maxnumber, char sign)
 
 short getnumber256(char *namestart, short num, int maxnumber, char sign)
 {
-	char buffer[80], ch;
-	int n, danum, oldnum;
+	char buffer[80];
+	char ch;
+	int n;
+	int danum;
+	int oldnum;
 
 	danum = (int)num;
 	oldnum = danum;
@@ -6417,9 +6571,17 @@ int menuselect(int newpathmode)
 
 int fillsector(short sectnum, unsigned char fillcolor)
 {
-	int x1, x2, y1, y2, sy, y, templong;
+	int x1;
+	int x2;
+	int y1;
+	int y2;
+	int sy;
+	int y;
+	int templong;
 	int dax;
-	short z, zz, fillcnt;
+	short z;
+	short zz;
+	short fillcnt;
 
 	int lborder{ 0 };
 	int rborder{ xdim };
@@ -6495,7 +6657,8 @@ int fillsector(short sectnum, unsigned char fillcolor)
 
 short whitelinescan(short dalinehighlight)
 {
-	int j, k;
+	int j;
+	int k;
 
 	const short sucksect = sectorofwall(dalinehighlight);
 
@@ -6663,7 +6826,11 @@ unsigned int drawlinepat = 0xffffffff;
 
 void drawline16(int x1, int y1, int x2, int y2, unsigned char col)
 {
-	int i, dx, dy, pinc, d;
+	int i;
+	int dx;
+	int dy;
+	int pinc;
+	int d;
 	intptr_t p;
 	unsigned int patc=0;
 
@@ -6741,7 +6908,14 @@ void drawline16(int x1, int y1, int x2, int y2, unsigned char col)
 
 void drawcircle16(int x1, int y1, int r, unsigned char col)
 {
-	int xp, yp, xpbpl, ypbpl, d, de, dse, patc=0;
+	int xp;
+	int yp;
+	int xpbpl;
+	int ypbpl;
+	int d;
+	int de;
+	int dse;
+	int patc=0;
 	intptr_t p;
 
 	if (r < 0) r = -r;
@@ -6862,7 +7036,12 @@ void clear2dscreen()
 //
 void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
 {
-	int i, xp1, yp1, xp2=0, yp2, tempy;
+	int i;
+	int xp1;
+	int yp1;
+	int xp2=0;
+	int yp2;
+	int tempy;
 
 	(void)ange;
 
@@ -7079,8 +7258,12 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 							drawpixel((void *)(templong-1-bytesperline), col);
 
 							if (showspriteextents && (sprite[j].cstat&(32|16))) {
-								int np, p;
-								int xoff, yoff, dax, day;
+								int np;
+								int p;
+								int xoff;
+								int yoff;
+								int dax;
+								int day;
 								std::array<int, 4> rxi;
 								std::array<int, 4> ryi;
 								std::array<int, 4> clipx{0};
@@ -7088,7 +7271,8 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 
 								const int tilenum = sprite[j].picnum;
 								const int ang = sprite[j].ang;
-								const int xrepeat = sprite[j].xrepeat, yrepeat = sprite[j].yrepeat;
+								const int xrepeat = sprite[j].xrepeat;
+								const int yrepeat = sprite[j].yrepeat;
 
 								xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)sprite[j].xoffset);
 								yoff = (int)((signed char)((picanm[tilenum]>>16)&255))+((int)sprite[j].yoffset);
@@ -7193,7 +7377,10 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 //
 void printext16(int xpos, int ypos, short col, short backcol, const char *name, char fontsize)
 {
-	int stx, i, x, y;
+	int stx;
+	int i;
+	int x;
+	int y;
 	const unsigned char *letptr;
 	unsigned char *ptr;
 	const struct textfontspec *f;
@@ -7298,7 +7485,12 @@ void updatenumsprites()
 
 void copysector(short soursector, short destsector, short deststartwall, unsigned char copystat)
 {
-	short j, k, m, newnumwalls, startwall, endwall;
+	short j;
+	short k;
+	short m;
+	short newnumwalls;
+	short startwall;
+	short endwall;
 
 	newnumwalls = deststartwall;  //erase existing sector fragments
 
