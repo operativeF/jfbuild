@@ -87,7 +87,7 @@ void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeake
     loadwaves("waves.kwv");
 
     buffersize = 4*(((sourcefmt.nAvgBytesPerSec/120)+1)&~1);
-    audiobuffer = (unsigned char *)malloc(buffersize * NUMBUFFERS);
+    audiobuffer = (unsigned char *)std::malloc(buffersize * NUMBUFFERS);
     INITSB_CHECK(audiobuffer, "failed to allocate audio buffer\n");
 
     bufferevents[EVENT_FILL] = CreateEvent(nullptr, FALSE, TRUE, nullptr);    // Signalled.
@@ -129,7 +129,7 @@ void uninitsb()
     }
 
     if (audiobuffer) {
-        free(audiobuffer);
+        std::free(audiobuffer);
         audiobuffer = nullptr;
     }
 

@@ -122,10 +122,10 @@ int wm_msgbox(const char *name, const char *fmt, ...)
 			break;
 		}
 
-		puts(buf);
+		std::puts(buf);
 	} while(0);
 
-	free(buf);
+	std::free(buf);
 
 	return rv;
 }
@@ -173,12 +173,12 @@ int wm_ynbox(const char *name, const char *fmt, ...)
 			break;
 		}
 
-		puts(buf);
-		puts("   (assuming 'No')");
+		std::puts(buf);
+		std::puts("   (assuming 'No')");
 		rv = 0;
 	} while(0);
 
-	free(buf);
+	std::free(buf);
 
 	return rv;
 }
@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
 
 #ifdef __APPLE__
 	// consume Xcode's "-NSDocumentRevisionsDebugMode xx" parameter
-	_buildargv = calloc(argc+1, sizeof(char *));
+	_buildargv = std::calloc(argc+1, sizeof(char *));
 	for (r = _buildargc = 0; r < argc; r++) {
 		if (strcmp(argv[r], "-NSDocumentRevisionsDebugMode") == 0) {
 			r++;
@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
 	r = app_main(_buildargc, (char const * const*)_buildargv);
 
 #ifdef __APPLE__
-	free(_buildargv);
+	std::free(_buildargv);
 #endif
 
 	startwin_close();
@@ -421,7 +421,7 @@ int initinput()
 		if (fh >= 0) {
 			flen = kfilelength(fh);
 			if (flen >= 0) {
-				dbuf = (char *)malloc(flen + 1);
+				dbuf = (char *)std::malloc(flen + 1);
 			}
 		}
 		if (dbuf) {
@@ -435,7 +435,7 @@ int initinput()
 		if (rwops) {
 			i = SDL_GameControllerAddMappingsFromRW(rwops, 0);
 			buildprintf("Added %d game controller mappings\n", i);
-			free(dbuf);
+			std::free(dbuf);
 			SDL_free(rwops);
 		}
 
@@ -774,7 +774,7 @@ void getvalidmodes()
 static void shutdownvideo()
 {
 	if (frame) {
-		free(frame);
+		std::free(frame);
 		frame = nullptr;
 	}
 #if USE_OPENGL
@@ -960,7 +960,7 @@ int setvideomode(int x, int y, int c, int fs)
 		}
 #endif
 
-		frame = (unsigned char *) malloc(pitch * y);
+		frame = (unsigned char *) std::malloc(pitch * y);
 		if (!frame) {
 			buildputs("Unable to allocate framebuffer\n");
 			return -1;

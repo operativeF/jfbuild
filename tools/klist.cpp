@@ -42,16 +42,16 @@ int main(int argc, char **argv)
 
     if (argc < 2)
     {
-        printf("KLIST [grouped file] [@file or filespec...]\n");
-        printf("   This program lists files in a group file.\n");
-        printf("   Filter files using ? and * wildcards.\n");
-        printf("   Ex: klist stuff.dat *.art\n");
+        std::printf("KLIST [grouped file] [@file or filespec...]\n");
+        std::printf("   This program lists files in a group file.\n");
+        std::printf("   Filter files using ? and * wildcards.\n");
+        std::printf("   Ex: klist stuff.dat *.art\n");
         return(0);
     }
 
     if ((fil = Bopen(argv[1],BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
     {
-        printf("Error: %s could not be opened\n",argv[1]);
+        std::printf("Error: %s could not be opened\n",argv[1]);
         return(0);
     }
 
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     if (r != 16 || memcmp(buf, "KenSilverman", 12))
     {
         Bclose(fil);
-        printf("Error: %s not a valid group file\n",argv[1]);
+        std::printf("Error: %s not a valid group file\n",argv[1]);
         return(0);
     }
     numfiles = *((int*)&buf[12]); numfiles = B_LITTLE32(numfiles);
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     if (r != numfiles<<4)
     {
         Bclose(fil);
-        printf("Error: %s not a valid group file\n",argv[1]);
+        std::printf("Error: %s not a valid group file\n",argv[1]);
         return(1);
     }
 
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
     if (anyfiles4listing == 0 && argc > 2)
     {
         Bclose(fil);
-        printf("No files found in group file with those names\n");
+        std::printf("No files found in group file with those names\n");
         return(0);
     }
 
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
             k = std::min(fileleng[i] - j, 65536);
             if (Bread(fil,buf,k) < k)
             {
-                printf("Read error\n");
+                std::printf("Read error\n");
                 Bclose(fil);
                 return(1);
             }
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
         }
         crc32finish(&crc);
 
-        printf("%-12s  %08X  %d\n",filelist[i], crc, fileleng[i]);
+        std::printf("%-12s  %08X  %d\n",filelist[i], crc, fileleng[i]);
     }
     Bclose(fil);
 

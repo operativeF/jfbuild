@@ -176,7 +176,7 @@ int initkdm(char dadigistat, char damusistat, int dasamplerate, char danumspeake
 
 void uninitkdm()
 {
-    if (snd) free(snd);
+    if (snd) std::free(snd);
     snd = nullptr;
 
     digistat = 0;
@@ -337,8 +337,8 @@ void loadwaves(char *wavename)
         finetune[i] = 0L;
     }
 
-    if (snd) free(snd);
-    snd = (unsigned char *)malloc(totsndbytes+2);
+    if (snd) std::free(snd);
+    snd = (unsigned char *)std::malloc(totsndbytes+2);
     if (!snd) {
         kclose(fil);
         numwaves = 0;

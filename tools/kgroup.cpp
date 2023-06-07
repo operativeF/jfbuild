@@ -35,8 +35,8 @@ void findfiles(const char *dafilespec)
 	char daspec[128], *dir;
 	BDIR *di;
 
-	strcpy(daspec,dafilespec);
-	daspeclen=(int)strlen(daspec);
+	std::strcpy(daspec,dafilespec);
+	daspeclen=(int)std::strlen(daspec);
 	while ((daspec[daspeclen] != '\\') && (daspec[daspeclen] != '/') && (daspeclen > 0)) daspeclen--;
 	if (daspeclen > 0) {
 		daspec[daspeclen]=0;
@@ -53,7 +53,7 @@ void findfiles(const char *dafilespec)
 	while ((name = Breaddir(di))) {
 		if (!checkmatch(name)) continue;
 
-		strcpy(&filelist[numfiles][0],name->name);
+		std::strcpy(&filelist[numfiles][0],name->name);
 		jstrupr(&filelist[numfiles][0]);
 		fileleng[numfiles] = (int)name->size;
 		filelist[numfiles][12] = (char)(fileleng[numfiles]&255);
@@ -61,15 +61,15 @@ void findfiles(const char *dafilespec)
 		filelist[numfiles][14] = (char)((fileleng[numfiles]>>16)&255);
 		filelist[numfiles][15] = (char)((fileleng[numfiles]>>24)&255);
 
-		strcpy(filespec[numfiles],dir);
-		strcat(filespec[numfiles], "/");
-		strcat(filespec[numfiles],name->name);
+		std::strcpy(filespec[numfiles],dir);
+		std::strcat(filespec[numfiles], "/");
+		std::strcat(filespec[numfiles],name->name);
 
 		numfiles++;
 		if (numfiles > MAXFILES)
 		{
-			printf("FATAL ERROR: TOO MANY FILES SELECTED! (MAX is 4096)\n");
-			exit(0);
+			std::printf("FATAL ERROR: TOO MANY FILES SELECTED! (MAX is 4096)\n");
+			std::exit(0);
 		}
 	}
 
@@ -83,12 +83,12 @@ int main(int argc, char **argv)
 
 	if (argc < 3)
 	{
-		printf("KGROUP [grouped file][@file or filespec...]           by Kenneth Silverman\n");
-		printf("   This program collects many files into 1 big uncompressed file called a\n");
-		printf("   group file\n");
-		printf("   Ex: kgroup stuff.dat *.art *.map *.k?? palette.dat tables.dat\n");
-		printf("      (stuff.dat is the group file, the rest are the files to add)\n");
-		exit(0);
+		std::printf("KGROUP [grouped file][@file or filespec...]           by Kenneth Silverman\n");
+		std::printf("   This program collects many files into 1 big uncompressed file called a\n");
+		std::printf("   group file\n");
+		std::printf("   Ex: kgroup stuff.dat *.art *.map *.k?? palette.dat tables.dat\n");
+		std::printf("      (stuff.dat is the group file, the rest are the files to add)\n");
+		std::exit(0);
 	}
 
 	numfiles = 0;
@@ -121,25 +121,25 @@ int main(int argc, char **argv)
 
 	if ((fil = Bopen(argv[1],BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
 	{
-		printf("Error: %s could not be opened\n",argv[1]);
-		exit(1);
+		std::printf("Error: %s could not be opened\n",argv[1]);
+		std::exit(1);
 	}
 	r  = Bwrite(fil,"KenSilverman",12);
 	r += Bwrite(fil,&numfiles,4);
 	r += Bwrite(fil,filelist,numfiles<<4);
 	if (r != 12 + 4 + (numfiles<<4))
 	{
-		printf("Write error\n");
+		std::printf("Write error\n");
 		Bclose(fil);
 		return(1);
 	}
 
 	for(i=0;i<numfiles;i++)
 	{
-		printf("Adding %s...\n",filespec[i]);
+		std::printf("Adding %s...\n",filespec[i]);
 		if ((fil2 = Bopen(filespec[i],BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
 		{
-			printf("Error: %s not found\n",filespec[i]);
+			std::printf("Error: %s not found\n",filespec[i]);
 			Bclose(fil);
 			return(0);
 		}
@@ -150,21 +150,21 @@ int main(int argc, char **argv)
 			{
 				Bclose(fil2);
 				Bclose(fil);
-				printf("Read error\n");
+				std::printf("Read error\n");
 				return(1);
 			}
 			if (Bwrite(fil,buf,k) < k)
 			{
 				Bclose(fil2);
 				Bclose(fil);
-				printf("OUT OF HD SPACE!\n");
+				std::printf("OUT OF HD SPACE!\n");
 				return(1);
 			}
 		}
 		Bclose(fil2);
 	}
 	Bclose(fil);
-	printf("Saved to %s.\n",argv[1]);
+	std::printf("Saved to %s.\n",argv[1]);
 
 	return 0;
 }

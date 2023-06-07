@@ -380,8 +380,8 @@ static int osdcmd_map(const osdfuncparm_t *parm) {
     strncpy(namebuf, parm->parms[0], BMAX_PATH);
     namebuf[BMAX_PATH] = 0;
     dot = strrchr(namebuf, '.');
-    if ((!dot || Bstrcasecmp(dot, ".map")) && strlen(namebuf) <= BMAX_PATH-4) {
-        strcat(namebuf, ".map");
+    if ((!dot || Bstrcasecmp(dot, ".map")) && std::strlen(namebuf) <= BMAX_PATH-4) {
+        std::strcat(namebuf, ".map");
     }
 
     prepareboard(namebuf);
@@ -438,14 +438,14 @@ int app_main(int argc, char const * const argv[])
         // the OSX app bundle, or on Windows the directory where the EXE was launched
         if (appdir) {
             addsearchpath(appdir);
-            free(appdir);
+            std::free(appdir);
         }
 
         // the global support files directory
         if (supportdir) {
             Bsnprintf(dirpath, sizeof(dirpath), "%s/KenBuild", supportdir);
             addsearchpath(dirpath);
-            free(supportdir);
+            std::free(supportdir);
         }
     }
 
@@ -481,7 +481,7 @@ int app_main(int argc, char const * const argv[])
             if (asperr == 0 && chdir(dirpath) < 0) {
                 buildprintf("warning: could not change directory to %s\n", dirpath);
             }
-            free(supportdir);
+            std::free(supportdir);
         }
     }
 
@@ -566,11 +566,11 @@ int app_main(int argc, char const * const argv[])
 		int parmc = 0;
 
 		if (settings.joinhost) {
-			strcpy(modeparm, "-nm");
+			std::strcpy(modeparm, "-nm");
 			parmarr[1] = settings.joinhost;
 			parmc = 2;
 		} else if (settings.numplayers > 1 && settings.numplayers <= MAXPLAYERS) {
-			sprintf(modeparm, "-nm:%d", settings.numplayers);
+			std::sprintf(modeparm, "-nm:%d", settings.numplayers);
 			parmc = 1;
 		}
 
@@ -579,7 +579,7 @@ int app_main(int argc, char const * const argv[])
 		}
 
 		if (settings.joinhost) {
-			free(settings.joinhost);
+			std::free(settings.joinhost);
 		}
 	}
 #endif
@@ -619,7 +619,7 @@ int app_main(int argc, char const * const argv[])
 	if (allocatepermanenttile(SLIME,128,128) == 0)    //If enough memory
 	{
 		buildputs("Not enough memory for slime!\n");
-		exit(0);
+		std::exit(0);
 	}
 	if (allocatepermanenttile(MAXTILES-1,64,64) != 0)    //If enough memory
 	{
@@ -664,7 +664,7 @@ int app_main(int argc, char const * const argv[])
 		if (option[4] < 5) waitplayers = 2; else waitplayers = option[4]-3;
 		while (numplayers < waitplayers)
 		{
-			sprintf(tempbuf,"%d of %d players in...",numplayers,waitplayers);
+			std::sprintf(tempbuf,"%d of %d players in...",numplayers,waitplayers);
 			printext256(68L,84L,31,0,tempbuf,0);
 			nextpage();
 
@@ -687,7 +687,7 @@ int app_main(int argc, char const * const argv[])
 				uninitengine();
 				uninitsb();
 				uninitgroupfile();
-				exit(0);
+				std::exit(0);
 			}
 		}
 		screenpeek = myconnectindex;
@@ -698,14 +698,14 @@ int app_main(int argc, char const * const argv[])
 			if (myconnectindex == i) break;
 			j++;
 		}
-		sprintf(getmessage,"Player %d",j);
+		std::sprintf(getmessage,"Player %d",j);
 		if (networkmode == 0)
 		{
-			if (j == 1) strcat(getmessage," (Master)");
-			else strcat(getmessage," (Slave)");
+			if (j == 1) std::strcat(getmessage," (Master)");
+			else std::strcat(getmessage," (Slave)");
 		} else
-			strcat(getmessage," (Even)");
-		getmessageleng = (int)strlen(getmessage);
+			std::strcat(getmessage," (Even)");
+		getmessageleng = (int)std::strlen(getmessage);
 		getmessagetimeoff = totalclock+120;
 	}
 
@@ -1082,11 +1082,11 @@ int changehealth(short snum, short deltahealth)
 		if ((snum == screenpeek) && (screensize <= xdim))
 		{
 			if (health[snum] > 0)
-				sprintf(tempbuf,"Health:%3d",health[snum]);
+				std::sprintf(tempbuf,"Health:%3d",health[snum]);
 			else
-				sprintf(tempbuf,"YOU STINK!");
+				std::sprintf(tempbuf,"YOU STINK!");
 
-			printext((xdim>>1)-(int)(strlen(tempbuf)<<2),ydim-24,tempbuf,ALPHABET,80);
+			printext((xdim>>1)-(int)(std::strlen(tempbuf)<<2),ydim-24,tempbuf,ALPHABET,80);
 		}
 	}
 	return(health[snum] <= 0);      //You were just injured
@@ -1101,7 +1101,7 @@ void changenumbombs(short snum, short deltanumbombs) {   // Andy did this
 	}
 
 	if ((snum == screenpeek) && (screensize <= xdim)) {
-		sprintf(tempbuf,"B:%3d",numbombs[snum]);
+		std::sprintf(tempbuf,"B:%3d",numbombs[snum]);
 		printext(8L,(ydim - 28L),tempbuf,ALPHABET,80);
 	}
 }
@@ -1115,7 +1115,7 @@ void changenummissiles(short snum, short deltanummissiles) {   // Andy did this
 	}
 
 	if ((snum == screenpeek) && (screensize <= xdim)) {
-		sprintf(tempbuf,"M:%3d",nummissiles[snum]);
+		std::sprintf(tempbuf,"M:%3d",nummissiles[snum]);
 		printext(8L,(ydim - 20L),tempbuf,ALPHABET,80);
 	}
 }
@@ -1129,7 +1129,7 @@ void changenumgrabbers(short snum, short deltanumgrabbers) {   // Andy did this
 	}
 
 	if ((snum == screenpeek) && (screensize <= xdim)) {
-		sprintf(tempbuf,"G:%3d",numgrabbers[snum]);
+		std::sprintf(tempbuf,"G:%3d",numgrabbers[snum]);
 		printext(8L,(ydim - 12L),tempbuf,ALPHABET,80);
 	}
 }
@@ -1143,8 +1143,8 @@ void drawstatusflytime(short snum) {   // Andy did this
 		if (nstatusflytime > 1000) nstatusflytime = 1000;
 		else if (nstatusflytime < 0) nstatusflytime = 0;
 		if (nstatusflytime != ostatusflytime) {
-			if (nstatusflytime > 999) sprintf(tempbuf,"FT:BIG");
-			else sprintf(tempbuf,"FT:%3d",nstatusflytime);
+			if (nstatusflytime > 999) std::sprintf(tempbuf,"FT:BIG");
+			else std::sprintf(tempbuf,"FT:%3d",nstatusflytime);
 			printext((xdim - 56L),(ydim - 20L),tempbuf,ALPHABET,80);
 			ostatusflytime = nstatusflytime;
 		}
@@ -1155,29 +1155,29 @@ void drawstatusbar(short snum) {   // Andy did this
 	int nstatusflytime;
 
 	if ((snum == screenpeek) && (screensize <= xdim)) {
-		sprintf(tempbuf,"Deaths:%d",deaths[snum]);
-		printext((xdim>>1)-(int)(strlen(tempbuf)<<2),ydim-16,tempbuf,ALPHABET,80);
-		sprintf(tempbuf,"Health:%3d",health[snum]);
-		printext((xdim>>1)-(int)(strlen(tempbuf)<<2),ydim-24,tempbuf,ALPHABET,80);
+		std::sprintf(tempbuf,"Deaths:%d",deaths[snum]);
+		printext((xdim>>1)-(int)(std::strlen(tempbuf)<<2),ydim-16,tempbuf,ALPHABET,80);
+		std::sprintf(tempbuf,"Health:%3d",health[snum]);
+		printext((xdim>>1)-(int)(std::strlen(tempbuf)<<2),ydim-24,tempbuf,ALPHABET,80);
 
-		sprintf(tempbuf,"B:%3d",numbombs[snum]);
+		std::sprintf(tempbuf,"B:%3d",numbombs[snum]);
 		printext(8L,(ydim - 28L),tempbuf,ALPHABET,80);
-		sprintf(tempbuf,"M:%3d",nummissiles[snum]);
+		std::sprintf(tempbuf,"M:%3d",nummissiles[snum]);
 		printext(8L,(ydim - 20L),tempbuf,ALPHABET,80);
-		sprintf(tempbuf,"G:%3d",numgrabbers[snum]);
+		std::sprintf(tempbuf,"G:%3d",numgrabbers[snum]);
 		printext(8L,(ydim - 12L),tempbuf,ALPHABET,80);
 
 		nstatusflytime = (((flytime[snum] + 119) - lockclock) / 120);
 		if (nstatusflytime < 0) {
-			sprintf(tempbuf,"FT:  0");
+			std::sprintf(tempbuf,"FT:  0");
 			ostatusflytime = 0;
 		}
 		else if (nstatusflytime > 999) {
-			sprintf(tempbuf,"FT:BIG");
+			std::sprintf(tempbuf,"FT:BIG");
 			ostatusflytime = 999;
 		}
 		else {
-			sprintf(tempbuf,"FT:%3d",nstatusflytime);
+			std::sprintf(tempbuf,"FT:%3d",nstatusflytime);
 			ostatusflytime = nstatusflytime;
 		}
 		printext((xdim - 56L),(ydim - 20L),tempbuf,ALPHABET,80);
@@ -1216,8 +1216,8 @@ void prepareboard(char *daboardfilename)
 		uninitengine();
 		uninitsb();
 		uninitgroupfile();
-		printf("Board not found\n");
-		exit(0);
+		std::printf("Board not found\n");
+		std::exit(0);
 	} else {
 		char tempfn[BMAX_PATH + 1];
 		char *fp;
@@ -1230,8 +1230,8 @@ void prepareboard(char *daboardfilename)
 		fp = strrchr(tempfn,'.');
 		if (fp) *fp = 0;
 
-		if (strlen(tempfn) <= BMAX_PATH-4) {
-			strcat(tempfn,".mhk");
+		if (std::strlen(tempfn) <= BMAX_PATH-4) {
+			std::strcat(tempfn,".mhk");
 			loadmaphack(tempfn);
 		}
 	}
@@ -4267,8 +4267,8 @@ void drawscreen(short snum, int dasmoothratio)
 			if (i == screenpeek) break;
 			j++;
 		}
-		sprintf(tempbuf,"(Player %d's view)",j);
-		printext256((xdim>>1)-(int)(strlen(tempbuf)<<2),0,24,-1,tempbuf,0);
+		std::sprintf(tempbuf,"(Player %d's view)",j);
+		printext256((xdim>>1)-(int)(std::strlen(tempbuf)<<2),0,24,-1,tempbuf,0);
 	}
 
 	if (syncstat != 0) printext256(68L,84L,31,0,"OUT OF SYNC!",0);
@@ -4283,7 +4283,7 @@ void drawscreen(short snum, int dasmoothratio)
 //   for(i=0;i<cacnum;i++)
 //      if ((*cac[i].lock) >= 200)
 //      {
-//         sprintf(tempbuf,"Locked- %ld: Leng:%ld, Lock:%ld",i,cac[i].leng,*cac[i].lock);
+//         std::sprintf(tempbuf,"Locked- %ld: Leng:%ld, Lock:%ld",i,cac[i].leng,*cac[i].lock);
 //         printext256(0L,j,31,-1,tempbuf,1); j += 6;
 //      }
 
@@ -4334,8 +4334,8 @@ void drawscreen(short snum, int dasmoothratio)
 		}
 		screensize = xdim+1;
 
-		sprintf(getmessage,"Video mode: %d x %d",xdim,ydim);
-		getmessageleng = (int)strlen(getmessage);
+		std::sprintf(getmessage,"Video mode: %d x %d",xdim,ydim);
+		getmessageleng = (int)std::strlen(getmessage);
 		getmessagetimeoff = totalclock+120*5;
 	}
 	if (keystatus[0x57])  //F11 - brightness
@@ -4943,7 +4943,7 @@ void playback()
 	uninitengine();
 	uninitsb();
 	uninitgroupfile();
-	exit(0);
+	std::exit(0);
 }
 
 void setup3dscreen()
@@ -4957,14 +4957,14 @@ void setup3dscreen()
 	i = setgamemode(fullscreen,xdimgame,ydimgame,bppgame);
 	if (i < 0)
 	{
-		printf("Error setting video mode.\n");
+		std::printf("Error setting video mode.\n");
 		sendlogoff();
 		musicoff();
 		uninitmultiplayers();
 		uninitengine();
 		uninitsb();
 		uninitgroupfile();
-		exit(0);
+		std::exit(0);
 	}
 
 	  //Make that ugly pink into black in case it ever shows up!
@@ -5404,10 +5404,10 @@ void checkmasterslaveswitch()
 				j++;
 			}
 			if (j == 1)
-				strcpy(getmessage,"Player 1 (Master)");
+				std::strcpy(getmessage,"Player 1 (Master)");
 			else
-				sprintf(getmessage,"Player %d (Slave)",j);
-			getmessageleng = (int)strlen(getmessage);
+				std::sprintf(getmessage,"Player %d (Slave)",j);
+			getmessageleng = (int)std::strlen(getmessage);
 			getmessagetimeoff = totalclock+120;
 
 			return;
@@ -5618,8 +5618,8 @@ int loadgame()
 	totalclock = lockclock;
 	ototalclock = lockclock;
 
-	strcpy(getmessage,"Game loaded.");
-	getmessageleng = (int)strlen(getmessage);
+	std::strcpy(getmessage,"Game loaded.");
+	getmessageleng = (int)std::strlen(getmessage);
 	getmessagetimeoff = totalclock+360+(getmessageleng<<4);
 	return(0);
 }
@@ -5787,8 +5787,8 @@ int savegame()
 
 	std::fclose(fil);
 
-	strcpy(getmessage,"Game saved.");
-	getmessageleng = (int)strlen(getmessage);
+	std::strcpy(getmessage,"Game saved.");
+	getmessageleng = (int)std::strlen(getmessage);
 	getmessagetimeoff = totalclock+360+(getmessageleng<<4);
 	return(0);
 }
@@ -6401,11 +6401,11 @@ void waitforeverybody ()
 		refreshaudio();
 
 		drawrooms(posx[myconnectindex],posy[myconnectindex],posz[myconnectindex],ang[myconnectindex],horiz[myconnectindex],cursectnum[myconnectindex]);
-		if (!networkmode) sprintf(tempbuf,"Master/slave mode");
-						 else sprintf(tempbuf,"Peer-peer mode");
-		printext256((xdim>>1)-(int)(strlen(tempbuf)<<2),(ydim>>1)-24,31,0,tempbuf,0);
-		sprintf(tempbuf,"Waiting for players");
-		printext256((xdim>>1)-(int)(strlen(tempbuf)<<2),(ydim>>1)-16,31,0,tempbuf,0);
+		if (!networkmode) std::sprintf(tempbuf,"Master/slave mode");
+						 else std::sprintf(tempbuf,"Peer-peer mode");
+		printext256((xdim>>1)-(int)(std::strlen(tempbuf)<<2),(ydim>>1)-24,31,0,tempbuf,0);
+		std::sprintf(tempbuf,"Waiting for players");
+		printext256((xdim>>1)-(int)(std::strlen(tempbuf)<<2),(ydim>>1)-16,31,0,tempbuf,0);
 		for(i=connecthead;i>=0;i=connectpoint2[i])
 		{
 			if (playerreadyflag[i] < playerreadyflag[myconnectindex])
@@ -6413,23 +6413,23 @@ void waitforeverybody ()
 					//slaves in M/S mode only wait for master
 				if ((!networkmode) && (myconnectindex != connecthead) && (i != connecthead))
 				{
-					sprintf(tempbuf,"Player %d",i);
+					std::sprintf(tempbuf,"Player %d",i);
 					printext256((xdim>>1)-(16<<2),(ydim>>1)+i*8,15,0,tempbuf,0);
 				}
 				else
 				{
-					sprintf(tempbuf,"Player %d NOT ready",i);
+					std::sprintf(tempbuf,"Player %d NOT ready",i);
 					printext256((xdim>>1)-(16<<2),(ydim>>1)+i*8,127,0,tempbuf,0);
 				}
 			}
 			else
 			{
-				sprintf(tempbuf,"Player %d ready",i);
+				std::sprintf(tempbuf,"Player %d ready",i);
 				printext256((xdim>>1)-(16<<2),(ydim>>1)+i*8,31,0,tempbuf,0);
 			}
 			if (i == myconnectindex)
 			{
-				sprintf(tempbuf,"You->");
+				std::sprintf(tempbuf,"You->");
 				printext256((xdim>>1)-(26<<2),(ydim>>1)+i*8,95,0,tempbuf,0);
 			}
 		}
@@ -6443,7 +6443,7 @@ void waitforeverybody ()
 			uninitengine();
 			uninitsb();
 			uninitgroupfile();
-			exit(0);
+			std::exit(0);
 		}
 
 		getpackets();

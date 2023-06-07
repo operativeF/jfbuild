@@ -313,8 +313,8 @@ void parsescript()
 
 	if ((filhandle = Bopen(scriptname,BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
 	{
-		printf("Could not find %s\n",scriptname);
-		exit(0);
+		std::printf("Could not find %s\n",scriptname);
+		std::exit(0);
 	}
 	filpos = 0; fileng = Bfilelength(filhandle);
 	while (readline() != 0)
@@ -925,64 +925,64 @@ int main(int argc, char **argv)
 	int mapversion, posx, posy, posz, templong, cnt, boardwadindex;
 	short ang, cursectnum;
 
-	printf("Wad2Map!                                       Copyright 1995 by Ken Silverman\n");
+	std::printf("Wad2Map!                                       Copyright 1995 by Ken Silverman\n");
 
 	if ((argc < 3) || (argc > 5))
 	{
-		printf("Command line parameters: Wad2Map (PWADName) IWADName MapName (ScriptName)\n");
-		printf("   Ex #1: wad2map c:\\doom\\doom.wad e1m1\n");
-		printf("   Ex #2: wad2map c:\\doom\\doom.wad e1m1 kenbuild.txt\n");
-		printf("   Ex #3: wad2map c:\\doom\\mypwad.wad c:\\doom\\doom.wad e1m1\n");
-		printf("   Ex #4: wad2map c:\\doom\\mypwad.wad c:\\doom\\doom.wad e1m1 kenbuild.txt\n");
-		exit(0);
+		std::printf("Command line parameters: Wad2Map (PWADName) IWADName MapName (ScriptName)\n");
+		std::printf("   Ex #1: wad2map c:\\doom\\doom.wad e1m1\n");
+		std::printf("   Ex #2: wad2map c:\\doom\\doom.wad e1m1 kenbuild.txt\n");
+		std::printf("   Ex #3: wad2map c:\\doom\\mypwad.wad c:\\doom\\doom.wad e1m1\n");
+		std::printf("   Ex #4: wad2map c:\\doom\\mypwad.wad c:\\doom\\doom.wad e1m1 kenbuild.txt\n");
+		std::exit(0);
 	}
 
-	for(i=1;i<argc;i++) strcpy(argstring[i],argv[i]);
+	for(i=1;i<argc;i++) std::strcpy(argstring[i],argv[i]);
 
-	strcpy(iwadfil,argstring[1]);     //"c:\games\doom\doom.wad"
-	if (strchr(iwadfil,'.') == 0) strcat(iwadfil,".wad");
+	std::strcpy(iwadfil,argstring[1]);     //"c:\games\doom\doom.wad"
+	if (std::strchr(iwadfil,'.') == 0) std::strcat(iwadfil,".wad");
 	if ((ifil = Bopen(iwadfil,BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
-		{ printf("Could not find %s\n",iwadfil); exit(0); }
+		{ std::printf("Could not find %s\n",iwadfil); std::exit(0); }
 
 	Bread(ifil,&wadtype,4);
 	if (wadtype == 0x44415749) wadtype = 0;       //IWAD
 	else if (wadtype == 0x44415750) wadtype = 1;  //PWAD
-	else { Bclose(ifil); printf("Invalid WAD header\n"); exit(0); }
+	else { Bclose(ifil); std::printf("Invalid WAD header\n"); std::exit(0); }
 
-	strcpy(pwadfil,iwadfil); pfil = ifil;
+	std::strcpy(pwadfil,iwadfil); pfil = ifil;
 	if (wadtype == 1)
 	{
-		strcpy(iwadfil,argstring[2]);
-		if (strchr(iwadfil,'.') == 0) strcat(iwadfil,".wad");
+		std::strcpy(iwadfil,argstring[2]);
+		if (std::strchr(iwadfil,'.') == 0) std::strcat(iwadfil,".wad");
 		if ((ifil = Bopen(iwadfil,BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
-			{ Bclose(pfil); printf("Could not find %s\n",iwadfil); exit(0); }
+			{ Bclose(pfil); std::printf("Could not find %s\n",iwadfil); std::exit(0); }
 
 		Bread(ifil,&wadtype,4);
 		if (wadtype != 0x44415749)        //!= IWAD
 		{
 			Bclose(ifil); Bclose(pfil);
-			printf("Wad a' you think I am?  That ain't no IWAD!\n");
-			exit(0);
+			std::printf("Wad a' you think I am?  That ain't no IWAD!\n");
+			std::exit(0);
 		}
 
-		strcpy(doommap,argstring[3]);     //"E1M1"
-		if (strchr(doommap,'.') != 0) *strchr(doommap,'.') = 0;
+		std::strcpy(doommap,argstring[3]);     //"E1M1"
+		if (std::strchr(doommap,'.') != 0) *std::strchr(doommap,'.') = 0;
 		scriptname[0] = 0;
 		if (argc == 5)
 		{
-			strcpy(scriptname,argstring[4]);
-			if (strchr(scriptname,'.') == 0) strcat(scriptname,".txt");
+			std::strcpy(scriptname,argstring[4]);
+			if (std::strchr(scriptname,'.') == 0) std::strcat(scriptname,".txt");
 		}
 	}
 	else
 	{
-		strcpy(doommap,argstring[2]);     //"E1M1"
-		if (strchr(doommap,'.') != 0) *strchr(doommap,'.') = 0;
+		std::strcpy(doommap,argstring[2]);     //"E1M1"
+		if (std::strchr(doommap,'.') != 0) *std::strchr(doommap,'.') = 0;
 		scriptname[0] = 0;
 		if (argc == 4)
 		{
-			strcpy(scriptname,argstring[3]);
-			if (strchr(scriptname,'.') == 0) strcat(scriptname,".txt");
+			std::strcpy(scriptname,argstring[3]);
+			if (std::strchr(scriptname,'.') == 0) std::strcat(scriptname,".txt");
 		}
 	}
 
@@ -1061,7 +1061,7 @@ int main(int argc, char **argv)
 	for(i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
 
 	if ((w = getwadindex("TEXTURE1")) < 0)
-		{ printf("TEXTURE1 not found!\n"); exit(0); }
+		{ std::printf("TEXTURE1 not found!\n"); std::exit(0); }
 	Blseek(ifil,iwadplc[w],BSEEK_SET);
 	Bread(ifil,&numtexts,4);
 	Bread(ifil,textoffs,numtexts*sizeof(int));
@@ -1097,7 +1097,7 @@ int main(int argc, char **argv)
 	}
 
 	if ((w = getwadindex("PNAMES")) < 0)
-		{ printf("PNAMES not found!\n"); exit(0); }
+		{ std::printf("PNAMES not found!\n"); std::exit(0); }
 	Blseek(ifil,iwadplc[w],BSEEK_SET);
 	Bread(ifil,&numpnames,4);
 	Bread(ifil,tempbuf,numpnames*8);
@@ -1112,7 +1112,7 @@ int main(int argc, char **argv)
 	}
 
 	if ((w = getwadindex(doommap)) < 0)
-		{ printf("Board not found!\n"); exit(0); }
+		{ std::printf("Board not found!\n"); std::exit(0); }
 	boardwadindex = w;
 	for(w=boardwadindex+10;w>=boardwadindex;w--)
 	{
@@ -1589,12 +1589,12 @@ int main(int argc, char **argv)
 
 	//setvmode(0x3);
 
-	strcpy(buildmap,doommap);
-	if (strchr(buildmap,'.') == 0) strcat(buildmap,".map");
+	std::strcpy(buildmap,doommap);
+	if (std::strchr(buildmap,'.') == 0) std::strcat(buildmap,".map");
 	if ((fil = Bopen(buildmap,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
 	{
-		printf("Could not write to %s\n",buildmap);
-		exit(0);
+		std::printf("Could not write to %s\n",buildmap);
+		std::exit(0);
 	}
 	Bwrite(fil,&mapversion,4);
 	Bwrite(fil,&posx,4);
@@ -1610,7 +1610,7 @@ int main(int argc, char **argv)
 	Bwrite(fil,sprite,sizeof(spritetype)*dnumthings);
 	Bclose(fil);
 
-	printf("Map converted.\n");
+	std::printf("Map converted.\n");
 
 	return 0;
 }

@@ -288,38 +288,38 @@ int writesetup(const char *fn)
 	for (int item{0}; configspec[item].name; ++item) {
 		if (configspec[item].doc) {
 			if (item > 0) {
-				fputs("\n", fp);
+				std::fputs("\n", fp);
 			}
 
-			fputs(configspec[item].doc, fp);
+			std::fputs(configspec[item].doc, fp);
 		}
 
-		fputs(configspec[item].name, fp);
-		fputs(" = ", fp);
+		std::fputs(configspec[item].name, fp);
+		std::fputs(" = ", fp);
 		
 		switch (configspec[item].type) {
 			case type_bool: {
-				fprintf(fp, "%d\n", (*(int*)configspec[item].store != 0));
+				std::fprintf(fp, "%d\n", (*(int*)configspec[item].store != 0));
 				break;
 			}
 			case type_int: {
-				fprintf(fp, "%d\n", *(int*)configspec[item].store);
+				std::fprintf(fp, "%d\n", *(int*)configspec[item].store);
 				break;
 			}
 			case type_hex: {
-				fprintf(fp, "%X\n", *(int*)configspec[item].store);
+				std::fprintf(fp, "%X\n", *(int*)configspec[item].store);
 				break;
 			}
 			case type_fixed16: {
-				fprintf(fp, "%g\n", (double)(*(int*)configspec[item].store) / 65536.0);
+				std::fprintf(fp, "%g\n", (double)(*(int*)configspec[item].store) / 65536.0);
 				break;
 			}
 			case type_double: {
-				fprintf(fp, "%g\n", *(double*)configspec[item].store);
+				std::fprintf(fp, "%g\n", *(double*)configspec[item].store);
 				break;
 			}
 			default: {
-				fputs("?\n", fp);
+				std::fputs("?\n", fp);
 				break;
 			}
 		}

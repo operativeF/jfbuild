@@ -61,7 +61,7 @@ void convpalette()
 	Bread(fil1,palookup,8192);
 
 	if ((fil3 = Bopen("palette.dat",BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
-		{ printf("Cannot save palette.dat\n"); exit(0); }
+		{ std::printf("Cannot save palette.dat\n"); std::exit(0); }
 	Bwrite(fil3,pal,768);
 	danumshades = 32;
 	Bwrite(fil3,&danumshades,2);
@@ -82,8 +82,8 @@ void saveart (short tilenum, short xlen, short ylen)
 
 	if (Bwrite(fil2, &tempbuf[0], i) < 0)
 	{
-		printf("NOT ENOUGH DISK SPACE!\n");
-		exit(0);
+		std::printf("NOT ENOUGH DISK SPACE!\n");
+		std::exit(0);
 	}
 }
 
@@ -95,11 +95,11 @@ void savenames()
 	if ((fil3 = Bopen("names.h",BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
 		return;
 
-	strcpy(buffer,"//Be careful when changing this file - it is parsed by Editart and Build.");
+	std::strcpy(buffer,"//Be careful when changing this file - it is parsed by Editart and Build.");
 	buffer[73] = 13, buffer[74] = 10, buffer[75] = 0;
 	Bwrite(fil3,&buffer[0],75);
 
-	strcpy(buffer,"#define ");
+	std::strcpy(buffer,"#define ");
 	for(i=0;i<numwads;i++)
 		if (wadata[i][0] != 0)
 		{
@@ -221,44 +221,44 @@ int main(int argc, char **argv)
 	int i, j, endoffile;
 	char wadfile[80];
 
-	printf("Wad2Art!                                       Copyright 1995 by Ken Silverman\n");
+	std::printf("Wad2Art!                                       Copyright 1995 by Ken Silverman\n");
 
 	if (argc != 2)
 	{
-		printf("Command line parameters: Wad2Art [Doom IWAD file]\n");
-		printf("   Creates TILES000.ART, PALETTE.DAT, and NAMES.H in current directory.\n");
-		printf("   Ex: wad2art c:\\doom\\doom.wad\n");
-		exit(0);
+		std::printf("Command line parameters: Wad2Art [Doom IWAD file]\n");
+		std::printf("   Creates TILES000.ART, PALETTE.DAT, and NAMES.H in current directory.\n");
+		std::printf("   Ex: wad2art c:\\doom\\doom.wad\n");
+		std::exit(0);
 	}
 
-	strcpy(wadfile,argv[1]);
-	if (strchr(wadfile,'.') == 0) strcat(wadfile,".wad");
+	std::strcpy(wadfile,argv[1]);
+	if (std::strchr(wadfile,'.') == 0) std::strcat(wadfile,".wad");
 	if ((fil1 = Bopen(wadfile,BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
-		{ printf("Wad not found\n"); exit(0); }
+		{ std::printf("Wad not found\n"); std::exit(0); }
 	if ((fil2 = Bopen("tiles000.art",BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
-		{ printf("Can't open art file\n"); exit(0); }
+		{ std::printf("Can't open art file\n"); std::exit(0); }
 
 	j = 0;
 	for(i=0;i<256;i++) { ylookup[i] = j; j += 320; }
 
-	printf("Loading wad header...\n");
+	std::printf("Loading wad header...\n");
 	loadwadheader();
 	Blseek(fil2,16+(numwads<<3),SEEK_SET);
 	for(i=0;i<numwads;i++)
 		{ tilesizx[i] = 0; tilesizy[i] = 0; picanm[i] = 0L; }
 
-	printf("Saving names.h\n");
+	std::printf("Saving names.h\n");
 	savenames();
-	printf("Converting palette\n");
+	std::printf("Converting palette\n");
 	convpalette();
 
-	printf("Saving tiles000.art\n");
+	std::printf("Saving tiles000.art\n");
 	showart("L_START");
 	showart("S_START");
 	showart("P_START");
 	showart("F_START");
 
-	printf("Saving tiles000.art header\n");
+	std::printf("Saving tiles000.art header\n");
 	artversion = 1; localtilestart = 0; localtileend = numwads-1;
 
 	endoffile = Blseek(fil2,0,BSEEK_CUR);
@@ -275,7 +275,7 @@ int main(int argc, char **argv)
 	Bclose(fil2);
 	Bclose(fil1);
 
-	printf("Congratulations!  Your disk actually had enough space this time!\n");
+	std::printf("Congratulations!  Your disk actually had enough space this time!\n");
 
 	return 0;
 }

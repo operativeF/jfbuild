@@ -39,13 +39,14 @@
 #endif
 
 #include <algorithm>
+#include <cctype>
 
 #if !defined(_WIN32)
 char *strlwr(char *s)
 {
     char *t = s;
     if (!s) return s;
-    while (*t) { *t = tolower(*t); t++; }
+    while (*t) { *t = std::tolower(*t); t++; }
     return s;
 }
 
@@ -53,7 +54,7 @@ char *strupr(char *s)
 {
     char *t = s;
     if (!s) return s;
-    while (*t) { *t = toupper(*t); t++; }
+    while (*t) { *t = std::toupper(*t); t++; }
     return s;
 }
 #endif
@@ -70,7 +71,7 @@ int Bvasprintf(char **ret, const char *format, va_list ap)
     if (len < 0)
 		return -1;
 
-    if ((*ret = static_cast<char*>(malloc(len + 1))) == nullptr)
+    if ((*ret = static_cast<char*>(std::malloc(len + 1))) == nullptr)
 		return -1;
 
     va_copy(app, ap);
@@ -255,7 +256,7 @@ int Bcorrectfilename(char *filename, int removefn)
 	if (trailslash) *(first++) = '/';
 	*(first++) = 0;
 	
-	free(fn);
+	std::free(fn);
 
 	return 0;
 }
@@ -274,7 +275,7 @@ int Bcanonicalisefilename(char *filename, int removefn)
 	{
 		if (filename[0] && filename[1] == ':') {
 			// filename is prefixed with a drive
-			drv = toupper(filename[0])-'A' + 1;
+			drv = std::toupper(filename[0])-'A' + 1;
 			fnp += 2;
 		}
 		if (!_getdcwd(drv, cwd, sizeof(cwd))) return -1;
@@ -283,17 +284,17 @@ int Bcanonicalisefilename(char *filename, int removefn)
 #else
 	if (!getcwd(cwd,sizeof(cwd))) return -1;
 #endif
-	p = strrchr(cwd,'/'); if (!p || p[1]) strcat(cwd, "/");
+	p = strrchr(cwd,'/'); if (!p || p[1]) std::strcat(cwd, "/");
 	
-	strcpy(fn, fnp);
+	std::strcpy(fn, fnp);
 #ifdef _WIN32
 	for (p=fn; *p; p++) if (*p == '\\') *p = '/';
 #endif
 	
 	if (fn[0] != '/') {
 		// we are dealing with a path relative to the current directory
-		strcpy(filename, cwd);
-		strcat(filename, fn);
+		std::strcpy(filename, cwd);
+		std::strcat(filename, fn);
 	} else {
 #ifdef _WIN32
 		filename[0] = cwd[0];
@@ -302,7 +303,7 @@ int Bcanonicalisefilename(char *filename, int removefn)
 #else
 		filename[0] = 0;
 #endif
-		strcat(filename, fn);
+		std::strcat(filename, fn);
 	}
 	fnp = filename;
 #ifdef _WIN32
@@ -329,7 +330,7 @@ char *Bgetsystemdrives()
 		number++;
 	}
 
-	str = p = (char *)malloc(1 + (3*number));
+	str = p = (char *)std::malloc(1 + (3*number));
 	if (!str) return nullptr;
 
 	number = 0;
@@ -380,7 +381,7 @@ BDIR* Bopendir(const char *name)
 	char *tname, *tcurs;
 #endif
 
-	dirr = (BDIR_real*)malloc(sizeof(BDIR_real));
+	dirr = (BDIR_real*)std::malloc(sizeof(BDIR_real));
 	if (!dirr) {
 		return nullptr;
 	}
@@ -388,13 +389,13 @@ BDIR* Bopendir(const char *name)
 	std::memset(dirr, 0, sizeof(BDIR_real));
 
 #ifdef _MSC_VER
-	tname = (char*)malloc(strlen(name) + 4 + 1);
+	tname = (char*)std::malloc(std::strlen(name) + 4 + 1);
 	if (!tname) {
-		free(dirr);
+		std::free(dirr);
 		return nullptr;
 	}
 
-	strcpy(tname, name);
+	std::strcpy(tname, name);
 	for (tcurs = tname; *tcurs; tcurs++) ;	// Find the end of the string.
 	tcurs--;	// Step back off the null char.
 	while (*tcurs == ' ' && tcurs>tname) tcurs--;	// Remove any trailing whitespace.
@@ -405,15 +406,15 @@ BDIR* Bopendir(const char *name)
 	*(++tcurs) = 0;
 	
 	dirr->hfind = ::FindFirstFile(tname, &dirr->fid);
-	free(tname);
+	std::free(tname);
 	if (dirr->hfind == INVALID_HANDLE_VALUE) {
-		free(dirr);
+		std::free(dirr);
 		return nullptr;
 	}
 #else
 	dirr->dir = opendir(name);
 	if (dirr->dir == nullptr) {
-		free(dirr);
+		std::free(dirr);
 		return nullptr;
 	}
 #endif
@@ -436,7 +437,7 @@ struct Bdirent*	Breaddir(BDIR *dir)
 			return nullptr;
 		}
 	}
-	dirr->info.namlen = strlen(dirr->fid.cFileName);
+	dirr->info.namlen = std::strlen(dirr->fid.cFileName);
 	dirr->info.name = (char *)dirr->fid.cFileName;
 
 	dirr->info.mode = 0;
@@ -468,7 +469,7 @@ struct Bdirent*	Breaddir(BDIR *dir)
 		dirr->status++;
 	}
 
-	dirr->info.namlen = strlen(de->d_name);
+	dirr->info.namlen = std::strlen(de->d_name);
 	dirr->info.name   = de->d_name;
 	dirr->info.mode = 0;
 	dirr->info.size = 0;
@@ -493,7 +494,7 @@ int Bclosedir(BDIR *dir)
 #else
 	closedir(dirr->dir);
 #endif
-	free(dirr);
+	std::free(dirr);
 
 	return 0;
 }
@@ -511,13 +512,13 @@ char *Bstrtoken(char *s, const char* delim, char **ptrptr, int chop)
 
 	if (!p) return nullptr;
 
-	while (*p != 0 && strchr(delim, *p)) p++;
+	while (*p != 0 && std::strchr(delim, *p)) p++;
 	if (*p == 0) {
 		*ptrptr = nullptr;
 		return nullptr;
 	}
 	start = p;
-	while (*p != 0 && !strchr(delim, *p)) p++;
+	while (*p != 0 && !std::strchr(delim, *p)) p++;
 	if (*p == 0) *ptrptr = nullptr;
 	else {
 		if (chop) *(p++) = 0;

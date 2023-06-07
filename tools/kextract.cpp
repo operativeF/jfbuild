@@ -42,25 +42,25 @@ int main(int argc, char **argv)
 
 	if (argc < 3)
 	{
-		printf("KEXTRACT [grouped file][@file or filespec...]           by Kenneth Silverman\n");
-		printf("   This program extracts files from a previously grouped group file.\n");
-		printf("   You can extract files using the ? and * wildcards.\n");
-		printf("   Ex: kextract stuff.dat tiles000.art nukeland.map palette.dat\n");
-		printf("      (stuff.dat is the group file, the rest are the files to extract)\n");
+		std::printf("KEXTRACT [grouped file][@file or filespec...]           by Kenneth Silverman\n");
+		std::printf("   This program extracts files from a previously grouped group file.\n");
+		std::printf("   You can extract files using the ? and * wildcards.\n");
+		std::printf("   Ex: kextract stuff.dat tiles000.art nukeland.map palette.dat\n");
+		std::printf("      (stuff.dat is the group file, the rest are the files to extract)\n");
 		return(0);
 	}
 
 	if ((fil = Bopen(argv[1],BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
 	{
-		printf("Error: %s could not be opened\n",argv[1]);
+		std::printf("Error: %s could not be opened\n",argv[1]);
 		return(1);
 	}
 
 	r = Bread(fil,buf,16);
-	if (r != 16 || memcmp(buf, "KenSilverman", 12))
+	if (r != 16 || std::memcmp(buf, "KenSilverman", 12))
 	{
 		Bclose(fil);
-		printf("Error: %s not a valid group file\n",argv[1]);
+		std::printf("Error: %s not a valid group file\n",argv[1]);
 		return(1);
 	}
 	numfiles = *((int*)&buf[12]); numfiles = B_LITTLE32(numfiles);
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 	if (r != numfiles<<4)
 	{
 		Bclose(fil);
-		printf("Error: %s not a valid group file\n",argv[1]);
+		std::printf("Error: %s not a valid group file\n",argv[1]);
 		return(1);
 	}
 
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 	if (anyfiles4extraction == 0)
 	{
 		Bclose(fil);
-		printf("No files found in group file with those names\n");
+		std::printf("No files found in group file with those names\n");
 		return(1);
 	}
 
@@ -128,24 +128,24 @@ int main(int argc, char **argv)
 
 		if ((fil2 = Bopen(filelist[i],BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
 		{
-			printf("Error: Could not write to %s\n",filelist[i]);
+			std::printf("Error: Could not write to %s\n",filelist[i]);
 			continue;
 		}
-		printf("Extracting %s...\n",filelist[i]);
+		std::printf("Extracting %s...\n",filelist[i]);
 		Blseek(fil,fileoffs[i]+((numfiles+1)<<4),SEEK_SET);
 		for(j=0;j<fileleng[i];j+=65536)
 		{
 			k = std::min(fileleng[i] - j, 65536);
 			if (Bread(fil,buf,k) < k)
 			{
-				printf("Read error\n");
+				std::printf("Read error\n");
 				Bclose(fil2);
 				Bclose(fil);
 				return(1);
 			}
 			if (Bwrite(fil2,buf,k) < k)
 			{
-				printf("Write error (drive full?)\n");
+				std::printf("Write error (drive full?)\n");
 				Bclose(fil2);
 				Bclose(fil);
 				return(1);

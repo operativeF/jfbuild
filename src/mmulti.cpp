@@ -71,8 +71,6 @@ static int GetTickCount()
 #include <algorithm>
 #include <array>
 
-#define printf buildprintf
-
 constexpr auto MAXPAKSIZ{256}; //576
 
 constexpr auto PAKRATE{40};   //Packet rate/sec limit ... necessary?
@@ -167,12 +165,12 @@ int netinit (int portnum)
 		if (IS_INVALID_SOCKET(mysock)) {
 			if (domain == PF_INET6) {
 				// Retry for IPV4.
-				printf("mmulti warning: could not create IPV6 socket, trying for IPV4.\n");
+				std::printf("mmulti warning: could not create IPV6 socket, trying for IPV4.\n");
 				domain = PF_INET;
 				continue;
 			} else {
 				// No IPV4 is a total loss.
-				printf("mmulti error: could not create IPV4 socket, no multiplayer possible.\n");
+				std::printf("mmulti error: could not create IPV4 socket, no multiplayer possible.\n");
 				break;
 			}
 		}
@@ -184,13 +182,13 @@ int netinit (int portnum)
 		if (WSAIoctl(mysock, SIO_GET_EXTENSION_FUNCTION_POINTER,
 				&sendguid, sizeof(sendguid), &WSASendMsgPtr, sizeof(WSASendMsgPtr),
 				&len, nullptr, nullptr) == SOCKET_ERROR) {
-			printf("mmulti error: could not get sendmsg entry point.\n");
+			std::printf("mmulti error: could not get sendmsg entry point.\n");
 			break;
 		}
 		if (WSAIoctl(mysock, SIO_GET_EXTENSION_FUNCTION_POINTER,
 				&recvguid, sizeof(recvguid), &WSARecvMsgPtr, sizeof(WSARecvMsgPtr),
 				&len, nullptr, nullptr) == SOCKET_ERROR) {
-			printf("mmulti error: could not get recvmsg entry point.\n");
+			std::printf("mmulti error: could not get recvmsg entry point.\n");
 			break;
 		}
 #endif
@@ -202,13 +200,13 @@ int netinit (int portnum)
 		if (ioctl(mysock, FIONBIO, &on) != 0)
 #endif
 		{
-			printf("mmulti error: could not enable non-blocking IO on socket.\n");
+			std::printf("mmulti error: could not enable non-blocking IO on socket.\n");
 			break;
 		}
 
 		// Allow local address reuse.
 		if (setsockopt(mysock, SOL_SOCKET, SO_REUSEADDR, static_cast<const char*>((void *)&on), sizeof(on)) != 0) {
-			printf("mmulti error: could not enable local address reuse on socket.\n");
+			std::printf("mmulti error: could not enable local address reuse on socket.\n");
 			break;
 		}
 
@@ -220,24 +218,24 @@ int netinit (int portnum)
 #endif
 		{
 			if (domain == PF_INET) {
-				printf("mmulti error: could not enable IPV4 packet info on socket.\n");
+				std::printf("mmulti error: could not enable IPV4 packet info on socket.\n");
 				break;
 			} else {
-				printf("mmulti warning: could not enable IPV4 packet info on socket.\n");
+				std::printf("mmulti warning: could not enable IPV4 packet info on socket.\n");
 			}
 		}
 
 		if (domain == PF_INET6) {
 			// Allow dual-stack IPV4/IPV6 on the socket.
 			if (setsockopt(mysock, IPPROTO_IPV6, IPV6_V6ONLY, static_cast<const char*>((void *)&off), sizeof(off)) != 0) {
-				printf("mmulti warning: could not enable dual-stack socket, retrying for IPV4.\n");
+				std::printf("mmulti warning: could not enable dual-stack socket, retrying for IPV4.\n");
 				domain = PF_INET;
 				continue;
 			}
 
 			// Request that we receive IPV6 packet info.
 			if (setsockopt(mysock, IPPROTO_IPV6, IPV6_RECVPKTINFO, static_cast<const char*>((void *)&on), sizeof(on)) != 0) {
-				printf("mmulti error: could not enable IPV6 packet info on socket.\n");
+				std::printf("mmulti error: could not enable IPV6 packet info on socket.\n");
 				break;
 			}
 
@@ -554,17 +552,17 @@ static const char *presentaddress(struct sockaddr const *a) {
 		port = ntohs(s->sin_port);
 	} else if (a->sa_family == AF_INET6) {
 		struct sockaddr_in6 const *s = (struct sockaddr_in6 *)a;
-		strcpy(addr, "[");
+		std::strcpy(addr, "[");
 		inet_ntop(AF_INET6, &s->sin6_addr, addr+1, sizeof(addr)-2);
-		strcat(addr, "]");
+		std::strcat(addr, "]");
 		port = ntohs(s->sin6_port);
 	} else {
 		return nullptr;
 	}
 
-	strcpy(str, addr);
-	sprintf(addr, ":%d", port);
-	strcat(str, addr);
+	std::strcpy(str, addr);
+	std::sprintf(addr, ":%d", port);
+	std::strcat(str, addr);
 
 	return str;
 }
@@ -679,7 +677,7 @@ int initmultiplayersparms(int argc, char const * const argv[])
 			j = (int)strtol(argv[i]+2, &p, 10);
 			if (!(*p) && j > 0 && j<65535) portnum = j;
 
-			printf("mmulti: Using port %d\n", portnum);
+			std::printf("mmulti: Using port %d\n", portnum);
 			continue;
 		}
 
@@ -692,7 +690,7 @@ int initmultiplayersparms(int argc, char const * const argv[])
 			if (argv[i][2] == '0' || argv[i][2] == 'm' || argv[i][2] == 'M')
 			{
 				danetmode = MMULTI_MODE_MS;
-				printf("mmulti: Master-slave mode\n");
+				std::printf("mmulti: Master-slave mode\n");
 
 				if ((argv[i][3] == ':') && (argv[i][4] >= '0') && (argv[i][4] <= '9'))
 				{
@@ -700,9 +698,9 @@ int initmultiplayersparms(int argc, char const * const argv[])
 					j = (int)strtol(argv[i]+4, &p, 10);
 					if (!(*p) && j > 0 && j <= MAXPLAYERS) {
 						danumplayers = j;
-						printf("mmulti: %d-player game\n", danumplayers);
+						std::printf("mmulti: %d-player game\n", danumplayers);
 					} else {
-						printf("mmulti error: Invalid number of players\n");
+						std::printf("mmulti error: Invalid number of players\n");
 						return 0;
 					}
 				}
@@ -710,14 +708,14 @@ int initmultiplayersparms(int argc, char const * const argv[])
 			else if (argv[i][2] == '1' || argv[i][2] == 'p' || argv[i][2] == 'P')
 			{
 				danetmode = MMULTI_MODE_P2P;
-				printf("mmulti: Peer-to-peer mode\n");
+				std::printf("mmulti: Peer-to-peer mode\n");
 			}
 			continue;
 		}
 	}
 
 	if (!netinit(portnum)) {
-		printf("mmulti error: Could not initialise networking\n");
+		std::printf("mmulti error: Could not initialise networking\n");
 		return 0;
 	}
 
@@ -728,11 +726,11 @@ int initmultiplayersparms(int argc, char const * const argv[])
 		}
 
 		if (danetmode == MMULTI_MODE_MS && daindex >= 1) {
-			printf("mmulti warning: Too many host names given for master-slave mode\n");
+			std::printf("mmulti warning: Too many host names given for master-slave mode\n");
 			continue;
 		}
 		if (daindex >= MAXPLAYERS) {
-			printf("mmulti error: More than %d players provided\n", MAXPLAYERS);
+			std::printf("mmulti error: More than %d players provided\n", MAXPLAYERS);
 			netuninit();
 			return 0;
 		}
@@ -740,23 +738,23 @@ int initmultiplayersparms(int argc, char const * const argv[])
 		if ((argv[i][0] == '*' || argv[i][0] == '.') && argv[i][1] == 0) {
 			// 'self' placeholder
 			if (danetmode == MMULTI_MODE_MS) {
-				printf("mmulti: %c is not valid in master-slave mode\n", argv[i][0]);
+				std::printf("mmulti: %c is not valid in master-slave mode\n", argv[i][0]);
 				netuninit();
 				return 0;
 			} else {
 				myconnectindex = daindex++;
-				printf("mmulti: This machine is player %d\n", myconnectindex);
+				std::printf("mmulti: This machine is player %d\n", myconnectindex);
 			}
 			continue;
 		}
 
 		if (!lookuphost(argv[i], (struct sockaddr *)&resolvhost, danetmode == MMULTI_MODE_P2P)) {
-			printf("mmulti error: Could not resolve %s\n", argv[i]);
+			std::printf("mmulti error: Could not resolve %s\n", argv[i]);
 			netuninit();
 			return 0;
 		} else {
 			std::memcpy(&otherhost[daindex], &resolvhost, sizeof(resolvhost));
-			printf("mmulti: Player %d at %s (%s)\n", daindex,
+			std::printf("mmulti: Player %d at %s (%s)\n", daindex,
 				presentaddress((struct sockaddr *)&resolvhost), argv[i]);
 			daindex++;
 		}
@@ -768,7 +766,7 @@ int initmultiplayersparms(int argc, char const * const argv[])
 	else if (danumplayers == 0) danumplayers = 1;
 
 	if (danetmode == MMULTI_MODE_MS && myconnectindex == 0) {
-		printf("mmulti: This machine is master\n");
+		std::printf("mmulti: This machine is master\n");
 	}
 
 	networkmode = danetmode;
@@ -814,13 +812,13 @@ int initmultiplayerscycle()
 				dnetready = 0;
 			} else if (prevlastrecvtims[i] != lastrecvtims[i]) {
 				if (!playerslive[i]) {
-					printf("mmulti: Player %d is here\n", i);
+					std::printf("mmulti: Player %d is here\n", i);
 					playerslive[i] = 1;
 				}
 				prevlastrecvtims[i] = lastrecvtims[i];
 			} else if (tims - lastrecvtims[i] > PRESENCETIMEOUT) {
 				if (playerslive[i]) {
-					printf("mmulti: Player %d has gone\n", i);
+					std::printf("mmulti: Player %d has gone\n", i);
 					playerslive[i] = 0;
 				}
 				prevlastrecvtims[i] = lastrecvtims[i];
@@ -871,13 +869,13 @@ int initmultiplayerscycle()
 					dnetready = 0;
 				} else if (prevlastrecvtims[i] != lastrecvtims[i]) {
 					if (!playerslive[i]) {
-						printf("mmulti: Player %d is here\n", i);
+						std::printf("mmulti: Player %d is here\n", i);
 						playerslive[i] = 1;
 					}
 					prevlastrecvtims[i] = lastrecvtims[i];
 				} else if (prevlastrecvtims[i] - tims > PRESENCETIMEOUT) {
 					if (playerslive[i]) {
-						printf("mmulti: Player %d has gone\n", i);
+						std::printf("mmulti: Player %d has gone\n", i);
 						playerslive[i] = 0;
 					}
 					prevlastrecvtims[i] = lastrecvtims[i];
@@ -948,8 +946,8 @@ static int lookuphost(const char *name, struct sockaddr *host, int warnifmany)
 
 	error = getaddrinfo(wname, nullptr, &hints, &result);
 	if (error) {
-		printf("mmulti error: problem resolving %s (%s)\n", name, gai_strerror(error));
-		free(wname);
+		std::printf("mmulti error: problem resolving %s (%s)\n", name, gai_strerror(error));
+		std::free(wname);
 		return 0;
 	}
 
@@ -963,12 +961,12 @@ static int lookuphost(const char *name, struct sockaddr *host, int warnifmany)
 			((struct sockaddr_in6 *)host)->sin6_port = htons(port);
 			found = 1;
 		} else if (found && warnifmany) {
-			printf("mmulti warning: host name %s has another address: %s\n", wname, presentaddress(res->ai_addr));
+			std::printf("mmulti warning: host name %s has another address: %s\n", wname, presentaddress(res->ai_addr));
 		}
 	}
 
 	freeaddrinfo(result);
-	free(wname);
+	std::free(wname);
 	return found;
 }
 
@@ -1199,7 +1197,7 @@ int getpacket (int *retother, unsigned char *bufptr)
 								numplayers != (int)pakbuf[k+2]) {
 							if (!warned) {
 								const char *addr = presentaddress((struct sockaddr *)&snatchhost);
-								printf("mmulti error: host %s (peer %d) believes this machine is "
+								std::printf("mmulti error: host %s (peer %d) believes this machine is "
 									"player %d in a %d-player game! The game will not start until "
 									"every machine is in agreement.\n",
 									addr, other, (int)pakbuf[k+1], (int)pakbuf[k+2]);

@@ -54,8 +54,8 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 	for (i=0; i<validmodecnt; i++) {
 		if (validmode[i].bpp != c) continue;
 		if (validmode[i].fs != fs) continue;
-		dx = abs(validmode[i].xdim - *x);
-		dy = abs(validmode[i].ydim - *y);
+		dx = std::abs(validmode[i].xdim - *x);
+		dy = std::abs(validmode[i].ydim - *y);
 		if (!(dx | dy)) { 	// perfect match
 			nearest = i;
 			break;

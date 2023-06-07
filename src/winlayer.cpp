@@ -295,14 +295,14 @@ int wm_filechooser(const char *initialdir, const char *initialfile, const char *
 	*choice = nullptr;
 
 	if (!foropen && initialfile) {
-		strcpy(filename, initialfile);
+		std::strcpy(filename, initialfile);
 	}
 
 	// ext Files\0*.ext\0\0
 	std::memset(filter, 0, sizeof(filter));
-	sprintf(filterp, "%s Files", type);
-	filterp += strlen(filterp) + 1;
-	sprintf(filterp, "*.%s", type);
+	std::sprintf(filterp, "%s Files", type);
+	filterp += std::strlen(filterp) + 1;
+	std::sprintf(filterp, "*.%s", type);
 
 	OPENFILENAME ofn;
 
@@ -362,7 +362,7 @@ static void SignalHandler(int signum)
 		case SIGSEGV:
 			buildputs("Fatal Signal caught: SIGSEGV. Bailing out.\n");
 			uninitsystem();
-			if (stdout) fclose(stdout);
+			if (stdout) std::fclose(stdout);
 			break;
 		default:
 			break;
@@ -444,7 +444,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, 
 		}
 		*wp = 0;
 
-		_buildargv = static_cast<const char**>(malloc(sizeof(char*)*_buildargc));
+		_buildargv = static_cast<const char**>(std::malloc(sizeof(char*)*_buildargc));
 		wp = argvbuf;
 		for (i=0; i<_buildargc; i++,wp++) {
 			_buildargv[i] = wp;
@@ -457,10 +457,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, 
 
 	if ((argp = std::getenv("BUILD_LOGSTDOUT")) != nullptr) {
 		if (!Bstrcasecmp(argp, "TRUE")) {
-			FILE* fp = freopen("stdout.txt", "w", stdout);
+			std::FILE* fp = std::freopen("stdout.txt", "w", stdout);
 
 			if (!fp) {
-				fp = fopen("stdout.txt", "w");
+				fp = std::fopen("stdout.txt", "w");
 			}
 
 			if (fp) {
@@ -487,12 +487,12 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, 
 	baselayer_init();
 	r = app_main(_buildargc, _buildargv);
 
-	fclose(stdout);
+	std::fclose(stdout);
 
 	startwin_close();
 	if (instanceflag) ::CloseHandle(instanceflag);
 
-	if (argvbuf) free(argvbuf);
+	if (argvbuf) std::free(argvbuf);
 
 	return r;
 }
@@ -666,7 +666,7 @@ void debugprintf(const char *f, ...)
 		::OutputDebugString(buf);
 	}
 	else {
-		fputs(buf, stdout);
+		std::fputs(buf, stdout);
 	}
 #endif
 }
@@ -1226,7 +1226,7 @@ static void shutdownvideo()
 {
 #if USE_OPENGL
 	if (frame) {
-		free(frame);
+		std::free(frame);
 		frame = nullptr;
 	}
 	glbuild_delete_8bit_shader(&gl8bit);
@@ -1771,7 +1771,7 @@ static void EnumWGLExts(HDC hdc)
 		debugprintf("  %s %c\n", ext, ack);
 		workptr = nullptr;
 	}
-	free(workstr);
+	std::free(workstr);
 }
 
 //
@@ -2159,7 +2159,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 				return -1;
 			}
 
-			frame = (unsigned char *) malloc(bytesperline * height);
+			frame = (unsigned char *) std::malloc(bytesperline * height);
 			if (!frame) {
 				shutdownvideo();
 				buildputs("Unable to allocate framebuffer\n");

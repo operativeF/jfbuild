@@ -35,12 +35,12 @@ void makeasmwriteable()
     size_t dep_begin_page;
     pagesize = sysconf(_SC_PAGE_SIZE);
     if (pagesize == -1) {
-        fputs("Error getting system page size\n", stderr);
+        std::fputs("Error getting system page size\n", stderr);
         return;
     }
     dep_begin_page = ((size_t)&dep_begin) & ~(pagesize-1);
     if (mprotect((void *)dep_begin_page, (size_t)&dep_end - dep_begin_page, PROT_READ|PROT_WRITE) < 0) {
-        fprintf(stderr, "Error making code writeable (errno=%d)\n", errno);
+        std::fprintf(stderr, "Error making code writeable (errno=%d)\n", errno);
         return;
     }
 

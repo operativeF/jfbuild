@@ -337,7 +337,7 @@ int app_main(int argc, char const * const argv[])
 		if (argv[i][0] == '-') {
 			if (!strcmp(argv[i], "-g") || !strcmp(argv[i], "-grp")) {
 				i++;
-				if (grpstoadd == 0) grps = (char const **)malloc(sizeof(char const *) * argc);
+				if (grpstoadd == 0) grps = (char const **)std::malloc(sizeof(char const *) * argc);
 				grps[grpstoadd++] = argv[i];
 			}
 			else if (!strcmp(argv[i], "-help") || !strcmp(argv[i], "--help") || !strcmp(argv[i], "-?")) {
@@ -354,7 +354,7 @@ int app_main(int argc, char const * const argv[])
 #ifdef HAVE_STARTWIN
 				wm_msgbox("BUILD by Ken Silverman","%s",s);
 #else
-				puts(s);
+				std::puts(s);
 #endif
 				return 0;
 			}
@@ -409,7 +409,7 @@ int app_main(int argc, char const * const argv[])
 			buildprintf("Adding %s\n",grps[i]);
 			initgroupfile(grps[i]);
 		}
-		free((void *)grps);
+		std::free((void *)grps);
 	}
 
 	buildsetlogfile("build.log");
@@ -431,7 +431,7 @@ int app_main(int argc, char const * const argv[])
 		ExtUnInit();
 		uninitengine();
 		buildprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
-		exit(0);
+		std::exit(0);
 	}
 
 	setbrightness(brightness, &palette[0], 0);
@@ -2794,7 +2794,7 @@ int drawtilescreen(int pictopleft, int picbox)
 	i = localartlookup[picbox];
 	std::sprintf(&snotbuf[0],"%d",i);
 	printext256(0L,ydim-8,whitecol,-1,snotbuf,0);
-	printext256(xdim-((int)strlen(names[i])<<3),ydim-8,whitecol,-1,names[i],0);
+	printext256(xdim-((int)std::strlen(names[i])<<3),ydim-8,whitecol,-1,names[i],0);
 
 	std::sprintf(&snotbuf[0],"%dx%d",tilesizx[i],tilesizy[i]);
 	printext256(xdim>>2,ydim-8,whitecol,-1,snotbuf,0);
@@ -2892,7 +2892,7 @@ void overheadeditor()
 	drawline16(192,0,192,24,7);
 	printext16(9L,9L,4,-1, &kensig[0],0);
 	printext16(8L,8L,12,-1, &kensig[0], 0);
-	sprintf(buffer, "Version: %s", build_version);
+	std::sprintf(buffer, "Version: %s", build_version);
 	printmessage16(buffer);
 	drawline16(0,ydim16-1-24,xdim-1,ydim16-1-24,7);
 	drawline16(256,ydim16-1-24,256,ydim16-1,7);
@@ -3050,7 +3050,7 @@ void overheadeditor()
 					dax = mulscale14(dax-posx,zoom);
 					day = mulscale14(day-posy,zoom);
 
-					sl = (int)strlen(dabuffer);
+					sl = (int)std::strlen(dabuffer);
 					x1 = halfxdim16+dax-(sl<<1);
 					y1 = midydim16+day-4;
 					x2 = x1 + (sl<<2)+2;
@@ -3077,7 +3077,7 @@ void overheadeditor()
 					{
 						dax = mulscale14(dax-posx,zoom);
 						day = mulscale14(day-posy,zoom);
-						sl = (int)strlen(dabuffer);
+						sl = (int)std::strlen(dabuffer);
 						x1 = halfxdim16+dax-(sl<<1);
 						y1 = midydim16+day-4;
 						x2 = x1 + (sl<<2)+2;
@@ -3103,7 +3103,7 @@ void overheadeditor()
 						dax = mulscale14(dax-posx,zoom);
 						day = mulscale14(day-posy,zoom);
 
-						sl = (int)strlen(dabuffer);
+						sl = (int)std::strlen(dabuffer);
 						x1 = halfxdim16+dax-(sl<<1);
 						y1 = midydim16+day-4;
 						x2 = x1 + (sl<<2)+2;
@@ -5192,8 +5192,8 @@ void overheadeditor()
 		for(i=22-1;i>=0;i--) updatecrc16(j,kensig[i]);
 		if ((j&0xffff) != 0xebf)
 		{
-			printf("Don't screw with my name.\n");
-			exit(0);
+			std::printf("Don't screw with my name.\n");
+			std::exit(0);
 		}*/
 		//printext16(9L,336+9L,4,-1,kensig,0);
 		//printext16(8L,336+8L,12,-1,kensig,0);
@@ -5301,7 +5301,7 @@ void overheadeditor()
 					printmessage16("Load board...");
 					showframe();
 
-					strcpy(&selectedboardfilename[0], &boardfilename[0]);
+					std::strcpy(&selectedboardfilename[0], &boardfilename[0]);
 					if (ch == 'g' || ch == 'G') {
 						i = menuselect(PATHSEARCH_GAME);
 					} else {
@@ -5319,24 +5319,24 @@ void overheadeditor()
 						while (1) {
 							filer = wm_filechooser(initialdir, initialfile, "map", 1, &filename);
 							if (filer >= 0) {
-								if (filename && strlen(filename)+1 > sizeof(selectedboardfilename)) {
+								if (filename && std::strlen(filename)+1 > sizeof(selectedboardfilename)) {
 									printmessage16("File path is too long.");
 									showframe();
-									free(filename);
+									std::free(filename);
 									continue;
 								}
 
 								if (filer == 0 || !filename) {
 									i = -1;
 								} else {
-									strcpy(&selectedboardfilename[0], filename);
-									free(filename);
+									std::strcpy(&selectedboardfilename[0], filename);
+									std::free(filename);
 									i = 0;
 									pathsearchmode = PATHSEARCH_SYSTEM;
 								}
 							} else {
 								// Fallback behaviour.
-								strcpy(&selectedboardfilename[0], &boardfilename[0]);
+								std::strcpy(&selectedboardfilename[0], &boardfilename[0]);
 								i = menuselect(pathsearchmode);
 							}
 							break;
@@ -5496,7 +5496,7 @@ void overheadeditor()
 
 							if (mapversion < 7) {
 								char buf[82];
-								sprintf(buf, "Old map (v%d) loaded successfully.", mapversion);
+								std::sprintf(buf, "Old map (v%d) loaded successfully.", mapversion);
 								printmessage16(buf);
 							} else {
 								printmessage16("Map loaded successfully.");
@@ -5524,7 +5524,7 @@ void overheadeditor()
 					printmessage16("Save board as...");
 					showframe();
 
-					strcpy(&selectedboardfilename[0], &boardfilename[0]);
+					std::strcpy(&selectedboardfilename[0], &boardfilename[0]);
 					initialfile = findfilename(&selectedboardfilename[0]);
 					if (pathsearchmode == PATHSEARCH_GAME || initialfile == &selectedboardfilename[0]) {
 						initialdir = "";
@@ -5535,18 +5535,18 @@ void overheadeditor()
 					while (1) {
 						filer = wm_filechooser(initialdir, initialfile, "map", 0, &filename);
 						if (filer >= 0) {
-							if (filename && strlen(filename)+1 > sizeof(selectedboardfilename)) {
+							if (filename && std::strlen(filename)+1 > sizeof(selectedboardfilename)) {
 								printmessage16("File path is too long.");
 								showframe();
-								free(filename);
+								std::free(filename);
 								continue;
 							}
 
 							if (filer == 0 || !filename) {
 								bad = 1;	// Cancel.
 							} else {
-								strcpy(&selectedboardfilename[0], filename);
-								free(filename);
+								std::strcpy(&selectedboardfilename[0], filename);
+								std::free(filename);
 								bad = 2;	// OK.
 							}
 							filename = nullptr;
@@ -5590,7 +5590,7 @@ void overheadeditor()
 							if (curs - filename > 0 && (ch == 8 || ch == 127)) {
 								*(--curs) = 0;
 							}
-							else if (strlen(&selectedboardfilename[0]) < sizeof(selectedboardfilename)-5
+							else if (std::strlen(&selectedboardfilename[0]) < sizeof(selectedboardfilename)-5
 								&& ch > 32 && ch < 128)
 							{
 								*(curs++) = ch;
@@ -5608,7 +5608,7 @@ void overheadeditor()
 					{
 						keystatus[0x1c] = 0;
 
-						strcat(filename, ".map");
+						std::strcat(filename, ".map");
 						std::sprintf(buffer,"Saving to %s...",filename);
 						printmessage16(buffer);
 						showframe();
@@ -5724,9 +5724,9 @@ void overheadeditor()
 							clearfilenames();
 							ExtUnInit();
 							uninitengine();
-							printf("Memory status: %d(%d) bytes\n",cachesize,artsize);
-							printf("%s\n", &kensig[0]);
-							exit(0);
+							std::printf("Memory status: %d(%d) bytes\n",cachesize,artsize);
+							std::printf("%s\n", &kensig[0]);
+							std::exit(0);
 						} else if (ch == 'n' || ch == 'N' || ch == 13 || ch == ' ') {
 							break;
 						}
@@ -5760,8 +5760,8 @@ void overheadeditor()
 		ExtUnInit();
 		uninitengine();
 		clearfilenames();
-		printf("%d * %d not supported in this graphics mode\n",xdim,ydim);
-		exit(0);
+		std::printf("%d * %d not supported in this graphics mode\n",xdim,ydim);
+		std::exit(0);
 	}
 
 	posz = oposz;
@@ -6408,7 +6408,7 @@ int menuselect(int newpathmode)
 	int listsize = (ydim16 - 32) / 8;
 
 	if (newpathmode != pathsearchmode) {
-		strcpy(&selectedboardfilename[0], "");
+		std::strcpy(&selectedboardfilename[0], "");
 		pathsearchmode = newpathmode;
 	}
 	if (pathsearchmode == PATHSEARCH_SYSTEM) {
@@ -6425,15 +6425,15 @@ int menuselect(int newpathmode)
 		clearbuf((unsigned char *)frameplace, (bytesperline*ydim16) >> 2, 0L);
 
 		if (pathsearchmode == PATHSEARCH_SYSTEM) {
-			strcpy(&buffer[0],"Local filesystem mode. Press F for game filesystem.");
+			std::strcpy(&buffer[0],"Local filesystem mode. Press F for game filesystem.");
 		} else {
-			strcpy(&buffer[0], "Game filesystem");
-			if (grponlymode) strcat(&buffer[0], " GRP-only");
-			strcat(&buffer[0], " mode. Press F for local filesystem, G for ");
-			if (grponlymode) strcat(&buffer[0], "all files.");
-			else strcat(&buffer[0], "GRP files only.");
+			std::strcpy(&buffer[0], "Game filesystem");
+			if (grponlymode) std::strcat(&buffer[0], " GRP-only");
+			std::strcat(&buffer[0], " mode. Press F for local filesystem, G for ");
+			if (grponlymode) std::strcat(&buffer[0], "all files.");
+			else std::strcat(&buffer[0], "GRP files only.");
 		}
-		printext16(halfxdim16-(8*(int)strlen(&buffer[0])/2), 4, 14, 0, &buffer[0], 0);
+		printext16(halfxdim16-(8*(int)std::strlen(&buffer[0])/2), 4, 14, 0, &buffer[0], 0);
 
 		snprintf(&buffer[0], sizeof(buffer),"(%d dirs, %d files) %s",numdirs,numfiles, &selectedboardfilename[0]);
 		printext16(1,ydim16-8-1,8,0, &buffer[0], 0);
@@ -6445,7 +6445,7 @@ int menuselect(int newpathmode)
 				const int c = dir->type == CACHE1D_FIND_DIR ? 4 : 3;
 				std::ranges::fill(buffer, 0);
 				strncpy(&buffer[0], dir->name, 25);
-				if (strlen(&buffer[0]) == 25)
+				if (std::strlen(&buffer[0]) == 25)
 					buffer[21] = buffer[22] = buffer[23] = '.', buffer[24] = 0;
 				if (dir == finddirshigh) {
 					if (currentlist == 0) printext16(8,16+8*i,c|8,0,"->",0);
@@ -6498,9 +6498,9 @@ int menuselect(int newpathmode)
 			currentlist = 0;
 			pathsearchmode = 1-pathsearchmode;
 			if (pathsearchmode == PATHSEARCH_SYSTEM) {
-				strcpy(&selectedboardfilename[0], "");
+				std::strcpy(&selectedboardfilename[0], "");
 				Bcanonicalisefilename(&selectedboardfilename[0], 1);
-			} else strcpy(&selectedboardfilename[0], "/");
+			} else std::strcpy(&selectedboardfilename[0], "/");
 			getfilenames(&selectedboardfilename[0], "*.map");
 		} else if (ch == 'g' || ch == 'G') {
 			if (pathsearchmode == PATHSEARCH_GAME) {
@@ -6524,17 +6524,17 @@ int menuselect(int newpathmode)
 			}
 		} else if ((ch == 13) && (currentlist == 0) && finddirshigh) {
 			if (finddirshigh->type == CACHE1D_FIND_DRIVE) {
-				strcpy(&selectedboardfilename[0], finddirshigh->name);
+				std::strcpy(&selectedboardfilename[0], finddirshigh->name);
 			} else {
-				strcat(&selectedboardfilename[0], finddirshigh->name);
+				std::strcat(&selectedboardfilename[0], finddirshigh->name);
 			}
-			strcat(&selectedboardfilename[0], "/");
+			std::strcat(&selectedboardfilename[0], "/");
 			if (pathsearchmode == PATHSEARCH_SYSTEM)
 				Bcanonicalisefilename(&selectedboardfilename[0], 1);
 			else
 				Bcorrectfilename(&selectedboardfilename[0], 1);
 
-			//printf("Changing directories to: %s\n", selectedboardfilename);
+			//std::printf("Changing directories to: %s\n", selectedboardfilename);
 
 			getfilenames(&selectedboardfilename[0], "*.map");
 			ch = 0;
@@ -6548,7 +6548,7 @@ int menuselect(int newpathmode)
 	if (ch == 13)
 	{
 		std::strcat(&selectedboardfilename[0], findfileshigh->name);
-		//printf("Selected file: %s\n", selectedboardfilename);
+		//std::printf("Selected file: %s\n", selectedboardfilename);
 
 		return(0);
 	}
@@ -6724,7 +6724,7 @@ int loadnames()
 	buildprintf("Loading NAMES.H\n");
 
 	while (std::fgets(&buffer[0], 1024, fp)) {
-		a = (int)strlen(&buffer[0]);
+		a = (int)std::strlen(&buffer[0]);
 		if (a >= 1) {
 			if (a > 1)
 				if (buffer[a-2] == '\r') buffer[a-2] = 0;

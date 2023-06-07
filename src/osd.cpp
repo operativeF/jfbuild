@@ -1087,7 +1087,7 @@ int OSD_Dispatch(const char *cmd)
 		symb = findexactsymbol(wp);
 		if (!symb) {
 			OSD_Printf("Error: \"%s\" is not defined\n", wp);
-			free(workbuf);
+			std::free(workbuf);
 			return -1;
 		}
 
@@ -1107,7 +1107,7 @@ int OSD_Dispatch(const char *cmd)
 		state = wtp;
 	} while (wtp && restart);
 
-	free(workbuf);
+	std::free(workbuf);
 
 	return 0;
 }

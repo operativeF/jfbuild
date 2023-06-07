@@ -361,10 +361,10 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 
 #if 0
 		//for debugging only:
-	printf("pre-parsed file:flen=%d,nflen=%d\n",flen,nflen);
-	for(i=0;i<nflen;i++) { if (tx[i] < 32) printf("_"); else printf("%c",tx[i]); }
-	printf("[eof]\nnumlines=%d\n",sf->linenum);
-	for(i=0;i<sf->linenum;i++) printf("line %d = byte %d\n",i,sf->lineoffs[i]);
+	std::printf("pre-parsed file:flen=%d,nflen=%d\n",flen,nflen);
+	for(i=0;i<nflen;i++) { if (tx[i] < 32) std::printf("_"); else std::printf("%c",tx[i]); }
+	std::printf("[eof]\nnumlines=%d\n",sf->linenum);
+	for(i=0;i<sf->linenum;i++) std::printf("line %d = byte %d\n",i,sf->lineoffs[i]);
 #endif
 	flen = nflen;
 
@@ -388,7 +388,7 @@ scriptfile *scriptfile_fromfile(const char *fn)
 		return nullptr;
 	}
 
-	auto* sf = (scriptfile*) malloc(sizeof(scriptfile));
+	auto* sf = (scriptfile*) std::malloc(sizeof(scriptfile));
 
 	if (!sf) {
 		kclose(fp);
@@ -531,7 +531,7 @@ int scriptfile_addsymbolvalue(const char *name, int val)
 		}
 	}
 	
-	auto* sp = getsymbtabspace(strlen(name) + 1 + sizeof(int));
+	auto* sp = getsymbtabspace(std::strlen(name) + 1 + sizeof(int));
 
 	if (!sp)
 		return 0;

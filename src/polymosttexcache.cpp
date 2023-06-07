@@ -93,7 +93,7 @@ static void ptcache_addhash(const char * filename, int effects, int flags, unsig
 	const unsigned int hash = gethashhead(filename);
 
 	// to reduce memory fragmentation we tack the filename onto the end of the block
-	PTCacheIndex* pci = (PTCacheIndex *) std::malloc(sizeof(PTCacheIndex) + strlen(filename) + 1);
+	PTCacheIndex* pci = (PTCacheIndex *) std::malloc(sizeof(PTCacheIndex) + std::strlen(filename) + 1);
 
 	pci->filename = (char *) pci + sizeof(PTCacheIndex);
 	std::strcpy(pci->filename, filename);
@@ -154,7 +154,7 @@ void PTCacheLoadIndex()
 
 	// first, check the cache storage file's signature.
 	// we open for reading and writing to test permission
-	FILE* fh = std::fopen(CACHESTORAGEFILE, "r+b");
+	std::FILE* fh = std::fopen(CACHESTORAGEFILE, "r+b");
 
 	std::array<int8_t, 16> sig;
 
@@ -294,7 +294,7 @@ static PTCacheTile * ptcache_load(off_t offset)
 		return nullptr;
 	}
 
-	FILE* fh = std::fopen(CACHESTORAGEFILE, "rb");
+	std::FILE* fh = std::fopen(CACHESTORAGEFILE, "rb");
 
 	if (!fh) {
 		cachedisabled = true;
@@ -468,7 +468,7 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 	}
 
 	// 1. write the tile data to the storage file
-	FILE* fh = std::fopen(CACHESTORAGEFILE, createmode);
+	std::FILE* fh = std::fopen(CACHESTORAGEFILE, createmode);
 
 	if (!fh) {
 		cachedisabled = true;
@@ -573,7 +573,7 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 		}
 	}
 
-	fclose(fh);
+	std::fclose(fh);
 
 	// stow the data into the index in memory
 	pci = ptcache_findhash(tdef->filename, tdef->effects, tdef->flags);

@@ -211,14 +211,14 @@ static void startbutton_clicked()
 
         hwnd = GetDlgItem(pages[TAB_CONFIG], IDC_HOSTFIELD);
         wcharlen = GetWindowTextLengthW(hwnd) + 1;
-        wcharstr = (WCHAR *)malloc(wcharlen * sizeof(WCHAR));
+        wcharstr = (WCHAR *)std::malloc(wcharlen * sizeof(WCHAR));
         GetWindowTextW(hwnd, wcharstr, wcharlen);
 
         joinhostlen = WideCharToMultiByte(CP_UTF8, 0, wcharstr, -1, nullptr, 0, nullptr, nullptr);
-        settings->joinhost = (char *)malloc(joinhostlen + 1);
+        settings->joinhost = (char *)std::malloc(joinhostlen + 1);
         WideCharToMultiByte(CP_UTF8, 0, wcharstr, -1, settings->joinhost, joinhostlen, nullptr, nullptr);
 
-        free(wcharstr);
+        std::free(wcharstr);
     } else if (IsDlgButtonChecked(pages[TAB_CONFIG], IDC_HOSTMULTIPLAYER) == BST_CHECKED) {
         settings->numplayers = (int)GetDlgItemInt(pages[TAB_CONFIG], IDC_NUMPLAYERS, nullptr, TRUE);
     }

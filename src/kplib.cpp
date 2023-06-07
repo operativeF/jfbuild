@@ -122,7 +122,7 @@ static int zipfilmode;
 
 struct kzfilestate
 {
-	FILE *fil;   //0:no file open, !=0:open file (either stand-alone or zip)
+	std::FILE* fil;   //0:no file open, !=0:open file (either stand-alone or zip)
 	int comptyp; //0:raw data (can be ZIP or stand-alone), 8:PKZIP LZ77 *flate
 	unsigned seek0;   //0:stand-alone file, !=0: start of zip compressed stream data
 	int compleng;//Global variable for compression FIFO
@@ -607,7 +607,7 @@ static int Paeth (int a, int b, int c)
 	int pb;
 	int pc;
 
-	pa = b-c; pb = a-c; pc = abs(pa+pb); pa = abs(pa); pb = abs(pb);
+	pa = b-c; pb = a-c; pc = std::abs(pa+pb); pa = std::abs(pa); pb = std::abs(pb);
 	if ((pa <= pb) && (pa <= pc)) return(a);
 	if (pb <= pc) return(b); else return(c);
 }
@@ -1705,7 +1705,7 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 			leng = ((int)kfileptr[0]<<8)+(int)kfileptr[1]-2;
 			kfileptr += 2;
 		}
-		//printf("fileoffs=%08x, marker=%02x,leng=%d",((int)kfileptr)-((int)kfilebuf)-2,marker,leng);
+		//std::printf("fileoffs=%08x, marker=%02x,leng=%d",((int)kfileptr)-((int)kfilebuf)-2,marker,leng);
 		switch(marker)
 		{
 			case 0xc0: case 0xc1: case 0xc2:
@@ -1714,7 +1714,7 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 
 				ydim = SSWAPIL(*(unsigned short *)&kfileptr[0]);
 				xdim = SSWAPIL(*(unsigned short *)&kfileptr[2]);
-				//printf("%s: %ld / %ld = %ld\n",filename,xdim*ydim*3,kfilength,(xdim*ydim*3)/kfilength);
+				//std::printf("%s: %ld / %ld = %ld\n",filename,xdim*ydim*3,kfilength,(xdim*ydim*3)/kfilength);
 
 				frameplace = daframeplace;
 				bytesperline = dabytesperline;
@@ -1797,9 +1797,9 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 				kfileptr += leng;
 				break;
 			case 0xda:
-				if ((xdim <= 0) || (ydim <= 0)) { if (dctbuf) free(dctbuf); return(-1); }
+				if ((xdim <= 0) || (ydim <= 0)) { if (dctbuf) std::free(dctbuf); return(-1); }
 
-				lnumcomponents = (int)(*kfileptr++); if (!lnumcomponents) { if (dctbuf) free(dctbuf); return(-1); }
+				lnumcomponents = (int)(*kfileptr++); if (!lnumcomponents) { if (dctbuf) std::free(dctbuf); return(-1); }
 				if (lnumcomponents > 1) coltype = 2;
 				for(z=0;z<lnumcomponents;z++)
 				{
@@ -1814,7 +1814,7 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 				Ah = (kfileptr[2]>>4);
 				Al = (kfileptr[2]&15);
 				kfileptr += 3;
-				//printf("passcnt=%d, Ss=%d, Se=%d, Ah=%d, Al=%d\n",passcnt,Ss,Se,Ah,Al);
+				//std::printf("passcnt=%d, Ss=%d, Se=%d, Ah=%d, Al=%d\n",passcnt,Ss,Se,Ah,Al);
 
 				if ((!passcnt) && ((Ss) || (Se != 63) || (Ah) || (Al)))
 				{
@@ -1825,7 +1825,7 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 						zz += dctx[z]*dcty[z];
 					}
 					z = zz*64*sizeof(short);
-					dctbuf = (short *)malloc(z); if (!dctbuf) return(-1);
+					dctbuf = (short *)std::malloc(z); if (!dctbuf) return(-1);
 					std::memset(dctbuf,0,z);
 					for(z=zz=0;z<gnumcomponents;z++) { dctptr[z] = &dctbuf[zz*64]; zz += dctx[z]*dcty[z]; }
 				}
@@ -1860,7 +1860,7 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 
 				if ((std::max(globxoffs, 0) >= xres) || (std::min(globxoffs + xdim, xres) <= 0) ||
 					 (std::max(globyoffs, 0) >= yres) || (std::min(globyoffs + ydim, yres) <= 0))
-					{ if (dctbuf) free(dctbuf); return(0); }
+					{ if (dctbuf) std::free(dctbuf); return(0); }
 
 				Alut[0] = (1<<Al); Alut[1] = -Alut[0];
 
@@ -2069,7 +2069,7 @@ kpegrend_break2:;
 			yrbrend(x,y);
 		}
 
-	free(dctbuf); return(0);
+	std::free(dctbuf); return(0);
 }
 
 //==============================  KPEGILIB ends ==============================
@@ -2998,7 +2998,7 @@ static int kzcheckhashsiz (int siz)
 	if (!kzhashbuf) //Initialize hash table on first call
 	{
 		std::memset(kzhashead,-1,sizeof(kzhashead));
-		kzhashbuf = (char *)malloc(KZHASHINITSIZE); if (!kzhashbuf) return(0);
+		kzhashbuf = (char *)std::malloc(KZHASHINITSIZE); if (!kzhashbuf) return(0);
 		kzhashpos = 0; kzlastfnam = -1; kzhashsiz = KZHASHINITSIZE;
 	}
 	if (kzhashpos+siz > kzhashsiz) //Make sure string fits in kzhashbuf
@@ -3044,14 +3044,14 @@ static int kzcheckhash (const char *filnam, char **zipnam, unsigned int *zipseek
 
 void kzuninit ()
 {
-	if (kzhashbuf) { free(kzhashbuf); kzhashbuf = nullptr; }
+	if (kzhashbuf) { std::free(kzhashbuf); kzhashbuf = nullptr; }
 	kzhashpos = kzhashsiz = 0;
 }
 
 	//Load ZIP directory into memory (hash) to allow fast access later
 int kzaddstack (const char *zipnam)
 {
-	FILE *fil;
+	std::FILE* fil;
 	int i;
 	int j;
 	int hashind;
@@ -3059,15 +3059,15 @@ int kzaddstack (const char *zipnam)
 	int numfiles;
 	char tempbuf[260+46];
 
-	fil = fopen(zipnam,"rb"); if (!fil) return(-1);
+	fil = std::fopen(zipnam,"rb"); if (!fil) return(-1);
 
 		//Write ZIP filename to hash
-	i = (int)strlen(zipnam)+1; if (!kzcheckhashsiz(i)) { fclose(fil); return(-1); }
-	strcpy(&kzhashbuf[kzhashpos],zipnam);
+	i = (int)std::strlen(zipnam)+1; if (!kzcheckhashsiz(i)) { std::fclose(fil); return(-1); }
+	std::strcpy(&kzhashbuf[kzhashpos],zipnam);
 	zipnamoffs = kzhashpos; kzhashpos += i;
 
 	fseek(fil,-22,SEEK_END);
-	if (fread(tempbuf,22,1,fil) != 1) { fclose(fil); return(-1); }
+	if (fread(tempbuf,22,1,fil) != 1) { std::fclose(fil); return(-1); }
 	if (*(unsigned int *)&tempbuf[0] == LSWAPIB(0x06054b50)) //Fast way of finding dir info
 	{
 		numfiles = SSWAPIB(*(unsigned short *)&tempbuf[10]);
@@ -3081,43 +3081,43 @@ int kzaddstack (const char *zipnam)
 			if (!fread(&j,4,1,fil)) { numfiles = -1; break; }
 			if ((unsigned)j == LSWAPIB(0x02014b50)) break; //Found central file header :)
 			if ((unsigned)j != LSWAPIB(0x04034b50)) { numfiles = -1; break; }
-			if (fread(tempbuf,26,1,fil) != 1) { fclose(fil); return(-1); }
+			if (fread(tempbuf,26,1,fil) != 1) { std::fclose(fil); return(-1); }
 			fseek(fil,LSWAPIB(*(unsigned int *)&tempbuf[14]) + SSWAPIB(*(unsigned short *)&tempbuf[24]) + SSWAPIB(*(unsigned short *)&tempbuf[22]),SEEK_CUR);
 			numfiles++;
 		}
-		if (numfiles < 0) { fclose(fil); return(-1); }
+		if (numfiles < 0) { std::fclose(fil); return(-1); }
 		fseek(fil,-4,SEEK_CUR);
 	}
 	for(i=0;i<numfiles;i++)
 	{
-		if (fread(tempbuf,46,1,fil) != 1) { fclose(fil); return(-1); }
-		if (*(int *)&tempbuf[0] != LSWAPIB(0x02014b50)) { fclose(fil); return(0); }
+		if (fread(tempbuf,46,1,fil) != 1) { std::fclose(fil); return(-1); }
+		if (*(int *)&tempbuf[0] != LSWAPIB(0x02014b50)) { std::fclose(fil); return(0); }
 
 		j = SSWAPIB(*(unsigned short *)&tempbuf[28]); //filename length
-		if (fread(&tempbuf[46],j,1,fil) != 1) { fclose(fil); return(-1); }
+		if (fread(&tempbuf[46],j,1,fil) != 1) { std::fclose(fil); return(-1); }
 		tempbuf[j+46] = 0;
 
 			//Write information into hash
-		j = (int)strlen(&tempbuf[46])+17; if (!kzcheckhashsiz(j)) { fclose(fil); return(-1); }
+		j = (int)std::strlen(&tempbuf[46])+17; if (!kzcheckhashsiz(j)) { std::fclose(fil); return(-1); }
 		hashind = kzcalchash(&tempbuf[46]);
 		*(int *)&kzhashbuf[kzhashpos] = kzhashead[hashind];
 		*(int *)&kzhashbuf[kzhashpos+4] = kzlastfnam;
 		*(int *)&kzhashbuf[kzhashpos+8] = zipnamoffs;
 		*(unsigned int *)&kzhashbuf[kzhashpos+12] = LSWAPIB(*(unsigned int *)&tempbuf[42]); //zipseek
-		strcpy(&kzhashbuf[kzhashpos+16],&tempbuf[46]);
+		std::strcpy(&kzhashbuf[kzhashpos+16],&tempbuf[46]);
 		kzhashead[hashind] = kzhashpos; kzlastfnam = kzhashpos; kzhashpos += j;
 
 		j  = SSWAPIB(*(unsigned short *)&tempbuf[30]); //extra field length
 		j += SSWAPIB(*(unsigned short *)&tempbuf[32]); //file comment length
 		fseek(fil,j,SEEK_CUR);
 	}
-	fclose(fil);
+	std::fclose(fil);
 	return(0);
 }
 
 int kzopen (const char *filnam)
 {
-	FILE *fil;
+	std::FILE* fil;
 	unsigned int zipseek;
 	char tempbuf[46+260];
 	char *zipnam;
@@ -3125,7 +3125,7 @@ int kzopen (const char *filnam)
 	//kzfs.fil = 0;
 	if (filnam[0] != '|')
 	{
-		kzfs.fil = fopen(filnam,"rb");
+		kzfs.fil = std::fopen(filnam,"rb");
 		if (kzfs.fil)
 		{
 			kzfs.comptyp = 0;
@@ -3138,10 +3138,10 @@ int kzopen (const char *filnam)
 	}
 	if (kzcheckhash(filnam,&zipnam,&zipseek))
 	{
-		fil = fopen(zipnam,"rb"); if (!fil) return(0);
+		fil = std::fopen(zipnam,"rb"); if (!fil) return(0);
 		fseek(fil,zipseek,SEEK_SET);
-		if (fread(tempbuf,30,1,fil) != 1) { fclose(fil); return(0); }
-		if (*(int *)&tempbuf[0] != LSWAPIB(0x04034b50)) { fclose(fil); return(0); }
+		if (fread(tempbuf,30,1,fil) != 1) { std::fclose(fil); return(0); }
+		if (*(int *)&tempbuf[0] != LSWAPIB(0x04034b50)) { std::fclose(fil); return(0); }
 		fseek(fil,SSWAPIB(*(unsigned short *)&tempbuf[26])+SSWAPIB(*(unsigned short *)&tempbuf[28]),SEEK_CUR);
 
 		kzfs.fil = fil;
@@ -3149,7 +3149,7 @@ int kzopen (const char *filnam)
 		kzfs.seek0 = (unsigned int)ftell(fil);
 		kzfs.leng = LSWAPIB(*(int *)&tempbuf[22]);
 		kzfs.pos = 0;
-		if (kzfs.leng < 0) { fclose(kzfs.fil); kzfs.fil = nullptr; return(0); }   // File is ≥ 2GiB.
+		if (kzfs.leng < 0) { std::fclose(kzfs.fil); kzfs.fil = nullptr; return(0); }   // File is ≥ 2GiB.
 		switch(kzfs.comptyp) //Compression method
 		{
 			case 0: kzfs.i = 0; return(1);
@@ -3162,7 +3162,7 @@ int kzopen (const char *filnam)
 				gslidew = 0x7fffffff; //Force reload at beginning
 
 				return(1);
-			default: fclose(kzfs.fil); kzfs.fil = nullptr; return(0);
+			default: std::fclose(kzfs.fil); kzfs.fil = nullptr; return(0);
 		}
 	}
 	return(0);
@@ -3194,7 +3194,7 @@ void kzfindfilestart (const char *st)
 #else
 	if (hfind) { closedir(hfind); hfind = nullptr; }
 #endif
-	strcpy(wildst,st);
+	std::strcpy(wildst,st);
 	srchstat = -3;
 }
 
@@ -3224,8 +3224,8 @@ int kzfindfile (char *filnam)
 			i = wildstpathleng;
 			if (findata.attrib&16)
 				if ((findata.name[0] == '.') && (!findata.name[1])) continue;
-			strcpy(&filnam[i],findata.name);
-			if (findata.attrib&16) strcat(&filnam[i],"\\");
+			std::strcpy(&filnam[i],findata.name);
+			if (findata.attrib&16) std::strcat(&filnam[i],"\\");
 #elif defined(_WIN32)
 			hfind = FindFirstFile(wildst,&findata);
 			if (hfind == INVALID_HANDLE_VALUE)
@@ -3234,8 +3234,8 @@ int kzfindfile (char *filnam)
 			i = wildstpathleng;
 			if (findata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 				if ((findata.cFileName[0] == '.') && (!findata.cFileName[1])) continue;
-			strcpy(&filnam[i],findata.cFileName);
-			if (findata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) strcat(&filnam[i],"\\");
+			std::strcpy(&filnam[i],findata.cFileName);
+			if (findata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) std::strcat(&filnam[i],"\\");
 #else
 			if (!hfind)
 			{
@@ -3262,8 +3262,8 @@ int kzfindfile (char *filnam)
 			i = wildstpathleng;
 			if (findata.attrib&16)
 				if ((findata.name[0] == '.') && (!findata.name[1])) continue;
-			strcpy(&filnam[i],findata.name);
-			if (findata.attrib&16) strcat(&filnam[i],"\\");
+			std::strcpy(&filnam[i],findata.name);
+			if (findata.attrib&16) std::strcat(&filnam[i],"\\");
 #elif defined(_WIN32)
 			if (!FindNextFile(hfind,&findata))
 				{ FindClose(hfind); hfind = INVALID_HANDLE_VALUE; if (!kzhashbuf) return(0); srchstat = kzlastfnam; break; }
@@ -3271,8 +3271,8 @@ int kzfindfile (char *filnam)
 			i = wildstpathleng;
 			if (findata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 				if ((findata.cFileName[0] == '.') && (!findata.cFileName[1])) continue;
-			strcpy(&filnam[i],findata.cFileName);
-			if (findata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) strcat(&filnam[i],"\\");
+			std::strcpy(&filnam[i],findata.cFileName);
+			if (findata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) std::strcat(&filnam[i],"\\");
 #else
 			struct stat st;
 			if ((findata = readdir(hfind)) == nullptr)
@@ -3285,8 +3285,8 @@ int kzfindfile (char *filnam)
 				{ if (findata->d_name[0] == '.') continue; } //skip hidden (dot) files
 			else continue; //skip devices and fifos and such
 			if (!wildmatch(findata->d_name,&wildst[wildstpathleng])) continue;
-			strcpy(&filnam[i],findata->d_name);
-			if (st.st_mode & S_IFDIR) strcat(&filnam[i],"/");
+			std::strcpy(&filnam[i],findata->d_name);
+			if (st.st_mode & S_IFDIR) std::strcat(&filnam[i],"/");
 #endif
 			return(1);
 		}
@@ -3294,8 +3294,8 @@ int kzfindfile (char *filnam)
 	{
 		if (wildmatch(&kzhashbuf[srchstat+16],wildst))
 		{
-			//strcpy(filnam,&kzhashbuf[srchstat+16]);
-			filnam[0] = '|'; strcpy(&filnam[1],&kzhashbuf[srchstat+16]);
+			//std::strcpy(filnam,&kzhashbuf[srchstat+16]);
+			filnam[0] = '|'; std::strcpy(&filnam[1],&kzhashbuf[srchstat+16]);
 			srchstat = *(int *)&kzhashbuf[srchstat+4];
 			return(1);
 		}
@@ -3307,7 +3307,7 @@ int kzfindfile (char *filnam)
 //File searching code (supports inside ZIP files!) How to use this code:
 //   char filnam[MAX_PATH];
 //   kzfindfilestart("vxl/*.vxl");
-//   while (kzfindfile(filnam)) puts(filnam);
+//   while (kzfindfile(filnam)) std::puts(filnam);
 //NOTES:
 // * Directory names end with '\' or '/' (depending on system)
 // * Files inside zip begin with '|'
@@ -3413,12 +3413,12 @@ kzreadplc0:;
 			else i = kzfs.comptell-(kzfs.comptell%(sizeof(olinbuf)-4));
 			i += ((char *)&filptr[bitpos>>3])-((char *)(&olinbuf[0]));
 			i = (i<<3)+(bitpos&7)-3;
-			if (gslidew) printf(" ULng:0x%08x CLng:0x%08x.%x",gslidew-ouncomppos,(i-ocomppos)>>3,((i-ocomppos)&7)<<1);
-			printf("\ntype:%d, Uoff:0x%08x Coff:0x%08x.%x",btype,gslidew,i>>3,(i&7)<<1);
+			if (gslidew) std::printf(" ULng:0x%08x CLng:0x%08x.%x",gslidew-ouncomppos,(i-ocomppos)>>3,((i-ocomppos)&7)<<1);
+			std::printf("\ntype:%d, Uoff:0x%08x Coff:0x%08x.%x",btype,gslidew,i>>3,(i&7)<<1);
 			if (bfinal)
 			{
-				printf(" ULng:0x%08x CLng:0x%08x.%x",kzfs.leng-gslidew,((kzfs.compleng<<3)-i)>>3,(((kzfs.compleng<<3)-i)&7)<<1);
-				printf("\n        Uoff:0x%08x Coff:0x%08x.0",kzfs.leng,kzfs.compleng);
+				std::printf(" ULng:0x%08x CLng:0x%08x.%x",kzfs.leng-gslidew,((kzfs.compleng<<3)-i)>>3,(((kzfs.compleng<<3)-i)&7)<<1);
+				std::printf("\n        Uoff:0x%08x Coff:0x%08x.0",kzfs.leng,kzfs.compleng);
 				ouncomppos = ocomppos = 0;
 			}
 			else { ouncomppos = gslidew; ocomppos = i; }
@@ -3574,7 +3574,7 @@ int kzeof ()
 
 void kzclose ()
 {
-	if (kzfs.fil) { fclose(kzfs.fil); kzfs.fil = nullptr; }
+	if (kzfs.fil) { std::fclose(kzfs.fil); kzfs.fil = nullptr; }
 }
 
 //====================== ZIP decompression code ends =========================
@@ -3588,14 +3588,14 @@ void kpzload (const char *filnam, intptr_t *pic, int *bpl, int *xsiz, int *ysiz)
 	(*pic) = 0;
 	if (!kzopen(filnam)) return;
 	leng = kzfilelength();
-	buf = (char *)malloc(leng); if (!buf) return;
+	buf = (char *)std::malloc(leng); if (!buf) return;
 	kzread(buf,leng);
 	kzclose();
 
 	kpgetdim(buf,leng,xsiz,ysiz);
 	(*bpl) = ((*xsiz)<<2);
-	(*pic) = (intptr_t)malloc((*ysiz)*(*bpl)); if (!(*pic)) { free(buf); return; }
-	if (kprender(buf,leng,*pic,*bpl,*xsiz,*ysiz,0,0) < 0) { free(buf); free((void *)*pic); (*pic) = 0; return; }
-	free(buf);
+	(*pic) = (intptr_t)std::malloc((*ysiz)*(*bpl)); if (!(*pic)) { std::free(buf); return; }
+	if (kprender(buf,leng,*pic,*bpl,*xsiz,*ysiz,0,0) < 0) { std::free(buf); std::free((void *)*pic); (*pic) = 0; return; }
+	std::free(buf);
 }
 //====================== HANDY PICTURE function ends =========================

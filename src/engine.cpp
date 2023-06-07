@@ -6047,7 +6047,7 @@ static void sighandler(int sig, siginfo_t *info, void *ctx)
 				case FPE_FLTSUB: s = "FPE_FLTSUB (floating-point subscript out of range)"; break;
 				default: s = "?! (unknown)"; break;
 			}
-			fprintf(stderr, "Caught SIGFPE at address %p, code %s. Aborting.\n", info->si_addr, s);
+			std::fprintf(stderr, "Caught SIGFPE at address %p, code %s. Aborting.\n", info->si_addr, s);
 			break;
 		default: break;
 	}
@@ -6064,11 +6064,11 @@ int preinitengine()
 	char compiler[30] = "an unidentified compiler";
 
 #if defined(_MSC_VER)
-	sprintf(compiler, "MS Visual C++ %d.%02d", _MSC_VER/100, _MSC_VER%100);
+	std::sprintf(compiler, "MS Visual C++ %d.%02d", _MSC_VER/100, _MSC_VER%100);
 #elif defined(__clang__)
-	sprintf(compiler, "Clang %d.%d", __clang_major__, __clang_minor__);
+	std::sprintf(compiler, "Clang %d.%d", __clang_major__, __clang_minor__);
 #elif defined(__GNUC__)
-	sprintf(compiler, "GCC %d.%d", __GNUC__, __GNUC_MINOR__);
+	std::sprintf(compiler, "GCC %d.%d", __GNUC__, __GNUC_MINOR__);
 #endif
 
 	buildprintf("\nBUILD engine by Ken Silverman (http://www.advsys.net/ken)\n"
@@ -6088,7 +6088,7 @@ int preinitengine()
 	assert((intptr_t)&spriteext[1] - (intptr_t)&spriteext[0] == sizeof(spriteexttype));
 
 	if (initsystem())
-		exit(1);
+		std::exit(1);
 
 #ifndef USING_A_C
 	makeasmwriteable();
@@ -6985,7 +6985,7 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 	short maxwalls;
 	short maxsprites;
 
-	short i = strlen(filename) - 1;
+	short i = std::strlen(filename) - 1;
 
 	if ((unsigned char)filename[i] == 255) {
 		filename[i] = 0;
@@ -8616,12 +8616,12 @@ void nextpage()
 	//for(i=0;i<4096;i++)
 	//   if (waloff[i] != 0)
 	//   {
-	//      sprintf(snotbuf,"%ld-%ld",i,tilesizx[i]*tilesizy[i]);
+	//      std::sprintf(snotbuf,"%ld-%ld",i,tilesizx[i]*tilesizy[i]);
 	//      printext256((j>>5)*40+32,(j&31)*6,walock[i]>>3,-1,snotbuf,1);
 	//      k += tilesizx[i]*tilesizy[i];
 	//      j++;
 	//   }
-	//sprintf(snotbuf,"Total: %ld",k);
+	//std::sprintf(snotbuf,"Total: %ld",k);
 	//printext256((j>>5)*40+32,(j&31)*6,31,-1,snotbuf,1);
 
 	switch(qsetmode)
@@ -12196,7 +12196,7 @@ static void screencapture_writetgaline(unsigned char *buf, int bytes, int elemen
 static int screencapture_tga(char mode)
 {
 	unsigned char head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
-	FILE* fil;
+	std::FILE* fil;
 
 	if ((fil = screencapture_openfile("tga")) == nullptr) {
 		return -1;
@@ -12264,7 +12264,7 @@ static int writepcxbyte(unsigned char colour, unsigned char count, std::FILE *fp
 	}
 }
 
-static void writepcxline(unsigned char *buf, int bytes, int step, FILE* fp)
+static void writepcxline(unsigned char *buf, int bytes, int step, std::FILE* fp)
 {
     unsigned char last = *buf;
 	unsigned char runCount{1};
@@ -12315,7 +12315,7 @@ static void screencapture_writepcxline(unsigned char *buf, int bytes, int elemen
 static int screencapture_pcx(char mode)
 {
 	unsigned char head[128];
-	FILE* fil;
+	std::FILE* fil;
 
 	if ((fil = screencapture_openfile("pcx")) == nullptr) {
 		return -1;
@@ -12381,7 +12381,7 @@ struct pngsums {
 	unsigned short adlers2;
 };
 
-static void screencapture_writepngline(unsigned char *buf, int bytes, int elements, FILE* fp, void *v)
+static void screencapture_writepngline(unsigned char *buf, int bytes, int elements, std::FILE* fp, void *v)
 {
 	unsigned char header[6];
 	auto* sums = static_cast<struct pngsums *>(v);
@@ -12435,7 +12435,7 @@ static int screencapture_png(char mode)
 	int acclen;
 	int glmode{0};
 	unsigned short s;
-	FILE* fil;
+	std::FILE* fil;
 	struct pngsums sums;
 
 #if USE_POLYMOST && USE_OPENGL
@@ -12683,10 +12683,10 @@ void buildprintf(const char *fmt, ...)
 
 void buildputs(const char *str)
 {
-    fputs(str, stdout);
+    std::fputs(str, stdout);
 
     if (logfile)
-		fputs(str, logfile);
+		std::fputs(str, logfile);
     
 	initputs(str);  // the startup window
     OSD_Puts(str);  // the onscreen-display

@@ -57,7 +57,7 @@ void freeallmodels ()
 	if (models)
 	{
 		for(i=0;i<nextmodelid;i++) mdfree(models[i]);
-		free(models); models = nullptr;
+		std::free(models); models = nullptr;
 		nummodelsalloced = 0;
 		nextmodelid = 0;
 	}
@@ -67,12 +67,12 @@ void freeallmodels ()
 
 	if (vertlist)
 	{
-		free(vertlist);
+		std::free(vertlist);
 		vertlist = nullptr;
 		allocmodelverts = maxmodelverts = 0;
 	}
 	if (elementvbo) {
-		free(elementvbo);
+		std::free(elementvbo);
 		elementvbo = nullptr;
 		allocelementvbo = maxelementvbo = 0;
 	}
@@ -267,7 +267,7 @@ int md_defineanimation (int modelid, const char *framestart, const char *frameen
 	ma.fpssc = fpssc;
 	ma.flags = flags;
 
-	map = (mdanim_t*)calloc(1,sizeof(mdanim_t));
+	map = (mdanim_t*)std::calloc(1,sizeof(mdanim_t));
 	if (!map) return(-4);
 	std::memcpy(map, &ma, sizeof(ma));
 
@@ -297,19 +297,19 @@ int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int
 	for (sk = m->skinmap; sk; skl = sk, sk = sk->next)
 		if (sk->palette == (unsigned char)palnum && skinnum == sk->skinnum && surfnum == sk->surfnum) break;
 	if (!sk) {
-		sk = (mdskinmap_t *)calloc(1,sizeof(mdskinmap_t));
+		sk = (mdskinmap_t *)std::calloc(1,sizeof(mdskinmap_t));
 		if (!sk) return -4;
 
 		if (!skl) m->skinmap = sk;
 		else skl->next = sk;
-	} else if (sk->fn) free(sk->fn);
+	} else if (sk->fn) std::free(sk->fn);
 
 	sk->palette = (unsigned char)palnum;
 	sk->skinnum = skinnum;
 	sk->surfnum = surfnum;
-	sk->fn = (char *)malloc(strlen(skinfn)+1);
+	sk->fn = (char *)std::malloc(std::strlen(skinfn)+1);
 	if (!sk->fn) return(-4);
-	strcpy(sk->fn, skinfn);
+	std::strcpy(sk->fn, skinfn);
 
 	return 0;
 }
@@ -390,7 +390,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 		if ((int)sk->palette == pal && sk->skinnum == number && sk->surfnum == surf) {
 			tex = &sk->tex[ hictinting[pal].f ];
 			skinfile = sk->fn;
-			strcpy(&fn[0], skinfile);
+			std::strcpy(&fn[0], skinfile);
 			//buildprintf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
 			break;
 		}
@@ -406,7 +406,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 		if (skzero) {
 			tex = &skzero->tex[ hictinting[pal].f ];
 			skinfile = skzero->fn;
-			strcpy(&fn[0], skinfile);
+			std::strcpy(&fn[0], skinfile);
 			//buildprintf("Using def skin 0,0 as fallback, pal=%d\n", pal);
 		} else {
 			if ((unsigned)number >= (unsigned)m->numskins) {
@@ -414,8 +414,8 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 			}
 			tex = &m->tex[ number * (HICEFFECTMASK+1) + hictinting[pal].f ];
 			skinfile = m->skinfn + number*64;
-			strcpy(&fn[0], m->basepath);
-			strcat(&fn[0], skinfile);
+			std::strcpy(&fn[0], m->basepath);
+			std::strcat(&fn[0], skinfile);
 			//buildprintf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
 		}
 	}
@@ -552,24 +552,24 @@ static void md2free (md2model *m)
 	for(anim=m->animations; anim; anim=nanim)
 	{
 		nanim = anim->next;
-		free(anim);
+		std::free(anim);
 	}
 	for(sk=m->skinmap; sk; sk=nsk)
 	{
 		nsk = sk->next;
-		free(sk->fn);
-		free(sk);
+		std::free(sk->fn);
+		std::free(sk);
 	}
 
-	if (m->frames) free(m->frames);
-	if (m->uvs) free(m->uvs);
-	if (m->tris) free(m->tris);
-	if (m->basepath) free(m->basepath);
-	if (m->skinfn) free(m->skinfn);
+	if (m->frames) std::free(m->frames);
+	if (m->uvs) std::free(m->uvs);
+	if (m->tris) std::free(m->tris);
+	if (m->basepath) std::free(m->basepath);
+	if (m->skinfn) std::free(m->skinfn);
 
-	if (m->tex) free(m->tex);
+	if (m->tex) std::free(m->tex);
 
-	free(m);
+	std::free(m);
 }
 
 static md2model *md2load (int fil, const char *filnam)
@@ -579,7 +579,7 @@ static md2model *md2load (int fil, const char *filnam)
 	char st[BMAX_PATH];
 	size_t i;
 
-	m = (md2model *)calloc(1,sizeof(md2model)); if (!m) return(nullptr);
+	m = (md2model *)std::calloc(1,sizeof(md2model)); if (!m) return(nullptr);
 	m->mdnum = 2; m->scale = .01;
 
 	kread(fil,(char *)&head,sizeof(md2head_t));
@@ -604,19 +604,19 @@ static md2model *md2load (int fil, const char *filnam)
 	m->skinxsiz = head.skinxsiz;
 	m->skinysiz = head.skinysiz;
 
-	m->uvs = (md2uv_t *)calloc(m->numuv,sizeof(md2uv_t));
+	m->uvs = (md2uv_t *)std::calloc(m->numuv,sizeof(md2uv_t));
 	if (!m->uvs) { md2free(m); return(nullptr); }
 	klseek(fil,head.ofsuv,SEEK_SET);
 	if (kread(fil,(char *)m->uvs,m->numuv*sizeof(md2uv_t)) != m->numuv*sizeof(md2uv_t))
 		{ md2free(m); return(nullptr); }
 
-	m->tris = (md2tri_t *)calloc(m->numtris,sizeof(md2tri_t));
+	m->tris = (md2tri_t *)std::calloc(m->numtris,sizeof(md2tri_t));
 	if (!m->tris) { md2free(m); return(nullptr); }
 	klseek(fil,head.ofstris,SEEK_SET);
 	if (kread(fil,(char *)m->tris,m->numtris*sizeof(md2tri_t)) != m->numtris*sizeof(md2tri_t))
 		{ md2free(m); return(nullptr); }
 
-	m->frames = (char *)calloc(m->numframes,m->framebytes);
+	m->frames = (char *)std::calloc(m->numframes,m->framebytes);
 	if (!m->frames) { md2free(m); return(nullptr); }
 	klseek(fil,head.ofsframes,SEEK_SET);
 	if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
@@ -639,20 +639,20 @@ static md2model *md2load (int fil, const char *filnam)
 	}
 #endif
 
-	strcpy(st,filnam);
-	for(i=strlen(st)-1;i>0;i--)
+	std::strcpy(st,filnam);
+	for(i=std::strlen(st)-1;i>0;i--)
 		if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
 	if (i<0) i=0;
 	st[i] = 0;
-	m->basepath = (char *)malloc(i+1); if (!m->basepath) { md2free(m); return(nullptr); }
-	strcpy(m->basepath, st);
+	m->basepath = (char *)std::malloc(i+1); if (!m->basepath) { md2free(m); return(nullptr); }
+	std::strcpy(m->basepath, st);
 
-	m->skinfn = (char *)calloc(m->numskins,64); if (!m->skinfn) { md2free(m); return(nullptr); }
+	m->skinfn = (char *)std::calloc(m->numskins,64); if (!m->skinfn) { md2free(m); return(nullptr); }
 	klseek(fil,head.ofsskins,SEEK_SET);
 	if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
 		{ md2free(m); return(nullptr); }
 
-	m->tex = (PTMHead **)calloc(m->numskins, sizeof(PTMHead *) * (HICEFFECTMASK+1));
+	m->tex = (PTMHead **)std::calloc(m->numskins, sizeof(PTMHead *) * (HICEFFECTMASK+1));
 	if (!m->tex) { md2free(m); return(nullptr); }
 
 	maxmodelverts = std::max(maxmodelverts, m->numverts);
@@ -897,7 +897,7 @@ static md3model *md3load (int fil)
 	md3filehead_t filehead;
 	md3filesurf_t filesurf;
 
-	auto* m = (md3model *)calloc(1,sizeof(md3model));
+	auto* m = (md3model *)std::calloc(1,sizeof(md3model));
 
 	if (!m) {
 		return nullptr;
@@ -930,20 +930,20 @@ static md3model *md3load (int fil)
 	m->numframes = m->head.numframes;
 
 	klseek(fil,filehead.frames,SEEK_SET);
-	m->head.frames = (md3frame_t *)calloc(m->head.numframes, sizeof(md3frame_t));
+	m->head.frames = (md3frame_t *)std::calloc(m->head.numframes, sizeof(md3frame_t));
 	if (!m->head.frames) { md3free(m); return(nullptr); }
 	kread(fil,m->head.frames,m->head.numframes*sizeof(md3frame_t));
 
 	if (m->head.numtags == 0) m->head.tags = nullptr;
 	else {
 		klseek(fil,filehead.tags,SEEK_SET);
-		m->head.tags = (md3tag_t *)calloc(m->head.numtags, sizeof(md3tag_t));
+		m->head.tags = (md3tag_t *)std::calloc(m->head.numtags, sizeof(md3tag_t));
 		if (!m->head.tags) { md3free(m); return(nullptr); }
 		kread(fil,m->head.tags,m->head.numtags*sizeof(md3tag_t));
 	}
 
 	klseek(fil,filehead.surfs,SEEK_SET);
-	m->head.surfs = (md3surf_t *)calloc(m->head.numsurfs, sizeof(md3surf_t));
+	m->head.surfs = (md3surf_t *)std::calloc(m->head.numsurfs, sizeof(md3surf_t));
 	if (!m->head.surfs) { md3free(m); return(nullptr); }
 
 #if B_BIG_ENDIAN != 0
@@ -987,7 +987,7 @@ static md3model *md3load (int fil)
 		offs[2] = ofsurf+filesurf.uv     ; leng[2] = s->numverts*sizeof(md3uv_t);
 		offs[3] = ofsurf+filesurf.xyzn   ; leng[3] = s->numframes*s->numverts*sizeof(md3xyzn_t);
 
-		s->tris = (md3tri_t *)malloc(leng[0]+leng[1]+leng[2]+leng[3]);
+		s->tris = (md3tri_t *)std::malloc(leng[0]+leng[1]+leng[2]+leng[3]);
 		if (!s->tris)
 		{
 			md3free(m);
@@ -1205,7 +1205,7 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 #if 0
 		//precalc:
 	float sinlut256[256+(256>>2)];
-	for(i=0;i<sizeof(sinlut256)/sizeof(sinlut256[0]);i++) sinlut256[i] = sin(((float)i)*(PI*2/255.0));
+	for(i=0;i<sizeof(sinlut256)/sizeof(sinlut256[0]);i++) sinlut256[i] = std::sin(((float)i)*(PI*2/255.0));
 
 		//normal to xyz:
 	md3vert_t *mv = &md3vert[?];
@@ -1267,13 +1267,13 @@ static void md3free (md3model *m)
 	for(anim=m->animations; anim; anim=nanim)
 	{
 		nanim = anim->next;
-		free(anim);
+		std::free(anim);
 	}
 	for(sk=m->skinmap; sk; sk=nsk)
 	{
 		nsk = sk->next;
-		free(sk->fn);
-		free(sk);
+		std::free(sk->fn);
+		std::free(sk);
 	}
 
 	if (m->head.surfs)
@@ -1281,16 +1281,16 @@ static void md3free (md3model *m)
 		for(surfi=m->head.numsurfs-1;surfi>=0;surfi--)
 		{
 			s = &m->head.surfs[surfi];
-			if (s->tris) free(s->tris);
+			if (s->tris) std::free(s->tris);
 		}
-		free(m->head.surfs);
+		std::free(m->head.surfs);
 	}
-	if (m->head.tags) free(m->head.tags);
-	if (m->head.frames) free(m->head.frames);
+	if (m->head.tags) std::free(m->head.tags);
+	if (m->head.frames) std::free(m->head.frames);
 
-	if (m->tex) free(m->tex);
+	if (m->tex) std::free(m->tex);
 
-	free(m);
+	std::free(m);
 }
 
 //---------------------------------------- MD3 LIBRARY ENDS ----------------------------------------
@@ -1345,7 +1345,7 @@ unsigned gloadtex (int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 	int i;
 
 	pic = (coltype *)picbuf; //Correct for GL's RGB order; also apply gamma here..
-	pic2 = (coltype *)malloc(xsiz*ysiz*sizeof(coltype)); if (!pic2) return((unsigned)-1);
+	pic2 = (coltype *)std::malloc(xsiz*ysiz*sizeof(coltype)); if (!pic2) return((unsigned)-1);
 	cptr = (unsigned char*)&britable[gammabrightness ? 0 : curbrightness][0];
 	if (!is8bit)
 	{
@@ -1374,7 +1374,7 @@ unsigned gloadtex (int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 	glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glfunc.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,xsiz,ysiz,0,GL_RGBA,GL_UNSIGNED_BYTE,(unsigned char *)pic2);
-	free(pic2);
+	std::free(pic2);
 	return(rtexid);
 }
 
@@ -1536,7 +1536,7 @@ static void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int
 	int *lptr;
 	voxrect_t *qptr;
 
-	x = abs(x2-x0); y = abs(y2-y0); z = abs(z2-z0);
+	x = std::abs(x2-x0); y = std::abs(y2-y0); z = std::abs(z2-z0);
 	if (!x) { x = y; y = z; i = 0; } else if (!y) { y = z; i = 1; } else i = 2;
 	if (x < y) { z = x; x = y; y = z; i += 3; }
 	z = shcnt[y*shcntp+x]++;
@@ -1635,7 +1635,7 @@ static voxmodel *vox2poly ()
 	int *by0;
 	void (*daquad)(int, int, int, int, int, int, int, int, int, int);
 
-	gvox = (voxmodel *)malloc(sizeof(voxmodel)); if (!gvox) return(nullptr);
+	gvox = (voxmodel *)std::malloc(sizeof(voxmodel)); if (!gvox) return(nullptr);
 	std::memset(gvox,0,sizeof(voxmodel));
 
 		//x is largest dimension, y is 2nd largest dimension
@@ -1643,7 +1643,7 @@ static voxmodel *vox2poly ()
 	if ((x < y) && (x < z)) x = z; else if (y < z) y = z;
 	if (x < y) { z = x; x = y; y = z; }
 	shcntp = x; i = x*y*sizeof(int);
-	shcntmal = (int *)malloc(i); if (!shcntmal) { free(gvox); return(nullptr); }
+	shcntmal = (int *)std::malloc(i); if (!shcntmal) { std::free(gvox); return(nullptr); }
 	std::memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
 	gmaxx = gmaxy = garea = 0;
 
@@ -1651,7 +1651,7 @@ static voxmodel *vox2poly ()
 	for(i=0;i<7;i++) gvox->qfacind[i] = -1;
 
 	i = (std::max(ysiz, zsiz) + 1) << 2;
-	bx0 = (int *)malloc(i<<1); if (!bx0) { free(gvox); return(nullptr); }
+	bx0 = (int *)std::malloc(i<<1); if (!bx0) { std::free(gvox); return(nullptr); }
 	by0 = (int *)(((intptr_t)bx0)+i);
 
 	for(cnt=0;cnt<2;cnt++)
@@ -1698,8 +1698,8 @@ static voxmodel *vox2poly ()
 
 		if (!cnt)
 		{
-			shp = (spoint2d *)malloc(gvox->qcnt*sizeof(spoint2d));
-			if (!shp) { free(bx0); free(gvox); return(nullptr); }
+			shp = (spoint2d *)std::malloc(gvox->qcnt*sizeof(spoint2d));
+			if (!shp) { std::free(bx0); std::free(gvox); return(nullptr); }
 
 			sc = 0;
 			for(y=gmaxy;y;y--)
@@ -1719,7 +1719,7 @@ skindidntfit:;
 			mytexo5 = (gvox->mytexx>>5);
 
 			i = (((gvox->mytexx*gvox->mytexy+31)>>5)<<2);
-			zbit = (int *)malloc(i); if (!zbit) { free(bx0); free(gvox); free(shp); return(nullptr); }
+			zbit = (int *)std::malloc(i); if (!zbit) { std::free(bx0); std::free(gvox); std::free(shp); return(nullptr); }
 			std::memset(zbit,0,i);
 
 			v = gvox->mytexx*gvox->mytexy;
@@ -1738,7 +1738,7 @@ skindidntfit:;
 					i--;
 					if (i < 0) //Time-out! Very slow if this happens... but at least it still works :P
 					{
-						free(zbit);
+						std::free(zbit);
 
 							//Re-generate shp[].x/y (box sizes) from shcnt (now head indices) for next pass :/
 						j = 0;
@@ -1760,14 +1760,14 @@ skindidntfit:;
 				shp[z].x = x0; shp[z].y = y0; //Overwrite size with top-left location
 			}
 
-			gvox->quad = (voxrect_t *)malloc(gvox->qcnt*sizeof(voxrect_t));
-			if (!gvox->quad) { free(zbit); free(shp); free(bx0); free(gvox); return(nullptr); }
+			gvox->quad = (voxrect_t *)std::malloc(gvox->qcnt*sizeof(voxrect_t));
+			if (!gvox->quad) { std::free(zbit); std::free(shp); std::free(bx0); std::free(gvox); return(nullptr); }
 
-			gvox->mytex = (int *)malloc(gvox->mytexx*gvox->mytexy*sizeof(int));
-			if (!gvox->mytex) { free(gvox->quad); free(zbit); free(shp); free(bx0); free(gvox); return(nullptr); }
+			gvox->mytex = (int *)std::malloc(gvox->mytexx*gvox->mytexy*sizeof(int));
+			if (!gvox->mytex) { std::free(gvox->quad); std::free(zbit); std::free(shp); std::free(bx0); std::free(gvox); return(nullptr); }
 		}
 	}
-	free(shp); free(zbit); free(bx0);
+	std::free(shp); std::free(zbit); std::free(bx0);
 	return(gvox);
 }
 
@@ -1806,14 +1806,14 @@ static int loadvox (const char *filnam)
 	pal[255] = -1;
 
 	vcolhashsizm1 = 8192-1;
-	vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
+	vcolhashead = (int *)std::malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
 	std::memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-	vbit = (int *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
+	vbit = (int *)std::malloc(i); if (!vbit) { kclose(fil); return(-1); }
 	std::memset(vbit,0,i);
 
-	tbuf = (unsigned char *)malloc(zsiz*sizeof(unsigned char)); if (!tbuf) { kclose(fil); return(-1); }
+	tbuf = (unsigned char *)std::malloc(zsiz*sizeof(unsigned char)); if (!tbuf) { kclose(fil); return(-1); }
 
 	klseek(fil,12,SEEK_SET);
 	for(x=0;x<xsiz;x++)
@@ -1845,7 +1845,7 @@ static int loadvox (const char *filnam)
 			}
 		}
 
-	free(tbuf); kclose(fil); return(0);
+	std::free(tbuf); kclose(fil); return(0);
 }
 
 static int loadkvx (const char *filnam)
@@ -1878,7 +1878,7 @@ static int loadkvx (const char *filnam)
 	klseek(fil,(xsiz+1)<<2,SEEK_CUR);
 	ysizp1 = ysiz+1;
 	i = xsiz*ysizp1*sizeof(short);
-	xyoffs = (unsigned short *)malloc(i); if (!xyoffs) { kclose(fil); return(-1); }
+	xyoffs = (unsigned short *)std::malloc(i); if (!xyoffs) { kclose(fil); return(-1); }
 	kread(fil,xyoffs,i); for (i=i/sizeof(short)-1; i>=0; i--) xyoffs[i] = B_LITTLE16(xyoffs[i]);
 
 	klseek(fil,-768,SEEK_END);
@@ -1886,18 +1886,18 @@ static int loadkvx (const char *filnam)
 		{ kread(fil,c,3); pal[i] = B_LITTLE32((((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24)); }
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-	vbit = (int *)malloc(i); if (!vbit) { free(xyoffs); kclose(fil); return(-1); }
+	vbit = (int *)std::malloc(i); if (!vbit) { std::free(xyoffs); kclose(fil); return(-1); }
 	std::memset(vbit,0,i);
 
 	for(vcolhashsizm1=4096;vcolhashsizm1<(mip1leng>>1);vcolhashsizm1<<=1) ;
 	vcolhashsizm1--; //approx to numvoxs!
-	vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { free(xyoffs); kclose(fil); return(-1); }
+	vcolhashead = (int *)std::malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { std::free(xyoffs); kclose(fil); return(-1); }
 	std::memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
 	klseek(fil,28+((xsiz+1)<<2)+((ysizp1*xsiz)<<1),SEEK_SET);
 
 	i = kfilelength(fil)-ktell(fil);
-	tbuf = (unsigned char *)malloc(i); if (!tbuf) { free(xyoffs); kclose(fil); return(-1); }
+	tbuf = (unsigned char *)std::malloc(i); if (!tbuf) { std::free(xyoffs); kclose(fil); return(-1); }
 	kread(fil,tbuf,i); kclose(fil);
 
 	cptr = tbuf;
@@ -1916,7 +1916,7 @@ static int loadkvx (const char *filnam)
 			}
 		}
 
-	free(tbuf); free(xyoffs); return(0);
+	std::free(tbuf); std::free(xyoffs); return(0);
 }
 
 static int loadkv6 (const char *filnam)
@@ -1947,7 +1947,7 @@ static int loadkv6 (const char *filnam)
     kread(fil, &f, 4);       zpiv = B_LITTLEFLOAT(f);
 	kread(fil, &numvoxs, 4); numvoxs = B_LITTLE32(numvoxs);
 
-	ylen = (unsigned short *)malloc(xsiz*ysiz*sizeof(unsigned short));
+	ylen = (unsigned short *)std::malloc(xsiz*ysiz*sizeof(unsigned short));
 	if (!ylen) { kclose(fil); return(-1); }
 
 	klseek(fil,32+(numvoxs<<3)+(xsiz<<2),SEEK_SET);
@@ -1955,12 +1955,12 @@ static int loadkv6 (const char *filnam)
 	klseek(fil,32,SEEK_SET);
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-	vbit = (int *)malloc(i); if (!vbit) { free(ylen); kclose(fil); return(-1); }
+	vbit = (int *)std::malloc(i); if (!vbit) { std::free(ylen); kclose(fil); return(-1); }
 	std::memset(vbit,0,i);
 
 	for(vcolhashsizm1=4096;vcolhashsizm1<numvoxs;vcolhashsizm1<<=1) ;
 	vcolhashsizm1--;
-	vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { free(ylen); kclose(fil); return(-1); }
+	vcolhashead = (int *)std::malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { std::free(ylen); kclose(fil); return(-1); }
 	std::memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
 	for(x=0;x<xsiz;x++)
@@ -1977,7 +1977,7 @@ static int loadkv6 (const char *filnam)
 				z1 = z0+1;
 			}
 		}
-	free(ylen); kclose(fil); return(0);
+	std::free(ylen); kclose(fil); return(0);
 }
 
 #if 0
@@ -1999,16 +1999,16 @@ static int loadvxl (const char *filnam)
 	zpiv = ((float)zsiz)*.5;
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-	vbit = (int *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
+	vbit = (int *)std::malloc(i); if (!vbit) { kclose(fil); return(-1); }
 	std::memset(vbit,-1,i);
 
 	vcolhashsizm1 = 1048576-1;
-	vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
+	vcolhashead = (int *)std::malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
 	std::memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
 		//Allocate huge buffer and load rest of file into it...
 	i = kfilelength(fil)-ktell(fil);
-	vbuf = (unsigned char *)malloc(i); if (!vbuf) { kclose(fil); return(-1); }
+	vbuf = (unsigned char *)std::malloc(i); if (!vbuf) { kclose(fil); return(-1); }
 	kread(fil,vbuf,i);
 	kclose(fil);
 
@@ -2026,17 +2026,17 @@ static int loadvxl (const char *filnam)
 			}
 			v += ((((int)v[2])-((int)v[1])+2)<<2);
 		}
-	free(vbuf); return(0);
+	std::free(vbuf); return(0);
 }
 #endif
 
 void voxfree (voxmodel *m)
 {
 	if (!m) return;
-	if (m->mytex) free(m->mytex);
-	if (m->quad) free(m->quad);
-	if (m->texid) free(m->texid);
-	free(m);
+	if (m->mytex) std::free(m->mytex);
+	if (m->quad) std::free(m->quad);
+	if (m->texid) std::free(m->texid);
+	std::free(m);
 }
 
 voxmodel* voxload (const char *filnam)
@@ -2080,7 +2080,7 @@ voxmodel* voxload (const char *filnam)
 		vm->xpiv = xpiv; vm->ypiv = ypiv; vm->zpiv = zpiv;
 		vm->is8bit = is8bit;
 
-		vm->texid = (unsigned int *)calloc(MAXPALOOKUPS,sizeof(unsigned int));
+		vm->texid = (unsigned int *)std::calloc(MAXPALOOKUPS,sizeof(unsigned int));
 
 		if (!vm->texid) {
 			voxfree(vm);

@@ -153,7 +153,7 @@ int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, un
 
 	if (!hr) {
 		// no replacement yet defined
-		hrn = (hicreplctyp *)calloc(1,sizeof(hicreplctyp));
+		hrn = (hicreplctyp *)std::calloc(1,sizeof(hicreplctyp));
 		if (!hrn) return -1;
 		hrn->palnum = palnum;
 	}
@@ -184,7 +184,7 @@ int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, un
 		hicreplc[picnum] = hrn;
 	}
 
-	//printf("Replacement [%d,%d]: %s\n", picnum, palnum, hicreplc[i]->filename);
+	//std::printf("Replacement [%d,%d]: %s\n", picnum, palnum, hicreplc[i]->filename);
 
 	return 0;
 }
@@ -220,7 +220,7 @@ int hicsetskybox(int picnum, int palnum, const char* const faces[6])
 
 	if (!hr) {
 		// no replacement yet defined
-		hrn = (hicreplctyp *)calloc(1,sizeof(hicreplctyp));
+		hrn = (hicreplctyp *)std::calloc(1,sizeof(hicreplctyp));
 		if (!hrn) return -1;
 
 		hrn->palnum = palnum;
@@ -229,7 +229,7 @@ int hicsetskybox(int picnum, int palnum, const char* const faces[6])
 		hrn = hr;
 
 	if (!hrn->skybox) {
-		hrn->skybox = (struct hicskybox_t *)calloc(1,sizeof(struct hicskybox_t));
+		hrn->skybox = (struct hicskybox_t *)std::calloc(1,sizeof(struct hicskybox_t));
 		if (!hrn->skybox) {
 			if (hr == nullptr)
 				std::free(hrn);	// not yet a link in the chain

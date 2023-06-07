@@ -1950,7 +1950,7 @@ done:
                   for (uint packed_c = 0; packed_c < limit; packed_c++)
                   {
                      const int v = etc1_decode_value(diff, inten, selector, packed_c);
-                     const uint err = abs(v - static_cast<int>(color));  //JonoF
+                     const uint err = std::abs(v - static_cast<int>(color));  //JonoF
                      if (err < best_error)
                      {
                         best_error = err;

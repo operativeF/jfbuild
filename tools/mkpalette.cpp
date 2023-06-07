@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	struct rgb rgbidx;
 	unsigned char rgbout[3];
 	int idx, step, rampnum;
-	FILE* fh;
+	std::FILE* fh;
 	char *outfile = "palette.dat";
 	
 	std::memset(palette,0,sizeof(palette));
@@ -67,19 +67,19 @@ int main(int argc, char **argv)
 		}
 	}
 	
-	fh = fopen(outfile,"wb");
+	fh = std::fopen(outfile,"wb");
 	if (!fh) return 1;
 	
 	for (idx=0; idx<256; idx++) {
 		convertHSVtoRGB(&palette[idx], &rgbidx);
-		//printf("Index %d: r=%g g=%g b=%g\n",idx,rgbidx.r,rgbidx.g,rgbidx.b);
+		//std::printf("Index %d: r=%g g=%g b=%g\n",idx,rgbidx.r,rgbidx.g,rgbidx.b);
 		rgbout[0] = (unsigned char)min2(255,max2(0,(int)(rgbidx.r * 255.0))) >> 2;
 		rgbout[1] = (unsigned char)min2(255,max2(0,(int)(rgbidx.g * 255.0))) >> 2;
 		rgbout[2] = (unsigned char)min2(255,max2(0,(int)(rgbidx.b * 255.0))) >> 2;
 		fwrite(rgbout,3,1,fh);
 	}
 	
-	fclose(fh);
+	std::fclose(fh);
 	
 	return 0;
 }
@@ -146,10 +146,10 @@ void convertHSVtoRGB(struct hsv *hsv, struct rgb *rgb)
 
 int showusage()
 {
-	puts("mkpalette <palettescript.txt> [outputfile]");
-	puts("If outputfile is not given, palette.dat is assumed");
+	std::puts("mkpalette <palettescript.txt> [outputfile]");
+	std::puts("If outputfile is not given, palette.dat is assumed");
 	
-	puts("\nPalette script format:\n"
+	std::puts("\nPalette script format:\n"
 	"  A line beginning with # is a comment, otherwise each line contains none\n"
 	"values separated by spaces defining the gradient:\n"
 	"\n"
@@ -180,12 +180,12 @@ int showusage()
 int readscript(char *fn)
 {
 	int start, len, skip, shue, ssat, sval, ehue, esat, eval;
-	FILE *fp;
+	std::FILE* fp;
 	char line[1024];
 
-	fp = fopen(fn,"rt");
+	fp = std::fopen(fn,"rt");
 	if (!fp) {
-		puts("Error opening palette script");
+		std::puts("Error opening palette script");
 		return 1;
 	}
 	
@@ -201,39 +201,39 @@ int readscript(char *fn)
 			continue;
 		
 		if (start < 0 || start > 255) {
-			printf("start index of %d is out of range 0-255\n", start);
+			std::printf("start index of %d is out of range 0-255\n", start);
 			continue;
 		}
 		if (len < 1 || len > 255) {
-			printf("length %d is out of range 1-255\n", len);
+			std::printf("length %d is out of range 1-255\n", len);
 			continue;
 		}
 		if (skip != (skip&3)) {
-			printf("skip value of %d is out of range 0-3\n", skip);
+			std::printf("skip value of %d is out of range 0-3\n", skip);
 			continue;
 		}
 		if (shue < 0 || shue > 360) {
-			printf("start hue %d is out of range 0-360\n", shue);
+			std::printf("start hue %d is out of range 0-360\n", shue);
 			continue;
 		}
 		if (ssat < 0 || ssat > 100) {
-			printf("start saturation %d is out of range 0-100\n", ssat);
+			std::printf("start saturation %d is out of range 0-100\n", ssat);
 			continue;
 		}
 		if (sval < 0 || sval > 100) {
-			printf("start value %d is out of range 0-100\n", sval);
+			std::printf("start value %d is out of range 0-100\n", sval);
 			continue;
 		}
 		if (ehue < 0 || ehue > 360) {
-			printf("end hue %d is out of range 0-360\n", shue);
+			std::printf("end hue %d is out of range 0-360\n", shue);
 			continue;
 		}
 		if (esat < 0 || esat > 100) {
-			printf("end saturation %d is out of range 0-100\n", ssat);
+			std::printf("end saturation %d is out of range 0-100\n", ssat);
 			continue;
 		}
 		if (eval < 0 || eval > 100) {
-			printf("end value %d is out of range 0-100\n", sval);
+			std::printf("end value %d is out of range 0-100\n", sval);
 			continue;
 		}
 
@@ -249,6 +249,6 @@ int readscript(char *fn)
 		nramps++;
 	}
 	
-	fclose(fp);
+	std::fclose(fp);
 	return 0;
 }

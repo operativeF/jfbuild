@@ -156,7 +156,7 @@ int main(int argc, char **argv)
 
 	if (argc>1) {
 		if (argv[1][0] == '-') {
-			if (argv[1][1] == 't') { transonly = 1; puts("Updating translucency table ONLY"); }
+			if (argv[1][1] == 't') { transonly = 1; std::puts("Updating translucency table ONLY"); }
 			argc--;
 			argv++;
 		}
@@ -164,17 +164,17 @@ int main(int argc, char **argv)
 
 	if ((argc != 3) && (argc != 6))
 	{
-		printf("TRANSPAL [-t] [numshades][trans#(0-inv,256-opa)][r][g][b]     by Kenneth Silverman\n");
-		printf("   Ex #1: transpal 32 170 30 59 11      (I use these values in my BUILD demo)\n");
-		printf("                          └──┴──┴─── The RGB scales are optional\n");
-		printf("   Ex #2: transpal 64 160\n\n");
-		printf("Once tables are generated, the optional -t switch determines what to save:\n");
-		printf("   Exclude -t to update both the shade table and transluscent table\n");
-		printf("   Include -t to update the transluscent table ONLY\n");
-		exit(0);
+		std::printf("TRANSPAL [-t] [numshades][trans#(0-inv,256-opa)][r][g][b]     by Kenneth Silverman\n");
+		std::printf("   Ex #1: transpal 32 170 30 59 11      (I use these values in my BUILD demo)\n");
+		std::printf("                          └──┴──┴─── The RGB scales are optional\n");
+		std::printf("   Ex #2: transpal 64 160\n\n");
+		std::printf("Once tables are generated, the optional -t switch determines what to save:\n");
+		std::printf("   Exclude -t to update both the shade table and transluscent table\n");
+		std::printf("   Include -t to update the transluscent table ONLY\n");
+		std::exit(0);
 	}
 
-	strcpy(palettefilename,"palette.dat");
+	std::strcpy(palettefilename,"palette.dat");
 	numpalookups = atoi(argv[1]);
 	transratio = atoi(argv[2]);
 
@@ -192,18 +192,18 @@ int main(int argc, char **argv)
 	}
 
 	if ((numpalookups < 1) || (numpalookups > 256))
-		{ printf("Invalid number of shades\n"); exit(1); }
+		{ std::printf("Invalid number of shades\n"); std::exit(1); }
 	if ((transratio < 0) || (transratio > 256))
-		{ printf("Invalid transluscent ratio\n"); exit(1); }
+		{ std::printf("Invalid transluscent ratio\n"); std::exit(1); }
 
 	if ((fil = Bopen(palettefilename,BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
 	{
-		printf("%s not found",palettefilename);
+		std::printf("%s not found",palettefilename);
 		return(1);
 	}
 	if (Bread(fil,palette,768) != 768)
 	{
-		printf("Error: invalid palette\n");
+		std::printf("Error: invalid palette\n");
 		return(1);
 	}
 
@@ -214,7 +214,7 @@ int main(int argc, char **argv)
 	Bclose(fil);
 	if (transonly && r != 2 + (orignumpalookups<<8))
 	{
-		printf("Warning: invalid palookups found, shade table will be updated\n");
+		std::printf("Warning: invalid palookups found, shade table will be updated\n");
 		transonly = 0;
 	}
 
@@ -251,26 +251,26 @@ int main(int argc, char **argv)
 		}
 
     if ((fil = Bopen(palettefilename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
-        { printf("Couldn't save file %s",palettefilename); return(0); }
+        { std::printf("Couldn't save file %s",palettefilename); return(0); }
     r = Bwrite(fil,palette,768);
     if (transonly) {
         s = B_LITTLE16(orignumpalookups);
         r += Bwrite(fil,&s,2);
         r += Bwrite(fil,origpalookup,orignumpalookups<<8);
         i = orignumpalookups;
-        printf("Transluscent table updated\n");
+        std::printf("Transluscent table updated\n");
     } else {
         s = B_LITTLE16(numpalookups);
         r += Bwrite(fil,&s,2);
         r += Bwrite(fil,palookup,numpalookups<<8);
         i = numpalookups;
-        printf("Shade table AND transluscent table updated\n");
+        std::printf("Shade table AND transluscent table updated\n");
     }
     r += Bwrite(fil,transluc,65536);
     Bclose(fil);
     if (r != 768 + 2 + (i<<8) + 65536)
     {
-    	printf("Write error\n");
+    	std::printf("Write error\n");
     	return(1);
     }
 

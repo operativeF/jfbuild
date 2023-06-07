@@ -70,12 +70,12 @@ int ExtInit()
 	int i, rv = 0;
 
 	/*printf("------------------------------------------------------------------------------\n");
-	printf("   BUILD.EXE copyright(c) 1996 by Ken Silverman.  You are granted the\n");
-	printf("   right to use this software for your personal use only.  This is a\n");
-	printf("   special version to be used with \"Happy Fun KenBuild\" and may not work\n");
-	printf("   properly with other Build engine games.  Please refer to license.doc\n");
-	printf("   for distribution rights\n");
-	printf("------------------------------------------------------------------------------\n");
+	std::printf("   BUILD.EXE copyright(c) 1996 by Ken Silverman.  You are granted the\n");
+	std::printf("   right to use this software for your personal use only.  This is a\n");
+	std::printf("   special version to be used with \"Happy Fun KenBuild\" and may not work\n");
+	std::printf("   properly with other Build engine games.  Please refer to license.doc\n");
+	std::printf("   for distribution rights\n");
+	std::printf("------------------------------------------------------------------------------\n");
 	getch();
 	*/
 
@@ -96,14 +96,14 @@ int ExtInit()
         // the OSX app bundle, or on Windows the directory where the EXE was launched
         if (appdir) {
             addsearchpath(appdir);
-            free(appdir);
+            std::free(appdir);
         }
 
         // the global support files directory
         if (supportdir) {
             Bsnprintf(dirpath, sizeof(dirpath), "%s/KenBuild", supportdir);
             addsearchpath(dirpath);
-            free(supportdir);
+            std::free(supportdir);
         }
     }
 
@@ -139,7 +139,7 @@ int ExtInit()
             if (asperr == 0 && chdir(dirpath) < 0) {
                 buildprintf("warning: could not change directory to %s\n", dirpath);
             }
-            free(supportdir);
+            std::free(supportdir);
         }
     }
 

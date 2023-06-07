@@ -60,15 +60,15 @@ typedef struct REGPACK REGS;
 void dumpfont(const struct spec *spec)
 {
 	REGS r;
-	FILE *fp;
+	std::FILE* fp;
 	int bytes;
 	char *data;
 
-	printf("Getting %s... ", spec->descr);
+	std::printf("Getting %s... ", spec->descr);
 
-	fp = fopen(spec->filename, "w+b");
+	fp = std::fopen(spec->filename, "w+b");
 	if (fp == nullptr) {
-		puts("Error");
+		std::puts("Error");
 		return;
 	}
 
@@ -85,7 +85,7 @@ void dumpfont(const struct spec *spec)
 		intr(0x10, &r);
 
 		if (memcmp(MK_FP(REG(r, es), REG(r, bp)), data, spec->bytes[0]) == 0) {
-			printf("Likely a dupe of %s... ", specs[spec->checkdupeidx].descr);
+			std::printf("Likely a dupe of %s... ", specs[spec->checkdupeidx].descr);
 		}
 	}
 
@@ -98,9 +98,9 @@ void dumpfont(const struct spec *spec)
 		fwrite(data, 1, spec->bytes[1], fp);
 	}
 
-	fclose(fp);
+	std::fclose(fp);
 
-	puts(spec->filename);
+	std::puts(spec->filename);
 }
 
 void main()
@@ -108,7 +108,7 @@ void main()
 	int font;
 	int numfonts = sizeof(specs) / sizeof(specs[0]);
 
-	puts("VGA ROM Font Grabber\n"
+	std::puts("VGA ROM Font Grabber\n"
 	     "Copyright (c) 1997,2022 Jonathon Fowler\n");
 
 	for (font = 0; font < numfonts; font++) {

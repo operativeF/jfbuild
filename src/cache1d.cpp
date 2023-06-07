@@ -173,7 +173,7 @@ void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
 		}
 	}
 
-	//printf("%ld %ld %ld\n",besto,newbytes,*newlockptr);
+	//std::printf("%ld %ld %ld\n",besto,newbytes,*newlockptr);
 
 	if (bestval == SIZE_MAX)
 		reportandexit("CACHE SPACE ALL LOCKED UP!");
@@ -288,7 +288,7 @@ static void reportandexit(const char* errormessage)
 	buildprintf("Cacnum = %d\n",cacnum);
 	buildprintf("Cache length sum = %zu\n",j);
 	buildprintf("ERROR: %s\n",errormessage);
-	exit(0);
+	std::exit(0);
 }
 
 #include <cerrno>
@@ -313,24 +313,24 @@ int addsearchpath(const char *p)
 	}
 	if (!(st.st_mode & BS_IFDIR)) return -1;
 
-	auto* srch = static_cast<searchpath_t*>(malloc(sizeof(searchpath_t)));
+	auto* srch = static_cast<searchpath_t*>(std::malloc(sizeof(searchpath_t)));
 
 	if (!srch) {
 		return -1;
 	}
 
 	srch->next    = searchpathhead;
-	srch->pathlen = strlen(p)+1;
-	srch->path    = (char*)malloc(srch->pathlen + 1);
+	srch->pathlen = std::strlen(p)+1;
+	srch->path    = (char*)std::malloc(srch->pathlen + 1);
 
 	if (!srch->path) {
-		free(srch);
+		std::free(srch);
 		return -1;
 	}
-	strcpy(srch->path, p);
+	std::strcpy(srch->path, p);
 	for (s=srch->path; *s; s++) ;
 	s--;
-	if (s<srch->path || toupperlookup[(int)(unsigned char)*s] != '/') strcat(srch->path, "/");
+	if (s<srch->path || toupperlookup[(int)(unsigned char)*s] != '/') std::strcat(srch->path, "/");
 
 	searchpathhead = srch;
 	if (srch->pathlen > maxsearchpathlen) maxsearchpathlen = srch->pathlen;
@@ -361,37 +361,37 @@ int findfrompath(const char *fn, char **where)
 	Bcorrectfilename(ffn,0);	// compress relative paths
 	
 	allocsiz = std::max(maxsearchpathlen, std::size_t{2});	// "./" (aka. curdir)
-	allocsiz += strlen(ffn);
+	allocsiz += std::strlen(ffn);
 	allocsiz += 1;	// a nul
 	
-	auto* pfn = static_cast<char *>(malloc(allocsiz));
+	auto* pfn = static_cast<char *>(std::malloc(allocsiz));
 
 	if (!pfn) {
-		free(ffn);
+		std::free(ffn);
 		return -1;
 	}
 
-	strcpy(pfn, "./");
-	strcat(pfn, ffn);
+	std::strcpy(pfn, "./");
+	std::strcat(pfn, ffn);
 	if (access(pfn, F_OK) >= 0) {
 		*where = pfn;
-		free(ffn);
+		std::free(ffn);
 		return 0;
 	}
 	
 	for (sp = searchpathhead; sp; sp = sp->next) {
-		strcpy(pfn, sp->path);
-		strcat(pfn, ffn);
+		std::strcpy(pfn, sp->path);
+		std::strcat(pfn, ffn);
 		//buildprintf("Trying %s\n", pfn);
 		if (access(pfn, F_OK) >= 0) {
 			*where = pfn;
-			free(ffn);
+			std::free(ffn);
 			return 0;
 		}
 	}
 
-	free(pfn);
-	free(ffn);
+	std::free(pfn);
+	std::free(ffn);
 
 	return -1;
 }
@@ -401,7 +401,7 @@ int openfrompath(const char *fn, int flags, int mode)
 	char *pfn{};
 	if (findfrompath(fn, &pfn) < 0) return -1;
 	const int h = Bopen(pfn, flags, mode);
-	free(pfn);
+	std::free(pfn);
 
 	return h;
 }
@@ -478,16 +478,16 @@ int initgroupfile(const char *filename)
 	
 	// check to see if the file passed is a ZIP and pass it on to kplib if it is
 	i = Bopen(zfn,BO_BINARY|BO_RDONLY,BS_IREAD);
-	if (i < 0) { free(zfn); return -1; }
+	if (i < 0) { std::free(zfn); return -1; }
 
 	if (Bread(i, &buf[0], 4) == 4)
 		if (buf[0] == 0x50 && buf[1] == 0x4B && buf[2] == 0x03 && buf[3] == 0x04) {
 			close(i);
 			i = kzaddstack(zfn);
-			free(zfn);
+			std::free(zfn);
 			return i;
 		}
-	free(zfn);
+	std::free(zfn);
 
 	if (numgroupfiles >= MAXGROUPFILES) return(-1);
 
@@ -512,16 +512,16 @@ int initgroupfile(const char *filename)
 		gnumfiles[numgroupfiles] = B_LITTLE32(*((int *)&buf[12]));
 
 		if ((gfilelist[numgroupfiles] = (char *)std::malloc(gnumfiles[numgroupfiles]<<4)) == nullptr)
-			{ buildprintf("Not enough memory for file grouping system\n"); exit(0); }
+			{ buildprintf("Not enough memory for file grouping system\n"); std::exit(0); }
 		if ((gfileoffs[numgroupfiles] = (unsigned *)std::malloc((gnumfiles[numgroupfiles]+1)<<2)) == nullptr)
-			{ buildprintf("Not enough memory for file grouping system\n"); exit(0); }
+			{ buildprintf("Not enough memory for file grouping system\n"); std::exit(0); }
 
 		if (Bread(groupfil[numgroupfiles],gfilelist[numgroupfiles],
 			 gnumfiles[numgroupfiles]<<4) != gnumfiles[numgroupfiles]<<4)
 		{
 			buildprintf("Group file %s is damaged\n", filename);
-			free(gfilelist[numgroupfiles]); gfilelist[numgroupfiles] = nullptr;
-			free(gfileoffs[numgroupfiles]); gfileoffs[numgroupfiles] = nullptr;
+			std::free(gfilelist[numgroupfiles]); gfilelist[numgroupfiles] = nullptr;
+			std::free(gfileoffs[numgroupfiles]); gfileoffs[numgroupfiles] = nullptr;
 			Bclose(groupfil[numgroupfiles]);
 			groupfil[numgroupfiles] = -1;
 			return(-1);
@@ -622,7 +622,7 @@ int kopen4load(const char *filename, char searchfirst)
 		if (newhandle < 0)
 		{
 			buildprintf("TOO MANY FILES OPEN IN FILE GROUPING SYSTEM!");
-			exit(0);
+			std::exit(0);
 		}
 	}
 
@@ -648,7 +648,7 @@ int kopen4load(const char *filename, char searchfirst)
 		filegrp[newhandle] = 254;
 		filehan[newhandle] = i;
 		filepos[newhandle] = 0;
-		strcpy(filenamsav[newhandle],filename);
+		std::strcpy(filenamsav[newhandle],filename);
 		return newhandle;
 	}
 #endif
@@ -888,9 +888,9 @@ static int klistaddentry(CACHE1D_FIND_REC **rec, const char* name, int type, int
 		return 0;
 	}
 
-	r = (CACHE1D_FIND_REC *)malloc(sizeof(CACHE1D_FIND_REC)+strlen(name)+1);
+	r = (CACHE1D_FIND_REC *)std::malloc(sizeof(CACHE1D_FIND_REC)+std::strlen(name)+1);
 	if (!r) return -1;
-	r->name = (char*)r + sizeof(CACHE1D_FIND_REC); strcpy(r->name, name);
+	r->name = (char*)r + sizeof(CACHE1D_FIND_REC); std::strcpy(r->name, name);
 	r->type = type;
 	r->source = source;
 	r->usera = r->userb = nullptr;
@@ -916,7 +916,7 @@ void klistfree(CACHE1D_FIND_REC *rec)
 	
 	while (rec) {
 		n = rec->next;
-		free(rec);
+		std::free(rec);
 		rec = n;
 	}
 }
@@ -959,10 +959,10 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 
 		do {
 			if (!pathsearchmode) {
-				strcpy(buf, path);
-				if (*path) strcat(buf, "/");
-				strcat(buf, d);
-			} else strcpy(buf, d);
+				std::strcpy(buf, path);
+				if (*path) std::strcat(buf, "/");
+				std::strcat(buf, d);
+			} else std::strcpy(buf, d);
 			dir = Bopendir(buf);
 			if (dir) {
 				while ((dirent = Breaddir(dir))) {
@@ -1003,9 +1003,9 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 		int i;
 		int j;
 		int ftype;
-		strcpy(buf,path);
-		if (*path) strcat(buf,"/");
-		strcat(buf,mask);
+		std::strcpy(buf,path);
+		if (*path) std::strcat(buf,"/");
+		std::strcat(buf,mask);
 		for (kzfindfilestart(buf); kzfindfile(buf); ) {
 			if (buf[0] != '|') continue;	// local files we don't need
 			
@@ -1086,20 +1086,20 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 		char* drives = Bgetsystemdrives();
 
 		if (drives) {
-			for (drp=drives; *drp; drp+=strlen(drp)+1) {
+			for (drp=drives; *drp; drp+=std::strlen(drp)+1) {
 				if (klistaddentry(&rec, drp, CACHE1D_FIND_DRIVE, CACHE1D_SOURCE_DRIVE) < 0) {
-					free(drives);
+					std::free(drives);
 					goto failure;
 				}
 			}
-			free(drives);
+			std::free(drives);
 		}
 	}
 	
-	free(path);
+	std::free(path);
 	return rec;
 failure:
-	free(path);
+	std::free(path);
 	klistfree(rec);
 	return nullptr;
 }

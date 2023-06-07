@@ -127,7 +127,7 @@ static void glbuild_enumerate_exts(void (*callback)(const char *)) {
 		}
 	}
 
-	if (workstr) free(workstr);
+	if (workstr) std::free(workstr);
 }
 
 #if defined(DEBUGGINGAIDS) && (defined(GL_KHR_debug) || defined(GL_ARB_debug_output))
@@ -518,7 +518,7 @@ static GLchar *glbuild_cook_source(const GLchar *source, const char *spec)
 		match = strstr(pos, marker);
 		if (!match) break;
 
-		end = strchr(match, ')');
+		end = std::strchr(match, ')');
 		if (!end) break;
 
 		if (!strncmp(match + markerlen, spec, end-match-markerlen)) {
@@ -559,7 +559,7 @@ GLuint glbuild_compile_shader(GLuint type, const GLchar *source)
 
 	glfunc.glShaderSource(shader, 1, (const GLchar**)&cookedsource, nullptr);
 	glfunc.glCompileShader(shader);
-	free(cookedsource);
+	std::free(cookedsource);
 
 	glfunc.glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE) {
@@ -568,10 +568,10 @@ GLuint glbuild_compile_shader(GLuint type, const GLchar *source)
 
 		glfunc.glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &loglen);
 
-		logtext = (GLchar *)malloc(loglen);
+		logtext = (GLchar *)std::malloc(loglen);
 		glfunc.glGetShaderInfoLog(shader, loglen, &loglen, logtext);
 		buildprintf("GL shader compile error: %s\n", logtext);
-		free(logtext);
+		std::free(logtext);
 
 		glfunc.glDeleteShader(shader);
 		return 0;
@@ -604,10 +604,10 @@ GLuint glbuild_link_program(int shadercount, const GLuint *shaders)
 
 		glfunc.glGetProgramiv(program, GL_INFO_LOG_LENGTH, &loglen);
 
-		logtext = (GLchar *)malloc(loglen);
+		logtext = (GLchar *)std::malloc(loglen);
 		glfunc.glGetProgramInfoLog(program, loglen, &loglen, logtext);
 		buildprintf("glbuild_link_program: link error: %s\n", logtext);
-		free(logtext);
+		std::free(logtext);
 
 		glfunc.glDeleteProgram(program);
 		return 0;
