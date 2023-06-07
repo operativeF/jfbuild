@@ -11060,7 +11060,7 @@ void getzrange(int x, int y, int z, short sectnum,
 //
 void setview(int x1, int y1, int x2, int y2)
 {
-	const float xfov = ((float)xdim / (float)ydim) / (4.f / 3.f);
+	const float xfov = ((float)xdim / (float)ydim) / (4.F / 3.F);
 
 	windowx1 = x1;
 	wx1 = (x1<<12);
@@ -11076,7 +11076,7 @@ void setview(int x1, int y1, int x2, int y2)
 	xdimenrecip = divscale32(1L, xdimen);
 	ydimen = (y2 - y1) + 1;
 
-	setaspect((int)(65536.f * xfov), pixelaspect);
+	setaspect((int)(65536.F * xfov), pixelaspect);
 
 	for(int i{0}; i < windowx1; i++) {
 		startumost[i] = 1;

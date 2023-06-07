@@ -89,7 +89,7 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 	if (*y < 200) *y = 200;
 	if (*x > MAXXDIM) *x = MAXXDIM;
 	if (*y > MAXYDIM) *y = MAXYDIM;
-	*x &= 0xfffffff8l;
+	*x &= 0xfffffff8L;
 
 	for (i=0; i<validmodecnt; i++) {
 		if (validmode[i].bpp != c) continue;
@@ -111,7 +111,7 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 		// check the colour depth is recognised at the very least
 		for (i=0;i<validmodecnt;i++)
 			if (validmode[i].bpp == c)
-				return 0x7fffffffl;
+				return 0x7fffffffL;
 		return -1;	// strange colour depth
 	}
 #endif

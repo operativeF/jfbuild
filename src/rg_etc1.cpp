@@ -1581,9 +1581,9 @@ namespace rg_etc1
                   const float avg_delta_r_f = static_cast<float>(delta_sum_r) / n;
                   const float avg_delta_g_f = static_cast<float>(delta_sum_g) / n;
                   const float avg_delta_b_f = static_cast<float>(delta_sum_b) / n;
-                  const int br1 = rg_etc1::clamp<int>(static_cast<uint>((m_avg_color[0] - avg_delta_r_f) * m_limit / 255.0f + .5f), 0, m_limit);
-                  const int bg1 = rg_etc1::clamp<int>(static_cast<uint>((m_avg_color[1] - avg_delta_g_f) * m_limit / 255.0f + .5f), 0, m_limit);
-                  const int bb1 = rg_etc1::clamp<int>(static_cast<uint>((m_avg_color[2] - avg_delta_b_f) * m_limit / 255.0f + .5f), 0, m_limit);
+                  const int br1 = rg_etc1::clamp<int>(static_cast<uint>((m_avg_color[0] - avg_delta_r_f) * m_limit / 255.0F + .5f), 0, m_limit);
+                  const int bg1 = rg_etc1::clamp<int>(static_cast<uint>((m_avg_color[1] - avg_delta_g_f) * m_limit / 255.0F + .5f), 0, m_limit);
+                  const int bb1 = rg_etc1::clamp<int>(static_cast<uint>((m_avg_color[2] - avg_delta_b_f) * m_limit / 255.0F + .5f), 0, m_limit);
                   
                   bool skip = false;
                   
@@ -1661,7 +1661,7 @@ namespace rg_etc1
       
       m_limit = m_pParams->m_use_color4 ? 15 : 31;
 
-      vec3F avg_color(0.0f);
+      vec3F avg_color(0.0F);
 
       for (uint i = 0; i < n; i++)
       {
@@ -1673,12 +1673,12 @@ namespace rg_etc1
          m_luma[i] = static_cast<uint16>(c.r + c.g + c.b);
          m_sorted_luma[0][i] = i;
       }
-      avg_color *= (1.0f / static_cast<float>(n));
+      avg_color *= (1.0F / static_cast<float>(n));
       m_avg_color = avg_color;
 
-      m_br = rg_etc1::clamp<int>(static_cast<uint>(m_avg_color[0] * m_limit / 255.0f + .5f), 0, m_limit);
-      m_bg = rg_etc1::clamp<int>(static_cast<uint>(m_avg_color[1] * m_limit / 255.0f + .5f), 0, m_limit);
-      m_bb = rg_etc1::clamp<int>(static_cast<uint>(m_avg_color[2] * m_limit / 255.0f + .5f), 0, m_limit);
+      m_br = rg_etc1::clamp<int>(static_cast<uint>(m_avg_color[0] * m_limit / 255.0F + .5f), 0, m_limit);
+      m_bg = rg_etc1::clamp<int>(static_cast<uint>(m_avg_color[1] * m_limit / 255.0F + .5f), 0, m_limit);
+      m_bb = rg_etc1::clamp<int>(static_cast<uint>(m_avg_color[2] * m_limit / 255.0F + .5f), 0, m_limit);
 
       if (m_pParams->m_quality <= cMediumQuality)
       {

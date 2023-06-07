@@ -533,7 +533,7 @@ static void updateanimation (md2model *m, spritetype *tspr)
 
 	m->cframe = (i>>16)+anim->startframe;
 	m->nframe = m->cframe+1; if (m->nframe > anim->endframe) m->nframe = anim->startframe;
-	m->interpol = ((float)(i&65535))/65536.f;
+	m->interpol = ((float)(i&65535))/65536.F;
 }
 
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
@@ -791,7 +791,7 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 		//Mirrors
 	if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
 
-	mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
+	mat[3] = mat[7] = mat[11] = 0.F; mat[15] = 1.F;
 
 // ------ Unnecessarily clean (lol) code to generate translation/rotation matrix for MD2 ends ------
 
@@ -845,10 +845,10 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 	draw.colour.g = pc[1];
 	draw.colour.b = pc[2];
 	draw.colour.a = pc[3];
-	draw.fogcolour.r = (float)palookupfog[gfogpalnum].r / 63.f;
-	draw.fogcolour.g = (float)palookupfog[gfogpalnum].g / 63.f;
-	draw.fogcolour.b = (float)palookupfog[gfogpalnum].b / 63.f;
-	draw.fogcolour.a = 1.f;
+	draw.fogcolour.r = (float)palookupfog[gfogpalnum].r / 63.F;
+	draw.fogcolour.g = (float)palookupfog[gfogpalnum].g / 63.F;
+	draw.fogcolour.b = (float)palookupfog[gfogpalnum].b / 63.F;
+	draw.fogcolour.a = 1.F;
 	draw.fogdensity = gfogdensity;
 
 	if (method & 1) {
@@ -1141,7 +1141,7 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 	//Mirrors
 	if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
 
-	mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
+	mat[3] = mat[7] = mat[11] = 0.F; mat[15] = 1.F;
 
 //------------
 	//bit 10 is an ugly hack in game.c\animatesprites telling MD2SPRITE
@@ -1173,10 +1173,10 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 	draw.colour.g = pc[1];
 	draw.colour.b = pc[2];
 	draw.colour.a = pc[3];
-	draw.fogcolour.r = (float)palookupfog[gfogpalnum].r / 63.f;
-	draw.fogcolour.g = (float)palookupfog[gfogpalnum].g / 63.f;
-	draw.fogcolour.b = (float)palookupfog[gfogpalnum].b / 63.f;
-	draw.fogcolour.a = 1.f;
+	draw.fogcolour.r = (float)palookupfog[gfogpalnum].r / 63.F;
+	draw.fogcolour.g = (float)palookupfog[gfogpalnum].g / 63.F;
+	draw.fogcolour.b = (float)palookupfog[gfogpalnum].b / 63.F;
+	draw.fogcolour.a = 1.F;
 	draw.fogdensity = gfogdensity;
 	draw.indexbuffer = 0;
 	draw.elementbuffer = 0;
@@ -2347,8 +2347,8 @@ static int voxloadbufs(voxmodel *m)
 	GLfloat uhack[2], vhack[2];
 #endif
 
-	const GLfloat ru = 1.f/((GLfloat)m->mytexx);
-	const GLfloat rv = 1.f/((GLfloat)m->mytexy);
+	const GLfloat ru = 1.F/((GLfloat)m->mytexx);
+	const GLfloat rv = 1.F/((GLfloat)m->mytexy);
 	std::array<GLfloat, 2> phack{ 0.0, 1.0F / 256.0F };
 
 #if (VOXBORDWIDTH == 0)

@@ -324,7 +324,7 @@ char *Bgetsystemdrives()
 	drv = ::GetLogicalDrives();
 	if (drv == 0) return nullptr;
 
-	for (mask=1; mask<0x8000000l; mask<<=1) {
+	for (mask=1; mask<0x8000000L; mask<<=1) {
 		if ((drv&mask) == 0) continue;
 		number++;
 	}
@@ -333,7 +333,7 @@ char *Bgetsystemdrives()
 	if (!str) return nullptr;
 
 	number = 0;
-	for (mask=1; mask<0x8000000l; mask<<=1, number++) {
+	for (mask=1; mask<0x8000000L; mask<<=1, number++) {
 		if ((drv&mask) == 0) continue;
 		*(p++) = 'A' + number;
 		*(p++) = ':';

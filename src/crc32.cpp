@@ -92,7 +92,7 @@ void crc32init(unsigned int *crcvar)
 	if (!crcvar)
     return;
 
-	*crcvar = 0xffffffffl;
+	*crcvar = 0xffffffffL;
 }
 
 void crc32block(unsigned int *crcvar, unsigned char *blk, unsigned int len)
@@ -100,7 +100,7 @@ void crc32block(unsigned int *crcvar, unsigned char *blk, unsigned int len)
 	unsigned int crc = *crcvar;
   
 	while (len--) {
-    crc = crc32table[(crc ^ *(blk++)) & 0xffl] ^ (crc >> 8);
+    crc = crc32table[(crc ^ *(blk++)) & 0xffL] ^ (crc >> 8);
   }
 
 	*crcvar = crc;
@@ -108,7 +108,7 @@ void crc32block(unsigned int *crcvar, unsigned char *blk, unsigned int len)
 
 unsigned int crc32finish(unsigned int *crcvar)
 {
-	*crcvar = *crcvar ^ 0xffffffffl;
+	*crcvar = *crcvar ^ 0xffffffffL;
 	return *crcvar;
 }
 

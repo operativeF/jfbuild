@@ -156,7 +156,7 @@ int* zbufoff{nullptr};
 
 #if USE_OPENGL
 int gfogpalnum{0};
-float gfogdensity{0.f};
+float gfogdensity{0.F};
 
 int glredbluemode{0};
 static int lastglredbluemode{0};
@@ -225,10 +225,10 @@ static GLuint elementindexbuffer{0};
 static GLuint elementindexbuffersize{0};
 
 const GLfloat gidentitymat[4][4] = {
-	{1.f, 0.f, 0.f, 0.f},
-	{0.f, 1.f, 0.f, 0.f},
-	{0.f, 0.f, 1.f, 0.f},
-	{0.f, 0.f, 0.f, 1.f},
+	{1.F, 0.F, 0.F, 0.F},
+	{0.F, 1.F, 0.F, 0.F},
+	{0.F, 0.F, 1.F, 0.F},
+	{0.F, 0.F, 0.F, 1.F},
 };
 GLfloat gdrawroomsprojmat[4][4];      // Proj. matrix for drawrooms() calls.
 GLfloat grotatespriteprojmat[4][4];   // Proj. matrix for rotatesprite() calls.
@@ -781,7 +781,7 @@ void polymost_glinit()
 		glfunc.glEnable(GL_MULTISAMPLE);
 
 		if (glsampleshading > 0 && glinfo.sampleshading) {
-			glfunc.glMinSampleShadingARB(1.f);
+			glfunc.glMinSampleShadingARB(1.F);
 			glfunc.glEnable(GL_SAMPLE_SHADING_ARB);
 		}
 #endif
@@ -1000,26 +1000,26 @@ static void polymost_palfade()
 
 	draw.mode = 2;	// Solid colour.
 
-	draw.colour.r = palfadergb.r / 255.f;
-	draw.colour.g = palfadergb.g / 255.f;
-	draw.colour.b = palfadergb.b / 255.f;
-	draw.colour.a = palfadedelta / 255.f;
+	draw.colour.r = palfadergb.r / 255.F;
+	draw.colour.g = palfadergb.g / 255.F;
+	draw.colour.b = palfadergb.b / 255.F;
+	draw.colour.a = palfadedelta / 255.F;
 
-	vboitem[0].v.x = 0.f;
-	vboitem[0].v.y = 0.f;
-	vboitem[0].v.z = 0.f;
+	vboitem[0].v.x = 0.F;
+	vboitem[0].v.y = 0.F;
+	vboitem[0].v.z = 0.F;
 
 	vboitem[1].v.x = (float)xdim;
-	vboitem[1].v.y = 0.f;
-	vboitem[1].v.z = 0.f;
+	vboitem[1].v.y = 0.F;
+	vboitem[1].v.z = 0.F;
 
 	vboitem[2].v.x = (float)xdim;
 	vboitem[2].v.y = (float)ydim;
-	vboitem[2].v.z = 0.f;
+	vboitem[2].v.z = 0.F;
 
-	vboitem[3].v.x = 0.f;
+	vboitem[3].v.x = 0.F;
 	vboitem[3].v.y = (float)ydim;
-	vboitem[3].v.z = 0.f;
+	vboitem[3].v.z = 0.F;
 
 	draw.indexcount = 4;
 	draw.indexes = nullptr;
@@ -1253,7 +1253,7 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 
 		if (!(method & (METH_MASKED | METH_TRANS))) {
 			glfunc.glDisable(GL_BLEND);
-			draw.alphacut = 0.f;
+			draw.alphacut = 0.F;
 		}
 		else {
 			float alphac = 0.32;
@@ -1273,10 +1273,10 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 			draw.alphacut = alphac;
 		}
 
-		draw.fogcolour.r = static_cast<float>(palookupfog[gfogpalnum].r) / 63.f;
-		draw.fogcolour.g = static_cast<float>(palookupfog[gfogpalnum].g) / 63.f;
-		draw.fogcolour.b = static_cast<float>(palookupfog[gfogpalnum].b) / 63.f;
-		draw.fogcolour.a = 1.f;
+		draw.fogcolour.r = static_cast<float>(palookupfog[gfogpalnum].r) / 63.F;
+		draw.fogcolour.g = static_cast<float>(palookupfog[gfogpalnum].g) / 63.F;
+		draw.fogcolour.b = static_cast<float>(palookupfog[gfogpalnum].b) / 63.F;
+		draw.fogcolour.a = 1.F;
 
 		draw.fogdensity = gfogdensity;
 
@@ -2293,7 +2293,7 @@ static void polymost_drawalls (int bunch)
 
 #if USE_OPENGL
 	gfogpalnum = sec->floorpal;
-	gfogdensity = gvisibility*((float)((unsigned char)(sec->visibility+16)) / 255.f);
+	gfogdensity = gvisibility*((float)((unsigned char)(sec->visibility+16)) / 255.F);
 #endif
 
 		//DRAW WALLS SECTION!
@@ -2320,16 +2320,16 @@ static void polymost_drawalls (int bunch)
 			nx0 = (wal2->x-wal->x)*t0+wal->x;
 			ny0 = (wal2->y-wal->y)*t0+wal->y;
 		}
-		else { t0 = 0.f; nx0 = wal->x; ny0 = wal->y; }
+		else { t0 = 0.F; nx0 = wal->x; ny0 = wal->y; }
 		if (yp1 < SCISDIST)
 		{
 			t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0; yp1 = SCISDIST;
 			nx1 = (wal2->x-wal->x)*t1+wal->x;
 			ny1 = (wal2->y-wal->y)*t1+wal->y;
 		}
-		else { t1 = 1.f; nx1 = wal2->x; ny1 = wal2->y; }
+		else { t1 = 1.F; nx1 = wal2->x; ny1 = wal2->y; }
 
-		ryp0 = 1.f/yp0; ryp1 = 1.f/yp1;
+		ryp0 = 1.F/yp0; ryp1 = 1.F/yp1;
 
 			//Generate screen coordinates for front side of wall
 		x0 = ghalfx*xp0*ryp0 + ghalfx;
@@ -2461,7 +2461,7 @@ static void polymost_drawalls (int bunch)
 			const float tempfogdensity{ gfogdensity };
 			if (rendmode == 3)
 			{
-				gfogdensity = 0.f;
+				gfogdensity = 0.F;
 
 					//Use clamping for tiled sky textures
 				for(i=(1<<pskybits)-1;i>0;i--)
@@ -2571,16 +2571,16 @@ static void polymost_drawalls (int bunch)
 						_nx0 = (skywalx[(i+1)&3]-skywalx[i&3])*_t0+skywalx[i&3];
 						_ny0 = (skywaly[(i+1)&3]-skywaly[i&3])*_t0+skywaly[i&3];
 					}
-					else { _t0 = 0.f; _nx0 = skywalx[i&3]; _ny0 = skywaly[i&3]; }
+					else { _t0 = 0.F; _nx0 = skywalx[i&3]; _ny0 = skywaly[i&3]; }
 					if (_yp1 < SCISDIST)
 					{
 						_t1 = (SCISDIST-_oyp0)/(_yp1-_oyp0); _xp1 = (_xp1-_oxp0)*_t1+_oxp0; _yp1 = SCISDIST;
 						_nx1 = (skywalx[(i+1)&3]-skywalx[i&3])*_t1+skywalx[i&3];
 						_ny1 = (skywaly[(i+1)&3]-skywaly[i&3])*_t1+skywaly[i&3];
 					}
-					else { _t1 = 1.f; _nx1 = skywalx[(i+1)&3]; _ny1 = skywaly[(i+1)&3]; }
+					else { _t1 = 1.F; _nx1 = skywalx[(i+1)&3]; _ny1 = skywaly[(i+1)&3]; }
 
-					_ryp0 = 1.f/_yp0; _ryp1 = 1.f/_yp1;
+					_ryp0 = 1.F/_yp0; _ryp1 = 1.F/_yp1;
 
 						//Generate screen coordinates for front side of wall
 					_x0 = ghalfx*_xp0*_ryp0 + ghalfx;
@@ -2590,10 +2590,10 @@ static void polymost_drawalls (int bunch)
 
 					_ryp0 *= gyxscale; _ryp1 *= gyxscale;
 
-					_cy0 = -8192.f*_ryp0 + ghoriz;
-					_fy0 =  8192.f*_ryp0 + ghoriz;
-					_cy1 = -8192.f*_ryp1 + ghoriz;
-					_fy1 =  8192.f*_ryp1 + ghoriz;
+					_cy0 = -8192.F*_ryp0 + ghoriz;
+					_fy0 =  8192.F*_ryp0 + ghoriz;
+					_cy1 = -8192.F*_ryp1 + ghoriz;
+					_fy1 =  8192.F*_ryp1 + ghoriz;
 
 					_ox0 = _x0; _ox1 = _x1;
 
@@ -2625,10 +2625,10 @@ static void polymost_drawalls (int bunch)
 
 						//ceiling of skybox
 					ft[0] = 512/16; ft[1] = 512/-16;
-					ft[2] = ((float)cosglobalang)*(1.f/2147483648.f);
-					ft[3] = ((float)singlobalang)*(1.f/2147483648.f);
+					ft[2] = ((float)cosglobalang)*(1.F/2147483648.F);
+					ft[3] = ((float)singlobalang)*(1.F/2147483648.F);
 					gdx = 0;
-					gdy = gxyaspect*(1.f/4194304.f);
+					gdy = gxyaspect*(1.F/4194304.F);
 					gdo = -ghoriz*gdy;
 					gux = (double)ft[3]*((double)viewingrange)/-65536.0;
 					gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
@@ -2656,15 +2656,15 @@ static void polymost_drawalls (int bunch)
 
 						//wall of skybox
 					drawingskybox = i+1; //i+1th texture/index i of skybox
-					gdx = (_ryp0-_ryp1)*gxyaspect*(1.f/512.f) / (_ox0-_ox1);
+					gdx = (_ryp0-_ryp1)*gxyaspect*(1.F/512.F) / (_ox0-_ox1);
 					gdy = 0;
-					gdo = _ryp0*gxyaspect*(1.f/512.f) - gdx*_ox0;
-					gux = (_t0*_ryp0 - _t1*_ryp1)*gxyaspect*(64.f/512.f) / (_ox0-_ox1);
-					guo = _t0*_ryp0*gxyaspect*(64.f/512.f) - gux*_ox0;
+					gdo = _ryp0*gxyaspect*(1.F/512.F) - gdx*_ox0;
+					gux = (_t0*_ryp0 - _t1*_ryp1)*gxyaspect*(64.F/512.F) / (_ox0-_ox1);
+					guo = _t0*_ryp0*gxyaspect*(64.F/512.F) - gux*_ox0;
 					guy = 0;
 					_t0 = -8192.0*_ryp0 + ghoriz;
 					_t1 = -8192.0*_ryp1 + ghoriz;
-					t = ((gdx*_ox0 + gdo)*8.f) / ((_ox1-_ox0) * _ryp0 * 2048.f);
+					t = ((gdx*_ox0 + gdo)*8.F) / ((_ox1-_ox0) * _ryp0 * 2048.F);
 					gvx = (_t0-_t1)*t;
 					gvy = (_ox1-_ox0)*t;
 					gvo = -gvx*_ox0 - gvy*_t0;
@@ -2687,10 +2687,10 @@ static void polymost_drawalls (int bunch)
 					//Floor of skybox
 				drawingskybox = 5; //floor/6th texture/index 5 of skybox
 				ft[0] = 512/16; ft[1] = -512/-16;
-				ft[2] = ((float)cosglobalang)*(1.f/2147483648.f);
-				ft[3] = ((float)singlobalang)*(1.f/2147483648.f);
+				ft[2] = ((float)cosglobalang)*(1.F/2147483648.F);
+				ft[3] = ((float)singlobalang)*(1.F/2147483648.F);
 				gdx = 0;
-				gdy = gxyaspect*(-1.f/4194304.f);
+				gdy = gxyaspect*(-1.F/4194304.F);
 				gdo = -ghoriz*gdy;
 				gux = (double)ft[3]*((double)viewingrange)/-65536.0;
 				gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
@@ -2819,7 +2819,7 @@ static void polymost_drawalls (int bunch)
 			const float tempfogdensity{ gfogdensity };
 			if (rendmode == 3)
 			{
-				gfogdensity = 0.f;
+				gfogdensity = 0.F;
 
 					//Use clamping for tiled sky textures
 				for(i=(1<<pskybits)-1;i>0;i--)
@@ -2928,16 +2928,16 @@ static void polymost_drawalls (int bunch)
 						_nx0 = (skywalx[(i+1)&3]-skywalx[i&3])*_t0+skywalx[i&3];
 						_ny0 = (skywaly[(i+1)&3]-skywaly[i&3])*_t0+skywaly[i&3];
 					}
-					else { _t0 = 0.f; _nx0 = skywalx[i&3]; _ny0 = skywaly[i&3]; }
+					else { _t0 = 0.F; _nx0 = skywalx[i&3]; _ny0 = skywaly[i&3]; }
 					if (_yp1 < SCISDIST)
 					{
 						_t1 = (SCISDIST-_oyp0)/(_yp1-_oyp0); _xp1 = (_xp1-_oxp0)*_t1+_oxp0; _yp1 = SCISDIST;
 						_nx1 = (skywalx[(i+1)&3]-skywalx[i&3])*_t1+skywalx[i&3];
 						_ny1 = (skywaly[(i+1)&3]-skywaly[i&3])*_t1+skywaly[i&3];
 					}
-					else { _t1 = 1.f; _nx1 = skywalx[(i+1)&3]; _ny1 = skywaly[(i+1)&3]; }
+					else { _t1 = 1.F; _nx1 = skywalx[(i+1)&3]; _ny1 = skywaly[(i+1)&3]; }
 
-					_ryp0 = 1.f/_yp0; _ryp1 = 1.f/_yp1;
+					_ryp0 = 1.F/_yp0; _ryp1 = 1.F/_yp1;
 
 						//Generate screen coordinates for front side of wall
 					_x0 = ghalfx*_xp0*_ryp0 + ghalfx;
@@ -2947,10 +2947,10 @@ static void polymost_drawalls (int bunch)
 
 					_ryp0 *= gyxscale; _ryp1 *= gyxscale;
 
-					_cy0 = -8192.f*_ryp0 + ghoriz;
-					_fy0 =  8192.f*_ryp0 + ghoriz;
-					_cy1 = -8192.f*_ryp1 + ghoriz;
-					_fy1 =  8192.f*_ryp1 + ghoriz;
+					_cy0 = -8192.F*_ryp0 + ghoriz;
+					_fy0 =  8192.F*_ryp0 + ghoriz;
+					_cy1 = -8192.F*_ryp1 + ghoriz;
+					_fy1 =  8192.F*_ryp1 + ghoriz;
 
 					_ox0 = _x0; _ox1 = _x1;
 
@@ -2984,10 +2984,10 @@ static void polymost_drawalls (int bunch)
 
 					drawingskybox = 5; //ceiling/5th texture/index 4 of skybox
 					ft[0] = 512/16; ft[1] = -512/-16;
-					ft[2] = ((float)cosglobalang)*(1.f/2147483648.f);
-					ft[3] = ((float)singlobalang)*(1.f/2147483648.f);
+					ft[2] = ((float)cosglobalang)*(1.F/2147483648.F);
+					ft[3] = ((float)singlobalang)*(1.F/2147483648.F);
 					gdx = 0;
-					gdy = gxyaspect*-(1.f/4194304.f);
+					gdy = gxyaspect*-(1.F/4194304.F);
 					gdo = -ghoriz*gdy;
 					gux = (double)ft[3]*((double)viewingrange)/-65536.0;
 					gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
@@ -3012,15 +3012,15 @@ static void polymost_drawalls (int bunch)
 
 						//wall of skybox
 					drawingskybox = i+1; //i+1th texture/index i of skybox
-					gdx = (_ryp0-_ryp1)*gxyaspect*(1.f/512.f) / (_ox0-_ox1);
+					gdx = (_ryp0-_ryp1)*gxyaspect*(1.F/512.F) / (_ox0-_ox1);
 					gdy = 0;
-					gdo = _ryp0*gxyaspect*(1.f/512.f) - gdx*_ox0;
-					gux = (_t0*_ryp0 - _t1*_ryp1)*gxyaspect*(64.f/512.f) / (_ox0-_ox1);
-					guo = _t0*_ryp0*gxyaspect*(64.f/512.f) - gux*_ox0;
+					gdo = _ryp0*gxyaspect*(1.F/512.F) - gdx*_ox0;
+					gux = (_t0*_ryp0 - _t1*_ryp1)*gxyaspect*(64.F/512.F) / (_ox0-_ox1);
+					guo = _t0*_ryp0*gxyaspect*(64.F/512.F) - gux*_ox0;
 					guy = 0;
 					_t0 = -8192.0*_ryp0 + ghoriz;
 					_t1 = -8192.0*_ryp1 + ghoriz;
-					t = ((gdx*_ox0 + gdo)*8.f) / ((_ox1-_ox0) * _ryp0 * 2048.f);
+					t = ((gdx*_ox0 + gdo)*8.F) / ((_ox1-_ox0) * _ryp0 * 2048.F);
 					gvx = (_t0-_t1)*t;
 					gvy = (_ox1-_ox0)*t;
 					gvo = -gvx*_ox0 - gvy*_t0;
@@ -3043,10 +3043,10 @@ static void polymost_drawalls (int bunch)
 					//Floor of skybox
 				drawingskybox = 6; //floor/6th texture/index 5 of skybox
 				ft[0] = 512/16; ft[1] = 512/-16;
-				ft[2] = ((float)cosglobalang)*(1.f/2147483648.f);
-				ft[3] = ((float)singlobalang)*(1.f/2147483648.f);
+				ft[2] = ((float)cosglobalang)*(1.F/2147483648.F);
+				ft[3] = ((float)singlobalang)*(1.F/2147483648.F);
 				gdx = 0;
-				gdy = gxyaspect*(1.f/4194304.f);
+				gdy = gxyaspect*(1.F/4194304.F);
 				gdo = -ghoriz*gdy;
 				gux = (double)ft[3]*((double)viewingrange)/-65536.0;
 				gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
@@ -3091,8 +3091,8 @@ static void polymost_drawalls (int bunch)
 
 			//gux*x0 + guo = t0*wal->xrepeat*8*yp0
 			//gux*x1 + guo = t1*wal->xrepeat*8*yp1
-		gux = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)wal->xrepeat*8.f / (x0-x1);
-		guo = t0*ryp0*gxyaspect*(float)wal->xrepeat*8.f - gux*x0;
+		gux = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)wal->xrepeat*8.F / (x0-x1);
+		guo = t0*ryp0*gxyaspect*(float)wal->xrepeat*8.F - gux*x0;
 		guo += (float)wal->xpanning*gdo;
 		gux += (float)wal->xpanning*gdx;
 		guy = 0;
@@ -3125,7 +3125,7 @@ static void polymost_drawalls (int bunch)
 				if (!(wal->cstat&4)) i = sector[nextsectnum].ceilingz; else i = sec->ceilingz;
 				t0 = ((float)(i-globalposz))*ryp0 + ghoriz;
 				t1 = ((float)(i-globalposz))*ryp1 + ghoriz;
-				t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.f);
+				t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.F);
 				i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 				fy = (float)wal->ypanning * ((float)i) / 256.0;
 				gvx = (t0-t1)*t;
@@ -3161,7 +3161,7 @@ static void polymost_drawalls (int bunch)
 				if (!(nwal->cstat&4)) i = sector[nextsectnum].floorz; else i = sec->ceilingz;
 				t0 = ((float)(i-globalposz))*ryp0 + ghoriz;
 				t1 = ((float)(i-globalposz))*ryp1 + ghoriz;
-				t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.f);
+				t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.F);
 				i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 				fy = (float)nwal->ypanning * ((float)i) / 256.0;
 				gvx = (t0-t1)*t;
@@ -3193,7 +3193,7 @@ static void polymost_drawalls (int bunch)
 								  else { if (!(wal->cstat&4)) i = sec->ceilingz;     else i = sec->floorz; }
 			t0 = ((float)(i-globalposz))*ryp0 + ghoriz;
 			t1 = ((float)(i-globalposz))*ryp1 + ghoriz;
-			t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.f);
+			t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.F);
 			i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 			fy = (float)wal->ypanning * ((float)i) / 256.0;
 			gvx = (t0-t1)*t;
@@ -3697,16 +3697,16 @@ void polymost_drawmaskwall (int damaskwallcnt)
 		//Clip to close parallel-screen plane
 	oxp0 = xp0; oyp0 = yp0;
 	if (yp0 < SCISDIST) { t0 = (SCISDIST-yp0)/(yp1-yp0); xp0 = (xp1-xp0)*t0+xp0; yp0 = SCISDIST; }
-						  else t0 = 0.f;
+						  else t0 = 0.F;
 	if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0; yp1 = SCISDIST; }
-						else { t1 = 1.f; }
+						else { t1 = 1.F; }
 
 	getzsofslope(sectnum,(int)((wal2->x-wal->x)*t0+wal->x),(int)((wal2->y-wal->y)*t0+wal->y),&cz[0],&fz[0]);
 	getzsofslope(wal->nextsector,(int)((wal2->x-wal->x)*t0+wal->x),(int)((wal2->y-wal->y)*t0+wal->y),&cz[1],&fz[1]);
 	getzsofslope(sectnum,(int)((wal2->x-wal->x)*t1+wal->x),(int)((wal2->y-wal->y)*t1+wal->y),&cz[2],&fz[2]);
 	getzsofslope(wal->nextsector,(int)((wal2->x-wal->x)*t1+wal->x),(int)((wal2->y-wal->y)*t1+wal->y),&cz[3],&fz[3]);
 
-	ryp0 = 1.f/yp0; ryp1 = 1.f/yp1;
+	ryp0 = 1.F/yp0; ryp1 = 1.F/yp1;
 
 		//Generate screen coordinates for front side of wall
 	x0 = ghalfx*xp0*ryp0 + ghalfx;
@@ -3721,8 +3721,8 @@ void polymost_drawmaskwall (int damaskwallcnt)
 
 		//gux*x0 + guo = t0*wal->xrepeat*8*yp0
 		//gux*x1 + guo = t1*wal->xrepeat*8*yp1
-	gux = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)wal->xrepeat*8.f / (x0-x1);
-	guo = t0*ryp0*gxyaspect*(float)wal->xrepeat*8.f - gux*x0;
+	gux = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)wal->xrepeat*8.F / (x0-x1);
+	guo = t0*ryp0*gxyaspect*(float)wal->xrepeat*8.F - gux*x0;
 	guo += (float)wal->xpanning*gdo;
 	gux += (float)wal->xpanning*gdx;
 	guy = 0;
@@ -3731,7 +3731,7 @@ void polymost_drawmaskwall (int damaskwallcnt)
 	i -= globalposz;
 	t0 = ((float)i)*ryp0 + ghoriz;
 	t1 = ((float)i)*ryp1 + ghoriz;
-	t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.f);
+	t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.F);
 	i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 	fy = (float)wal->ypanning * ((float)i) / 256.0;
 	gvx = (t0-t1)*t;
@@ -3753,7 +3753,7 @@ void polymost_drawmaskwall (int damaskwallcnt)
 
 #if USE_OPENGL
 	gfogpalnum = sec->floorpal;
-	gfogdensity = gvisibility*((float)((unsigned char)(sec->visibility+16)) / 255.f);
+	gfogdensity = gvisibility*((float)((unsigned char)(sec->visibility+16)) / 255.F);
 #endif
 
 	for(i=0;i<2;i++)
@@ -3897,7 +3897,7 @@ void polymost_drawsprite (int snum)
 
 #if USE_OPENGL
 	gfogpalnum = sector[tspr->sectnum].floorpal;
-	gfogdensity = gvisibility*((float)((unsigned char)(sector[tspr->sectnum].visibility+16)) / 255.f);
+	gfogdensity = gvisibility*((float)((unsigned char)(sector[tspr->sectnum].visibility+16)) / 255.F);
 
 	while (rendmode == 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
 		if (usemodels && tile2model[tspr->picnum].modelid >= 0 && tile2model[tspr->picnum].framenum >= 0) {
@@ -3992,9 +3992,9 @@ void polymost_drawsprite (int snum)
 				//Clip to close parallel-screen plane
 			oxp0 = xp0; oyp0 = yp0;
 			if (yp0 < SCISDIST) { t0 = (SCISDIST-yp0)/(yp1-yp0); xp0 = (xp1-xp0)*t0+xp0; yp0 = SCISDIST; }
-								else { t0 = 0.f; }
+								else { t0 = 0.F; }
 			if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0; yp1 = SCISDIST; }
-								else { t1 = 1.f; }
+								else { t1 = 1.F; }
 
 			f = ((float)tspr->yrepeat) * (float)tilesizy[globalpicnum] * 4;
 
@@ -4032,7 +4032,7 @@ void polymost_drawsprite (int snum)
 
 				//gux*sx0 + guo = t0*tilesizx[globalpicnum]*yp0
 				//gux*sx1 + guo = t1*tilesizx[globalpicnum]*yp1
-			if (globalorientation&4) { t0 = 1.f-t0; t1 = 1.f-t1; }
+			if (globalorientation&4) { t0 = 1.F-t0; t1 = 1.F-t1; }
 			gux = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)tilesizx[globalpicnum] / (sx0-sx1);
 			guy = 0;
 			guo = t0*ryp0*gxyaspect*(float)tilesizx[globalpicnum] - gux*sx0;
@@ -4535,7 +4535,7 @@ static void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1
 		vboitem[i].t.t = px[i]*gvx + py[i]*gvy + gvo;
 		vboitem[i].v.x = px[i];
 		vboitem[i].v.y = py[i];
-		vboitem[i].v.z = 0.f;
+		vboitem[i].v.z = 0.F;
 	}
 	draw->indexcount = n;
 	draw->elementcount = n;
@@ -4611,7 +4611,7 @@ static void tessectrap (const float *px, const float *py, std::span<const int> p
 			vboitem[i].t.t = px[j]*gvx + py[j]*gvy + gvo;
 			vboitem[i].v.x = px[j];
 			vboitem[i].v.y = py[j];
-			vboitem[i].v.z = 0.f;
+			vboitem[i].v.z = 0.F;
 		}
 		draw->indexcount = npoints;
 		draw->elementcount = npoints;
@@ -4743,9 +4743,9 @@ void polymost_fillpolygon (int npoints)
 	}
 
 	draw.texture1 = nulltexture;
-	draw.alphacut = 0.f;
-	draw.fogcolour.r = draw.fogcolour.g = draw.fogcolour.b = draw.fogcolour.a = 0.f;
-	draw.fogdensity = 0.f;
+	draw.alphacut = 0.F;
+	draw.fogcolour.r = draw.fogcolour.g = draw.fogcolour.b = draw.fogcolour.a = 0.F;
+	draw.fogdensity = 0.F;
 
 	draw.colour.r = draw.colour.g = draw.colour.b =
 		((float)(numpalookups - std::min(std::max(globalshade, 0), static_cast<int>(numpalookups))))/((float)numpalookups);
@@ -4828,33 +4828,33 @@ int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 		}
 	}
 
-	draw.bgcolour.r = bgcolour.r / 255.f;
-	draw.bgcolour.g = bgcolour.g / 255.f;
-	draw.bgcolour.b = bgcolour.b / 255.f;
-	draw.bgcolour.a = 1.f;
+	draw.bgcolour.r = bgcolour.r / 255.F;
+	draw.bgcolour.g = bgcolour.g / 255.F;
+	draw.bgcolour.b = bgcolour.b / 255.F;
+	draw.bgcolour.a = 1.F;
 
 	vboitem[0].v.x = (GLfloat)tilex;
 	vboitem[0].v.y = (GLfloat)tiley;
-	vboitem[0].v.z = 0.f;
-	vboitem[0].t.s = 0.f;
-	vboitem[0].t.t = 0.f;
+	vboitem[0].v.z = 0.F;
+	vboitem[0].t.s = 0.F;
+	vboitem[0].t.t = 0.F;
 
 	vboitem[1].v.x = (GLfloat)tilex+scx;
 	vboitem[1].v.y = (GLfloat)tiley;
-	vboitem[1].v.z = 0.f;
+	vboitem[1].v.z = 0.F;
 	vboitem[1].t.s = xdimepad;
-	vboitem[1].t.t = 0.f;
+	vboitem[1].t.t = 0.F;
 
 	vboitem[2].v.x = (GLfloat)tilex+scx;
 	vboitem[2].v.y = (GLfloat)tiley+scy;
-	vboitem[2].v.z = 0.f;
+	vboitem[2].v.z = 0.F;
 	vboitem[2].t.s = xdimepad;
 	vboitem[2].t.t = ydimepad;
 
 	vboitem[3].v.x = (GLfloat)tilex;
 	vboitem[3].v.y = (GLfloat)tiley+scy;
-	vboitem[3].v.z = 0.f;
-	vboitem[3].t.s = 0.f;
+	vboitem[3].v.z = 0.F;
+	vboitem[3].t.s = 0.F;
 	vboitem[3].t.t = ydimepad;
 
 	draw.indexcount = 4;
@@ -4906,10 +4906,10 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, std::span
 		colour.b = britable[curbrightness][ colour.b ];
 	}
 
-	draw.colour.r = colour.r / 255.f;
-	draw.colour.g = colour.g / 255.f;
-	draw.colour.b = colour.b / 255.f;
-	draw.colour.a = 1.f;
+	draw.colour.r = colour.r / 255.F;
+	draw.colour.g = colour.g / 255.F;
+	draw.colour.b = colour.b / 255.F;
+	draw.colour.a = 1.F;
 
 	colour = curpalette[std::min(0, static_cast<int>(backcol))];
 
@@ -4919,23 +4919,23 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, std::span
 		colour.b = britable[curbrightness][ colour.b ];
 	}
 
-	draw.bgcolour.r = colour.r / 255.f;
-	draw.bgcolour.g = colour.g / 255.f;
-	draw.bgcolour.b = colour.b / 255.f;
+	draw.bgcolour.r = colour.r / 255.F;
+	draw.bgcolour.g = colour.g / 255.F;
+	draw.bgcolour.b = colour.b / 255.F;
 	if (backcol >= 0) {
-		draw.bgcolour.a = 1.f;
+		draw.bgcolour.a = 1.F;
 	} else {
-		draw.bgcolour.a = 0.f;
+		draw.bgcolour.a = 0.F;
 	}
 
 	fontsize = std::min(static_cast<int>(fontsize), 2); // FIXME: Don't use char for indexes.
-	tyoff = 64.f * (float)fontsize / 256.f;
+	tyoff = 64.F * (float)fontsize / 256.F;
 	cx = (float)textfonts[(unsigned)fontsize].charxsiz;
 	cy = (float)textfonts[(unsigned)fontsize].charysiz;
-	txc = cx/256.f;		// texture-space width/height of character
-	tyc = cy/256.f;
-	txg = 8.f/256.f;	// texture-space width/height of cell
-	tyg = (fontsize < 2 ? 8.f : 16.f) / 256.f;
+	txc = cx/256.F;		// texture-space width/height of character
+	tyc = cy/256.F;
+	txg = 8.F/256.F;	// texture-space width/height of cell
+	tyg = (fontsize < 2 ? 8.F : 16.F) / 256.F;
 
 	draw.indexes = vboindexes;
 	draw.elementvbo = vboitem;
@@ -4957,25 +4957,25 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, std::span
 
 			vboitem[vbocnt + 0].v.x = (GLfloat)xpos;
 			vboitem[vbocnt + 0].v.y = (GLfloat)ypos;
-			vboitem[vbocnt + 0].v.z = 0.f;
+			vboitem[vbocnt + 0].v.z = 0.F;
 			vboitem[vbocnt + 0].t.s = tx;
 			vboitem[vbocnt + 0].t.t = ty;
 
 			vboitem[vbocnt + 1].v.x = (GLfloat)xpos+cx;
 			vboitem[vbocnt + 1].v.y = (GLfloat)ypos;
-			vboitem[vbocnt + 1].v.z = 0.f;
+			vboitem[vbocnt + 1].v.z = 0.F;
 			vboitem[vbocnt + 1].t.s = tx+txc;
 			vboitem[vbocnt + 1].t.t = ty;
 
 			vboitem[vbocnt + 2].v.x = (GLfloat)xpos+cx;
 			vboitem[vbocnt + 2].v.y = (GLfloat)ypos+cy;
-			vboitem[vbocnt + 2].v.z = 0.f;
+			vboitem[vbocnt + 2].v.z = 0.F;
 			vboitem[vbocnt + 2].t.s = tx+txc;
 			vboitem[vbocnt + 2].t.t = ty+tyc;
 
 			vboitem[vbocnt + 3].v.x = (GLfloat)xpos;
 			vboitem[vbocnt + 3].v.y = (GLfloat)ypos+cy;
-			vboitem[vbocnt + 3].v.z = 0.f;
+			vboitem[vbocnt + 3].v.z = 0.F;
 			vboitem[vbocnt + 3].t.s = tx;
 			vboitem[vbocnt + 3].t.t = ty+tyc;
 
@@ -5019,18 +5019,18 @@ int polymost_drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 		colour.g = britable[curbrightness][ colour.g ];
 		colour.b = britable[curbrightness][ colour.b ];
 	}
-	draw.colour.r = colour.r / 255.f;
-	draw.colour.g = colour.g / 255.f;
-	draw.colour.b = colour.b / 255.f;
-	draw.colour.a = 1.f;
+	draw.colour.r = colour.r / 255.F;
+	draw.colour.g = colour.g / 255.F;
+	draw.colour.b = colour.b / 255.F;
+	draw.colour.a = 1.F;
 
-	vboitem[0].v.x = (GLfloat)(x1+2048)/4096.f;
-	vboitem[0].v.y = (GLfloat)(y1+2048)/4096.f;
-	vboitem[0].v.z = 0.f;
+	vboitem[0].v.x = (GLfloat)(x1+2048)/4096.F;
+	vboitem[0].v.y = (GLfloat)(y1+2048)/4096.F;
+	vboitem[0].v.z = 0.F;
 
-	vboitem[1].v.x = (GLfloat)(x2+2048)/4096.f;
-	vboitem[1].v.y = (GLfloat)(y2+2048)/4096.f;
-	vboitem[1].v.z = 0.f;
+	vboitem[1].v.x = (GLfloat)(x2+2048)/4096.F;
+	vboitem[1].v.y = (GLfloat)(y2+2048)/4096.F;
+	vboitem[1].v.z = 0.F;
 
 	draw.indexcount = 2;
 	draw.indexes = nullptr;
@@ -5064,14 +5064,14 @@ int polymost_plotpixel(int x, int y, unsigned char col)
 		colour.g = britable[curbrightness][ colour.g ];
 		colour.b = britable[curbrightness][ colour.b ];
 	}
-	draw.colour.r = colour.r / 255.f;
-	draw.colour.g = colour.g / 255.f;
-	draw.colour.b = colour.b / 255.f;
-	draw.colour.a = 1.f;
+	draw.colour.r = colour.r / 255.F;
+	draw.colour.g = colour.g / 255.F;
+	draw.colour.b = colour.b / 255.F;
+	draw.colour.a = 1.F;
 
 	vboitem[0].v.x = (GLfloat)x;
 	vboitem[0].v.y = (GLfloat)y;
-	vboitem[0].v.z = 0.f;
+	vboitem[0].v.z = 0.F;
 
 	draw.indexcount = 1;
 	draw.indexes = nullptr;

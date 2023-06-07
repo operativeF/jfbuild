@@ -1207,7 +1207,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 			if (polymosttexverbosity >= 2) {
 				buildprintf("PolymostTex: ptcompress_compress (%dx%d, %s) took %f sec\n",
 					   tex->sizx, tex->sizy, compressfourcc[compress],
-					   (float)(getticks() - starttime) / 1000.f);
+					   (float)(getticks() - starttime) / 1000.F);
 			}
 
 			tdef->mipmap[tdefmip].sizx = tex->sizx;
@@ -1232,7 +1232,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 		if (polymosttexverbosity >= 2) {
 			buildprintf("PolymostTex: ptcompress_compress (%dx%d, %s) took %f sec\n",
 				   tex->sizx, tex->sizy, compressfourcc[compress],
-				   (float)(getticks() - starttime) / 1000.f);
+				   (float)(getticks() - starttime) / 1000.F);
 		}
 
 		if (tdef) {
@@ -1273,7 +1273,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 			if (polymosttexverbosity >= 2) {
 				buildprintf("PolymostTex: ptcompress_compress (%dx%d, %s) took %f sec\n",
 					   tex->sizx, tex->sizy, compressfourcc[compress],
-					   (float)(getticks() - starttime) / 1000.f);
+					   (float)(getticks() - starttime) / 1000.F);
 			}
 
 			if (tdef) {

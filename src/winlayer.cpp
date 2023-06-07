@@ -2377,7 +2377,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		case WM_KEYDOWN:
 		case WM_KEYUP:
 			{
-				const int press = (lParam & 0x80000000l) == 0;
+				const int press = (lParam & 0x80000000L) == 0;
 				const int wscan = (lParam >> 16) & 0xff;
 				int scan = 0;
 

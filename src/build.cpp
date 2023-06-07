@@ -6214,7 +6214,7 @@ void fixrepeats(short i)
 void clearmidstatbar16()
 {
 	setstatusbarviewport();
-	clearbuf((unsigned char *)(frameplace + (bytesperline*(ytop16+25L))),(bytesperline*(ydim16-1-(25<<1))) >> 2, 0x08080808l);
+	clearbuf((unsigned char *)(frameplace + (bytesperline*(ytop16+25L))),(bytesperline*(ydim16-1-(25<<1))) >> 2, 0x08080808L);
 	drawline16(0,0,0,ydim16-1,7);
 	drawline16(xdim-1,0,xdim-1,ydim16-1,7);
 	restoreviewport();
@@ -6435,7 +6435,7 @@ int menuselect(int newpathmode)
 	printmessage16("Select .MAP file with arrows&enter.");
 
 	do {
-		clearbuf((unsigned char *)frameplace, (bytesperline*ydim16) >> 2, 0l);
+		clearbuf((unsigned char *)frameplace, (bytesperline*ydim16) >> 2, 0L);
 
 		if (pathsearchmode == PATHSEARCH_SYSTEM) {
 			strcpy(&buffer[0],"Local filesystem mode. Press F for game filesystem.");
@@ -6552,7 +6552,7 @@ int menuselect(int newpathmode)
 			getfilenames(&selectedboardfilename[0], "*.map");
 			ch = 0;
 
-			clearbuf((unsigned char *)frameplace, (bytesperline*ydim16) >> 2, 0l);
+			clearbuf((unsigned char *)frameplace, (bytesperline*ydim16) >> 2, 0L);
 			showframe();
 		}
 		if (ch == 13 && !findfileshigh) ch = 0;
@@ -7014,7 +7014,7 @@ void qsetmodeany(int daxdim, int daydim)
 		halfxdim16 = xres >> 1;
 		midydim16 = scale(200,yres,480);
 
-		clearbuf((void *)(frameplace + (ydim16*bytesperline)), (bytesperline*STATUS2DSIZ) >> 2, 0x08080808l);
+		clearbuf((void *)(frameplace + (ydim16*bytesperline)), (bytesperline*STATUS2DSIZ) >> 2, 0x08080808L);
 		clearbuf((void *)frameplace, (ydim16*bytesperline) >> 2, 0L);
 	}
 
@@ -7080,7 +7080,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
 
 		xp1 = mulscale14(posxe+editorgridextent,zoome);
 		xp2 = mulscale14(posxe-editorgridextent,zoome);
-		tempy = 0x80000000l;
+		tempy = 0x80000000L;
 		for(i=-editorgridextent;i<=editorgridextent;i+=(2048>>gride))
 		{
 			yp1 = (((posye-i)*zoome)>>14);
