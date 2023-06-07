@@ -10480,6 +10480,8 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 
 	do
 	{
+		bad = 0;
+		
 		clipsectorlist[0] = *sectnum;
 		short clipsectcnt{0};
 		clipsectnum = 1;
