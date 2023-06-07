@@ -5654,7 +5654,7 @@ static int loadpalette()
 	if ((fil = kopen4load("palette.dat",0)) < 0) goto badpalette;
 	flen = kfilelength(fil);
 
-	if (kread(fil,palette,768) != 768) {
+	if (kread(fil, &palette[0], 768) != 768) {
 		buildputs("loadpalette: truncated palette\n");
 		goto badpalette;
 	}
@@ -7147,7 +7147,7 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 	kclose(fil);
 
 #if USE_POLYMOST && USE_OPENGL
-	std::memset(spriteext, 0, sizeof(spriteext));
+	std::memset(&spriteext[0], 0, sizeof(spriteext));
 #endif
 	guniqhudid = 0;
 
@@ -8160,7 +8160,7 @@ int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *
 	kclose(fil);
 
 #if USE_POLYMOST && USE_OPENGL
-	std::memset(spriteext, 0, sizeof(spriteext));
+	std::memset(&spriteext[0], 0, sizeof(spriteext));
 #endif
 	guniqhudid = 0;
 
@@ -8204,7 +8204,7 @@ int loadmaphack(const char *filename)
 		return -1;
 	}
 
-	std::memset(spriteext, 0, sizeof(spriteext));
+	std::memset(&spriteext[0], 0, sizeof(spriteext));
 
 	while (1) {
 		const auto* tok = scriptfile_gettoken(script);

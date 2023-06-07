@@ -1432,7 +1432,7 @@ void getvalidmodes()
 	}
 #endif
 
-	qsort((void*)validmode, validmodecnt, sizeof(struct validmode_t), (int(*)(const void*,const void*))sortmodes);
+	qsort((void*) &validmode[0], validmodecnt, sizeof(struct validmode_t), (int(*)(const void*,const void*))sortmodes);
 
 	modeschecked=1;
 }

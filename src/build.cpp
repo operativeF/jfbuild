@@ -433,7 +433,8 @@ int app_main(int argc, char const * const argv[])
 		buildprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
 		exit(0);
 	}
-	setbrightness(brightness, palette, 0);
+
+	setbrightness(brightness, &palette[0], 0);
 
 	int dark = INT_MAX;
 	int light = 0;
@@ -647,7 +648,7 @@ void editinput()
 		keystatus[0x57] = 0;
 		brightness++;
 		if (brightness >= 16) brightness = 0;
-		setbrightness(brightness,palette,0);
+		setbrightness(brightness, &palette[0], 0);
 	}
 	if (keystatus[88] > 0)   //F12
 	{

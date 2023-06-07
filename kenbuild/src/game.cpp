@@ -5489,13 +5489,13 @@ int loadgame()
 	kdfread(&numwalls,2,1,fil);
 	kdfread(&wall[0],sizeof(walltype),numwalls,fil);
 		//Store all sprites (even holes) to preserve indeces
-	kdfread(sprite,sizeof(spritetype),MAXSPRITES,fil);
-	kdfread(headspritesect,2,MAXSECTORS+1,fil);
-	kdfread(prevspritesect,2,MAXSPRITES,fil);
-	kdfread(nextspritesect,2,MAXSPRITES,fil);
-	kdfread(headspritestat,2,MAXSTATUS+1,fil);
-	kdfread(prevspritestat,2,MAXSPRITES,fil);
-	kdfread(nextspritestat,2,MAXSPRITES,fil);
+	kdfread(&sprite[0],sizeof(spritetype),MAXSPRITES,fil);
+	kdfread(&headspritesect[0],2,MAXSECTORS+1,fil);
+	kdfread(&prevspritesect[0],2,MAXSPRITES,fil);
+	kdfread(&nextspritesect[0],2,MAXSPRITES,fil);
+	kdfread(&headspritestat[0],2,MAXSTATUS+1,fil);
+	kdfread(&prevspritestat[0],2,MAXSPRITES,fil);
+	kdfread(&nextspritestat[0],2,MAXSPRITES,fil);
 
 	kdfread(&fvel,4,1,fil);
 	kdfread(&svel,4,1,fil);
@@ -5600,7 +5600,7 @@ int loadgame()
 	kdfread(&parallaxvisibility,4,1,fil);
 	kdfread(&parallaxtype,1,1,fil);
 	kdfread(&parallaxyoffs,4,1,fil);
-	kdfread(pskyoff,2,MAXPSKYTILES,fil);
+	kdfread(&pskyoff[0],2,MAXPSKYTILES,fil);
 	kdfread(&pskybits,2,1,fil);
 
 	kdfread(&mirrorcnt,2,1,fil);
@@ -5667,13 +5667,13 @@ int savegame()
 	dfwrite(&numwalls,2,1,fil);
 	dfwrite(&wall[0],sizeof(walltype),numwalls,fil);
 		//Store all sprites (even holes) to preserve indeces
-	dfwrite(sprite,sizeof(spritetype),MAXSPRITES,fil);
-	dfwrite(headspritesect,2,MAXSECTORS+1,fil);
-	dfwrite(prevspritesect,2,MAXSPRITES,fil);
-	dfwrite(nextspritesect,2,MAXSPRITES,fil);
-	dfwrite(headspritestat,2,MAXSTATUS+1,fil);
-	dfwrite(prevspritestat,2,MAXSPRITES,fil);
-	dfwrite(nextspritestat,2,MAXSPRITES,fil);
+	dfwrite(&sprite[0],sizeof(spritetype),MAXSPRITES,fil);
+	dfwrite(&headspritesect[0],2,MAXSECTORS+1,fil);
+	dfwrite(&prevspritesect[0],2,MAXSPRITES,fil);
+	dfwrite(&nextspritesect[0],2,MAXSPRITES,fil);
+	dfwrite(&headspritestat[0],2,MAXSTATUS+1,fil);
+	dfwrite(&prevspritestat[0],2,MAXSPRITES,fil);
+	dfwrite(&nextspritestat[0],2,MAXSPRITES,fil);
 
 	dfwrite(&fvel,4,1,fil);
 	dfwrite(&svel,4,1,fil);
@@ -5778,7 +5778,7 @@ int savegame()
 	dfwrite(&parallaxvisibility,4,1,fil);
 	dfwrite(&parallaxtype,1,1,fil);
 	dfwrite(&parallaxyoffs,4,1,fil);
-	dfwrite(pskyoff,2,MAXPSKYTILES,fil);
+	dfwrite(&pskyoff[0],2,MAXPSKYTILES,fil);
 	dfwrite(&pskybits,2,1,fil);
 
 	dfwrite(&mirrorcnt,2,1,fil);

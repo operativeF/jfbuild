@@ -222,18 +222,18 @@ struct spriteexttype {
 
 EXTERN std::array<sectortype, MAXSECTORS> sector;
 EXTERN std::array<walltype, MAXWALLS> wall;
-EXTERN spritetype sprite[MAXSPRITES];
-EXTERN spriteexttype spriteext[MAXSPRITES+MAXUNIQHUDID];
+EXTERN std::array<spritetype, MAXSPRITES> sprite;
+EXTERN std::array<spriteexttype, MAXSPRITES + MAXUNIQHUDID> spriteext;
 EXTERN int guniqhudid;
 
 EXTERN int spritesortcnt;
-EXTERN spritetype tsprite[MAXSPRITESONSCREEN];
+EXTERN std::array<spritetype, MAXSPRITESONSCREEN> tsprite;
 
 //numpages==127 means no persistence. Permanent rotatesprites will be retained until flushed.
 //The initial frame contents will be invalid after each swap.
 EXTERN int xdim;
 EXTERN int ydim;
-EXTERN int ylookup[MAXYDIM + 1];
+EXTERN std::array<int, MAXYDIM + 1> ylookup;
 EXTERN int numpages;
 EXTERN int yxaspect;
 EXTERN int xyaspect;
@@ -247,14 +247,15 @@ inline constexpr auto MAXVALIDMODES{256};
 EXTERN int validmodecnt;
 
 struct validmode_t {
-	int xdim,ydim;
+	int xdim;
+	int ydim;
 	unsigned char bpp;
 	unsigned char fs;	// bit 0 = fullscreen flag
 	char filler[2];
 	int extra;	// internal use
 };
 
-EXTERN struct validmode_t validmode[MAXVALIDMODES];
+EXTERN std::array<struct validmode_t, MAXVALIDMODES> validmode;
 
 EXTERN short numsectors;
 EXTERN short numwalls;
@@ -272,9 +273,9 @@ EXTERN std::array<short, 2048> sintable;
 //         });
 //     return cc;
 // }();
-EXTERN unsigned char palette[768];
+EXTERN std::array<unsigned char, 768> palette;
 EXTERN short numpalookups;
-EXTERN unsigned char *palookup[MAXPALOOKUPS];
+EXTERN std::array<unsigned char*, MAXPALOOKUPS> palookup;
 EXTERN unsigned char parallaxtype;
 EXTERN unsigned char showinvisibility;
 EXTERN int parallaxyoffs;
@@ -286,24 +287,25 @@ EXTERN int windowx1;
 EXTERN int windowy1;
 EXTERN int windowx2;
 EXTERN int windowy2;
-EXTERN short startumost[MAXXDIM];
-EXTERN short startdmost[MAXXDIM];
+EXTERN std::array<short, MAXXDIM> startumost;
+EXTERN std::array<short, MAXXDIM> startdmost;
 
-EXTERN short pskyoff[MAXPSKYTILES], pskybits;
+EXTERN std::array<short, MAXPSKYTILES> pskyoff;
+EXTERN short pskybits;
 
-EXTERN short headspritesect[MAXSECTORS + 1];
-EXTERN short headspritestat[MAXSTATUS + 1];
-EXTERN short prevspritesect[MAXSPRITES];
-EXTERN short prevspritestat[MAXSPRITES];
-EXTERN short nextspritesect[MAXSPRITES];
-EXTERN short nextspritestat[MAXSPRITES];
+EXTERN std::array<short, MAXSECTORS + 1> headspritesect;
+EXTERN std::array<short, MAXSTATUS + 1> headspritestat;
+EXTERN std::array<short, MAXSPRITES> prevspritesect;
+EXTERN std::array<short, MAXSPRITES> prevspritestat;
+EXTERN std::array<short, MAXSPRITES> nextspritesect;
+EXTERN std::array<short, MAXSPRITES> nextspritestat;
 
-EXTERN short tilesizx[MAXTILES];
-EXTERN short tilesizy[MAXTILES];
-EXTERN unsigned char walock[MAXTILES];
+EXTERN std::array<short, MAXTILES> tilesizx;
+EXTERN std::array<short, MAXTILES> tilesizy;
+EXTERN std::array<unsigned char, MAXTILES> walock;
 EXTERN int numtiles;
-EXTERN int picanm[MAXTILES];
-EXTERN intptr_t waloff[MAXTILES];
+EXTERN std::array<int, MAXTILES> picanm;
+EXTERN std::array<intptr_t, MAXTILES> waloff;
 
 	//These variables are for auto-mapping with the draw2dscreen function.
 	//When you load a new board, these bits are all set to 0 - since
