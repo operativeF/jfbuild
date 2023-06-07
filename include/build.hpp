@@ -106,17 +106,28 @@ inline constexpr auto CLIPMASK1 = (((256L)<<16)+64L);
 	//40 bytes
 struct sectortype
 {
-	short wallptr, wallnum;
-	int ceilingz, floorz;
-	short ceilingstat, floorstat;
-	short ceilingpicnum, ceilingheinum;
+	short wallptr;
+	short wallnum;
+	int ceilingz;
+	int floorz;
+	short ceilingstat;
+	short floorstat;
+	short ceilingpicnum;
+	short ceilingheinum;
 	signed char ceilingshade;
-	unsigned char ceilingpal, ceilingxpanning, ceilingypanning;
-	short floorpicnum, floorheinum;
+	unsigned char ceilingpal;
+	unsigned char ceilingxpanning;
+	unsigned char ceilingypanning;
+	short floorpicnum;
+	short floorheinum;
 	signed char floorshade;
-	unsigned char floorpal, floorxpanning, floorypanning;
-	unsigned char visibility, filler;
-	short lotag, hitag;
+	unsigned char floorpal;
+	unsigned char floorxpanning;
+	unsigned char floorypanning;
+	unsigned char visibility;
+	unsigned char filler;
+	short lotag;
+	short hitag;
 	short extra{-1};
 };
 
@@ -136,12 +147,23 @@ struct sectortype
 	//32 bytes
 struct walltype
 {
-	int x, y;
-	short point2, nextwall, nextsector, cstat;
-	short picnum, overpicnum;
+	int x;
+	int y;
+	short point2;
+	short nextwall;
+	short nextsector;
+	short cstat;
+	short picnum;
+	short overpicnum;
 	signed char shade;
-	unsigned char pal, xrepeat, yrepeat, xpanning, ypanning;
-	short lotag, hitag, extra;
+	unsigned char pal;
+	unsigned char xrepeat;
+	unsigned char yrepeat;
+	unsigned char xpanning;
+	unsigned char ypanning;
+	short lotag;
+	short hitag;
+	short extra;
 };
 
 //cstat:
@@ -162,15 +184,29 @@ struct walltype
 	//44 bytes
 struct spritetype
 {
-	int x, y, z;
-	short cstat, picnum;
+	int x;
+	int y;
+	int z;
+	short cstat;
+	short picnum;
 	signed char shade;
-	unsigned char pal, clipdist, filler;
-	unsigned char xrepeat, yrepeat;
-	signed char xoffset, yoffset;
-	short sectnum, statnum;
-	short ang, owner, xvel, yvel, zvel;
-	short lotag, hitag, extra;
+	unsigned char pal;
+	unsigned char clipdist;
+	unsigned char filler;
+	unsigned char xrepeat;
+	unsigned char yrepeat;
+	signed char xoffset;
+	signed char yoffset;
+	short sectnum;
+	short statnum;
+	short ang;
+	short owner;
+	short xvel;
+	short yvel;
+	short zvel;
+	short lotag;
+	short hitag;
+	short extra;
 };
 
 	// 12 bytes

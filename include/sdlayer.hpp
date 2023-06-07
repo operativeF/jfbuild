@@ -8,7 +8,8 @@
 #include "baselayer.hpp"
 
 struct sdlappicon {
-	int width,height;
+	int width;
+	int height;
 	unsigned int *pixels;
 	unsigned char *mask;
 };
