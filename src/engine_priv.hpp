@@ -27,11 +27,11 @@ inline constexpr std::array<int, 32> pow2long = {
 	268435456L,536870912L,1073741824L,2147483647L
 };
 
-extern std::array<short, MAXWALLSB> thesector;
-extern std::array<short, MAXWALLSB> thewall;
-extern std::array<short, MAXWALLSB> bunchfirst;
-extern std::array<short, MAXWALLSB> bunchlast;
-extern std::array<short, MAXWALLSB> maskwall;
+inline std::array<short, MAXWALLSB> thesector{};
+inline std::array<short, MAXWALLSB> thewall{};
+inline std::array<short, MAXWALLSB> bunchfirst{};
+inline std::array<short, MAXWALLSB> bunchlast{};
+inline std::array<short, MAXWALLSB> maskwall{};
 extern short maskwallcnt;
 extern spritetype *tspriteptr[MAXSPRITESONSCREEN];
 extern int xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen, ydimenscale;
@@ -61,18 +61,18 @@ extern int curbrightness;
 extern int gammabrightness;
 extern float curgamma;
 extern unsigned char britable[16][256];
-extern std::array<unsigned char, MAXTILES> picsiz;
-extern std::array<int, MAXYDIM> lastx;
+inline std::array<unsigned char, MAXTILES> picsiz{};
+inline std::array<int, MAXYDIM> lastx{};
 extern unsigned char *transluc;
-extern std::array<short, 256> sectorborder;
+inline std::array<short, 256> sectorborder{};
 extern short sectorbordercnt;
 inline int qsetmode{0};
 extern int hitallsprites;
 
-extern std::array<int, MAXWALLSB> xb1;
-extern std::array<int, MAXWALLSB> rx1;
-extern std::array<int, MAXWALLSB> ry1;
-extern std::array<short, MAXWALLSB> p2;
+inline std::array<int, MAXWALLSB> xb1{};
+inline std::array<int, MAXWALLSB> rx1{};
+inline std::array<int, MAXWALLSB> ry1{};
+inline std::array<short, MAXWALLSB> p2{};
 extern short numscans;
 extern short numhits;
 extern short numbunches;

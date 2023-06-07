@@ -10,12 +10,12 @@ inline constexpr auto MAXMULTIPLAYERS{16};
 #define MMULTI_MODE_MS  0
 #define MMULTI_MODE_P2P 1
 
-extern int myconnectindex;
-extern int numplayers;
-extern int networkmode;
-extern int connecthead;
-extern std::array<int, MAXMULTIPLAYERS> connectpoint2;
-extern unsigned char syncstate;
+inline int myconnectindex{0};
+inline int numplayers{0};
+inline int networkmode{-1};
+inline int connecthead{0};
+inline std::array<int, MAXMULTIPLAYERS> connectpoint2{};
+inline unsigned char syncstate{0};
 
 void initsingleplayers();
 void initmultiplayers(int argc, char const * const argv[]);

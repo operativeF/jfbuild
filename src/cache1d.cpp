@@ -304,7 +304,6 @@ struct searchpath_t {
 
 static searchpath_t *searchpathhead = nullptr;
 static size_t maxsearchpathlen = 0;
-int pathsearchmode = 0;
 
 int addsearchpath(const char *p)
 {

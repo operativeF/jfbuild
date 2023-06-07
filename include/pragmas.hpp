@@ -5,7 +5,7 @@
 #ifndef __pragmas_h__
 #define __pragmas_h__
 
-extern int dmval;
+inline int dmval{0};
 
 #if defined(__GNUC__) && defined(__i386__) && USE_ASM
 

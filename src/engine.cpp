@@ -92,8 +92,7 @@ palette_t palookupfog[MAXPALOOKUPS];
 
 int artversion;
 void *pic{nullptr};
-std::array<unsigned char, MAXTILES> picsiz;
-std::array<unsigned char, MAXTILES> tilefilenum;
+static std::array<unsigned char, MAXTILES> tilefilenum;
 int lastageclock;
 std::array<int, MAXTILES> tilefileoffs;
 
@@ -449,23 +448,12 @@ static inline int getclipmask(int a, int b, int c, int d)
 
 #endif
 
-
-std::array<int, MAXWALLSB> xb1;
-
 static std::array<int, MAXWALLSB> yb1;
 static std::array<int, MAXWALLSB> xb2;
 static std::array<int, MAXWALLSB> yb2;
 
-std::array<int, MAXWALLSB> rx1;
-std::array<int, MAXWALLSB> ry1;
 static std::array<int, MAXWALLSB> rx2;
 static std::array<int, MAXWALLSB> ry2;
-std::array<short, MAXWALLSB> p2;
-std::array<short, MAXWALLSB> thesector;
-std::array<short, MAXWALLSB> thewall;
-
-std::array<short, MAXWALLSB> bunchfirst;
-std::array<short, MAXWALLSB> bunchlast;
 
 static std::array<short, MAXYSAVES> smost;
 static short smostcnt;
@@ -474,7 +462,6 @@ static std::array<unsigned char, MAXWALLSB> smostwalltype;
 static std::array<int, MAXWALLSB> smostwall;
 static int smostwallcnt{-1L};
 
-std::array<short, MAXWALLSB> maskwall;
 short maskwallcnt;
 static std::array<int, MAXSPRITESONSCREEN> spritesx;
 static std::array<int, MAXSPRITESONSCREEN + 1> spritesy;
@@ -563,7 +550,6 @@ intptr_t globalbufplc;
 int globalx1, globaly1, globalx2, globaly2, globalx3, globaly3, globalzx;
 int globalx, globaly, globalz;
 
-std::array<short, 256> sectorborder;
 short sectorbordercnt;
 int startposx;
 int startposy;
@@ -573,7 +559,6 @@ short startsectnum;
 short pointhighlight;
 short linehighlight;
 short highlightcnt;
-std::array<int, MAXYDIM> lastx;
 unsigned char *transluc{nullptr};
 
 constexpr auto FASTPALGRIDSIZ{8};

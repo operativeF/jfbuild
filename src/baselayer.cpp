@@ -20,27 +20,8 @@ struct glbuild_info glinfo;
 int glunavailable;
 #endif //USE_OPENGL
 
-int   _buildargc = 0;
-const char **_buildargv{nullptr};
-
-char quitevent{0};
-char appactive{1};
-
-int xres{-1};
-int yres{-1};
-int bpp{0};
-int fullscreen{0};
-int bytesperline;
-int imageSize;
-intptr_t frameplace{0};
-char modechange{1};
-char offscreenrendering{0};
-char videomodereset{0};
 void (*baselayer_videomodewillchange)() = nullptr;
 void (*baselayer_videomodedidchange)() = nullptr;
-
-int inputdevices{0};
-
 
 //
 // checkvideomode() -- makes sure the video mode passed is legal

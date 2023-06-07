@@ -16,7 +16,8 @@ enum {
 	KOPEN4LOAD_FIRSTGRP = 1,
 	KOPEN4LOAD_ANYGRP = 2,
 };
-extern int pathsearchmode;
+
+inline int pathsearchmode{0};
 
 int     addsearchpath(const char *p);
 int		findfrompath(const char *fn, char **where);

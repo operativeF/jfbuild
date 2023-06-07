@@ -8,11 +8,6 @@
 
 #include "mmulti.hpp"
 
-
-int myconnectindex, numplayers, networkmode;
-int connecthead, connectpoint2[MAXMULTIPLAYERS];
-unsigned char syncstate = 0;
-
 int isvalidipaddress (char *st)
 {
 	return 0;
@@ -30,8 +25,10 @@ int initmultiplayerscycle()
 
 void initmultiplayers (int argc, char const * const argv[])
 {
-	numplayers = 1; myconnectindex = 0;
-	connecthead = 0; connectpoint2[0] = -1;
+	numplayers = 1;
+	myconnectindex = 0;
+	connecthead = 0;
+	connectpoint2[0] = -1;
 }
 
 void setpackettimeout(int datimeoutcount, int daresendagaincount)
@@ -44,8 +41,10 @@ void uninitmultiplayers()
 
 void initsingleplayers()
 {
-	numplayers = 1; myconnectindex = 0;
-	connecthead = 0; connectpoint2[0] = -1;
+	numplayers = 1;
+	myconnectindex = 0;
+	connecthead = 0;
+	connectpoint2[0] = -1;
 }
 
 void sendlogon()

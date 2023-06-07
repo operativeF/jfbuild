@@ -7,10 +7,11 @@
 
 #include <array>
 
-extern int _buildargc;
-extern const char **_buildargv;
+inline int _buildargc{0};
+inline const char **_buildargv{nullptr};
 
-extern char quitevent, appactive;
+inline char quitevent{0};
+inline char appactive{1};
 
 enum {
     STARTWIN_CANCEL = 0,
@@ -28,19 +29,19 @@ extern int startwin_idle(void *);
 extern int startwin_run(struct startwin_settings *);
 
 // video
-extern int xres;
-extern int yres;
-extern int bpp;
-extern int fullscreen;
-extern int bytesperline;
-extern int imageSize;
-extern char offscreenrendering;
-extern intptr_t frameplace;
+inline int xres{-1};
+inline int yres{-1};
+inline int bpp{0};
+inline int fullscreen{0};
+inline int bytesperline{0};
+inline int imageSize{0};
+inline char offscreenrendering{0};
+inline intptr_t frameplace{0};
 
 extern void (*baselayer_videomodewillchange)();
 extern void (*baselayer_videomodedidchange)();
 
-extern int inputdevices;
+inline int inputdevices{0};
 
 // keys
 inline constexpr auto KEYFIFOSIZ{64};

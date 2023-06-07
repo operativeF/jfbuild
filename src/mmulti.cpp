@@ -87,12 +87,6 @@ static unsigned char simlagfif[MAXPLAYERS][SIMLAG+1][MAXPAKSIZ+2];
 #pragma message("\n\nWARNING! INTENTIONAL PACKET LOSS SIMULATION IS ENABLED!\nREMEMBER TO CHANGE SIMMIS&SIMLAG to 0 before RELEASE!\n\n")
 #endif
 
-int myconnectindex;
-int numplayers;
-int networkmode{-1};
-int connecthead;
-std::array<int, MAXPLAYERS> connectpoint2;
-
 static int tims;
 static std::array<int, MAXPLAYERS> lastsendtims;
 static std::array<int, MAXPLAYERS> lastrecvtims;
@@ -576,7 +570,6 @@ static const char *presentaddress(struct sockaddr const *a) {
 }
 
 //---------------------------------- Obsolete variables&functions ----------------------------------
-unsigned char syncstate = 0;
 void setpackettimeout (int datimeoutcount, int daresendagaincount) { (void)datimeoutcount; (void)daresendagaincount; }
 void genericmultifunction (int other, const unsigned char *bufptr, int messleng, int command) { (void)other; (void)bufptr; (void)messleng; (void)command; }
 int getoutputcirclesize () { return(0); }
