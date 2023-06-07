@@ -249,7 +249,7 @@ void agecache()
 	
 	for(int cnt = (cacnum >> 4); cnt >= 0; cnt--)
 	{
-		unsigned char ch = (*cac[agecount].lock);
+		const unsigned char ch = (*cac[agecount].lock);
 		if (((ch-2)&255) < 198)
 			(*cac[agecount].lock) = ch - 1;
 

@@ -6583,8 +6583,8 @@ int fillsector(short sectnum, unsigned char fillcolor)
 	short zz;
 	short fillcnt;
 
-	int lborder{ 0 };
-	int rborder{ xdim };
+	const int lborder{ 0 };
+	const int rborder{ xdim };
 	constexpr int uborder{ 0 };
 	const int dborder{ ydim16 };
 
@@ -7834,8 +7834,8 @@ void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny)
 	}
 
 	walltype* wal = &wall[dawall];
-	int dx = wall[wal->point2].x-wal->x;
-	int dy = wall[wal->point2].y-wal->y;
+	const int dx = wall[wal->point2].x-wal->x;
+	const int dy = wall[wal->point2].y-wal->y;
 	int i = dx*(x-wal->x) + dy*(y-wal->y);
 
 	if (i <= 0) {

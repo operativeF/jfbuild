@@ -889,12 +889,12 @@ namespace rg_etc1
             const uint index0 = p[0];
             const uint index1 = p[1];
 
-            uint c0 = (RG_ETC1_GET_KEY_FROM_INDEX(index0) >> pass_shift) & 0xFF;
-            uint c1 = (RG_ETC1_GET_KEY_FROM_INDEX(index1) >> pass_shift) & 0xFF;
+            const uint c0 = (RG_ETC1_GET_KEY_FROM_INDEX(index0) >> pass_shift) & 0xFF;
+            const uint c1 = (RG_ETC1_GET_KEY_FROM_INDEX(index1) >> pass_shift) & 0xFF;
 
             if (c0 == c1)
             {
-               uint dst_offset0 = offsets[c0];
+               const uint dst_offset0 = offsets[c0];
 
                offsets[c0] = dst_offset0 + 2;
 
@@ -903,8 +903,8 @@ namespace rg_etc1
             }
             else
             {
-               uint dst_offset0 = offsets[c0]++;
-               uint dst_offset1 = offsets[c1]++;
+               const uint dst_offset0 = offsets[c0]++;
+               const uint dst_offset1 = offsets[c1]++;
 
                pNew[dst_offset0] = static_cast<T>(index0);
                pNew[dst_offset1] = static_cast<T>(index1);
@@ -914,9 +914,9 @@ namespace rg_etc1
          if (num_indices & 1)
          {
             const uint index{ *p };
-            uint c = (RG_ETC1_GET_KEY_FROM_INDEX(index) >> pass_shift) & 0xFF;
+            const uint c = (RG_ETC1_GET_KEY_FROM_INDEX(index) >> pass_shift) & 0xFF;
 
-            uint dst_offset = offsets[c];
+            const uint dst_offset = offsets[c];
             offsets[c] = dst_offset + 1;
 
             pNew[dst_offset] = static_cast<T>(index);
@@ -972,7 +972,7 @@ namespace rg_etc1
 
    void etc1_block::unpack_color5(uint& r, uint& g, uint& b, uint16 packed_color5, bool scaled)
    {
-      color_quad_u8 c(unpack_color5(packed_color5, scaled, 0));
+      const color_quad_u8 c(unpack_color5(packed_color5, scaled, 0));
       r = c.r;
       g = c.g;
       b = c.b;
@@ -1079,7 +1079,7 @@ namespace rg_etc1
    
    void etc1_block::unpack_color4(uint& r, uint& g, uint& b, uint16 packed_color4, bool scaled)
    {
-      color_quad_u8 c(unpack_color4(packed_color4, scaled, 0));
+      const color_quad_u8 c(unpack_color4(packed_color4, scaled, 0));
       r = c.r;
       g = c.g;
       b = c.b;
@@ -1984,7 +1984,7 @@ done:
       (void)pack_params;    //JonoF
       RG_ETC1_ASSERT(g_etc1_inverse_lookup[0][255]);
             
-      static uint s_next_comp[4] = { 1, 2, 0, 1 };
+      static const uint s_next_comp[4] = { 1, 2, 0, 1 };
             
       uint best_error = cUINT32_MAX;
       uint best_i = 0;
@@ -2078,7 +2078,7 @@ found_perfect_match:
       RG_ETC1_ASSERT(g_etc1_inverse_lookup[0][255]);
 
       (void)pack_params;    //JonoF
-      static uint s_next_comp[4] = { 1, 2, 0, 1 };
+      static const uint s_next_comp[4] = { 1, 2, 0, 1 };
 
       uint best_error = cUINT32_MAX;
       uint best_i = 0;

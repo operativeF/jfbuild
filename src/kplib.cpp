@@ -3319,7 +3319,7 @@ static void putbuf4zip (const unsigned char *buf, int uncomp0, int uncomp1)
 {
 		//              uncomp0 ... uncomp1
 		//  &gzbufptr[kzfs.pos] ... &gzbufptr[kzfs.endpos];
-	int i0 = std::max(uncomp0, kzfs.pos);
+	const int i0 = std::max(uncomp0, kzfs.pos);
 	const int i1 = std::min(uncomp1, kzfs.endpos);
 	if (i0 < i1) std::memcpy(&gzbufptr[i0],&buf[i0-uncomp0],i1-i0);
 }

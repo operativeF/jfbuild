@@ -2177,13 +2177,13 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 	a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
 
 	k0 = ((float)(tspr->x-globalposx))*f/1024.0;
-	float k1 = ((float)(tspr->y-globalposy))*f/1024.0;
+	const float k1 = ((float)(tspr->y-globalposy))*f/1024.0;
 	f = gcosang2*gshang;
 	g = gsinang2*gshang;
-	float k4 = static_cast<float>(sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0);
-	float k5 = static_cast<float>(sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] / 16384.0);
-	float k2 = k0*(1-k4)+k1*k5;
-	float k3 = k1*(1-k4)-k0*k5;
+	const float k4 = static_cast<float>(sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0);
+	const float k5 = static_cast<float>(sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] / 16384.0);
+	const float k2 = k0*(1-k4)+k1*k5;
+	const float k3 = k1*(1-k4)-k0*k5;
 	float k6 = f*gstang - gsinang*gctang;
 	float k7 = g*gstang + gcosang*gctang;
 

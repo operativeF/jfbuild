@@ -5168,7 +5168,7 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
 
 	if (datype == 0) return;
 
-	int mid = md_tilehasmodel(dapicnum);
+	const int mid = md_tilehasmodel(dapicnum);
 
 	if (mid < 0 || models[mid]->mdnum < 2) return;
 

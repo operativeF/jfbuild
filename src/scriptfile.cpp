@@ -108,7 +108,7 @@ static double parsedouble(char *ptr, char **end)
 
 	for (;; p++) {
 		if (*p >= '0' && *p <= '9') {
-			int dig = *p - '0';
+			const int dig = *p - '0';
 			if (beforedecimal)
 				num = num * 10.0 + dig;
 			else if (exposgn)
@@ -178,7 +178,7 @@ int scriptfile_getsymbol(scriptfile *sf, int *num)
 		return -1;
 
 	char* e{nullptr};
-	int v = (int) std::strtol(t, &e, 10);
+	const int v = (int) std::strtol(t, &e, 10);
 
 	if (*e) {
 		// looks like a string, so find it in the symbol table
@@ -238,7 +238,7 @@ int scriptfile_getlinum (scriptfile *sf, char *ptr)
 {
 	//for(i=0;i<sf->linenum;i++) if (sf->lineoffs[i] >= ind) return(i+1); //brute force algo
 
-	ptrdiff_t ind = ((intptr_t)ptr) - ((intptr_t)sf->textbuf);
+	const ptrdiff_t ind = ((intptr_t)ptr) - ((intptr_t)sf->textbuf);
 
 	int stp{1};
 	for(; stp + stp<sf->linenum; stp += stp); //stp = highest power of 2 less than sf->linenum
@@ -375,12 +375,12 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 
 scriptfile *scriptfile_fromfile(const char *fn)
 {
-	int fp = kopen4load(fn, 0);
+	const int fp = kopen4load(fn, 0);
 
 	if (fp < 0)
 		return nullptr;
 
-	unsigned int flen = kfilelength(fp);
+	const unsigned int flen = kfilelength(fp);
 	auto* tx = (char *) std::malloc(flen + 2);
 	
 	if (!tx) {

@@ -474,7 +474,7 @@ const char * PTM_GetLoadTextureFileErrorString(int err)
  */
 static PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int create)
 {
-	int i = pt_gethashhead(picnum);
+	const int i = pt_gethashhead(picnum);
 
 	const unsigned short flagmask = flags & (PTH_HIGHTILE | PTH_CLAMPED | PTH_SKYBOX);
 
@@ -783,7 +783,7 @@ static int pt_load_hightile(PTHead * pth)
 		return 0;
 	}
 
-	int effects = (pth->palnum != pth->repldef->palnum) ? hictinting[pth->palnum].f : 0;
+	const int effects = (pth->palnum != pth->repldef->palnum) ? hictinting[pth->palnum].f : 0;
 
 	pth->flags &= ~(PTH_NOCOMPRESS | PTH_HASALPHA);
 	if (pth->repldef->flags & HIC_NOCOMPRESS) {
@@ -909,7 +909,7 @@ static void ptm_fixtransparency(PTTexture * tex, int clamped)
 	int naxsiz2;
 	int daxsiz = tex->tsizx;
 	int daysiz = tex->tsizy;
-	int daxsiz2 = tex->sizx;
+	const int daxsiz2 = tex->sizx;
 	const int daysiz2 = tex->sizy;
 
 	int dox = daxsiz2 - 1;

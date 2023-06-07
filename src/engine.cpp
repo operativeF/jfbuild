@@ -5557,7 +5557,7 @@ static void calcbritable()
 {
 	for (int i{0}; i < 16; ++i) {
 		const double a = 8.0 / (static_cast<double>(i) + 8.0);
-		double b = 255.0 / std::pow(255.0, a);
+		const double b = 255.0 / std::pow(255.0, a);
 
 		for (int j{0}; j < 256; ++j) // JBF 20040207: full 8bit precision
 			britable[i][j] = static_cast<unsigned char>(std::pow(static_cast<double>(j), a) * b);
@@ -5802,7 +5802,7 @@ static int insertspritestat(short statnum)
 	if ((statnum >= MAXSTATUS) || (headspritestat[MAXSTATUS] == -1))
 		return -1;  //list full
 
-	short blanktouse = headspritestat[MAXSTATUS];
+	const short blanktouse = headspritestat[MAXSTATUS];
 
 	headspritestat[MAXSTATUS] = nextspritestat[blanktouse];
 	if (headspritestat[MAXSTATUS] >= 0)
@@ -7628,7 +7628,7 @@ static void convertv5sprv6(struct spritetypev5 const *from, struct spritetypev6 
 	to->cstat = from->cstat;
 	to->shade = from->shade;
 
-	short j = from->sectnum;
+	const short j = from->sectnum;
 	if ((sector[j].ceilingstat&1) > 0)
 		to->pal = sector[j].ceilingpal;
 	else
@@ -8856,12 +8856,12 @@ void loadtile(short tilenume)
 	if ((unsigned)tilenume >= (unsigned)MAXTILES)
 		return;
 
-	int dasiz = tilesizx[tilenume] * tilesizy[tilenume];
+	const int dasiz = tilesizx[tilenume] * tilesizy[tilenume];
 
 	if (dasiz <= 0)
 		return;
 
-	int i = tilefilenum[tilenume];
+	const int i = tilefilenum[tilenume];
 	
 	if (i != artfilnum)
 	{
@@ -8948,9 +8948,9 @@ void copytilepiece(int tilenume1, int sx1, int sy1, int xsiz, int ysiz,
 	int y2;
 
 	const int xsiz1 = tilesizx[tilenume1];
-	int ysiz1 = tilesizy[tilenume1];
+	const int ysiz1 = tilesizy[tilenume1];
 	const int xsiz2 = tilesizx[tilenume2];
-	int ysiz2 = tilesizy[tilenume2];
+	const int ysiz2 = tilesizy[tilenume2];
 	
 	if ((xsiz1 > 0) && (ysiz1 > 0) && (xsiz2 > 0) && (ysiz2 > 0))
 	{
@@ -9002,7 +9002,7 @@ int qloadkvx(int voxindex, const char* filename)
 	}
 
 	int lengcnt{ 0 };
-	int lengtot = kfilelength(fil);
+	const int lengtot = kfilelength(fil);
 
 	for (int i{ 0 }; i < MAXVOXMIPS; i++)
 	{
@@ -9958,11 +9958,11 @@ int neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsec
 	if ((tagsearch < 1) || (tagsearch > 3))
 		return 0;
 
-	int vx = mulscale14(sintable[(ange + 2560) & 2047], neartagrange);
+	const int vx = mulscale14(sintable[(ange + 2560) & 2047], neartagrange);
 	int xe = xs + vx;
-	int vy = mulscale14(sintable[(ange + 2048) & 2047], neartagrange);
+	const int vy = mulscale14(sintable[(ange + 2048) & 2047], neartagrange);
 	int ye = ys + vy;
-	int vz{0};
+	const int vz{0};
 	int ze{0};
 
 	clipsectorlist[0] = sectnum;
@@ -10756,7 +10756,7 @@ void updatesectorz(int x, int y, int z, short *sectnum)
 		
 		do
 		{
-			int i = wal->nextsector;
+			const int i = wal->nextsector;
 
 			if (i >= 0)
 			{
@@ -11622,7 +11622,7 @@ void squarerotatetile(short tilenume)
 	unsigned char* ptr1;
 	unsigned char* ptr2;
 
-	int xsiz = tilesizx[tilenume];
+	const int xsiz = tilesizx[tilenume];
 	const int ysiz = tilesizy[tilenume];
 
 		//supports square tiles only for rotation part
@@ -11659,9 +11659,9 @@ void preparemirror(int dax, int day, int daz, short daang, int dahoriz, short da
 	(void)dahoriz;
 	(void)dasector;
 
-	int x = wall[dawall].x;
+	const int x = wall[dawall].x;
 	const int dx = wall[wall[dawall].point2].x - x;
-	int y = wall[dawall].y;
+	const int y = wall[dawall].y;
 	const int dy = wall[wall[dawall].point2].y - y;
 	const int j = dx * dx + dy * dy;
 	
@@ -11708,7 +11708,7 @@ void completemirror()
 	}
 
 	intptr_t p = frameplace + ylookup[windowy1 + mirrorsy1] + windowx1 + mirrorsx1;
-	int i = windowx2 - windowx1 - mirrorsx2 - mirrorsx1;
+	const int i = windowx2 - windowx1 - mirrorsx2 - mirrorsx1;
 	mirrorsx2 -= mirrorsx1;
 
 	for(int dy = mirrorsy2 - mirrorsy1 - 1; dy >= 0; dy--)
