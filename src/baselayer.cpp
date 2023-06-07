@@ -42,26 +42,6 @@ void (*baselayer_videomodedidchange)() = nullptr;
 
 int inputdevices{0};
 
-// keys
-std::array<char, 256> keystatus;
-std::array<int, KEYFIFOSIZ> keyfifo;
-std::array<unsigned char, KEYFIFOSIZ> keyasciififo;
-int keyfifoplc;
-int keyfifoend;
-int keyasciififoplc;
-int keyasciififoend;
-
-// mouse
-int mousex{0};
-int mousey{0};
-int mouseb{0};
-
-// joystick
-std::array<int, 8> joyaxis;
-int joyb{0};
-char joynumaxes{0};
-char joynumbuttons{0};
-
 
 //
 // checkvideomode() -- makes sure the video mode passed is legal

@@ -1414,11 +1414,11 @@ spriteisdeletedskip:
                        in the future to save you the time of copying and
                        pasting code.  Here is a list of externs I moved:
 
-                EXTERN short neartagsector, neartagwall, neartagsprite;
-                EXTERN long *animateptr[MAXANIMATES], animategoal[MAXANIMATES];
-                EXTERN long animatevel[MAXANIMATES], animatecnt;
-                EXTERN short tilesizx[MAXTILES], tilesizy[MAXTILES];
-                EXTERN long numtiles, picanm[MAXTILES], waloff[MAXTILES];
+                inline short neartagsector, neartagwall, neartagsprite;
+                inline long *animateptr[MAXANIMATES], animategoal[MAXANIMATES];
+                inline long animatevel[MAXANIMATES], animatecnt;
+                inline short tilesizx[MAXTILES], tilesizy[MAXTILES];
+                inline long numtiles, picanm[MAXTILES], waloff[MAXTILES];
          - Added a global parallaxing sky type variable.  Now I have 3
                 different types of parallaxing skies.  Here they are:
 
@@ -2093,9 +2093,9 @@ spriteisdeletedskip:
 
                 NEW VARIABLES (see description in build.h):
 
-             EXTERN char show2dwall[MAXWALLS>>3];
-             EXTERN char show2dsprite[MAXSPRITES>>3];
-             EXTERN char automapping;
+             inline char show2dwall[MAXWALLS>>3];
+             inline char show2dsprite[MAXSPRITES>>3];
+             inline char automapping;
 
          - Added parallaxing floors!  Works like the parallaxing skies, but
               the other side.  In 3D EDIT MODE, press P on ceiling for
@@ -3083,7 +3083,7 @@ spriteisdeletedskip:
                    it MUST be in the cache.
 
                Added to BUILD.H:
-                  EXTERN char gotpic[MAXTILES>>3];
+                  inline char gotpic[MAXTILES>>3];
 
                Example code in GAME.C:
                   if ((gotpic[SLIME>>3]&(1<<(SLIME&7))) > 0)  //test bit
@@ -3278,7 +3278,7 @@ spriteisdeletedskip:
 
              #define MAXPALOOKUPS 256
                 and
-             EXTERN char *palookup[MAXPALOOKUPS];
+             inline char *palookup[MAXPALOOKUPS];
 
              The palookup array is an array of pointers that point to the
              first byte of each 8K palette lookup table.  All 256 pointers
@@ -3485,7 +3485,7 @@ spriteisdeletedskip:
                These lines were added to BUILD.H:
 
                   #define MAXPSKYTILES 256
-                  EXTERN short pskyoff[MAXPSKYTILES], pskybits;
+                  inline short pskyoff[MAXPSKYTILES], pskybits;
 
                pskyoff[MAXPSKYTILES] is an array of OFFSETS of each tile
                   from the picnum of the parallaxing sky.
@@ -4166,7 +4166,7 @@ spriteisdeletedskip:
               I added these variables to build.h:
 
               #define KEYFIFOSIZ 64
-              EXTERN volatile char keyfifo[KEYFIFOSIZ],
+              inline volatile char keyfifo[KEYFIFOSIZ],
                                    keyfifoplc, keyfifoend;
 
               Every time a key is pressed and released, I add 2 bytes to the
@@ -4275,7 +4275,7 @@ spriteisdeletedskip:
                I added show2dsector to BUILD.H which controls which works
                like the other show2d... bit arrays.  It tells which sectors
                to show.
-                  EXTERN char show2dsector[MAXSECTORS>>3];
+                  inline char show2dsector[MAXSECTORS>>3];
 
                I rewrote parts of drawoverheadmap to accommodate this new
                mode - so it would be nice if you updated to my new code.
@@ -4428,8 +4428,8 @@ spriteisdeletedskip:
                you haven't already looked at it.  Here are some important
                new variables I put in BUILD.H:
 
-                  EXTERN char vidoption;
-                  EXTERN long xdim, ydim, ylookup[MAXYDIM+1];
+                  inline char vidoption;
+                  inline long xdim, ydim, ylookup[MAXYDIM+1];
 
                Vidoption is simply the first parameter you pass to
                initengine.  Xdim and Ydim are the screen sizes you pass to
@@ -4972,7 +4972,7 @@ spriteisdeletedskip:
                I decided to make this a global variable rather than a
                parameter to save some people from rewriting code.
 
-               EXTERN char loadtilelockmode;
+               inline char loadtilelockmode;
 
           - Made my 2D EDIT MODE space bar code clear out new sectors and
                wall structures to 0. (except for the extras which are -1)

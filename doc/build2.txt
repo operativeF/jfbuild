@@ -1469,9 +1469,9 @@ hitscan (long xs, long ys, long zs, short sectnum, long vx, long vy, long vz,
              times since I have a flag that checks if it has already been
              called.
 
-               EXTERN long validmodecnt;
-               EXTERN short validmode[256];
-               EXTERN long validmodexdim[256], validmodeydim[256];
+               inline long validmodecnt;
+               inline short validmode[256];
+               inline long validmodexdim[256], validmodeydim[256];
 
                validmodecnt - number of available 256 color VESA modes.
                validmode[] - array of vesa mode numbers (640*480 is 0x101, etc.)

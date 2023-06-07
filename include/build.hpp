@@ -61,14 +61,6 @@ inline constexpr auto MAXUNIQHUDID{256}; //Extra slots so HUD models can store a
 inline constexpr auto CLIPMASK0 = (((1L)<<16)+1L);
 inline constexpr auto CLIPMASK1 = (((256L)<<16)+64L);
 
-	//Make all variables in BUILD.H defined in the ENGINE,
-	//and externed in GAME
-#ifdef ENGINE
-#  define EXTERN
-#else
-#  define EXTERN extern
-#endif
-
 #ifdef __GNUC__
 #  if __GNUC__ == 4 && __GNUC_MINOR__ >= 7
 #    define BPACK __attribute__ ((packed, gcc_struct))
@@ -220,31 +212,31 @@ struct spriteexttype {
 #define SPREXT_NOTMD 1
 #define SPREXT_NOMDANIM 2
 
-EXTERN std::array<sectortype, MAXSECTORS> sector;
-EXTERN std::array<walltype, MAXWALLS> wall;
-EXTERN std::array<spritetype, MAXSPRITES> sprite;
-EXTERN std::array<spriteexttype, MAXSPRITES + MAXUNIQHUDID> spriteext;
-EXTERN int guniqhudid;
+inline std::array<sectortype, MAXSECTORS> sector{};
+inline std::array<walltype, MAXWALLS> wall{};
+inline std::array<spritetype, MAXSPRITES> sprite{};
+inline std::array<spriteexttype, MAXSPRITES + MAXUNIQHUDID> spriteext{};
+inline int guniqhudid{0};
 
-EXTERN int spritesortcnt;
-EXTERN std::array<spritetype, MAXSPRITESONSCREEN> tsprite;
+inline int spritesortcnt{};
+inline std::array<spritetype, MAXSPRITESONSCREEN> tsprite{};
 
 //numpages==127 means no persistence. Permanent rotatesprites will be retained until flushed.
 //The initial frame contents will be invalid after each swap.
-EXTERN int xdim;
-EXTERN int ydim;
-EXTERN std::array<int, MAXYDIM + 1> ylookup;
-EXTERN int numpages;
-EXTERN int yxaspect;
-EXTERN int xyaspect;
-EXTERN int pixelaspect;
-EXTERN int widescreen;
-EXTERN int tallscreen;
-EXTERN int viewingrange;
+inline int xdim{0};
+inline int ydim{0};
+inline std::array<int, MAXYDIM + 1> ylookup{};
+inline int numpages{0};
+inline int yxaspect{0};
+inline int xyaspect{0};
+inline int pixelaspect{0};
+inline int widescreen{0};
+inline int tallscreen{0};
+inline int viewingrange{0};
 
 inline constexpr auto MAXVALIDMODES{256};
 
-EXTERN int validmodecnt;
+inline int validmodecnt{0};
 
 struct validmode_t {
 	int xdim;
@@ -255,14 +247,14 @@ struct validmode_t {
 	int extra;	// internal use
 };
 
-EXTERN std::array<struct validmode_t, MAXVALIDMODES> validmode;
+inline std::array<struct validmode_t, MAXVALIDMODES> validmode{};
 
-EXTERN short numsectors;
-EXTERN short numwalls;
-EXTERN /*volatile*/ int totalclock;
-EXTERN int numframes;
-EXTERN int randomseed;
-EXTERN std::array<short, 2048> sintable;
+inline short numsectors{0};
+inline short numwalls{0};
+inline /*volatile*/ int totalclock{0};
+inline int numframes{0};
+inline int randomseed{0};
+inline std::array<short, 2048> sintable{};
 // FIXME: Replace with constexpr after sintable is generated externally from 16384 * std::sin((double)n * pi / 1024).
 //static constexpr std::array<short, 2048> comptable = []() {
 // std::array<short, 2048> cc;
@@ -273,39 +265,39 @@ EXTERN std::array<short, 2048> sintable;
 //         });
 //     return cc;
 // }();
-EXTERN std::array<unsigned char, 768> palette;
-EXTERN short numpalookups;
-EXTERN std::array<unsigned char*, MAXPALOOKUPS> palookup;
-EXTERN unsigned char parallaxtype;
-EXTERN unsigned char showinvisibility;
-EXTERN int parallaxyoffs;
-EXTERN int parallaxyscale;
-EXTERN int visibility;
-EXTERN int parallaxvisibility;
+inline std::array<unsigned char, 768> palette{};
+inline short numpalookups{0};
+inline std::array<unsigned char*, MAXPALOOKUPS> palookup{};
+inline unsigned char parallaxtype{0};
+inline unsigned char showinvisibility{0};
+inline int parallaxyoffs{0};
+inline int parallaxyscale{0};
+inline int visibility{0};
+inline int parallaxvisibility{0};
 
-EXTERN int windowx1;
-EXTERN int windowy1;
-EXTERN int windowx2;
-EXTERN int windowy2;
-EXTERN std::array<short, MAXXDIM> startumost;
-EXTERN std::array<short, MAXXDIM> startdmost;
+inline int windowx1{0};
+inline int windowy1{0};
+inline int windowx2{0};
+inline int windowy2{0};
+inline std::array<short, MAXXDIM> startumost{};
+inline std::array<short, MAXXDIM> startdmost{};
 
-EXTERN std::array<short, MAXPSKYTILES> pskyoff;
-EXTERN short pskybits;
+inline std::array<short, MAXPSKYTILES> pskyoff{};
+inline short pskybits{0};
 
-EXTERN std::array<short, MAXSECTORS + 1> headspritesect;
-EXTERN std::array<short, MAXSTATUS + 1> headspritestat;
-EXTERN std::array<short, MAXSPRITES> prevspritesect;
-EXTERN std::array<short, MAXSPRITES> prevspritestat;
-EXTERN std::array<short, MAXSPRITES> nextspritesect;
-EXTERN std::array<short, MAXSPRITES> nextspritestat;
+inline std::array<short, MAXSECTORS + 1> headspritesect{};
+inline std::array<short, MAXSTATUS + 1> headspritestat{};
+inline std::array<short, MAXSPRITES> prevspritesect{};
+inline std::array<short, MAXSPRITES> prevspritestat{};
+inline std::array<short, MAXSPRITES> nextspritesect{};
+inline std::array<short, MAXSPRITES> nextspritestat{};
 
-EXTERN std::array<short, MAXTILES> tilesizx;
-EXTERN std::array<short, MAXTILES> tilesizy;
-EXTERN std::array<unsigned char, MAXTILES> walock;
-EXTERN int numtiles;
-EXTERN std::array<int, MAXTILES> picanm;
-EXTERN std::array<intptr_t, MAXTILES> waloff;
+inline std::array<short, MAXTILES> tilesizx{};
+inline std::array<short, MAXTILES> tilesizy{};
+inline std::array<unsigned char, MAXTILES> walock{};
+inline int numtiles{0};
+inline std::array<int, MAXTILES> picanm{};
+inline std::array<intptr_t, MAXTILES> waloff{};
 
 	//These variables are for auto-mapping with the draw2dscreen function.
 	//When you load a new board, these bits are all set to 0 - since
@@ -325,15 +317,15 @@ inline constexpr auto SHOWN_SECTORS = (MAXSECTORS + 7) >> 3;
 inline constexpr auto SHOWN_SPRITES = (MAXSPRITES + 7) >> 3;
 inline constexpr auto SHOWN_WALLS   = (MAXWALLS + 7) >> 3;
 inline constexpr auto SHOWN_TILES   = (MAXTILES + 7) >> 3;
-EXTERN std::array<unsigned char, SHOWN_SECTORS> show2dsector;
-EXTERN std::array<unsigned char, SHOWN_WALLS> show2dwall;
-EXTERN std::array<unsigned char, SHOWN_SPRITES> show2dsprite;
-EXTERN unsigned char automapping;
+inline std::array<unsigned char, SHOWN_SECTORS> show2dsector;
+inline std::array<unsigned char, SHOWN_WALLS> show2dwall;
+inline std::array<unsigned char, SHOWN_SPRITES> show2dsprite;
+inline unsigned char automapping{0};
 
-EXTERN std::array<unsigned char, SHOWN_TILES> gotpic;
-EXTERN std::array<unsigned char, SHOWN_SECTORS> gotsector;
+inline std::array<unsigned char, SHOWN_TILES> gotpic;
+inline std::array<unsigned char, SHOWN_SECTORS> gotsector;
 
-EXTERN int captureformat;
+inline int captureformat{0};
 extern unsigned int drawlinepat;
 
 extern void faketimerhandler();
@@ -380,9 +372,9 @@ POSITION VARIABLES:
 
 SPRITE VARIABLES:
 
-	EXTERN short headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
-	EXTERN short prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
-	EXTERN short nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
+	inline short headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
+	inline short prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
+	inline short nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
 	Example: if the linked lists look like the following:
 		 ⁄ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒø
