@@ -80,7 +80,7 @@ struct configspec_t {
 	const char *doc;
 };
 
-static constexpr auto configspec = std::to_array<configspec_t>({
+static const auto configspec = std::to_array<configspec_t>({
 	{ "forcesetup", type_bool, &forcesetup,
 		"; Always show configuration options on startup\n"
 		";   0 - No\n"
