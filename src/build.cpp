@@ -2492,20 +2492,15 @@ int gettile(int tilenum)
 	std::array<char, 80> snotbuf;
 	int i;
 	int j;
-	int otilenum;
-	int topleft;
-	int gap;
 	int temp;
 	int templong;
-	int ch;
-	int xtiles;
-	int ytiles;
-	int tottiles;
 
 	if (tilenum < 0) tilenum = 0;
 
-	xtiles = (xdim>>6); ytiles = (ydim>>6); tottiles = xtiles*ytiles;
-	otilenum = tilenum;
+	int xtiles = xdim >> 6;
+	int ytiles = ydim >> 6;
+	int tottiles = xtiles * ytiles;
+	int otilenum{tilenum};
 
 	keystatus[0x2f] = 0;
 
@@ -2528,7 +2523,9 @@ int gettile(int tilenum)
 		for(i=0;i<MAXSPRITES;i++)
 			if (sprite[i].statnum < MAXSTATUS)
 				localartfreq[sprite[i].picnum]++;
-	gap = (MAXTILES>>1);
+	
+	int gap = (MAXTILES>>1);
+	
 	do
 	{
 		for(i=0;i<MAXTILES-gap;i++)
@@ -2552,8 +2549,8 @@ int gettile(int tilenum)
 			}
 		}
 		gap >>= 1;
-	}
-	while (gap > 0);
+	} while (gap > 0);
+
 	localartlookupnum = 0;
 	while (localartfreq[localartlookupnum] > 0)
 		localartlookupnum++;
@@ -2565,7 +2562,7 @@ int gettile(int tilenum)
 		std::iota(localartlookup.begin(), localartlookup.end(), 0);
 	}
 
-	topleft = ((tilenum/(xtiles<<gettilezoom))*(xtiles<<gettilezoom))-(xtiles<<gettilezoom);
+	int topleft = ((tilenum/(xtiles<<gettilezoom))*(xtiles<<gettilezoom))-(xtiles<<gettilezoom);
 	if (topleft < 0) topleft = 0;
 	if (topleft > MAXTILES-(tottiles<<(gettilezoom<<1))) topleft = MAXTILES-(tottiles<<(gettilezoom<<1));
 	while ((keystatus[0x1c]|keystatus[1]) == 0)
@@ -2640,13 +2637,12 @@ int gettile(int tilenum)
 			bflushchars();
 
 			j = tilenum;
-			while (keystatus[1] == 0)
-			{
+			while (keystatus[1] == 0) {
 				if (handleevents()) {
 					if (quitevent) quitevent = 0;
 				}
 
-				ch = bgetchar();
+				const auto ch = bgetchar();
 
 				//drawtilescreen(topleft,tilenum);
 				Bsprintf(&snotbuf[0],"Goto tile: %d_ ",j);
@@ -2663,6 +2659,7 @@ int gettile(int tilenum)
 					break;
 				}
 			}
+
 			clearkeys();
 		}
 		while (tilenum < topleft) topleft -= (xtiles<<gettilezoom);
@@ -2688,7 +2685,8 @@ int gettile(int tilenum)
 	}
 	keystatus[0x1] = 0;
 	keystatus[0x1c] = 0;
-	return(tilenum);
+	
+	return tilenum;
 }
 
 int drawtilescreen(int pictopleft, int picbox)
@@ -2705,13 +2703,12 @@ int drawtilescreen(int pictopleft, int picbox)
 	int dax;
 	int day;
 	int scaledown;
-	int xtiles;
-	int ytiles;
-	int tottiles;
 	unsigned char *picptr;
 	std::array<char, 80> snotbuf;
 
-	xtiles = (xdim>>6); ytiles = (ydim>>6); tottiles = xtiles*ytiles;
+	int xtiles = xdim >> 6;
+	int ytiles = ydim >> 6;
+	int tottiles = xtiles * ytiles;
 
 #if USE_POLYMOST && USE_OPENGL
 	setpolymost2dview();	// JBF 20040205: set to 2d rendering
@@ -6401,7 +6398,6 @@ char *findfilename(char *path)
 
 int menuselect(int newpathmode)
 {
-	int listsize;
 	int i;
 	char ch;
 	std::array<char, 90> buffer;
@@ -6409,7 +6405,7 @@ int menuselect(int newpathmode)
 
 	const int bakpathsearchmode{ pathsearchmode };
 
-	listsize = (ydim16-32)/8;
+	int listsize = (ydim16 - 32) / 8;
 
 	if (newpathmode != pathsearchmode) {
 		strcpy(&selectedboardfilename[0], "");
@@ -7464,12 +7460,12 @@ void printcoords16(int posxe, int posye, short ange)
 
 void updatenumsprites()
 {
-	int i;
-
 	numsprites = 0;
-	for(i=0;i<MAXSPRITES;i++)
-		if (sprite[i].statnum < MAXSTATUS)
-			numsprites++;
+
+	for(const auto& aSprite : sprite) {
+		if(aSprite.statnum < MAXSTATUS)
+			++numsprites;
+	}
 }
 
 void copysector(short soursector, short destsector, short deststartwall, unsigned char copystat)
