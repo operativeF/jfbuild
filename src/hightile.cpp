@@ -15,11 +15,6 @@
 #include <array>
 #include <cstdlib>
 
-std::array<palette_t, MAXPALOOKUPS> hictinting;
-std::array<hicreplctyp*, MAXTILES> hicreplc;
-
-int hicfirstinit{0};
-
 /**
  * Find a substitute definition which satisfies the given parameters.
  * This will try for a perfect match with the requested palette, or if

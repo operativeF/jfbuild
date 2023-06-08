@@ -34,9 +34,9 @@ struct hicreplctyp {
 	struct hicskybox_t *skybox;
 };
 
-extern std::array<palette_t, MAXPALOOKUPS> hictinting;
-extern std::array<hicreplctyp*, MAXTILES> hicreplc;
-extern int hicfirstinit;
+inline std::array<palette_t, MAXPALOOKUPS> hictinting{};
+inline std::array<hicreplctyp*, MAXTILES> hicreplc{};
+inline int hicfirstinit{0};
 
 void hicinit();
 hicreplctyp * hicfindsubst(int picnum, int palnum, int skybox);
