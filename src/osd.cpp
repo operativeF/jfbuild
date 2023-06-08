@@ -6,6 +6,9 @@
 #include "osd.hpp"
 #include "baselayer.hpp"
 
+#include <algorithm>
+#include <array>
+
 extern int getclosestcol(int r, int g, int b);	// engine.c
 extern int qsetmode;	// engine.c
 
@@ -23,8 +26,8 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat);
 static symbol_t *findexactsymbol(const char *name);
 
 // Map of palette value to colour index for drawing: black, white, light grey, light blue.
-static int palmap256[4] = { -1, -1, -1, -1 };
-static int palmap16[4] = { 0, 15, 7, 9 };
+static std::array<int, 4> palmap256 = { -1, -1, -1, -1 };
+static constexpr std::array<int, 4> palmap16 = { 0, 15, 7, 9 };
 
 static void _internal_drawosdchar(int, int, char, int, int);
 static void _internal_drawosdstr(int, int, const char*, int, int, int);
@@ -44,10 +47,10 @@ static int  osdlines=1;			// # lines of text in the buffer
 static int  osdrows=20;			// # lines of the buffer that are visible
 static int  osdcols=60;			// width of onscreen display in text columns
 static int  osdmaxrows=20;		// maximum number of lines which can fit on the screen
-static int  osdmaxlines=TEXTSIZE/60;	// maximum lines which can fit in the buffer
-static char osdvisible=0;		// onscreen display visible?
+static int  osdmaxlines = TEXTSIZE / 60;	// maximum lines which can fit in the buffer
+static bool osdvisible{false};		// onscreen display visible?
 static int  osdhead=0; 			// topmost visible line number
-static char osdinited=0;		// text buffer initialised?
+static bool osdinited{false};		// text buffer initialised?
 static int  osdkey=0x45;		// numlock shows the osd
 static int  keytime=0;
 
@@ -98,22 +101,20 @@ static void (*onshowosd)(int) = _internal_onshowosd;
 static void findwhite()
 {
 	if (qsetmode == 200) {
-		palmap256[0] = getclosestcol(0,0,0);    // black
-		palmap256[1] = getclosestcol(63,63,63);	// white
-		palmap256[2] = getclosestcol(42,42,42);	// light grey
-		palmap256[3] = getclosestcol(21,21,63);	// light blue
+		palmap256[0] = getclosestcol(0, 0, 0);    // black
+		palmap256[1] = getclosestcol(63, 63, 63);	// white
+		palmap256[2] = getclosestcol(42, 42, 42);	// light grey
+		palmap256[3] = getclosestcol(21, 21, 63);	// light blue
 	}
 }
 
 static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
-	char st[2] = { 0,0 };
-	int colour;
-	int shadow;
-
+	char st[2] = {ch, 0};
 	(void)shade;
 
-	st[0] = ch;
+	int colour;
+	int shadow;
 
 	if (qsetmode == 200) {
 		colour = palmap256[pal%4];
@@ -123,8 +124,8 @@ static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 		shadow = palmap16[0];
 		// printext256 happens to work in 2D mode.
 	}
-	printext256(4+(x*8)+1,4+(y*14)+1, shadow, -1, st, 2);
-	printext256(4+(x*8),4+(y*14), colour, -1, st, 2);
+	printext256(4 + (x * 8) + 1, 4 + (y * 14) + 1, shadow, -1, st, 2);
+	printext256(4 + (x * 8), 4 + (y * 14), colour, -1, st, 2);
 }
 
 static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shade, int pal)
@@ -135,9 +136,12 @@ static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shad
 
 	(void)shade;
 
-	if (len>1023) len=1023;
+	if (len>1023)
+		len = 1023;
+
 	std::memcpy(&st[0], ch, len);
-	st[len]=0;
+
+	st[len] = 0;
 
 	if (qsetmode == 200) {
 		colour = palmap256[pal%4];
@@ -147,8 +151,9 @@ static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shad
 		shadow = palmap16[0];
 		// printext256 happens to work in 2D mode.
 	}
-	printext256(4+(x*8)+1,4+(y*14)+1, shadow, -1, st, 2);
-	printext256(4+(x*8),4+(y*14), colour, -1, st, 2);
+
+	printext256(4 + (x * 8) + 1, 4 + (y * 14) + 1, shadow, -1, st, 2);
+	printext256(4 + (x * 8), 4 + (y * 14), colour, -1, st, 2);
 }
 
 static void _internal_drawosdcursor(int x, int y, int type, int lastkeypress)
@@ -171,17 +176,17 @@ static void _internal_drawosdcursor(int x, int y, int type, int lastkeypress)
 		colour = palmap16[2];
 		// printext256 happens to work in 2D mode.
 	}
-	printext256(4+(x*8),4+(y*14)+yoff, colour, -1, st, 2);
+	printext256(4 + (x * 8), 4 + (y * 14) + yoff, colour, -1, st, 2);
 }
 
 static int _internal_getcolumnwidth(int w)
 {
-	return w/8 - 1;
+	return w / 8 - 1;
 }
 
 static int _internal_getrowheight(int w)
 {
-	return w/14;
+	return w / 14;
 }
 
 static void _internal_clearbackground(int cols, int rows)
@@ -206,11 +211,17 @@ static int osdcmd_osdvars(const osdfuncparm_t *parm)
 	const int showval = (parm->numparms < 1);
 
 	if (!Bstrcasecmp(parm->name, "osdrows")) {
-		if (showval) { OSD_Printf("osdrows is %d\n", osdrows); return OSDCMD_OK; }
+		if (showval) {
+			OSD_Printf("osdrows is %d\n", osdrows); return OSDCMD_OK;
+		}
 		else {
-			osdrows = atoi(parm->parms[0]);
-			if (osdrows < 1) osdrows = 1;
-			else if (osdrows > osdmaxrows) osdrows = osdmaxrows;
+			osdrows = std::atoi(parm->parms[0]);
+			
+			if (osdrows < 1)
+				osdrows = 1;
+			else if (osdrows > osdmaxrows)
+				osdrows = osdmaxrows;
+
 			return OSDCMD_OK;
 		}
 	}
@@ -219,12 +230,10 @@ static int osdcmd_osdvars(const osdfuncparm_t *parm)
 
 static int osdcmd_listsymbols(const osdfuncparm_t *parm)
 {
-	symbol_t *i;
-
 	(void)parm;
 
 	OSD_Printf("Symbol listing:\n");
-	for (i=symbols; i!=nullptr; i=i->next)
+	for (symbol_t* i{symbols}; i != nullptr; i = i->next)
 		OSD_Printf("     %s\n", i->name);
 
 	return OSDCMD_OK;
@@ -232,10 +241,11 @@ static int osdcmd_listsymbols(const osdfuncparm_t *parm)
 
 static int osdcmd_help(const osdfuncparm_t *parm)
 {
-	symbol_t *symb;
+	if (parm->numparms != 1)
+		return OSDCMD_SHOWHELP;
 
-	if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-	symb = findexactsymbol(parm->parms[0]);
+	const symbol_t* symb = findexactsymbol(parm->parms[0]);
+	
 	if (!symb) {
 		OSD_Printf("Help Error: \"%s\" is not a defined variable or function\n", parm->parms[0]);
 	} else {
@@ -247,24 +257,29 @@ static int osdcmd_help(const osdfuncparm_t *parm)
 
 static int osdcmd_clear(const osdfuncparm_t *parm)
 {
-	if (parm->numparms != 0) return OSDCMD_SHOWHELP;
-	std::memset(osdtext, 0, TEXTSIZE);
-	osdlines=1;
-	osdhead=0;
-	osdpos=0;
+	if (parm->numparms != 0)
+		return OSDCMD_SHOWHELP;
+
+	std::ranges::fill(osdtext, 0);
+
+	osdlines = 1;
+	osdhead = 0;
+	osdpos = 0;
 
 	return OSDCMD_OK;
 }
 
 static int osdcmd_echo(const osdfuncparm_t *parm)
 {
-	int i;
+	if (parm->numparms == 0)
+		return OSDCMD_SHOWHELP;
 
-	if (parm->numparms == 0) return OSDCMD_SHOWHELP;
-	for (i = 0; i < parm->numparms; i++) {
-		if (i) OSD_Puts(" ");
+	for (int i{0}; i < parm->numparms; ++i) {
+		if (i)
+			OSD_Puts(" ");
 		OSD_Puts(parm->parms[i]);
 	}
+
 	OSD_Puts("\n");
 
 	return OSDCMD_OK;
@@ -286,7 +301,7 @@ void OSD_Cleanup()
 		std::free(symbols);
 	}
 
-	osdinited=0;
+	osdinited = false;
 }
 
 
@@ -295,11 +310,13 @@ void OSD_Cleanup()
 //
 void OSD_Init()
 {
-    if (osdinited) return;
-	osdinited=1;
+    if (osdinited)
+		return;
 
-	std::memset(osdtext, 0, TEXTSIZE);
-	osdlines=1;
+	osdinited = true;
+
+	std::ranges::fill(osdtext, 0);
+	osdlines = 1;
 
 	atexit(OSD_Cleanup);
 
@@ -670,8 +687,8 @@ static void OSD_InsertChar(int ch)
 //
 int OSD_HandleChar(int ch)
 {
-	if (!osdinited) return ch;
-	if (!osdvisible) return ch;
+	if (!osdinited || !osdvisible)
+		return ch;
 
 	if (ch < 32 || ch == 127) {
 		switch (ch) {
@@ -720,8 +737,8 @@ int OSD_HandleChar(int ch)
 //
 int OSD_HandleKey(int sc, int press)
 {
-	if (!osdinited) return sc;
-	if (!osdvisible) return sc;
+	if (!osdinited || !osdvisible)
+		return sc;
 
 	if (!press) {
 		if (sc == 42 || sc == 54) // shift
@@ -855,6 +872,7 @@ void OSD_ShowDisplay(int onf)
 	if (onf < 0) {
 		onf = !osdvisible;
 	}
+
 	osdvisible = (onf != 0);
 	osdeditcontrol = 0;
 	osdeditshift = 0;
@@ -875,9 +893,6 @@ void OSD_ShowDisplay(int onf)
 //
 void OSD_Draw()
 {
-	int x;
-	int len;
-
 	if (!osdvisible || !osdinited) {
 		return;
 	}
@@ -888,16 +903,17 @@ void OSD_Draw()
 
 	clearbackground(osdcols, osdrows + 1);
 
-	for (; lines > 0; lines--, row--) {
-		drawosdstr(0,row,osdtext+topoffs,osdcols,osdtextshade,osdtextpal);
-		topoffs+=osdcols;
+	for (; lines > 0; --lines, --row) {
+		drawosdstr(0, row, osdtext + topoffs, osdcols, osdtextshade, osdtextpal);
+		topoffs += osdcols;
 	}
 
-	drawosdchar(2,osdrows,'>',osdpromptshade,osdpromptpal);
-	if (osdeditcaps) drawosdchar(0,osdrows,'C',osdpromptshade,osdpromptpal);
+	drawosdchar(2, osdrows, '>', osdpromptshade, osdpromptpal);
+	if (osdeditcaps)
+		drawosdchar(0, osdrows, 'C', osdpromptshade, osdpromptpal);
 
-	len = std::min(osdcols - 1 - 3, osdeditlen - osdeditwinstart);
-	for (x=0; x<len; x++)
+	const int len = std::min(osdcols - 1 - 3, osdeditlen - osdeditwinstart);
+	for (int x{0}; x < len; ++x)
 		drawosdchar(3+x,osdrows,osdeditbuf[osdeditwinstart+x],osdeditshade,osdeditpal);
 
 	drawosdcursor(3+osdeditcursor-osdeditwinstart,osdrows,osdovertype,keytime);
@@ -906,10 +922,11 @@ void OSD_Draw()
 
 static inline void linefeed()
 {
-	std::memmove(osdtext+osdcols, osdtext, TEXTSIZE-osdcols);
+	std::memmove(osdtext + osdcols, osdtext, TEXTSIZE - osdcols);
 	std::memset(osdtext, 0, osdcols);
 
-	if (osdlines < osdmaxlines) osdlines++;
+	if (osdlines < osdmaxlines)
+		osdlines++;
 }
 
 //
@@ -919,10 +936,11 @@ static inline void linefeed()
 
 void OSD_Printf(const char *fmt, ...)
 {
+	if (!osdinited)
+		return;
+
 	char tmpstr[1024];
 	va_list va;
-
-	if (!osdinited) return;
 
 	va_start(va, fmt);
 	vsnprintf(tmpstr, sizeof(tmpstr), fmt, va);
@@ -938,11 +956,10 @@ void OSD_Printf(const char *fmt, ...)
 
 void OSD_Puts(const char *str)
 {
-    const char *chp;
+	if (!osdinited)
+		return;
 
-	if (!osdinited) return;
-
-	for (chp = str; *chp; chp++) {
+	for (const auto* chp = str; *chp; chp++) {
 		if (*chp == '\r') osdpos=0;
 		else if (*chp == '\n') {
 			osdpos=0;
@@ -963,15 +980,14 @@ void OSD_Puts(const char *str)
 //
 void OSD_DispatchQueued()
 {
-	int cmd;
+	if (!osdexeccount)
+		return;
 
-	if (!osdexeccount) return;
-
-	cmd=osdexeccount-1;
-	osdexeccount=0;
+	int cmd = osdexeccount - 1;
+	osdexeccount = 0;
 
 	for (; cmd>=0; cmd--) {
-		OSD_Dispatch((const char *)osdhistorybuf[cmd]);
+		OSD_Dispatch((const char *) osdhistorybuf[cmd]);
 	}
 }
 
@@ -1061,35 +1077,32 @@ static constexpr auto MAXPARMS{512};
 
 int OSD_Dispatch(const char *cmd)
 {
-	char *workbuf;
-	char *wp;
-	char *wtp;
-	char *state;
-	char *parms[MAXPARMS];
-	int  numparms;
-	int  restart = 0;
-	osdfuncparm_t ofp;
-	symbol_t *symb;
-	//int i;
+	char* state = Bstrdup(cmd);
+	char* workbuf = state;
 
-	workbuf = state = Bstrdup(cmd);
-	if (!workbuf) return -1;
+	if (!workbuf)
+		return -1;
 
+	int  restart{0};
+	std::array<char*, MAXPARMS> parms;
+	char* wtp{nullptr};
 	do {
-		numparms = 0;
-		std::memset(parms, 0, sizeof(parms));
-		wp = strtoken(state, &wtp, &restart);
+		int numparms{0};
+		std::ranges::fill(parms, nullptr);
+		char* wp = strtoken(state, &wtp, &restart);
 		if (!wp) {
 			state = wtp;
 			continue;
 		}
 
-		symb = findexactsymbol(wp);
+		symbol_t* symb = findexactsymbol(wp);
 		if (!symb) {
 			OSD_Printf("Error: \"%s\" is not defined\n", wp);
 			std::free(workbuf);
 			return -1;
 		}
+
+		osdfuncparm_t ofp;
 
 		ofp.name = wp;
 		while (wtp && !restart) {
@@ -1097,7 +1110,7 @@ int OSD_Dispatch(const char *cmd)
 			if (wp && numparms < MAXPARMS) parms[numparms++] = wp;
 		}
 		ofp.numparms = numparms;
-		ofp.parms    = (const char **)parms;
+		ofp.parms    = (const char **) &parms[0];
 		ofp.raw      = cmd;
 		switch (symb->func(&ofp)) {
 			case OSDCMD_OK: break;
