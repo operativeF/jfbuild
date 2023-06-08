@@ -20,6 +20,8 @@ struct glbuild_info glinfo;
 int glunavailable;
 #endif //USE_OPENGL
 
+#include <limits>
+
 void (*baselayer_videomodewillchange)() = nullptr;
 void (*baselayer_videomodedidchange)() = nullptr;
 
@@ -28,19 +30,17 @@ void (*baselayer_videomodedidchange)() = nullptr;
 //
 int checkvideomode(int *x, int *y, int c, int fs, int forced)
 {
-	int i;
-	int nearest=-1;
-	int dx;
-	int dy;
-	int odx=INT_MAX;
-	int ody=INT_MAX;
+	int nearest{-1};
+	int odx = std::numeric_limits<int>::max();
+	int ody = std::numeric_limits<int>::max();
 
 	getvalidmodes();
 
 #if USE_OPENGL
 	if (c > 8 && glunavailable) return -1;
 #else
-	if (c > 8) return -1;
+	if (c > 8)
+		return -1;
 #endif
 
 	// fix up the passed resolution values to be multiples of 8
@@ -51,25 +51,28 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 	if (*y > MAXYDIM) *y = MAXYDIM;
 	*x &= 0xfffffff8L;
 
-	for (i=0; i<validmodecnt; i++) {
+	for (int i{0}; i < validmodecnt; ++i) {
 		if (validmode[i].bpp != c) continue;
 		if (validmode[i].fs != fs) continue;
-		dx = std::abs(validmode[i].xdim - *x);
-		dy = std::abs(validmode[i].ydim - *y);
+
+		const int dx = std::abs(validmode[i].xdim - *x);
+		const int dy = std::abs(validmode[i].ydim - *y);
+
 		if (!(dx | dy)) { 	// perfect match
 			nearest = i;
 			break;
 		}
 		if ((dx <= odx) && (dy <= ody)) {
 			nearest = i;
-			odx = dx; ody = dy;
+			odx = dx;
+			ody = dy;
 		}
 	}
 
 #ifdef ANY_WINDOWED_SIZE
 	if (!forced && (fs&1) == 0 && (nearest < 0 || validmode[nearest].xdim!=*x || validmode[nearest].ydim!=*y)) {
 		// check the colour depth is recognised at the very least
-		for (i=0;i<validmodecnt;i++)
+		for (int i{0}; i < validmodecnt; ++i)
 			if (validmode[i].bpp == c)
 				return 0x7fffffffL;
 		return -1;	// strange colour depth
@@ -153,9 +156,10 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 	if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
 	char* p{nullptr};
-	const int m = (int)std::strtol(parm->parms[0], &p, 10);
+	const int m = (int) std::strtol(parm->parms[0], &p, 10);
 
-	if (m < 0 || m > 3 || *p) return OSDCMD_SHOWHELP;
+	if (m < 0 || m > 3 || *p)
+		return OSDCMD_SHOWHELP;
 
 	setrendermode(m);
 	buildprintf("Rendering method changed to %s\n", modestrs[ getrendermode() ] );
@@ -185,14 +189,14 @@ static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 
 static int osdcmd_vars(const osdfuncparm_t *parm)
 {
-	const int showval = (parm->numparms < 1);
+	const bool showval = parm->numparms < 1;
 
 	if (!Bstrcasecmp(parm->name, "screencaptureformat")) {
 		const char* const fmts[3] = { "TGA", "PCX", "PNG" };
 		if (!showval) {
 			int i;
 			for (i=0; i<3; i++)
-				if (!Bstrcasecmp(parm->parms[0], fmts[i]) || atoi(parm->parms[0]) == i) {
+				if (!Bstrcasecmp(parm->parms[0], fmts[i]) || std::atoi(parm->parms[0]) == i) {
 					captureformat = i;
 					break;
 				}
@@ -203,12 +207,12 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 	}
 	else if (!Bstrcasecmp(parm->name, "novoxmips")) {
 		if (showval) { buildprintf("novoxmips is %d\n", novoxmips); }
-		else { novoxmips = (atoi(parm->parms[0]) != 0); }
+		else { novoxmips = std::atoi(parm->parms[0]) != 0; }
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "usevoxels")) {
 		if (showval) { buildprintf("usevoxels is %d\n", usevoxels); }
-		else { usevoxels = (atoi(parm->parms[0]) != 0); }
+		else { usevoxels = std::atoi(parm->parms[0]) != 0; }
 		return OSDCMD_OK;
 	}
 	return OSDCMD_SHOWHELP;
