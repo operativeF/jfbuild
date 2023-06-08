@@ -56,17 +56,8 @@ int msens = 1 << 16;
 static int synctics{0};
 static int lockclock{0};
 
-extern std::array<unsigned char, MAXTILES> picsiz;
-extern int startposx;
-extern int startposy;
-extern int startposz;
-extern short startang;
-extern short startsectnum;
 extern intptr_t frameplace;
-int ydim16;
 int ytop16;
-int halfxdim16;
-int midydim16;
 static int bakydim16;
 static int bakytop16;
 int xdim2d{640};

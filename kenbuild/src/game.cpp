@@ -194,8 +194,6 @@ static int oldipos[MAXINTERPOLATIONS];
 static int bakipos[MAXINTERPOLATIONS];
 static int *curipos[MAXINTERPOLATIONS];
 
-extern int cachecount;
-
 static unsigned char playerreadyflag[MAXPLAYERS];
 
 	//Miscellaneous variables

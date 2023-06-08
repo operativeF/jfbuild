@@ -64,7 +64,6 @@ static int kzipopen(const char *filnam)
 constexpr auto MAXCACHEOBJECTS{9216};
 
 static size_t cachesize{0};
-int cachecount{0};
 unsigned char zerochar{0};
 intptr_t cachestart{0};
 int cacnum{0};

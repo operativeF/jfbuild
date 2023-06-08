@@ -17,6 +17,7 @@ enum {
 	KOPEN4LOAD_ANYGRP = 2,
 };
 
+inline int cachecount{0};
 inline int pathsearchmode{0};
 
 int     addsearchpath(const char *p);

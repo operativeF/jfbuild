@@ -11,6 +11,13 @@ inline constexpr auto MAXYSAVES = ((MAXXDIM * MAXSPRITES) >> 7);
 inline constexpr auto MAXNODESPERLINE{42};   //WARNING: This depends on MAXYSAVES & MAXYDIM!
 inline constexpr auto MAXWALLSB{4096};
 inline constexpr auto MAXCLIPDIST{1024};
+inline int startposx{0};
+inline int startposy{0};
+inline int startposz{0};
+inline short startang{0};
+inline short startsectnum{0};
+
+
 
 inline constexpr std::array<unsigned char, 8> pow2char = {
 	1, 2, 4, 8, 16, 32, 64, 128

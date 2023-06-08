@@ -42,9 +42,9 @@ extern char names[MAXTILES][25];
 
 extern std::array<int, NUMBUILDKEYS> buildkeys;
 
-extern int ydim16;
-extern int halfxdim16;
-extern int midydim16;
+inline int ydim16{0};
+inline int halfxdim16{0};
+inline int midydim16{0};
 extern int xdimgame;
 extern int ydimgame;
 extern int bppgame;

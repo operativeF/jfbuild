@@ -548,11 +548,6 @@ int globalx1, globaly1, globalx2, globaly2, globalx3, globaly3, globalzx;
 int globalx, globaly, globalz;
 
 short sectorbordercnt;
-int startposx;
-int startposy;
-int startposz;
-short startang;
-short startsectnum;
 short pointhighlight;
 short linehighlight;
 short highlightcnt;
