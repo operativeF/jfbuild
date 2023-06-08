@@ -64,7 +64,6 @@ static SDL_Surface *sdl_surface;	// For non-GL 8-bit mode output.
 #endif
 static unsigned char *frame;
 extern int gammabrightness;
-extern float curgamma;
 
 #if USE_OPENGL
 static SDL_GLContext sdl_glcontext;

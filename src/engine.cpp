@@ -67,10 +67,6 @@ static int oxdimen{-1};
 static int oviewingrange{-1};
 static int oxyaspect{-1};
 
-int curbrightness{0};
-int gammabrightness{0};
-float curgamma{1.0F};
-
 	//Textured Map variables
 static unsigned char globalpolytype;
 static std::array<short*, MAXYDIM> dotp1;
@@ -104,8 +100,6 @@ static std::array<unsigned short, 4096 + 256> shlookup;
 
 int reciptable[2048];
 int fpuasm;
-
-unsigned char britable[16][256];
 
 static std::array<char, 128> kensmessage;
 static std::FILE *logfile{nullptr};		// log filehandle
@@ -459,11 +453,9 @@ static std::array<unsigned char, MAXWALLSB> smostwalltype;
 static std::array<int, MAXWALLSB> smostwall;
 static int smostwallcnt{-1L};
 
-short maskwallcnt;
 static std::array<int, MAXSPRITESONSCREEN> spritesx;
 static std::array<int, MAXSPRITESONSCREEN + 1> spritesy;
 static std::array<int, MAXSPRITESONSCREEN> spritesz;
-spritetype *tspriteptr[MAXSPRITESONSCREEN];
 
 std::array<short, MAXXDIM> umost;
 std::array<short, MAXXDIM> dmost;
@@ -477,18 +469,10 @@ static std::array<int, MAXXDIM> swplc;
 static std::array<int, MAXXDIM> lplc;
 static std::array<int, MAXXDIM> swall;
 static std::array<int, MAXXDIM + 4> lwall;
-int xdimen{-1};
-int xdimenrecip;
-int halfxdimen;
-int xdimenscale;
-int xdimscale;
 int wx1;
 int wy1;
 int wx2;
 int wy2;
-int ydimen;
-int ydimenscale;
-intptr_t frameoffset;
 
 static std::array<int, 8> nrx1;
 static std::array<int, 8> nry1;
@@ -508,17 +492,6 @@ static int* horizlookup{nullptr};
 static int* horizlookup2{nullptr};
 static int horizycent;
 
-int globalposx;
-int globalposy;
-int globalposz;
-int globalhoriz;
-short globalang;
-short globalcursectnum;
-int globalpal;
-int cosglobalang;
-int singlobalang;
-int cosviewingrangeglobalang;
-int sinviewingrangeglobalang;
 unsigned char *globalpalwritten;
 int globaluclip;
 int globaldclip;
@@ -540,18 +513,16 @@ std::array<int, 4> vplce;
 std::array<int, 4> vince;
 intptr_t palookupoffse[4], bufplce[4];
 unsigned char globalxshift, globalyshift;
-int globalxpanning, globalypanning, globalshade;
-short globalpicnum, globalshiftval;
-int globalzd, globalyscale, globalorientation;
+int globalxpanning, globalypanning;
+short globalshiftval;
+int globalzd, globalyscale;
 intptr_t globalbufplc;
-int globalx1, globaly1, globalx2, globaly2, globalx3, globaly3, globalzx;
+int globaly1, globalx2, globalx3, globaly3, globalzx;
 int globalx, globaly, globalz;
 
-short sectorbordercnt;
 short pointhighlight;
 short linehighlight;
 short highlightcnt;
-unsigned char *transluc{nullptr};
 
 constexpr auto FASTPALGRIDSIZ{8};
 static int rdist[129], gdist[129], bdist[129];
@@ -569,10 +540,6 @@ static short clipnum;
 static std::array<short, 4> hitwalls;
 int hitscangoalx = (1 << 29) - 1;
 int hitscangoaly = (1 << 29) - 1;
-
-#if USE_POLYMOST
-int hitallsprites{0};
-#endif
 
 struct linetype {
 	int x1;
@@ -608,10 +575,6 @@ static std::array<permfifotype, MAXPERMS> permfifo;
 static int permhead{0};
 static int permtail{0};
 
-short numscans;
-short numhits;
-short numbunches;
-
 static short capturecount{0};
 static char capturename[20] = "capt0000.xxx";
 static char captureatnextpage{0};
@@ -641,7 +604,6 @@ static int artfil{-1};
 static int artfilnum;
 static int artfilplc;
 
-char inpreparemirror{0};
 static int mirrorsx1;
 static int mirrorsy1;
 static int mirrorsx2;

@@ -39,21 +39,35 @@ inline std::array<short, MAXWALLSB> thewall{};
 inline std::array<short, MAXWALLSB> bunchfirst{};
 inline std::array<short, MAXWALLSB> bunchlast{};
 inline std::array<short, MAXWALLSB> maskwall{};
-extern short maskwallcnt;
-extern spritetype *tspriteptr[MAXSPRITESONSCREEN];
-extern int xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen, ydimenscale;
-extern intptr_t frameoffset;
-extern int globalposx, globalposy, globalposz, globalhoriz;
-extern short globalang, globalcursectnum;
-extern int globalpal, cosglobalang, singlobalang;
-extern int cosviewingrangeglobalang, sinviewingrangeglobalang;
+inline short maskwallcnt{0};
+inline spritetype* tspriteptr[MAXSPRITESONSCREEN]{};
+inline int xdimen{-1};
+inline int xdimenrecip{0};
+inline int halfxdimen{0};
+inline int xdimenscale{0};
+inline int xdimscale{0};
+inline int ydimen{0};
+inline int ydimenscale{0};
+inline intptr_t frameoffset{0};
+inline int globalposx{0};
+inline int globalposy{0};
+inline int globalposz{0};
+inline int globalhoriz{0};
+inline short globalang{0};
+inline short globalcursectnum{0};
+inline int globalpal{0};
+inline int cosglobalang{0};
+inline int singlobalang{0};
+inline int cosviewingrangeglobalang{0};
+inline int sinviewingrangeglobalang{0};
 extern int globalvisibility;
 extern int asm1, asm2, asm4;
 extern intptr_t asm3;
-extern int globalshade;
-extern short globalpicnum;
-extern int globalx1, globaly2;
-extern int globalorientation;
+inline int globalshade{0};
+inline short globalpicnum{0};
+inline int globalx1{0};
+inline int globaly2{0};
+inline int globalorientation{0};
 
 extern "C" short searchit;
 extern "C" int searchx;
@@ -62,27 +76,30 @@ extern "C" short searchsector;
 extern "C" short searchwall;
 extern "C" short searchstat;
 
-extern char inpreparemirror;
+inline char inpreparemirror{0};
 
-extern int curbrightness;
-extern int gammabrightness;
-extern float curgamma;
-extern unsigned char britable[16][256];
+inline int curbrightness{0};
+inline int gammabrightness{0};
+inline float curgamma{1.0F};
+inline unsigned char britable[16][256]{};
 inline std::array<unsigned char, MAXTILES> picsiz{};
 inline std::array<int, MAXYDIM> lastx{};
-extern unsigned char *transluc;
+inline unsigned char* transluc{nullptr};
 inline std::array<short, 256> sectorborder{};
-extern short sectorbordercnt;
+inline short sectorbordercnt{0};
 inline int qsetmode{0};
-extern int hitallsprites;
+
+#if USE_POLYMOST
+inline int hitallsprites{0};
+#endif
 
 inline std::array<int, MAXWALLSB> xb1{};
 inline std::array<int, MAXWALLSB> rx1{};
 inline std::array<int, MAXWALLSB> ry1{};
 inline std::array<short, MAXWALLSB> p2{};
-extern short numscans;
-extern short numhits;
-extern short numbunches;
+inline short numscans{0};
+inline short numhits{0};
+inline short numbunches{0};
 
 struct textfontspec {
 	const unsigned char *font;

@@ -24,6 +24,7 @@
 #endif
 
 #include "baselayer_priv.hpp"
+#include "engine_priv.hpp"
 #include "winlayer.hpp"
 #include "pragmas.hpp"
 #include "a.hpp"
@@ -53,7 +54,6 @@ static char wintitle[256] = "";
 
 static WORD sysgamma[3][256];
 extern int gammabrightness;
-extern float curgamma;
 
 #if USE_OPENGL
 // OpenGL stuff
