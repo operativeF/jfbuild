@@ -4341,7 +4341,7 @@ void drawscreen(short snum, int dasmoothratio)
 		keystatus[0x57] = 0;
 		brightness++;
 		if (brightness > 8) brightness = 0;
-		setbrightness(brightness,&palette[0],0);
+		setbrightness(brightness, palette, 0);
 	}
 
 	if (option[4] == 0)           //Single player only keys

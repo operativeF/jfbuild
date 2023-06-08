@@ -525,9 +525,12 @@ short linehighlight;
 short highlightcnt;
 
 constexpr auto FASTPALGRIDSIZ{8};
-static int rdist[129], gdist[129], bdist[129];
-static unsigned char colhere[((FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2))>>3];
-static unsigned char colhead[(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)];
+static std::array<int, 129> rdist;
+static std::array<int, 129> gdist;
+static std::array<int, 129> bdist;
+static constexpr auto TOTALPALGRIDSIZING = (FASTPALGRIDSIZ + 2) * (FASTPALGRIDSIZ + 2) * (FASTPALGRIDSIZ + 2);
+static std::array<unsigned char, (TOTALPALGRIDSIZING >> 3)> colhere;
+static std::array<unsigned char, TOTALPALGRIDSIZING> colhead;
 static std::array<int, 256> colnext;
 
 constexpr std::array<unsigned char, 8> coldist = {
@@ -5536,24 +5539,24 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 	for(i = 64; i >= 0; i--)
 	{
 		//j = (i-64)*(i-64);
-		rdist[i] = rdist[128-i] = j * rscale;
-		gdist[i] = gdist[128-i] = j * gscale;
-		bdist[i] = bdist[128-i] = j * bscale;
+		rdist[i] = rdist[128 - i] = j * rscale;
+		gdist[i] = gdist[128 - i] = j * gscale;
+		bdist[i] = bdist[128 - i] = j * bscale;
 		j += 129 - (i << 1);
 	}
 
 	//clearbufbyte(colhere,sizeof(colhere),0L);
 	//clearbufbyte(colhead,sizeof(colhead),0L);
-	std::memset(colhere,0,sizeof(colhere));
-	std::memset(colhead,0,sizeof(colhead));
+	std::ranges::fill(colhere, 0);
+	std::ranges::fill(colhead, 0);
 
 	unsigned char* pal1 = &palette[768-3];
 	for(i=255;i>=0;i--,pal1-=3)
 	{
 		j = (pal1[0]>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(pal1[1]>>3)*FASTPALGRIDSIZ+(pal1[2]>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
-		if (colhere[j>>3] & pow2char[j & 7]) colnext[i] = colhead[j]; else colnext[i] = -1;
+		if (colhere[j >> 3] & pow2char[j & 7]) colnext[i] = colhead[j]; else colnext[i] = -1;
 		colhead[j] = i;
-		colhere[j>>3] |= pow2char[j & 7];
+		colhere[j >> 3] |= pow2char[j & 7];
 	}
 
 	i = 0;
@@ -5656,7 +5659,7 @@ int getclosestcol(int r, int g, int b)
 
 	for(k=26;k>=0;k--)
 	{
-		i = colscan[k]+j; if ((colhere[i>>3] & pow2char[i & 7]) == 0) continue;
+		i = colscan[k]+j; if ((colhere[i >> 3] & pow2char[i & 7]) == 0) continue;
 		i = colhead[i];
 		do
 		{
@@ -5682,12 +5685,13 @@ int getclosestcol(int r, int g, int b)
 	
 	for(i=255;i>=0;i--,pal1-=3)
 	{
-		dist = gdist[pal1[1]+g]; if (dist >= mindist) continue;
-		dist += rdist[pal1[0]+r]; if (dist >= mindist) continue;
-		dist += bdist[pal1[2]+b]; if (dist >= mindist) continue;
+		dist = gdist[pal1[1]  + g]; if (dist >= mindist) continue;
+		dist += rdist[pal1[0] + r]; if (dist >= mindist) continue;
+		dist += bdist[pal1[2] + b]; if (dist >= mindist) continue;
 		mindist = dist;
 		retcol = i;
 	}
+
 	return retcol;
 }
 
@@ -6114,15 +6118,16 @@ int initengine()
 
 	clearbuf(&voxscale[0],sizeof(voxscale)>>2,65536L);
 
-	searchit = 0; searchstat = -1;
+	searchit = 0;
+	searchstat = -1;
 
 	std::ranges::fill(palookup, nullptr);
+	std::ranges::fill(waloff, 0);
 
-	clearbuf(&waloff[0],(int)MAXTILES,0L);
+	std::ranges::fill(show2dsector, 0);
+	std::ranges::fill(show2dsprite, 0);
+	std::ranges::fill(show2dwall, 0);
 
-	clearbuf(&show2dsector[0],(int)((MAXSECTORS+3)>>5),0L);
-	clearbuf(&show2dsprite[0],(int)((MAXSPRITES+3)>>5),0L);
-	clearbuf(&show2dwall[0],(int)((MAXWALLS+3)>>5),0L);
 	automapping = 0;
 
 	pointhighlight = -1;
@@ -6196,28 +6201,36 @@ void initspritelists()
 {
 	int i;
 
-	for (i=0;i<MAXSECTORS;i++)     //Init doubly-linked sprite sector lists
-		headspritesect[i] = -1;
+	//Init doubly-linked sprite sector lists
+	std::ranges::fill(headspritesect, -1);
 	headspritesect[MAXSECTORS] = 0;
+
 	for(i=0;i<MAXSPRITES;i++)
 	{
 		prevspritesect[i] = i-1;
 		nextspritesect[i] = i+1;
-		sprite[i].sectnum = MAXSECTORS;
 	}
+
+	for(auto& aSprite : sprite) {
+		aSprite.sectnum = MAXSECTORS;
+	}
+
 	prevspritesect[0] = -1;
 	nextspritesect[MAXSPRITES-1] = -1;
 
-
-	for(i=0;i<MAXSTATUS;i++)      //Init doubly-linked sprite status lists
-		headspritestat[i] = -1;
+	std::ranges::fill(headspritestat, -1);  //Init doubly-linked sprite status lists
 	headspritestat[MAXSTATUS] = 0;
+
 	for(i=0;i<MAXSPRITES;i++)
 	{
 		prevspritestat[i] = i-1;
 		nextspritestat[i] = i+1;
-		sprite[i].statnum = MAXSTATUS;
 	}
+
+	for(auto& aSprite : sprite) {
+		aSprite.statnum = MAXSTATUS;
+	}
+
 	prevspritestat[0] = -1;
 	nextspritestat[MAXSPRITES-1] = -1;
 }
@@ -6981,9 +6994,9 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 
 	initspritelists();
 
-	clearbuf(&show2dsector[0],(int)((MAXSECTORS+3)>>5),0L);
-	clearbuf(&show2dsprite[0],(int)((MAXSPRITES+3)>>5),0L);
-	clearbuf(&show2dwall[0],(int)((MAXWALLS+3)>>5),0L);
+	std::ranges::fill(show2dsector, 0);
+	std::ranges::fill(show2dsprite, 0);
+	std::ranges::fill(show2dwall, 0);
 
 	kread(fil,daposx,4); *daposx = B_LITTLE32(*daposx);
 	kread(fil,daposy,4); *daposy = B_LITTLE32(*daposy);
@@ -7072,7 +7085,7 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 	kclose(fil);
 
 #if USE_POLYMOST && USE_OPENGL
-	std::memset(&spriteext[0], 0, sizeof(spriteext));
+	std::ranges::fill(spriteext, spriteexttype{});
 #endif
 	guniqhudid = 0;
 
@@ -8085,7 +8098,7 @@ int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *
 	kclose(fil);
 
 #if USE_POLYMOST && USE_OPENGL
-	std::memset(&spriteext[0], 0, sizeof(spriteext));
+	std::ranges::fill(spriteext, spriteexttype{});
 #endif
 	guniqhudid = 0;
 
@@ -8129,7 +8142,7 @@ int loadmaphack(const char *filename)
 		return -1;
 	}
 
-	std::memset(&spriteext[0], 0, sizeof(spriteext));
+	std::ranges::fill(spriteext, spriteexttype{});
 
 	while (1) {
 		const auto* tok = scriptfile_gettoken(script);
@@ -8543,7 +8556,7 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 	}
 #endif
 
-	setbrightness(curbrightness,&palette[0],0);
+	setbrightness(curbrightness, palette, 0);
 	clearallviews(0L);
 
 	if (searchx < 0) {
@@ -11247,7 +11260,7 @@ void setvgapalette()
 //
 // setbrightness
 //
-void setbrightness(int dabrightness, const unsigned char *dapal, char noapply)
+void setbrightness(int dabrightness, std::span<const unsigned char> dapal, char noapply)
 {
 	if ((noapply & 4) == 0) {
 		curbrightness = std::min(std::max(dabrightness, 0), 15);

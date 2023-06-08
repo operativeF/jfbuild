@@ -580,7 +580,7 @@ int initsystem()
 	desktopydim = desktopmode.dmPelsHeight;
 	desktopbpp  = desktopmode.dmBitsPerPel;
 
-	std::memset(&curpalette[0], 0, sizeof(palette_t) * 256);
+	std::ranges::fill(curpalette, palette_t{});
 
 	atexit(uninitsystem);
 
@@ -737,7 +737,7 @@ static int xinputusernum{-1};
 int initinput()
 {
 	moustat = 0;
-	std::memset(&keystatus[0], 0, sizeof(keystatus));
+	std::ranges::fill(keystatus, 0);
 	keyfifoplc = 0;
 	keyfifoend = 0;
 	keyasciififoplc = 0;
