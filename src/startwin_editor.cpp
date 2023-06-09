@@ -24,8 +24,8 @@
 #define TAB_MESSAGES 1
 
 
-static HWND startupdlg = nullptr;
-static HWND pages[2] = { nullptr, nullptr};
+static HWND startupdlg{nullptr};
+static std::array<HWND, 2> pages = { nullptr, nullptr};
 static int mode = TAB_CONFIG;
 static struct startwin_settings *settings;
 static BOOL quiteventonclose = FALSE;

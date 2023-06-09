@@ -862,8 +862,8 @@ static void pt_load_applyparameters(const PTHead * pth)
 
 		if (gltexfiltermode < 0) {
 			gltexfiltermode = 0;
-		} else if (gltexfiltermode >= (int)numglfiltermodes) {
-			gltexfiltermode = numglfiltermodes-1;
+		} else if (gltexfiltermode >= numglfiltermodes) {
+			gltexfiltermode = numglfiltermodes - 1;
 		}
 		glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[gltexfiltermode].mag);
 		glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[gltexfiltermode].min);

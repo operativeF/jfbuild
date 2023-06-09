@@ -4,7 +4,8 @@
 
 extern int rendmode;
 extern float gtang;
-extern double dxb1[4096], dxb2[4096]; // FIXME: Was MAXWALLSB in size.
+inline std::array<double, 4096> dxb1{};
+inline std::array<double, 4096> dxb2{}; // FIXME: Was MAXWALLSB in size.
 
 #ifdef DEBUGGINGAIDS
 struct polymostcallcounts {
@@ -64,20 +65,34 @@ extern double gstang;
 extern int gfogpalnum;
 extern float gfogdensity;
 
-struct glfiltermodes {
+struct glfiltermode {
 	const char* name;
 	int min;
     int mag;
 };
 
 inline constexpr auto numglfiltermodes{6};
-extern struct glfiltermodes glfiltermodes[numglfiltermodes];
+
+inline constexpr std::array<glfiltermode, numglfiltermodes> glfiltermodes = {{
+	{"GL_NEAREST", GL_NEAREST, GL_NEAREST},
+	{"GL_LINEAR", GL_LINEAR, GL_LINEAR},
+	{"GL_NEAREST_MIPMAP_NEAREST", GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST},
+	{"GL_LINEAR_MIPMAP_NEAREST", GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR},
+	{"GL_NEAREST_MIPMAP_LINEAR", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST},
+	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR}
+}};
 
 inline int gltexcomprquality{0};	// 0 = fast, 1 = slow and pretty, 2 = very slow and pretty
 inline int gltexmaxsize{0};	// 0 means autodetection on first run
 inline int gltexmiplevel{0};	// discards this many mipmap levels
 
-extern const GLfloat gidentitymat[4][4];
+inline constexpr std::array<std::array<GLfloat, 4>, 4> gidentitymat = {{
+	{1.F, 0.F, 0.F, 0.F},
+	{0.F, 1.F, 0.F, 0.F},
+	{0.F, 0.F, 1.F, 0.F},
+	{0.F, 0.F, 0.F, 1.F},
+}};
+
 extern GLfloat gdrawroomsprojmat[4][4];      // Proj. matrix for drawrooms() calls.
 extern GLfloat grotatespriteprojmat[4][4];   // Proj. matrix for rotatesprite() calls.
 extern GLfloat gorthoprojmat[4][4];          // Proj. matrix for 2D (aux) calls.

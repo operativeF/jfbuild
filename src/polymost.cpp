@@ -107,9 +107,6 @@ static std::array<vsptyp, VSPMAX> vsp;
 static int vcnt;
 static int gtag;
 
-double dxb1[MAXWALLSB];
-double dxb2[MAXWALLSB];
-
 static constexpr auto SCISDIST{1.0}; //1.0: Close plane clipping distance
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
 static constexpr auto LINTERPSIZ{4}; //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
@@ -159,15 +156,6 @@ float gfogdensity{0.F};
 static int lastglredbluemode{0};
 static int redblueclearcnt{0};
 
-struct glfiltermodes glfiltermodes[numglfiltermodes] = {
-	{"GL_NEAREST", GL_NEAREST,GL_NEAREST},
-	{"GL_LINEAR", GL_LINEAR,GL_LINEAR},
-	{"GL_NEAREST_MIPMAP_NEAREST", GL_NEAREST_MIPMAP_NEAREST,GL_NEAREST},
-	{"GL_LINEAR_MIPMAP_NEAREST", GL_LINEAR_MIPMAP_NEAREST,GL_LINEAR},
-	{"GL_NEAREST_MIPMAP_LINEAR", GL_NEAREST_MIPMAP_LINEAR,GL_NEAREST},
-	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR,GL_LINEAR}
-};
-
 static int lastglpolygonmode{0};
 int glpolygonmode{0};     // 0:GL_FILL,1:GL_LINE,2:GL_POINT,3:clear+GL_FILL
 
@@ -211,12 +199,6 @@ static struct {
 static GLuint elementindexbuffer{0};
 static GLuint elementindexbuffersize{0};
 
-const GLfloat gidentitymat[4][4] = {
-	{1.F, 0.F, 0.F, 0.F},
-	{0.F, 1.F, 0.F, 0.F},
-	{0.F, 0.F, 1.F, 0.F},
-	{0.F, 0.F, 0.F, 1.F},
-};
 GLfloat gdrawroomsprojmat[4][4];      // Proj. matrix for drawrooms() calls.
 GLfloat grotatespriteprojmat[4][4];   // Proj. matrix for rotatesprite() calls.
 GLfloat gorthoprojmat[4][4];          // Proj. matrix for 2D (aux) calls.
@@ -417,7 +399,7 @@ void gltexapplyprops ()
 	if (gltexfiltermode < 0) {
 		gltexfiltermode = 0;
 	}
-	else if (gltexfiltermode >= (int)numglfiltermodes) {
+	else if (gltexfiltermode >= numglfiltermodes) {
 		gltexfiltermode = numglfiltermodes - 1;
 	}
 
@@ -429,8 +411,8 @@ void gltexapplyprops ()
 				continue;
 			}
 			glfunc.glBindTexture(GL_TEXTURE_2D,pth->pic[i]->glpic);
-			glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
-			glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
+			glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, glfiltermodes[gltexfiltermode].mag);
+			glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, glfiltermodes[gltexfiltermode].min);
 #ifdef GL_EXT_texture_filter_anisotropic
 			if (glinfo.maxanisotropy > 1.0) {
 				glfunc.glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
@@ -655,19 +637,20 @@ static void polymost_loadshaders()
 		polymostglsl.program = 0;
 	}
 
-	GLuint shader[2] = {0, 0};
-
-	shader[0] = polymost_load_shader(GL_VERTEX_SHADER, default_polymost_vs_glsl, "polymost_vs.glsl");
-	shader[1] = polymost_load_shader(GL_FRAGMENT_SHADER, default_polymost_fs_glsl, "polymost_fs.glsl");
+	std::array<GLuint, 2> shader = {
+		polymost_load_shader(GL_VERTEX_SHADER, default_polymost_vs_glsl, "polymost_vs.glsl"),
+		polymost_load_shader(GL_FRAGMENT_SHADER, default_polymost_fs_glsl, "polymost_fs.glsl")
+	};
+	
 	if (shader[0] && shader[1]) {
-		polymostglsl.program = glbuild_link_program(2, shader);
+		polymostglsl.program = glbuild_link_program(2, &shader[0]);
 	}
-	if (shader[0]) glfunc.glDeleteShader(shader[0]);
-	if (shader[1]) glfunc.glDeleteShader(shader[1]);
+	if (shader[0] != 0) glfunc.glDeleteShader(shader[0]);
+	if (shader[1] != 0) glfunc.glDeleteShader(shader[1]);
 
 	if (polymostglsl.program) {
-		polymostglsl.attrib_vertex       = polymost_get_attrib(polymostglsl.program, "a_vertex");
-		polymostglsl.attrib_texcoord     = polymost_get_attrib(polymostglsl.program, "a_texcoord");
+		polymostglsl.attrib_vertex       = polymost_get_attrib(polymostglsl.program,  "a_vertex");
+		polymostglsl.attrib_texcoord     = polymost_get_attrib(polymostglsl.program,  "a_texcoord");
 		polymostglsl.uniform_modelview   = polymost_get_uniform(polymostglsl.program, "u_modelview");
 		polymostglsl.uniform_projection  = polymost_get_uniform(polymostglsl.program, "u_projection");
 		polymostglsl.uniform_texture     = polymost_get_uniform(polymostglsl.program, "u_texture");
@@ -694,7 +677,7 @@ static void polymost_loadshaders()
 
 	// A fully transparent texture for the case when a glow texture is not needed.
 	if (!nulltexture) {
-		const char pix[4] = {0, 0, 0, 0};
+		std::array<const char, 4> pix = {0, 0, 0, 0};
 		glfunc.glGenTextures(1, &nulltexture);
 		glfunc.glBindTexture(GL_TEXTURE_2D, nulltexture);
 		glfunc.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,1,1,0,GL_RGBA,GL_UNSIGNED_BYTE,(GLvoid*)&pix);
@@ -711,19 +694,19 @@ static void polymost_loadshaders()
 	shader[0] = polymost_load_shader(GL_VERTEX_SHADER, default_polymostaux_vs_glsl, "polymostaux_vs.glsl");
 	shader[1] = polymost_load_shader(GL_FRAGMENT_SHADER, default_polymostaux_fs_glsl, "polymostaux_fs.glsl");
 	if (shader[0] && shader[1]) {
-		polymostauxglsl.program = glbuild_link_program(2, shader);
+		polymostauxglsl.program = glbuild_link_program(2, &shader[0]);
 	}
 	if (shader[0]) glfunc.glDeleteShader(shader[0]);
 	if (shader[1]) glfunc.glDeleteShader(shader[1]);
 
 	if (polymostauxglsl.program) {
-		polymostauxglsl.attrib_vertex    = polymost_get_attrib(polymostauxglsl.program, "a_vertex");
-		polymostauxglsl.attrib_texcoord  = polymost_get_attrib(polymostauxglsl.program, "a_texcoord");
+		polymostauxglsl.attrib_vertex    = polymost_get_attrib(polymostauxglsl.program,    "a_vertex");
+		polymostauxglsl.attrib_texcoord  = polymost_get_attrib(polymostauxglsl.program,    "a_texcoord");
 		polymostauxglsl.uniform_projection = polymost_get_uniform(polymostauxglsl.program, "u_projection");
-		polymostauxglsl.uniform_texture  = polymost_get_uniform(polymostauxglsl.program, "u_texture");
-		polymostauxglsl.uniform_colour   = polymost_get_uniform(polymostauxglsl.program, "u_colour");
-		polymostauxglsl.uniform_bgcolour = polymost_get_uniform(polymostauxglsl.program, "u_bgcolour");
-		polymostauxglsl.uniform_mode     = polymost_get_uniform(polymostauxglsl.program, "u_mode");
+		polymostauxglsl.uniform_texture  = polymost_get_uniform(polymostauxglsl.program,   "u_texture");
+		polymostauxglsl.uniform_colour   = polymost_get_uniform(polymostauxglsl.program,   "u_colour");
+		polymostauxglsl.uniform_bgcolour = polymost_get_uniform(polymostauxglsl.program,   "u_bgcolour");
+		polymostauxglsl.uniform_mode     = polymost_get_uniform(polymostauxglsl.program,   "u_mode");
 
 #if (USE_OPENGL == USE_GL3)
 		glfunc.glGenVertexArrays(1, &polymostauxglsl.vao);
@@ -873,7 +856,7 @@ void polymost_drawpoly_glcall(GLenum mode, struct polymostdrawpolycall const *dr
 	} else {
 		// Drawing from the passed elementvbo items.
 		glfunc.glBindBuffer(GL_ARRAY_BUFFER, polymostglsl.elementbuffer);
-		glfunc.glBufferData(GL_ARRAY_BUFFER, draw->elementcount * sizeof(struct polymostvboitem), draw->elementvbo, GL_STREAM_DRAW);
+		glfunc.glBufferData(GL_ARRAY_BUFFER, draw->elementcount * sizeof(polymostvboitem), draw->elementvbo, GL_STREAM_DRAW);
 	}
 
 	if (draw->indexbuffer > 0) {
@@ -884,9 +867,9 @@ void polymost_drawpoly_glcall(GLenum mode, struct polymostdrawpolycall const *dr
 	}
 
 	glfunc.glVertexAttribPointer(polymostglsl.attrib_vertex, 3, GL_FLOAT, GL_FALSE,
-		sizeof(struct polymostvboitem), (const GLvoid *)offsetof(struct polymostvboitem, v));
+		sizeof(polymostvboitem), (const GLvoid *)offsetof(polymostvboitem, v));
 	glfunc.glVertexAttribPointer(polymostglsl.attrib_texcoord, 2, GL_FLOAT, GL_FALSE,
-		sizeof(struct polymostvboitem), (const GLvoid *)offsetof(struct polymostvboitem, t));
+		sizeof(polymostvboitem), (const GLvoid *)offsetof(polymostvboitem, t));
 
 	glfunc.glActiveTexture(GL_TEXTURE0);
 	glfunc.glBindTexture(GL_TEXTURE_2D, draw->texture0);
@@ -938,7 +921,7 @@ static void polymost_drawaux_glcall(GLenum mode, struct polymostdrawauxcall cons
 #endif
 
 	glfunc.glBindBuffer(GL_ARRAY_BUFFER, polymostauxglsl.elementbuffer);
-	glfunc.glBufferData(GL_ARRAY_BUFFER, draw->elementcount * sizeof(struct polymostvboitem), draw->elementvbo, GL_STREAM_DRAW);
+	glfunc.glBufferData(GL_ARRAY_BUFFER, draw->elementcount * sizeof(polymostvboitem), draw->elementvbo, GL_STREAM_DRAW);
 
 	if (draw->indexes) {
 		glfunc.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, polymostauxglsl.indexbuffer);
@@ -949,9 +932,9 @@ static void polymost_drawaux_glcall(GLenum mode, struct polymostdrawauxcall cons
 	}
 
 	glfunc.glVertexAttribPointer(polymostauxglsl.attrib_vertex, 3, GL_FLOAT, GL_FALSE,
-		sizeof(struct polymostvboitem), (const GLvoid *)offsetof(struct polymostvboitem, v));
+		sizeof(polymostvboitem), (const GLvoid *)offsetof(polymostvboitem, v));
 	glfunc.glVertexAttribPointer(polymostauxglsl.attrib_texcoord, 2, GL_FLOAT, GL_FALSE,
-		sizeof(struct polymostvboitem), (const GLvoid *)offsetof(struct polymostvboitem, t));
+		sizeof(polymostvboitem), (const GLvoid *)offsetof(polymostvboitem, t));
 
 	glfunc.glActiveTexture(GL_TEXTURE0);
 	glfunc.glBindTexture(GL_TEXTURE_2D, draw->texture0);
@@ -981,7 +964,7 @@ static void polymost_drawaux_glcall(GLenum mode, struct polymostdrawauxcall cons
 static void polymost_palfade()
 {
 	struct polymostdrawauxcall draw;
-	struct polymostvboitem vboitem[4];
+	std::array<polymostvboitem, 4> vboitem;
 
 	if ((rendmode != 3) || (qsetmode != 200)) return;
 	if (palfadedelta == 0) return;
@@ -1012,7 +995,7 @@ static void polymost_palfade()
 	draw.indexcount = 4;
 	draw.indexes = nullptr;
 	draw.elementcount = 4;
-	draw.elementvbo = vboitem;
+	draw.elementvbo = &vboitem[0];
 
 	glfunc.glDisable(GL_DEPTH_TEST);
 	glfunc.glEnable(GL_BLEND);
@@ -1210,7 +1193,7 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 		int picidx{PTHPIC_BASE};
 		PTHead * pth{nullptr};
 		struct polymostdrawpolycall draw;
-		struct polymostvboitem vboitem[MINVBOINDEXES];
+		std::array<polymostvboitem, MINVBOINDEXES> vboitem;
 
 		if (usehightile) ptflags |= PTH_HIGHTILE;
 		if (method & METH_CLAMPED) ptflags |= PTH_CLAMPED;
@@ -1314,7 +1297,7 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 
 		draw.indexbuffer = 0;
 		draw.elementbuffer = 0;
-		draw.elementvbo = vboitem;
+		draw.elementvbo = &vboitem[0];
 
 			//Hack for walls&masked walls which use textures that are not a power of 2
 		if ((method & METH_POW2XSPLIT) && (tsizx != xx))
@@ -4514,7 +4497,7 @@ static void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1
 		n = 4;
 	}
 
-	struct polymostvboitem vboitem[4];
+	polymostvboitem vboitem[4];
 
 	for(int i{0}; i < n; ++i)
 	{
@@ -4556,14 +4539,14 @@ static void tessectrap (const float *px, const float *py, std::span<const int> p
 	static int* npoint2{nullptr};
 	struct raster { float x, y, xi; int i; };
 	static raster *rst = nullptr;
-	static struct polymostvboitem *vboitem = nullptr;
+	static polymostvboitem *vboitem = nullptr;
 	if (numpoints + 16 > allocpoints) //16 for safety
 	{
 		allocpoints = numpoints+16;
 		rst = (raster*)realloc(rst,allocpoints*sizeof(raster));
 		slist = (int*)realloc(slist,allocpoints*sizeof(int));
 		npoint2 = (int*)realloc(npoint2,allocpoints*sizeof(int));
-		vboitem = (struct polymostvboitem *)realloc(vboitem, allocpoints*sizeof(struct polymostvboitem));
+		vboitem = (polymostvboitem *)realloc(vboitem, allocpoints*sizeof(polymostvboitem));
 	}
 
 		//Remove unnecessary collinear points:
@@ -4762,7 +4745,7 @@ void polymost_fillpolygon (int npoints)
 int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 {
 	struct polymostdrawauxcall draw;
-	struct polymostvboitem vboitem[4];
+	polymostvboitem vboitem[4];
 
 	if ((rendmode != 3) || (qsetmode != 200))
 		return -1;
@@ -4870,7 +4853,7 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, std::span
 	int vbocnt;
 	palette_t colour;
 	struct polymostdrawauxcall draw;
-	struct polymostvboitem vboitem[80*4];
+	polymostvboitem vboitem[80*4];
 	GLushort vboindexes[80*6];
 
 	if ((rendmode != 3) || (qsetmode != 200)) {
@@ -4990,7 +4973,7 @@ int polymost_drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 {
 	palette_t colour;
 	struct polymostdrawauxcall draw;
-	struct polymostvboitem vboitem[2];
+	polymostvboitem vboitem[2];
 
 	if ((rendmode != 3) || (qsetmode != 200)) return(-1);
 
@@ -5036,7 +5019,7 @@ int polymost_plotpixel(int x, int y, unsigned char col)
 {
 	palette_t colour;
 	struct polymostdrawauxcall draw;
-	struct polymostvboitem vboitem[1];
+	polymostvboitem vboitem[1];
 
 	if ((rendmode != 3) || (qsetmode != 200)) return(-1);
 
@@ -5253,7 +5236,7 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 	if (parm->numparms != 1) {
 		buildprintf("Current texturing mode is %s\n", glfiltermodes[gltexfiltermode].name);
 		buildprintf("  Vaild modes are:\n");
-		for (int m{0}; m < (int)numglfiltermodes; ++m)
+		for (int m{0}; m < numglfiltermodes; ++m)
 			buildprintf("     %d - %s\n",m,glfiltermodes[m].name);
 
 		return OSDCMD_OK;
@@ -5263,14 +5246,14 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 	
 	if (p == parm->parms[0]) {
 		// string
-		for (m = 0; m < (int)numglfiltermodes; m++) {
+		for (m = 0; m < numglfiltermodes; m++) {
 			if (!Bstrcasecmp(parm->parms[0], glfiltermodes[m].name)) break;
 		}
 		if (m == numglfiltermodes) m = gltexfiltermode;   // no change
 	}
 	else {
 		if (m < 0) m = 0;
-		else if (m >= (int)numglfiltermodes) m = numglfiltermodes - 1;
+		else if (m >= numglfiltermodes) m = numglfiltermodes - 1;
 	}
 
 	if (m != gltexfiltermode) {
