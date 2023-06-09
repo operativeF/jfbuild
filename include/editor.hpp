@@ -8,7 +8,6 @@
 inline constexpr auto NUMBUILDKEYS{20};
 
 // extern int qsetmode;
-extern short searchsector;
 extern short searchwall;
 extern short searchstat;
 extern int zmode;
@@ -26,7 +25,6 @@ extern short floorheinum;
 extern int zlock;
 extern short editstatus;
 extern short searchit;
-extern int searchx, searchy;                          //search input
 
 extern short temppicnum;
 extern short tempcstat;
@@ -45,11 +43,8 @@ extern std::array<int, NUMBUILDKEYS> buildkeys;
 inline int ydim16{0};
 inline int halfxdim16{0};
 inline int midydim16{0};
-extern int xdimgame;
 extern int ydimgame;
 extern int bppgame;
-extern int xdim2d;
-extern int ydim2d;
 extern int forcesetup;
 
 struct startwin_settings {

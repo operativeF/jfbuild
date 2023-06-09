@@ -430,8 +430,8 @@ static int defsparser(scriptfile *script)
 					int palnum;
 					char *skinfn;
 
-					if (scriptfile_getsymbol(script,&palnum)) break;
-					if (scriptfile_getstring(script,&skinfn)) break; //skin filename
+					if (scriptfile_getsymbol(script, &palnum)) break;
+					if (scriptfile_getstring(script, &skinfn)) break; //skin filename
 
 					// if we see a sequence of definemodelskin, then a sequence of definemodelframe,
 					// and then a definemodelskin, we need to increment the skin counter.

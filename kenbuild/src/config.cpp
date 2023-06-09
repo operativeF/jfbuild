@@ -13,8 +13,6 @@
 
 #include <array>
 
-extern short brightness;
-extern int fullscreen;
 extern std::array<char, 8> option;
 
 /*

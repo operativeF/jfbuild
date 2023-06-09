@@ -12,7 +12,7 @@ inline std::array<int, NUMKEYS> keys =
 	0x9c,0x1c,0xd,0xc,0xf,0x2b
 };
 
-extern int xdimgame, ydimgame, bppgame;
+extern int ydimgame, bppgame;
 extern int forcesetup;
 
 void	operatesector(short dasector);

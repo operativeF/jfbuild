@@ -80,19 +80,11 @@ int espbak;
 constexpr auto SLOPALOOKUPSIZ = MAXXDIM << 1;
 std::array<intptr_t, SLOPALOOKUPSIZ> slopalookup;
 
-#if USE_POLYMOST && USE_OPENGL
-palette_t palookupfog[MAXPALOOKUPS];
-#endif
-
 int artversion;
 void *pic{nullptr};
 static std::array<unsigned char, MAXTILES> tilefilenum;
 int lastageclock;
 std::array<int, MAXTILES> tilefileoffs;
-
-int artsize = 0;
-size_t cachesize = 0;
-int editorgridextent = 131072;
 
 static std::array<short, 1280> radarang;
 static std::array<short, MAXXDIM> radarang2;
@@ -594,11 +586,6 @@ constexpr std::array<unsigned char, 4 * 256> vgapal16 = {
 	63,63,63,00
 };
 
-short editstatus{0};
-short searchit;
-int searchx{-1};
-int searchy;                          //search input
-short searchsector;
 short searchwall;
 short searchstat;     //search output
 

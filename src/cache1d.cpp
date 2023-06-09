@@ -37,10 +37,10 @@ static int kzipopen(const char *filnam)
 //   To use this module, here's all you need to do:
 //
 //   Step 1: Allocate a nice BIG buffer, like from 1MB-4MB and
-//           Call initcache(int cachestart, int cachesize) where
+//           Call initcache(int cachestart, int cache1dsize) where
 //
 //              cachestart = pointer to start of BIG buffer
-//              cachesize = length of BIG buffer
+//              cache1dsize = length of BIG buffer
 //
 //   Step 2: Call allocache(void **bufptr, int bufsiz, char *lockptr)
 //              whenever you need to allocate a buffer, where:
@@ -63,7 +63,7 @@ static int kzipopen(const char *filnam)
 
 constexpr auto MAXCACHEOBJECTS{9216};
 
-static size_t cachesize{0};
+static size_t cache1dsize{0};
 unsigned char zerochar{0};
 intptr_t cachestart{0};
 int cacnum{0};
@@ -107,13 +107,13 @@ void initcache(void *dacachestart, size_t dacachesize)
 	});
 
 	cachestart = ((intptr_t)dacachestart + 15) & ~15;
-	cachesize = (dacachesize - ((-(intptr_t)dacachestart) & 15)) & ~15;
+	cache1dsize = (dacachesize - ((-(intptr_t)dacachestart) & 15)) & ~15;
 
-	cac[0].leng = cachesize;
+	cac[0].leng = cache1dsize;
 	cac[0].lock = &zerochar;
 	cacnum = 1;
 
-	buildprintf("initcache(): Initialised with %zu bytes\n", cachesize);
+	buildprintf("initcache(): Initialised with %zu bytes\n", cache1dsize);
 }
 
 void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
@@ -132,9 +132,9 @@ void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
 
 	newbytes = ((newbytes+15)& ~15);
 
-	if (newbytes > cachesize)
+	if (newbytes > cache1dsize)
 	{
-		buildprintf("Cachesize: %zu\n",cachesize);
+		buildprintf("Cachesize: %zu\n",cache1dsize);
 		buildprintf("Newhandle: 0x%p, Newbytes: %zu, *Newlock: %d\n", (void*)newhandle,newbytes,*newlockptr);
 		reportandexit("BUFFER TOO BIG TO FIT IN CACHE!");
 	}
@@ -146,12 +146,12 @@ void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
 
 		//Find best place
 	bestval = SIZE_MAX;
-	o1 = cachesize;
+	o1 = cache1dsize;
 	
 	for(z=cacnum-1;z>=0;z--)
 	{
 		o1 -= cac[z].leng;
-		o2 = o1+newbytes; if (o2 > cachesize) continue;
+		o2 = o1+newbytes; if (o2 > cache1dsize) continue;
 
 		daval = 0;
 		for(i=o1,zz=z;i<o2;i+=cac[zz++].leng)
@@ -283,7 +283,7 @@ static void reportandexit(const char* errormessage)
         j += cac[i].leng;
     }
 
-	buildprintf("Cachesize = %zu\n",cachesize);
+	buildprintf("Cachesize = %zu\n",cache1dsize);
 	buildprintf("Cacnum = %d\n",cacnum);
 	buildprintf("Cache length sum = %zu\n",j);
 	buildprintf("ERROR: %s\n",errormessage);

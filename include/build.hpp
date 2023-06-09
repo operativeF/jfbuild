@@ -61,6 +61,18 @@ inline constexpr auto MAXUNIQHUDID{256}; //Extra slots so HUD models can store a
 inline constexpr auto CLIPMASK0 = (((1L)<<16)+1L);
 inline constexpr auto CLIPMASK1 = (((256L)<<16)+64L);
 
+inline constexpr int editorgridextent{131072};
+inline int xdim2d{640};
+inline int ydim2d{480};
+inline int xdimgame{640};
+inline int cachesize{0};
+inline int artsize{0};
+inline short editstatus{0};
+inline short searchit{0};
+inline int searchx{-1};
+inline int searchy{-1};
+inline short searchsector{0};
+
 #ifdef __GNUC__
 #  if __GNUC__ == 4 && __GNUC_MINOR__ >= 7
 #    define BPACK __attribute__ ((packed, gcc_struct))
@@ -279,6 +291,8 @@ inline int windowx1{0};
 inline int windowy1{0};
 inline int windowx2{0};
 inline int windowy2{0};
+inline int msens = 1 << 16;
+inline short brightness{0};
 inline std::array<short, MAXXDIM> startumost{};
 inline std::array<short, MAXXDIM> startdmost{};
 

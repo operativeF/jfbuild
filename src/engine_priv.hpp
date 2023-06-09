@@ -69,10 +69,6 @@ inline int globalx1{0};
 inline int globaly2{0};
 inline int globalorientation{0};
 
-extern "C" short searchit;
-extern "C" int searchx;
-extern "C" int searchy;
-extern "C" short searchsector;
 extern "C" short searchwall;
 extern "C" short searchstat;
 
@@ -113,7 +109,7 @@ struct textfontspec {
 extern const struct textfontspec textfonts[3];
 
 #if USE_OPENGL
-extern palette_t palookupfog[MAXPALOOKUPS];
+inline std::array<palette_t, MAXPALOOKUPS> palookupfog{};
 #endif
 
 int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat);

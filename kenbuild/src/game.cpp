@@ -114,7 +114,7 @@ static int fvel2, svel2, avel2;
 
 std::array<char, NUMOPTIONS> option = {1, 1, 1, 0, 0, 0, 1, (4 << 4) | 1 | 2 | 4};
 
-int xdimgame = 640, ydimgame = 480, bppgame = 8;
+int ydimgame = 480, bppgame = 8;
 int forcesetup = 1;
 
 static int digihz[8] = {6000,8000,11025,16000,22050,32000,44100,48000};
@@ -205,7 +205,6 @@ static char tempbuf[MAXXDIM];
 static char boardfilename[BMAX_PATH];
 static short tempshort[MAXSECTORS];
 static short screenpeek = 0, oldmousebstatus = 0;
-short brightness = 0;
 static short screensize, screensizeflag = 0;
 static short neartagsector, neartagwall, neartagsprite;
 static int lockclock, neartagdist, neartaghitdist;

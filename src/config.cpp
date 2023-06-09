@@ -13,11 +13,8 @@
 
 #include <array>
 
-extern short brightness;
-extern int fullscreen;
 extern std::array<char, 8> option;
 extern std::array<int, NUMBUILDKEYS> keys;
-extern int msens;
 
 /*
  * SETUP.DAT

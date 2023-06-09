@@ -89,7 +89,7 @@ static inline int _filelength (int h)
 #endif
 
 static int bytesperline, xres, yres, globxoffs, globyoffs;
-static intptr_t frameplace;
+static intptr_t frameplace_kl;
 
 static constexpr std::array<int, 32> pow2mask =
 {
@@ -573,7 +573,7 @@ static int initpass () //Interlaced images have 7 "passes", non-interlaced have 
 
 	i = globxoffs+ixoff; i = (((-(i>=0))|(ixstp-1))&i);
 	k = (((-(yplc>=0))|(iystp-1))&yplc);
-	nfplace = k*bytesperline + (i<<2) + frameplace;
+	nfplace = k*bytesperline + (i<<2) + frameplace_kl;
 
 		//Precalculate x-clipping to screen borders (speeds up putbuf)
 		//Equation: (0 <= xr <= ixsiz) && (0 <= xr*ixstp+globxoffs+ixoff <= xres)
@@ -1140,7 +1140,7 @@ static int kpngrend (const char *kfilebuf, int kfilength,
 	nfilptr = nullptr;
 	//if (leng < 4) will it crash?
 
-	frameplace = daframeplace;
+	frameplace_kl = daframeplace;
 	bytesperline = dabytesperline;
 	xres = daxres;
 	yres = dayres;
@@ -1546,7 +1546,7 @@ static void yrbrend (int x, int y)
 	for(yy=0;yy<(lcompvsamp[0]<<3);yy+=8)
 	{
 		oy = y+yy+globyoffs; if ((unsigned)oy >= (unsigned)clipydim) { odc += (lcomphsamp[0]<<6); continue; }
-		pp = oy*bytesperline + ((x+globxoffs)<<2) + frameplace;
+		pp = oy*bytesperline + ((x+globxoffs)<<2) + frameplace_kl;
 		for(xx=0;xx<(lcomphsamp[0]<<3);xx+=8,odc+=64)
 		{
 			ox = x+xx+globxoffs; if ((unsigned)ox >= (unsigned)clipxdim) continue;
@@ -1716,7 +1716,7 @@ static int kpegrend (const char *kfilebuf, int kfilength,
 				xdim = SSWAPIL(*(unsigned short *)&kfileptr[2]);
 				//std::printf("%s: %ld / %ld = %ld\n",filename,xdim*ydim*3,kfilength,(xdim*ydim*3)/kfilength);
 
-				frameplace = daframeplace;
+				frameplace_kl = daframeplace;
 				bytesperline = dabytesperline;
 				xres = daxres;
 				yres = dayres;

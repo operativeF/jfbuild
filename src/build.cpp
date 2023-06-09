@@ -50,28 +50,18 @@ short cursectnum;
 int hvel;
 
 int grponlymode{0};
-extern int editorgridextent;	// in engine.c
-int msens = 1 << 16;
 
 static int synctics{0};
 static int lockclock{0};
 
-extern intptr_t frameplace;
 int ytop16;
 static int bakydim16;
 static int bakytop16;
-int xdim2d{640};
-int ydim2d{480};
-int xdimgame{640};
 int ydimgame{480};
 int bppgame{8};
 int forcesetup{1};
 
-extern int cachesize;
-extern int artsize;
-
 static short oldmousebstatus{0};
-short brightness{0};
 int zlock{0x7fffffff};
 int zmode{0};
 int whitecol;
@@ -89,11 +79,6 @@ std::array<unsigned char, 4096> tempbuf;
 char names[MAXTILES][25];
 
 short asksave{0};
-extern short editstatus;
-extern short searchit;
-extern int searchx;
-extern int searchy;                          //search input
-extern short searchsector;
 extern short searchwall;
 extern short searchstat;     //search output
 
@@ -568,7 +553,7 @@ int app_main(int argc, char const * const argv[])
 	ExtUnInit();
 	uninitengine();
 
-	buildprintf("Memory status: %d(%d) bytes\n",cachesize,artsize);
+	buildprintf("Memory status: %d(%d) bytes\n", cachesize, artsize);
 	buildprintf("%s\n", &kensig[0]);
 	return(0);
 }
