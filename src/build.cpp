@@ -7292,12 +7292,10 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 								}
 
 								// Correct for zoom.
-								for (p=0;p<4;p++) {
-									rxi[p] = mulscale14(rxi[p],zoome);
-									ryi[p] = mulscale14(ryi[p],zoome);
-									clipx[p] = mulscale14(clipx[p],zoome);
-									clipy[p] = mulscale14(clipy[p],zoome);
-								}
+								std::ranges::transform(rxi, rxi.begin(), [zoome](auto rxip) { return mulscale14(rxip, zoome); });
+								std::ranges::transform(ryi, ryi.begin(), [zoome](auto ryip) { return mulscale14(ryip, zoome); });
+								std::ranges::transform(clipx, clipx.begin(), [zoome](auto clipxp) { return mulscale14(clipxp, zoome); });
+								std::ranges::transform(clipy, clipy.begin(), [zoome](auto clipyp) { return mulscale14(clipyp, zoome); });
 
 								drawlinepat = 0x99999999;
 								for (p=0;p<np;p++) {

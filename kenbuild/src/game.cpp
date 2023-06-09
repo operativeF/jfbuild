@@ -1288,14 +1288,11 @@ void prepareboard(char *daboardfilename)
 	std::ranges::fill(ssync, input{});
 	std::ranges::fill(osync, input{});
 
-		//Scan sector tags
+	//Scan sector tags
+	std::ranges::fill(waterfountainwall, -1);
+	std::ranges::fill(waterfountaincnt, 0);
+	std::ranges::fill(slimesoundcnt, 0);
 
-	for(i=0;i<MAXPLAYERS;i++)
-	{
-		waterfountainwall[i] = -1;
-		waterfountaincnt[i] = 0;
-		slimesoundcnt[i] = 0;
-	}
 	warpsectorcnt = 0;      //Make a list of warping sectors
 	xpanningsectorcnt = 0;  //Make a list of wall x-panning sectors
 	floorpanningcnt = 0;    //Make a list of slime sectors
