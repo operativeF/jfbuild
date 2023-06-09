@@ -340,9 +340,6 @@ int addsearchpath(const char *p)
 
 int findfrompath(const char *fn, char **where)
 {
-	searchpath_t *sp;
-	size_t allocsiz;
-
 	// pathsearchmode == 0: tests current dir and then the dirs of the path stack
 	// pathsearchmode == 1: tests fn without modification, then like for pathsearchmode == 0
 	
@@ -359,7 +356,7 @@ int findfrompath(const char *fn, char **where)
 	if (!ffn) return -1;
 	Bcorrectfilename(ffn,0);	// compress relative paths
 	
-	allocsiz = std::max(maxsearchpathlen, std::size_t{2});	// "./" (aka. curdir)
+	std::size_t allocsiz = std::max(maxsearchpathlen, std::size_t{2});	// "./" (aka. curdir)
 	allocsiz += std::strlen(ffn);
 	allocsiz += 1;	// a nul
 	
@@ -378,7 +375,7 @@ int findfrompath(const char *fn, char **where)
 		return 0;
 	}
 	
-	for (sp = searchpathhead; sp; sp = sp->next) {
+	for (auto sp = searchpathhead; sp; sp = sp->next) {
 		std::strcpy(pfn, sp->path);
 		std::strcat(pfn, ffn);
 		//buildprintf("Trying %s\n", pfn);
@@ -407,13 +404,11 @@ int openfrompath(const char *fn, int flags, int mode)
 
 std::FILE* fopenfrompath(const char *fn, const char *mode)
 {
-	int fh;
-	std::FILE *h;
-	int bmode = 0;
-	int smode = 0;
-	const char *c;
+	int bmode{0};
+	int smode{0};
+	const char *c{mode};
 
-	for (c=mode; c[0]; ) {
+	for (; c[0]; ) {
 			 if (c[0] == 'r' && c[1] == '+') { bmode = BO_RDWR; smode = BS_IREAD|BS_IWRITE; c+=2; }
 		else if (c[0] == 'r')                { bmode = BO_RDONLY; smode = BS_IREAD; c+=1; }
 		else if (c[0] == 'w' && c[1] == '+') { bmode = BO_RDWR|BO_CREAT|BO_TRUNC; smode = BS_IREAD|BS_IWRITE; c+=2; }
@@ -424,11 +419,16 @@ std::FILE* fopenfrompath(const char *fn, const char *mode)
 		else if (c[1] == 't')                { bmode |= BO_TEXT; c+=1; }
 		else c++;
 	}
-	fh = openfrompath(fn,bmode,smode);
-	if (fh < 0) return nullptr;
+
+	int fh = openfrompath(fn, bmode, smode);
 	
-	h = fdopen(fh,mode);
-	if (!h) close(fh);
+	if (fh < 0)
+		return nullptr;
+	
+	std::FILE* h = fdopen(fh, mode);
+
+	if (!h)
+		close(fh);
 
 	return h;
 }
@@ -461,8 +461,6 @@ static int kzcurhand{-1};
 
 int initgroupfile(const char *filename)
 {
-	std::array<char, 16> buf;
-	int i, j, k;
 #ifdef WITHKPLIB
 	char *zfn;
 #endif
@@ -476,21 +474,27 @@ int initgroupfile(const char *filename)
 	if (findfrompath(filename, &zfn) < 0) return -1;
 	
 	// check to see if the file passed is a ZIP and pass it on to kplib if it is
-	i = Bopen(zfn,BO_BINARY|BO_RDONLY,BS_IREAD);
-	if (i < 0) { std::free(zfn); return -1; }
+	int i = Bopen(zfn,BO_BINARY|BO_RDONLY,BS_IREAD);
+	if (i < 0) {
+		std::free(zfn);
+		return -1;
+	}
 
-	if (Bread(i, &buf[0], 4) == 4)
+	std::array<char, 16> buf{};
+	if (Bread(i, &buf[0], 4) == 4) {
 		if (buf[0] == 0x50 && buf[1] == 0x4B && buf[2] == 0x03 && buf[3] == 0x04) {
 			close(i);
 			i = kzaddstack(zfn);
 			std::free(zfn);
 			return i;
 		}
+	}
+
 	std::free(zfn);
 
 	if (numgroupfiles >= MAXGROUPFILES) return(-1);
 
-	Blseek(i,0,BSEEK_SET);
+	Blseek(i, 0, BSEEK_SET);
 	groupfil[numgroupfiles] = i;
 #else
 	groupfil[numgroupfiles] = openfrompath(filename,BO_BINARY|BO_RDONLY,BS_IREAD);
@@ -526,26 +530,27 @@ int initgroupfile(const char *filename)
 			return(-1);
 		}
 
-		j = 0;
-		for(i=0;i<gnumfiles[numgroupfiles];i++)
+		int j{0};
+		for(int gnum{0}; gnum < gnumfiles[numgroupfiles]; ++gnum)
 		{
-			k = B_LITTLE32(*((int *)&gfilelist[numgroupfiles][(i<<4)+12]));
-			gfilelist[numgroupfiles][(i<<4)+12] = 0;
-			gfileoffs[numgroupfiles][i] = j;
+			int k = B_LITTLE32(*((int *)&gfilelist[numgroupfiles][(gnum << 4) + 12]));
+			gfilelist[numgroupfiles][(gnum << 4) + 12] = 0;
+			gfileoffs[numgroupfiles][gnum] = j;
 			j += k;
 		}
+
 		gfileoffs[numgroupfiles][gnumfiles[numgroupfiles]] = j;
 	}
+
 	numgroupfiles++;
-	return(groupfil[numgroupfiles-1]);
+	return(groupfil[numgroupfiles - 1]);
 }
 
 void uninitsinglegroupfile(int grphandle)
 {
-	int i;
-	int grpnum = -1;
+	int grpnum{-1};
 
-	for(i=numgroupfiles-1;i>=0;i--)
+	for(int i = numgroupfiles - 1; i >= 0; --i)
 		if (groupfil[i] != -1 && groupfil[i] == grphandle)
 		{
 			std::free(gfilelist[i]);
@@ -556,13 +561,14 @@ void uninitsinglegroupfile(int grphandle)
 			break;
 		}
 
-	if (grpnum == -1) return;
+	if (grpnum == -1)
+		return;
 
 	// JBF 20040111
-	numgroupfiles--;
+	--numgroupfiles;
 
 	// move any group files following this one back
-	for (i=grpnum+1; i<MAXGROUPFILES; i++)
+	for (int i = grpnum + 1; i < MAXGROUPFILES; ++i) {
 		if (groupfil[i] != -1) {
 			groupfil[i-1]    = groupfil[i];
 			gnumfiles[i-1]   = gnumfiles[i];
@@ -571,9 +577,10 @@ void uninitsinglegroupfile(int grphandle)
 			gfileoffs[i-1]   = gfileoffs[i];
 			groupfil[i] = -1;
 		}
+	}
 
 	// fix up the open files that need attention
-	for(i=0;i<MAXOPENFILES;i++) {
+	for(int i{0}; i < MAXOPENFILES; ++i) {
 		if (filegrp[i] >= 254)         // external file (255) or ZIPped file (254)
 			continue;
 		else if (filegrp[i] == grpnum)   // close file in group we closed
@@ -585,9 +592,7 @@ void uninitsinglegroupfile(int grphandle)
 
 void uninitgroupfile()
 {
-	int i;
-
-	for(i=numgroupfiles-1;i>=0;i--)
+	for(int i = numgroupfiles - 1; i >= 0; --i) {
 		if (groupfil[i] != -1)
 		{
 			std::free(gfilelist[i]);
@@ -595,10 +600,12 @@ void uninitgroupfile()
 			Bclose(groupfil[i]);
 			groupfil[i] = -1;
 		}
+	}
+
 	numgroupfiles = 0;
 
 	// JBF 20040111: "close" any files open in groups
-	for(i=0;i<MAXOPENFILES;i++) {
+	for(int i{0}; i < MAXOPENFILES; ++i) {
 		if (filegrp[i] < 254)   // JBF 20040130: not external or ZIPped
 			filehan[i] = -1;
 	}
@@ -606,18 +613,10 @@ void uninitgroupfile()
 
 int kopen4load(const char *filename, char searchfirst)
 {
-	int i;
-	int j;
-	int k;
-	int fil;
-	int newhandle;
-	char bad;
-	char *gfileptr;
-
-	newhandle = MAXOPENFILES-1;
+	int newhandle = MAXOPENFILES - 1;
 	while (filehan[newhandle] != -1)
 	{
-		newhandle--;
+		--newhandle;
 		if (newhandle < 0)
 		{
 			buildprintf("TOO MANY FILES OPEN IN FILE GROUPING SYSTEM!");
@@ -625,14 +624,16 @@ int kopen4load(const char *filename, char searchfirst)
 		}
 	}
 
-	if (searchfirst == 0)
-		if ((fil = openfrompath(filename,BO_BINARY|BO_RDONLY,S_IREAD)) >= 0)
-		{
+	if (searchfirst == 0) {
+		int fil{0};
+
+		if ((fil = openfrompath(filename,BO_BINARY|BO_RDONLY,S_IREAD)) >= 0) {
 			filegrp[newhandle] = 255;
 			filehan[newhandle] = fil;
 			filepos[newhandle] = 0;
 			return(newhandle);
 		}
+	}
 
 	for (; toupperlookup[(int)(unsigned char)*filename] == '/'; filename++);
 	
@@ -642,55 +643,61 @@ int kopen4load(const char *filename, char searchfirst)
 		if (kzcurhand >= 0) filepos[kzcurhand] = kztell();
 		kzclose();
 	}
-	if (searchfirst != 1 && (i = kzipopen(filename)) != 0) {
+
+	int zipint{0};
+	if (searchfirst != 1 && (zipint = kzipopen(filename) != 0)) {
 		kzcurhand = newhandle;
 		filegrp[newhandle] = 254;
-		filehan[newhandle] = i;
+		filehan[newhandle] = zipint;
 		filepos[newhandle] = 0;
 		std::strcpy(filenamsav[newhandle],filename);
 		return newhandle;
 	}
 #endif
 
-	for(k=numgroupfiles-1;k>=0;k--)
+	for(int k = numgroupfiles - 1; k >= 0; --k)
 	{
 		if (searchfirst == 1) k = 0;
 		if (groupfil[k] >= 0)
 		{
-			for(i=gnumfiles[k]-1;i>=0;i--)
+			for(int i = gnumfiles[k] - 1; i >= 0; --i)
 			{
-				gfileptr = (char *)&gfilelist[k][i<<4];
+				auto* gfileptr = (char *)&gfilelist[k][i << 4];
 
-				bad = 0;
-				for(j=0;j<13;j++)
+				char bad{0};
+				int j{0};
+				for(; j < 13; ++j)
 				{
 					if (!filename[j]) break;
 					if (toupperlookup[(int)(unsigned char)filename[j]] != toupperlookup[(int)(unsigned char)gfileptr[j]])
 						{ bad = 1; break; }
 				}
-				if (bad) continue;
-				if (j<13 && gfileptr[j]) continue;   // JBF: because e1l1.map might exist before e1l1
-				if (j==13 && filename[j]) continue;   // JBF: long file name
+
+				if (bad) 
+					continue;
+				if (j<13 && gfileptr[j])
+					continue;   // JBF: because e1l1.map might exist before e1l1
+				if (j==13 && filename[j])
+					continue;   // JBF: long file name
 
 				filegrp[newhandle] = k;
 				filehan[newhandle] = i;
 				filepos[newhandle] = 0;
-				return(newhandle);
+				return newhandle;
 			}
 		}
 	}
-	return(-1);
+	return -1;
 }
 
 int kread(int handle, void *buffer, unsigned leng)
 {
-	int i;
-	int filenum;
-	int groupnum;
-
-	filenum = filehan[handle];
-	groupnum = filegrp[handle];
-	if (leng > INT_MAX) { errno = EINVAL; return -1; }
+	int filenum = filehan[handle];
+	int groupnum = filegrp[handle];
+	if (leng > std::numeric_limits<int>::max()) {
+		errno = EINVAL;
+		return -1;
+	}
 	if (groupnum == 255) return((int)read(filenum,buffer,leng));
 #ifdef WITHKPLIB
 	else if (groupnum == 254)
@@ -708,40 +715,42 @@ int kread(int handle, void *buffer, unsigned leng)
 
 	if (groupfil[groupnum] != -1)
 	{
-		i = gfileoffs[groupnum][filenum]+filepos[handle];
-		if (i != groupfilpos[groupnum])
+		const int gpos = gfileoffs[groupnum][filenum]+filepos[handle];
+		if (gpos != groupfilpos[groupnum])
 		{
-			lseek(groupfil[groupnum],i+((gnumfiles[groupnum]+1)<<4),SEEK_SET);
-			groupfilpos[groupnum] = i;
+			lseek(groupfil[groupnum], gpos + ((gnumfiles[groupnum]+1)<<4),SEEK_SET);
+			groupfilpos[groupnum] = gpos;
 		}
+
 		leng = std::min(leng, (gfileoffs[groupnum][filenum+1] - gfileoffs[groupnum][filenum]) - static_cast<unsigned int>(filepos[handle]));
-		i = (int)read(groupfil[groupnum],buffer,leng);
+		
+		int i = (int)read(groupfil[groupnum],buffer,leng);
 		if (i > 0) {
 			filepos[handle] += i;
 			groupfilpos[groupnum] += i;
 		}
-		return(i);
+
+		return i;
 	}
 
-	return(0);
+	return 0;
 }
 
 int kgetc(int handle)
 {
-	int len;
 	unsigned char ch;
 
-	len = kread(handle, &ch, 1);
-	if (len < 1) return EOF;
-	return (int)ch;
+	int len = kread(handle, &ch, 1);
+	
+	if (len < 1)
+		return EOF;
+
+	return static_cast<int>(ch);
 }
 
 int klseek(int handle, int offset, int whence)
 {
-	int i;
-	int groupnum;
-
-	groupnum = filegrp[handle];
+	int groupnum = filegrp[handle];
 
 	if (groupnum == 255) return((int)lseek(filehan[handle],offset,whence));
 #ifdef WITHKPLIB
@@ -760,25 +769,30 @@ int klseek(int handle, int offset, int whence)
 
 	if (groupfil[groupnum] != -1)
 	{
+		int i{0};
 		switch(whence)
 		{
-			case BSEEK_SET: filepos[handle] = offset; break;
-			case BSEEK_END: i = filehan[handle];
-				filepos[handle] = (gfileoffs[groupnum][i+1]-gfileoffs[groupnum][i])+offset;
+			case BSEEK_SET:
+				filepos[handle] = offset;
 				break;
-			case BSEEK_CUR: filepos[handle] += offset; break;
+			case BSEEK_END:
+				i = filehan[handle];
+				filepos[handle] = (gfileoffs[groupnum][i + 1] - gfileoffs[groupnum][i]) + offset;
+				break;
+			case BSEEK_CUR:
+				filepos[handle] += offset;
+				break;
 		}
-		return(filepos[handle]);
+
+		return filepos[handle];
 	}
-	return(-1);
+	return -1;
 }
 
 int kfilelength(int handle)
 {
-	int i;
-	int groupnum;
+	int groupnum = filegrp[handle];
 
-	groupnum = filegrp[handle];
 	if (groupnum == 255) {
 		return (int)Bfilelength(filehan[handle]);
 	}
@@ -795,15 +809,13 @@ int kfilelength(int handle)
 		return kzfilelength();
 	}
 #endif
-	i = filehan[handle];
+	const int i = filehan[handle];
 	return(gfileoffs[groupnum][i+1]-gfileoffs[groupnum][i]);
 }
 
 int ktell(int handle)
 {
-	int groupnum;
-
-	groupnum = filegrp[handle];
+	const int groupnum = filegrp[handle];
 
 	if (groupnum == 255) return((int)lseek(filehan[handle],0,SEEK_CUR));
 #ifdef WITHKPLIB
@@ -826,8 +838,10 @@ int ktell(int handle)
 
 void kclose(int handle)
 {
-	if (handle < 0) return;
-	if (filegrp[handle] == 255) Bclose(filehan[handle]);
+	if (handle < 0)
+		return;
+	if (filegrp[handle] == 255)
+		Bclose(filehan[handle]);
 #ifdef WITHKPLIB
 	else if (filegrp[handle] == 254)
 	{
@@ -888,7 +902,10 @@ static int klistaddentry(CACHE1D_FIND_REC **rec, const char* name, int type, int
 	}
 
 	r = (CACHE1D_FIND_REC *)std::malloc(sizeof(CACHE1D_FIND_REC)+std::strlen(name)+1);
-	if (!r) return -1;
+	
+	if (!r)
+		return -1;
+	
 	r->name = (char*)r + sizeof(CACHE1D_FIND_REC); std::strcpy(r->name, name);
 	r->type = type;
 	r->source = source;
@@ -910,11 +927,9 @@ static int klistaddentry(CACHE1D_FIND_REC **rec, const char* name, int type, int
 }
 
 void klistfree(CACHE1D_FIND_REC *rec)
-{
-	CACHE1D_FIND_REC *n;
-	
+{	
 	while (rec) {
-		n = rec->next;
+		CACHE1D_FIND_REC* n = rec->next;
 		std::free(rec);
 		rec = n;
 	}
@@ -922,13 +937,12 @@ void klistfree(CACHE1D_FIND_REC *rec)
 
 CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 {
-	CACHE1D_FIND_REC *rec = nullptr;
-	char *path;
+	CACHE1D_FIND_REC *rec{nullptr};
 	
 	// pathsearchmode == 0: enumerates a path in the virtual filesystem
 	// pathsearchmode == 1: enumerates the system filesystem path passed in
 	
-	path = strdup(_path);
+	char* path = strdup(_path);
 	if (!path) return nullptr;
 
 	// we don't need any leading dots and slashes or trailing slashes either
@@ -1130,12 +1144,6 @@ static void lzwrelease()
 
 unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
 {
-	size_t i;
-	size_t j;
-	int k;
-	int kgoal;
-	unsigned short leng;
-
 	lzwallocate();
 
 	if (dasizeof > LZWSIZE) {
@@ -1143,36 +1151,55 @@ unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
 		dasizeof = 1;
 	}
 
-	auto* ptr = (unsigned char *)buffer;
-
-	if (kread(fil,&leng,2) != 2) {
+	unsigned short leng{0};
+	if (kread(fil, &leng, 2) != 2) {
 		lzwrelease();
 		return 0;
 	}
 
 	leng = B_LITTLE16(leng);
 
-	if (kread(fil,lzwbuf5,(int)leng) != leng) { lzwrelease(); return 0; }
-	k = 0; kgoal = lzwuncompress(lzwbuf5,(int)leng,lzwbuf4);
-
-	copybufbyte(lzwbuf4,ptr,(int)dasizeof);
+	if (kread(fil,lzwbuf5,(int)leng) != leng) {
+		lzwrelease();
+		return 0;
+	}
 	
-	k += (int)dasizeof;
+	int kgoal = lzwuncompress(lzwbuf5,(int)leng,lzwbuf4);
 
-	for(i=1;i<count;i++)
+	auto* ptr = (unsigned char *)buffer;
+	copybufbyte(lzwbuf4, ptr, (int)dasizeof);
+	
+	int k = (int)dasizeof;
+
+	for(std::size_t i{1}; i < count; ++i)
 	{
 		if (k >= kgoal)
 		{
-			if (kread(fil,&leng,2) != 2) { lzwrelease(); return -1; }
+			if (kread(fil, &leng, 2) != 2) {
+				lzwrelease();
+				return -1;
+			}
+
 			leng = B_LITTLE16(leng);
-			if (kread(fil,lzwbuf5,(int)leng) != leng) { lzwrelease(); return -1; }
-			k = 0; kgoal = lzwuncompress(lzwbuf5,(int)leng,lzwbuf4);
+			if (kread(fil,lzwbuf5,(int)leng) != leng) {
+				lzwrelease();
+				return -1;
+			}
+
+			k = 0;
+			kgoal = lzwuncompress(lzwbuf5, (int) leng, lzwbuf4);
 		}
-		for(j=0;j<dasizeof;j++) ptr[j+dasizeof] = ((ptr[j]+lzwbuf4[j+k])&255);
+
+		for(std::size_t j{0}; j < dasizeof; ++j) {
+			ptr[j + dasizeof] = ((ptr[j] + lzwbuf4[j + k]) & 255);
+		}
+
 		k += dasizeof;
 		ptr += dasizeof;
 	}
+
 	lzwrelease();
+	
 	return count;
 }
 
