@@ -40,6 +40,7 @@
 #include <cassert>
 #include <cmath>
 #include <numbers>
+#include <numeric>
 #include <span>
 
 void loadvoxel(int voxindex) { (void)voxindex; }
@@ -5505,6 +5506,7 @@ static int loadtables()
 		}
 	);
 
+	// TODO: Make this table as a constexpr array.
     for(int i{0}; i < 640; i++) {
         radarang[i] = (short)(atan(((double)i-639.5)/160)*64*1024/std::numbers::pi_v<double>);
         radarang[1279 - i] = -radarang[i];
@@ -6103,14 +6105,14 @@ int initengine()
 	parallaxyscale = 65536;
 	showinvisibility = 0;
 
-	for(i=1;i<1024;i++) {
-		lowrecip[i] = ((1 << 24) - 1) / i;
-	}
+	std::generate(std::next(lowrecip.begin()), lowrecip.end(), [n = 1] () mutable {
+		return ((1 << 24) - 1) / n++;
+	});
 
 	for(i=0;i<MAXVOXELS;i++)
 		for(j=0;j<MAXVOXMIPS;j++)
 		{
-			voxoff[i][j] = 0L;
+			// voxoff[i][j] = 0L; // NOTE: Initialized at decl now.
 			voxlock[i][j] = 200;
 		}
 	
@@ -6205,11 +6207,8 @@ void initspritelists()
 	std::ranges::fill(headspritesect, -1);
 	headspritesect[MAXSECTORS] = 0;
 
-	for(i=0;i<MAXSPRITES;i++)
-	{
-		prevspritesect[i] = i-1;
-		nextspritesect[i] = i+1;
-	}
+	std::iota(prevspritesect.begin(), prevspritesect.end(), -1);
+	std::iota(nextspritesect.begin(), nextspritesect.end(), 1);
 
 	for(auto& aSprite : sprite) {
 		aSprite.sectnum = MAXSECTORS;
@@ -6221,12 +6220,9 @@ void initspritelists()
 	std::ranges::fill(headspritestat, -1);  //Init doubly-linked sprite status lists
 	headspritestat[MAXSTATUS] = 0;
 
-	for(i=0;i<MAXSPRITES;i++)
-	{
-		prevspritestat[i] = i-1;
-		nextspritestat[i] = i+1;
-	}
-
+	std::iota(prevspritestat.begin(), prevspritestat.end(), -1);
+	std::iota(nextspritestat.begin(), nextspritestat.end(), 1);
+	
 	for(auto& aSprite : sprite) {
 		aSprite.statnum = MAXSTATUS;
 	}
@@ -6355,7 +6351,7 @@ void drawrooms(int daposx, int daposy, int daposz,
 		bunchfirst[0] = bunchfirst[numbunches];
 		bunchlast[0] = bunchlast[numbunches];
 
-		mirrorsy1 = std::min(umost[mirrorsx1],umost[mirrorsx2]);
+		mirrorsy1 = std::min(umost[mirrorsx1], umost[mirrorsx2]);
 		mirrorsy2 = std::max(dmost[mirrorsx1], dmost[mirrorsx2]);
 	}
 
@@ -6996,7 +6992,7 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 
 	std::ranges::fill(show2dsector, 0);
 	std::ranges::fill(show2dsprite, 0);
-	std::ranges::fill(show2dwall, 0);
+	std::ranges::fill(show2dwall,   0);
 
 	kread(fil,daposx,4); *daposx = B_LITTLE32(*daposx);
 	kread(fil,daposy,4); *daposy = B_LITTLE32(*daposy);

@@ -1471,14 +1471,12 @@ void editinput()
 					sprite[searchwall].picnum = temppicnum;
 					if ((tilesizx[temppicnum] <= 0) || (tilesizy[temppicnum] <= 0))
 					{
-						j = 0;
-						for(k=0;k<MAXTILES;k++)
-							if ((tilesizx[k] > 0) && (tilesizy[k] > 0))
-							{
-								j = k;
-								break;
-							}
-						sprite[searchwall].picnum = j;
+						// More aptly named, std::match in this case, as we're looking for the first
+						// pair of elements both greater than 0.
+						auto tilematch = std::mismatch(tilesizx.begin(), tilesizx.end(), tilesizy.begin(),
+							[](auto tilex, auto tiley) { return !((tilex > 0) && (tiley > 0)); }).first;
+
+						sprite[searchwall].picnum = std::distance(tilesizx.begin(), tilematch);
 					}
 					sprite[searchwall].shade = tempshade;
 					sprite[searchwall].pal = temppal;

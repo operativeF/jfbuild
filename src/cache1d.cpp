@@ -102,9 +102,9 @@ static void reportandexit(const char* errormessage);
 
 void initcache(void *dacachestart, size_t dacachesize)
 {
-	for(int i{1}; i < 200; i++) {
-		lockrecip[i] = (1<<28)/(200-i);
-	}
+	std::generate(std::next(lockrecip.begin()), lockrecip.end(), [n = 1] () mutable {
+		return (1 << 28) / (200 - (n++));
+	});
 
 	cachestart = ((intptr_t)dacachestart + 15) & ~15;
 	cachesize = (dacachesize - ((-(intptr_t)dacachestart) & 15)) & ~15;

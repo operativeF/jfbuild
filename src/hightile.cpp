@@ -66,10 +66,12 @@ void hicinit()
 	hicreplctyp *hr;
 	hicreplctyp *next;
 
-	for (i=0;i<MAXPALOOKUPS;i++) {	// all tints should be 100%
-		hictinting[i].r = hictinting[i].g = hictinting[i].b = 0xff;
-		hictinting[i].f = 0;
-	}
+	// all tints should be 100%
+	std::ranges::fill(hictinting,
+		palette_t{ .r = 0xFF,
+		           .g = 0xFF,
+				   .b = 0xFF,
+				   .f = 0x00});
 
 	if (hicfirstinit) {
 		for (i=MAXTILES-1;i>=0;i--) {

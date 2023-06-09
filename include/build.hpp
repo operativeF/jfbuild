@@ -357,7 +357,7 @@ inline int usehightile{1};
 inline std::string engineerrstr{};
 
 inline constexpr auto MAXVOXMIPS{5};
-inline intptr_t voxoff[MAXVOXELS][MAXVOXMIPS];
+inline intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]{};
 
 /*************************************************************************
 POSITION VARIABLES:

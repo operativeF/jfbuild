@@ -15,6 +15,7 @@
 
 #include "baselayer.hpp"
 
+#include <algorithm>
 #include <array>
 
 constexpr auto TIMERINTSPERSECOND{140}; //280
@@ -156,7 +157,9 @@ static signed char statrate[NUMSTATS] = {-1,0,-1,0,0,0,1,3,0,3,15,-1,-1};
 	//Input structures
 static int locselectedgun, locselectedgun2;
 static input loc, oloc, loc2;
-static input ffsync[MAXPLAYERS], osync[MAXPLAYERS], ssync[MAXPLAYERS];
+static std::array<input, MAXPLAYERS> ffsync;
+static std::array<input, MAXPLAYERS> osync;
+static std::array<input, MAXPLAYERS> ssync;
 	//Input faketimerhandler -> movethings fifo
 static int movefifoplc, movefifoend[MAXPLAYERS];
 static input baksync[MOVEFIFOSIZ][MAXPLAYERS];
@@ -1279,13 +1282,11 @@ void prepareboard(char *daboardfilename)
 	numinterpolations = 0;
 
 	clearbufbyte(&oloc,sizeof(input),0L);
-	for(i=0;i<MAXPLAYERS;i++)
-	{
-		movefifoend[i] = 0;
-		clearbufbyte(&ffsync[i],sizeof(input),0L);
-		clearbufbyte(&ssync[i],sizeof(input),0L);
-		clearbufbyte(&osync[i],sizeof(input),0L);
-	}
+
+	std::ranges::fill(movefifoend, 0);
+	std::ranges::fill(ffsync, input{});
+	std::ranges::fill(ssync, input{});
+	std::ranges::fill(osync, input{});
 
 		//Scan sector tags
 
@@ -5512,8 +5513,8 @@ int loadgame()
 	kdfread(&locselectedgun2,4,1,fil);
 	kdfread(&loc2.fvel,sizeof(input),1,fil);
 
-	kdfread(ssync,sizeof(input),MAXPLAYERS,fil);
-	kdfread(osync,sizeof(input),MAXPLAYERS,fil);
+	kdfread(&ssync[0], sizeof(input), MAXPLAYERS, fil);
+	kdfread(&osync[0], sizeof(input), MAXPLAYERS, fil);
 
 	kdfread(boardfilename,1,80,fil);
 	kdfread(&screenpeek,2,1,fil);
@@ -5690,8 +5691,8 @@ int savegame()
 	dfwrite(&locselectedgun2,4,1,fil);
 	dfwrite(&loc2.fvel,sizeof(input),1,fil);
 
-	dfwrite(ssync,sizeof(input),MAXPLAYERS,fil);
-	dfwrite(osync,sizeof(input),MAXPLAYERS,fil);
+	dfwrite(&ssync[0], sizeof(input), MAXPLAYERS, fil);
+	dfwrite(&osync[0], sizeof(input), MAXPLAYERS, fil);
 
 	dfwrite(boardfilename,1,80,fil);
 	dfwrite(&screenpeek,2,1,fil);
