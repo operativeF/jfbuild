@@ -1047,7 +1047,7 @@ int wallfront(int l1, int l2)
 //
 // spritewallfront (internal)
 //
-static int spritewallfront(const spritetype *s, int w)
+static bool spritewallfront(const spritetype *s, int w)
 {
 	walltype* wal = &wall[w];
 	const int x1 = wal->x;
@@ -1055,7 +1055,7 @@ static int spritewallfront(const spritetype *s, int w)
 
 	wal = &wall[wal->point2];
 
-	return (dmulscale32(wal->x - x1, s->y - y1, -(s->x - x1), wal->y - y1) >= 0);
+	return dmulscale32(wal->x - x1, s->y - y1, -(s->x - x1), wal->y - y1) >= 0;
 }
 
 
@@ -3649,7 +3649,7 @@ static void drawsprite(int snum)
 			j = smostwall[i];
 			if ((xb1[j] > rx) || (xb2[j] < lx)) continue;
 			if ((yp <= yb1[j]) && (yp <= yb2[j])) continue;
-			if (spritewallfront(tspr,(int)thewall[j]) && ((yp <= yb1[j]) || (yp <= yb2[j]))) continue;
+			if (spritewallfront(tspr, (int) thewall[j]) && ((yp <= yb1[j]) || (yp <= yb2[j]))) continue;
 
 			dalx2 = std::max(xb1[j], lx);
 			darx2 = std::min(xb2[j], rx);
@@ -4313,7 +4313,7 @@ static void drawsprite(int snum)
 			j = smostwall[i];
 			if ((xb1[j] > rx) || (xb2[j] < lx)) continue;
 			if ((yp <= yb1[j]) && (yp <= yb2[j])) continue;
-			if (spritewallfront(tspr,(int)thewall[j]) && ((yp <= yb1[j]) || (yp <= yb2[j]))) continue;
+			if (spritewallfront(tspr, (int) thewall[j]) && ((yp <= yb1[j]) || (yp <= yb2[j]))) continue;
 
 			dalx2 = std::max(xb1[j], lx);
 			darx2 = std::min(xb2[j], rx);
@@ -5600,7 +5600,7 @@ static void calcbritable()
 	}
 }
 
-static int loadtables()
+static bool loadtables()
 {
 	initksqrt();
 
@@ -5621,14 +5621,14 @@ static int loadtables()
 
     if (crc32once((unsigned char *)&sintable[0], sizeof(sintable)) != 0xee1e7aba) {
         engineerrstr = "Calculation of sintable yielded unexpected results.";
-        return 1;
+        return false;
     }
     if (crc32once((unsigned char *)&radarang[0], sizeof(radarang) / 2) != 0xee893d92) {
         engineerrstr = "Calculation of radarang yielded unexpected results.";
-        return 1;
+        return false;
     }
 
-	return 0;
+	return true;
 }
 
 
@@ -5685,7 +5685,7 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 //
 // loadpalette (internal)
 //
-static int loadpalette()
+static bool loadpalette()
 {
 	int fil{-1};
 	off_t flen;
@@ -5721,12 +5721,12 @@ static int loadpalette()
 	if ((palookup[0] = static_cast<unsigned char*>(std::malloc(numpalookups<<8))) == nullptr) {
 		engineerrstr = "Failed to allocate palette memory";
 		kclose(fil);
-		return 1;
+		return false;
 	}
 	if ((transluc = static_cast<unsigned char*>(std::malloc(65536L))) == nullptr) {
 		engineerrstr = "Failed to allocate translucency memory";
 		kclose(fil);
-		return 1;
+		return false;
 	}
 
 	globalpalwritten = palookup[0];
@@ -5741,12 +5741,12 @@ static int loadpalette()
 
 	initfastcolorlookup(30L,59L,11L);
 
-	return 0;
+	return true;
 
 badpalette:
 	engineerrstr = "Failed to load PALETTE.DAT!";
 	if (fil >= 0) kclose(fil);
-	return 1;
+	return false;
 }
 
 
@@ -5913,7 +5913,7 @@ static int deletespritestat(short deleteme)
 //
 // lintersect (internal)
 //
-static int lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
+static bool lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 		  int y3, int x4, int y4, int *intx, int *inty, int *intz)
 {
 	//p1 to p2 is a line segment
@@ -5928,7 +5928,7 @@ static int lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 	if (bot >= 0)
 	{
 		if (bot == 0) {
-			return 0;
+			return false;
 		}
 
 		const int x31 = x3 - x1;
@@ -5937,13 +5937,13 @@ static int lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 		topt = x31 * y34 - y31 * x34;
 
 		if ((topt < 0) || (topt >= bot)) {
-			return 0;
+			return false;
 		}
 
 		const int topu = x21 * y31 - y21 * x31;
 
 		if ((topu < 0) || (topu >= bot)) {
-			return 0;
+			return false;
 		}
 	}
 	else
@@ -5953,13 +5953,13 @@ static int lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 		topt = x31 * y34 - y31 * x34;
 
 		if ((topt > 0) || (topt <= bot)) {
-			return 0;
+			return false;
 		}
 		
 		const int topu = x21 * y31 - y21 * x31;
 		
 		if ((topu > 0) || (topu <= bot)) {
-			return 0;
+			return false;
 		}
 	}
 
@@ -5969,14 +5969,14 @@ static int lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 	*inty = y1 + mulscale24(y21, t);
 	*intz = z1 + mulscale24(z2 - z1, t);
 	
-	return 1;
+	return true;
 }
 
 
 //
 // rintersect (internal)
 //
-static int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3,
+static bool rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3,
 		  int y3, int x4, int y4, int *intx, int *inty, int *intz)
 {     //p1 towards p2 is a ray
 	int x34;
@@ -5988,26 +5988,47 @@ static int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3,
 	int topu;
 	int t;
 
-	x34 = x3-x4; y34 = y3-y4;
-	bot = vx*y34 - vy*x34;
+	x34 = x3 - x4;
+	y34 = y3 - y4;
+	bot = vx * y34 - vy * x34;
 	if (bot >= 0)
 	{
-		if (bot == 0) return(0);
-		x31 = x3-x1; y31 = y3-y1;
-		topt = x31*y34 - y31*x34; if (topt < 0) return(0);
-		topu = vx*y31 - vy*x31; if ((topu < 0) || (topu >= bot)) return(0);
+		if (bot == 0)
+			return false;
+		
+		x31 = x3 - x1;
+		y31 = y3 - y1;
+		topt = x31 * y34 - y31 * x34;
+		
+		if (topt < 0)
+			return false;
+
+		topu = vx * y31 - vy * x31;
+		
+		if ((topu < 0) || (topu >= bot))
+			return false;
 	}
 	else
 	{
-		x31 = x3-x1; y31 = y3-y1;
-		topt = x31*y34 - y31*x34; if (topt > 0) return(0);
-		topu = vx*y31 - vy*x31; if ((topu > 0) || (topu <= bot)) return(0);
+		x31 = x3 - x1;
+		y31 = y3 - y1;
+		topt = x31 * y34 - y31 * x34;
+		
+		if (topt > 0)
+			return false;
+
+		topu = vx * y31 - vy * x31;
+		
+		if ((topu > 0) || (topu <= bot))
+			return false;
 	}
-	t = divscale16(topt,bot);
-	*intx = x1 + mulscale16(vx,t);
-	*inty = y1 + mulscale16(vy,t);
-	*intz = z1 + mulscale16(vz,t);
-	return(1);
+
+	t = divscale16(topt, bot);
+	*intx = x1 + mulscale16(vx, t);
+	*inty = y1 + mulscale16(vy, t);
+	*intz = z1 + mulscale16(vz, t);
+
+	return true;
 }
 
 
@@ -6187,7 +6208,7 @@ int preinitengine()
 //
 // initengine
 //
-int initengine()
+bool initengine()
 {
 	int i;
 	int j;
@@ -6203,7 +6224,7 @@ int initengine()
 		i = preinitengine();
 
 		if (i != 0)
-			return i;
+			return false;
 	}
 
 	xyaspect = -1;
@@ -6253,19 +6274,26 @@ int initengine()
 
 	captureformat = 2;  // PNG
 
-	if (loadtables()) return 1;
-	if (loadpalette()) return 1;
+	if (!loadtables())
+		return false;
+
+	if (!loadpalette())
+		return false;
 
 #if USE_POLYMOST
 	polymost_initosdfuncs();
 #endif
 #if USE_POLYMOST && USE_OPENGL
-	if (!hicfirstinit) hicinit();
-	if (!mdinited) mdinit();
+	if (!hicfirstinit)
+		hicinit();
+	
+	if (!mdinited)
+		mdinit();
+	
 	PTCacheLoadIndex();
 #endif
 
-	return 0;
+	return true;
 }
 
 
@@ -6673,7 +6701,7 @@ killsprite:
 	while ((spritesortcnt > 0) && (maskwallcnt > 0))  //While BOTH > 0
 	{
 		j = maskwall[maskwallcnt-1];
-		if (spritewallfront(tspriteptr[spritesortcnt-1],(int)thewall[j]) == 0)
+		if (spritewallfront(tspriteptr[spritesortcnt - 1], (int) thewall[j]) == 0)
 			drawsprite(--spritesortcnt);
 		else
 		{
@@ -6688,7 +6716,7 @@ killsprite:
 				else
 #endif
 					l = xb1[j] <= (spritesx[i]>>8) && (spritesx[i]>>8) <= xb2[j];
-				if (l && spritewallfront(tspriteptr[i],(int)thewall[j]) == 0)
+				if (l && spritewallfront(tspriteptr[i], (int) thewall[j]) == 0)
 				{
 					drawsprite(i);
 					tspriteptr[i]->owner = -1;
@@ -9533,7 +9561,7 @@ int nextsectorneighborz(short sectnum, int thez, short topbottom, short directio
 //
 // cansee
 //
-int cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short sect2)
+bool cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short sect2)
 {
 	sectortype* sec;
 	walltype* wal;
@@ -9589,9 +9617,9 @@ int cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short se
 			z = z1 + mulscale24(z21,t);
 
 			getzsofslope((short)dasectnum,x,y,&cz,&fz);
-			if ((z <= cz) || (z >= fz)) return(0);
+			if ((z <= cz) || (z >= fz)) return false;
 			getzsofslope((short)nexts,x,y,&cz,&fz);
-			if ((z <= cz) || (z >= fz)) return(0);
+			if ((z <= cz) || (z >= fz)) return false;
 
 			for(i=danum-1;i>=0;i--) if (clipsectorlist[i] == nexts) break;
 			if (i < 0) clipsectorlist[danum++] = nexts;
@@ -9600,11 +9628,11 @@ int cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short se
 
 	for (i = danum - 1; i >= 0; i--) {
 		if (clipsectorlist[i] == sect2) {
-			return 1;
+			return true;
 		}
 	}
 
-	return 0;
+	return false;
 }
 
 
@@ -9800,7 +9828,8 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			y2 = wal2->y;
 
 			if ((x1-xs)*(y2-ys) < (x2-xs)*(y1-ys)) continue;
-			if (rintersect(xs,ys,zs,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz) == 0) continue;
+			if (!rintersect(xs,ys,zs,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz))
+				continue;
 
 			if (std::abs(intx-xs)+std::abs(inty-ys) >= std::abs((*hitx)-xs)+std::abs((*hity)-ys)) continue;
 
@@ -9894,7 +9923,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 						if ((x1-xs)*(y2-ys) < (x2-xs)*(y1-ys))
 							continue;
 
-					if (rintersect(xs,ys,zs,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz) == 0)
+					if (!rintersect(xs,ys,zs,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz))
 						continue;
 
 					if (std::abs(intx-xs)+std::abs(inty-ys) > std::abs((*hitx)-xs)+std::abs((*hity)-ys))
@@ -10092,7 +10121,7 @@ int neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsec
 			if ((x1-xs)*(y2-ys) < (x2-xs)*(y1-ys))
 				continue;
 
-			if (lintersect(xs,ys,zs,xe,ye,ze,x1,y1,x2,y2,&intx,&inty,&intz) == 1)
+			if (lintersect(xs,ys,zs,xe,ye,ze,x1,y1,x2,y2,&intx,&inty,&intz))
 			{
 				if (good != 0)
 				{
@@ -10368,8 +10397,11 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 			if ((wal->nextsector < 0) || (wal->cstat&dawalclipmask)) clipyou = 1;
 			else if (editstatus == 0)
 			{
-				if (rintersect(*x,*y,0,gx,gy,0,x1,y1,x2,y2,&dax,&day,&daz) == 0)
-					dax = *x, day = *y;
+				if (!rintersect(*x,*y,0,gx,gy,0,x1,y1,x2,y2,&dax,&day,&daz)) {
+					dax = *x;
+					day = *y;
+				}
+
 				daz = getflorzofslope((short)dasect,dax,day);
 				daz2 = getflorzofslope(wal->nextsector,dax,day);
 

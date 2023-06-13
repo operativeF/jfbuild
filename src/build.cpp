@@ -145,7 +145,7 @@ int deletesector(short sucksect);
 int checksectorpointer(short i, short sectnum);
 void fixrepeats(short i);
 short loopinside(int x, int y, short startwall);
-int fillsector(short sectnum, unsigned char fillcolor);
+void fillsector(short sectnum, unsigned char fillcolor);
 short whitelinescan(short dalinehighlight);
 void printcoords16(int posxe, int posye, short ange);
 void copysector(short soursector, short destsector, short deststartwall, unsigned char copystat);
@@ -6530,7 +6530,7 @@ int menuselect(int newpathmode)
 	return(-1);
 }
 
-int fillsector(short sectnum, unsigned char fillcolor)
+void fillsector(short sectnum, unsigned char fillcolor)
 {
 	int x1;
 	int x2;
@@ -6549,7 +6549,7 @@ int fillsector(short sectnum, unsigned char fillcolor)
 	const int dborder{ ydim16 };
 
 	if (sectnum == -1) {
-		return 0;
+		return;
 	}
 
 	int miny = dborder - 1;
@@ -6611,8 +6611,6 @@ int fillsector(short sectnum, unsigned char fillcolor)
 			}
 		}
 	}
-
-	return 0;
 }
 
 short whitelinescan(short dalinehighlight)
@@ -6671,6 +6669,8 @@ short whitelinescan(short dalinehighlight)
 	}
 }
 
+// FIXME: Returning unused values and values that aren't as clear
+// as they should be.
 int loadnames()
 {
 	std::array<char, 1024> buffer;

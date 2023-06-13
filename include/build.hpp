@@ -475,7 +475,7 @@ OTHER VARIABLES:
 ***************************************************************************/
 
 int    preinitengine();	// a partial setup of the engine used for launch windows
-int    initengine();
+bool   initengine();
 void   uninitengine();
 void   initspritelists();
 int   loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
@@ -522,7 +522,7 @@ int   pushmove(int *x, int *y, const int *z, short *sectnum, int walldist, int c
 void   getzrange(int x, int y, int z, short sectnum, int *ceilz, int *ceilhit, int *florz, int *florhit, int walldist, unsigned int cliptype);
 int    hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz, short *hitsect, short *hitwall, short *hitsprite, int *hitx, int *hity, int *hitz, unsigned int cliptype);
 int   neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsector, short *neartagwall, short *neartagsprite, int *neartaghitdist, int neartagrange, unsigned char tagsearch);
-int   cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short sect2);
+bool  cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short sect2);
 void   updatesector(int x, int y, short *sectnum);
 void   updatesectorz(int x, int y, int z, short *sectnum);
 int   inside(int x, int y, short sectnum);

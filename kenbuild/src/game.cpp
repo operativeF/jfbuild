@@ -518,7 +518,7 @@ int app_main(int argc, char const * const argv[])
 	}
 
 	initgroupfile("stuff.dat");
-	if (initengine()) {
+	if (!initengine()) {
 		wm_msgbox(nullptr, "There was a problem initialising the engine: %s.\n", engineerrstr.c_str());
 		return -1;
 	}
@@ -2426,7 +2426,7 @@ void statuslistcode()
 			//brown monster decides to shoot bullet
 		if ((k&63) == 23)
 		{
-			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[target],posy[target],posz[target],cursectnum[target]) == 0)
+			if (!cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[target],posy[target],posz[target],cursectnum[target]))
 			{
 				if ((k&0xf00) == 0xb00) changespritestat(i,2);
 			}
@@ -2550,7 +2550,7 @@ void statuslistcode()
 			l = 0;
 			if ((sprite[i].lotag&64) && (k < 2))  //Give him a chance to reproduce without seeing you
 				l = 1;
-			else if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[target],posy[target],posz[target],cursectnum[target]) == 1)
+			else if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[target],posy[target],posz[target],cursectnum[target]))
 				l = 1;
 			if (l != 0)
 			{
@@ -2571,7 +2571,7 @@ void statuslistcode()
 		}
 		if (k >= 208+((sprite[i].lotag&128)>>2))    //Al decides to shoot bullet
 		{
-			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[target],posy[target],posz[target],cursectnum[target]) == 1)
+			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[target],posy[target],posz[target],cursectnum[target]))
 			{
 				wsayfollow("zipguns.wav",5144L+(krand()&127)-64,256L,&sprite[i].x,&sprite[i].y,1);
 
@@ -2608,7 +2608,7 @@ void statuslistcode()
 
 		if (sprite[i].lotag&16)
 		{
-			if (((k&124) >= 120) && (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[target],posy[target],posz[target],cursectnum[target]) == 1))
+			if (((k&124) >= 120) && cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[target],posy[target],posz[target],cursectnum[target]))
 				sprite[i].ang = getangle(posx[target]-sprite[i].x,posy[target]-sprite[i].y);
 			else
 				sprite[i].ang = (krand()&2047);
@@ -2616,7 +2616,7 @@ void statuslistcode()
 
 		if (movestat != 0)
 		{
-			if ((k&2) && (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[target],posy[target],posz[target],cursectnum[target]) == 1))
+			if ((k&2) && cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[target],posy[target],posz[target],cursectnum[target]))
 				sprite[i].ang = getangle(posx[target]-sprite[i].x,posy[target]-sprite[i].y);
 			else
 				sprite[i].ang = (krand()&2047);
@@ -3040,7 +3040,7 @@ bulletisdeletedskip: continue;
 			//Use dot product to see if monster's angle is towards a player
 		for(p=connecthead;p>=0;p=connectpoint2[p])
 			if (sintable[(sprite[i].ang+512)&2047]*(posx[p]-sprite[i].x) + sintable[sprite[i].ang&2047]*(posy[p]-sprite[i].y) >= 0)
-				if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[p],posy[p],posz[p],cursectnum[p]) == 1)
+				if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[p],posy[p],posz[p],cursectnum[p]))
 				{
 					changespritestat(i,1);
 					//if (sprite[i].lotag == 100)
@@ -3203,7 +3203,7 @@ void bombexplode(int i)
 		dist += (posy[j]-sprite[i].y)*(posy[j]-sprite[i].y);
 		dist += ((posz[j]-sprite[i].z)>>4)*((posz[j]-sprite[i].z)>>4);
 		if (dist < 4194304)
-			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[j],posy[j],posz[j],cursectnum[j]) == 1)
+			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,posx[j],posy[j],posz[j],cursectnum[j]))
 			{
 				k = ((32768/((dist>>16)+4))>>5);
 				if (j == myconnectindex)
@@ -3228,8 +3228,9 @@ void bombexplode(int i)
 			dist += (sprite[j].y-sprite[i].y)*(sprite[j].y-sprite[i].y);
 			dist += ((sprite[j].z-sprite[i].z)>>4)*((sprite[j].z-sprite[i].z)>>4);
 			if (dist >= 4194304) continue;
-			if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,sprite[j].x,sprite[j].y,sprite[j].z-(tilesizy[sprite[j].picnum]<<7),sprite[j].sectnum) == 0)
+			if (!cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,sprite[j].x,sprite[j].y,sprite[j].z-(tilesizy[sprite[j].picnum]<<7),sprite[j].sectnum))
 				continue;
+
 			if (sprite[j].picnum == BROWNMONSTER)
 			{
 				sprite[j].z += ((tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<1);
@@ -3248,7 +3249,7 @@ void bombexplode(int i)
 		dist += (sprite[j].y-sprite[i].y)*(sprite[j].y-sprite[i].y);
 		dist += ((sprite[j].z-sprite[i].z)>>4)*((sprite[j].z-sprite[i].z)>>4);
 		if (dist >= 4194304) continue;
-		if (cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,sprite[j].x,sprite[j].y,sprite[j].z-(tilesizy[sprite[j].picnum]<<7),sprite[j].sectnum) == 0)
+		if (!cansee(sprite[i].x,sprite[i].y,sprite[i].z-(tilesizy[sprite[i].picnum]<<7),sprite[i].sectnum,sprite[j].x,sprite[j].y,sprite[j].z-(tilesizy[sprite[j].picnum]<<7),sprite[j].sectnum))
 			continue;
 
 		sprite[j].picnum = EVILALGRAVE;
