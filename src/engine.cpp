@@ -4543,65 +4543,66 @@ static void drawmaskwall(short damaskwallcnt)
 //
 static void fillpolygon(int npoints)
 {
-	int z;
-	int zz;
-	int x1;
-	int y1;
-	int x2;
-	int y2;
-	int miny;
-	int maxy;
-	int y;
-	int xinc;
-	int cnt;
-	int ox;
-	int oy;
-	int bx;
-	int by;
-	int day1;
-	int day2;
-	intptr_t p;
-	short *ptr, *ptr2;
-
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode == 3) { polymost_fillpolygon(npoints); return; }
+	if (rendmode == 3) {
+		polymost_fillpolygon(npoints);
+		return;
+	}
 #endif
 
-	miny = 0x7fffffff; maxy = 0x80000000;
-	for(z=npoints-1;z>=0;z--) {
-		y = ry1[z];
+	int miny{0x7fffffff};
+	int maxy{static_cast<int>(0x80000000)}; // TODO: Correct to cast to int here?
+	
+	for(int z = npoints - 1; z >= 0; --z) {
+		const int y = ry1[z];
 		miny = std::min(miny, y);
 		maxy = std::max(maxy, y);
 	}
 
-	miny = (miny>>12); maxy = (maxy>>12);
-	if (miny < 0) miny = 0;
-	if (maxy >= ydim) maxy = ydim-1;
-	ptr = &smost[0];    //They're pointers! - watch how you optimize this thing
-	for(y=miny;y<=maxy;y++)
+	miny = miny >> 12;
+	maxy = maxy >> 12;
+	
+	if (miny < 0)
+		miny = 0;
+	if (maxy >= ydim)
+		maxy = ydim - 1;
+	
+	short* ptr = &smost[0];    //They're pointers! - watch how you optimize this thing
+	
+	for(int y{miny}; y <= maxy; ++y)
 	{
-		dotp1[y] = ptr; dotp2[y] = ptr+(MAXNODESPERLINE>>1);
+		dotp1[y] = ptr;
+		dotp2[y] = ptr + (MAXNODESPERLINE >> 1);
 		ptr += MAXNODESPERLINE;
 	}
 
-	for(z=npoints-1;z>=0;z--)
+	for(int z = npoints - 1; z >= 0; --z)
 	{
-		zz = xb1[z];
-		y1 = ry1[z]; day1 = (y1>>12);
-		y2 = ry1[zz]; day2 = (y2>>12);
+		const int zz = xb1[z];
+		const int y1 = ry1[z];
+		const int day1 = (y1 >> 12);
+		const int y2 = ry1[zz];
+		const int day2 = (y2 >> 12);
+		
 		if (day1 != day2)
 		{
-			x1 = rx1[z]; x2 = rx1[zz];
-			xinc = divscale12(x2-x1,y2-y1);
-			if (day2 > day1)
-			{
-				x1 += mulscale12((day1<<12)+4095-y1,xinc);
-				for(y=day1;y<day2;y++) { *dotp2[y]++ = (x1>>12); x1 += xinc; }
+			int x1 = rx1[z];
+			int x2 = rx1[zz];
+			const int xinc = divscale12(x2 - x1, y2 - y1);
+			
+			if (day2 > day1) {
+				x1 += mulscale12((day1 << 12) + 4095 - y1, xinc);
+				for(int y{day1}; y < day2; ++y) {
+					*dotp2[y]++ = (x1 >> 12);
+					x1 += xinc;
+				}
 			}
-			else
-			{
-				x2 += mulscale12((day2<<12)+4095-y2,xinc);
-				for(y=day2;y<day1;y++) { *dotp1[y]++ = (x2>>12); x2 += xinc; }
+			else {
+				x2 += mulscale12((day2 << 12) + 4095 - y2, xinc);
+				for(int y{day2}; y < day1; ++y) {
+					*dotp1[y]++ = (x2 >> 12);
+					x2 += xinc;
+				}
 			}
 		}
 	}
@@ -4609,58 +4610,68 @@ static void fillpolygon(int npoints)
 	globalx1 = mulscale16(globalx1,xyaspect);
 	globaly2 = mulscale16(globaly2,xyaspect);
 
-	oy = miny+1-(ydim>>1);
-	globalposx += oy*globalx1;
-	globalposy += oy*globaly2;
+	const int oy = miny + 1 - (ydim >> 1);
+	globalposx += oy * globalx1;
+	globalposy += oy * globaly2;
 
-	setuphlineasm4(asm1,asm2);
+	setuphlineasm4(asm1, asm2);
 
 	ptr = &smost[0];
-	for(y=miny;y<=maxy;y++)
-	{
-		cnt = (int)(dotp1[y]-ptr); ptr2 = ptr+(MAXNODESPERLINE>>1);
-		for(z=cnt-1;z>=0;z--)
-		{
-			day1 = 0; day2 = 0;
-			for(zz=z;zz>0;zz--)
+	
+	for(int y{miny}; y <= maxy; ++y) {
+		const int cnt = (int)(dotp1[y] - ptr);
+		short* ptr2 = ptr + (MAXNODESPERLINE >> 1);
+		
+		for(int z = cnt - 1; z >= 0; --z) {
+			int day1{0};
+			int day2{0};
+			
+			for(int zz{z}; zz > 0; --zz)
 			{
-				if (ptr[zz] < ptr[day1]) day1 = zz;
-				if (ptr2[zz] < ptr2[day2]) day2 = zz;
+				if (ptr[zz] < ptr[day1])
+					day1 = zz;
+				
+				if (ptr2[zz] < ptr2[day2])
+					day2 = zz;
 			}
-			x1 = ptr[day1]; ptr[day1] = ptr[z];
-			x2 = ptr2[day2]-1; ptr2[day2] = ptr2[z];
-			if (x1 > x2) continue;
+			
+			const int x1 = ptr[day1];
+			ptr[day1] = ptr[z];
+			const int x2 = ptr2[day2] - 1;
+			ptr2[day2] = ptr2[z];
+			
+			if (x1 > x2)
+				continue;
 
-			if (globalpolytype < 1)
-			{
+			if (globalpolytype < 1) {
 					//maphline
-				ox = x2+1-(xdim>>1);
-				bx = ox*asm1 + globalposx;
-				by = ox*asm2 - globalposy;
+				const int ox = x2 + 1 - (xdim >> 1);
+				const int bx = ox * asm1 + globalposx;
+				const int by = ox * asm2 - globalposy;
 
-				p = ylookup[y]+x2+frameplace;
-				hlineasm4(x2-x1,-1L,globalshade<<8,by,bx,(void *)p);
+				intptr_t p = ylookup[y] + x2 + frameplace;
+				hlineasm4(x2 - x1, -1L, globalshade << 8, by, bx, (void *) p);
 			}
-			else
-			{
+			else {
 					//maphline
-				ox = x1+1-(xdim>>1);
-				bx = ox*asm1 + globalposx;
-				by = ox*asm2 - globalposy;
+				const int ox = x1 + 1 - (xdim >> 1);
+				const int bx = ox * asm1 + globalposx;
+				const int by = ox * asm2 - globalposy;
 
-				p = ylookup[y]+x1+frameplace;
+				intptr_t p = ylookup[y] + x1 + frameplace;
+				
 				if (globalpolytype == 1)
-					mhline((void *)globalbufplc,bx,(x2-x1)<<16,0L,by,(void *)p);
+					mhline((void *) globalbufplc, bx, (x2 - x1) << 16, 0L, by, (void *) p);
 				else
-				{
-					thline((void *)globalbufplc,bx,(x2-x1)<<16,0L,by,(void *)p);
-				}
+					thline((void *) globalbufplc, bx, (x2 - x1) << 16, 0L, by, (void *) p);
 			}
 		}
+
 		globalposx += globalx1;
 		globalposy += globaly2;
 		ptr += MAXNODESPERLINE;
 	}
+
 	faketimerhandler();
 }
 
@@ -5547,13 +5558,11 @@ static int loadtables()
 
 	std::ranges::generate(sintable, [n = 0]() mutable {
         	return static_cast<short>(16384 * std::sin(static_cast<double>(n++) * std::numbers::pi_v<double> / 1024));
-		}
-	);
+		});
 
 	std::ranges::generate(reciptable, [n = 0]() mutable {
 			return divscale30(2048L, (n++) + 2048);
-		}
-	);
+		});
 
 	// TODO: Make this table as a constexpr array.
     for(int i{0}; i < 640; i++) {
@@ -5605,7 +5614,11 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 	for(i=255;i>=0;i--,pal1-=3)
 	{
 		j = (pal1[0]>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(pal1[1]>>3)*FASTPALGRIDSIZ+(pal1[2]>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
-		if (colhere[j >> 3] & pow2char[j & 7]) colnext[i] = colhead[j]; else colnext[i] = -1;
+		if (colhere[j >> 3] & pow2char[j & 7])
+			colnext[i] = colhead[j];
+		else
+			colnext[i] = -1;
+
 		colhead[j] = i;
 		colhere[j >> 3] |= pow2char[j & 7];
 	}
@@ -5629,7 +5642,9 @@ static int loadpalette()
 	int fil{-1};
 	off_t flen;
 
-	if ((fil = kopen4load("palette.dat",0)) < 0) goto badpalette;
+	if ((fil = kopen4load("palette.dat",0)) < 0)
+		goto badpalette;
+	
 	flen = kfilelength(fil);
 
 	if (kread(fil, &palette[0], 768) != 768) {
@@ -8835,10 +8850,15 @@ int loadpics(const char* filename, int askedsize)
 	for(i=0;i<MAXTILES;i++)
 	{
 		j = 15;
-		while ((j > 1) && (pow2long[j] > tilesizx[i])) j--;
+		while ((j > 1) && (pow2long[j] > tilesizx[i]))
+			j--;
+
 		picsiz[i] = ((unsigned char)j);
+		
 		j = 15;
-		while ((j > 1) && (pow2long[j] > tilesizy[i])) j--;
+		while ((j > 1) && (pow2long[j] > tilesizy[i]))
+			j--;
+		
 		picsiz[i] += ((unsigned char)(j<<4));
 	}
 
@@ -10722,38 +10742,37 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 //
 void updatesector(int x, int y, short *sectnum)
 {
-	walltype *wal;
-	int i;
-	int j;
-
 	if (inside(x, y, *sectnum) == 1) {
 		return;
 	}
 
 	if ((*sectnum >= 0) && (*sectnum < numsectors))
 	{
-		wal = &wall[sector[*sectnum].wallptr];
-		j = sector[*sectnum].wallnum;
+		walltype* wal = &wall[sector[*sectnum].wallptr];
+		int j = sector[*sectnum].wallnum;
+
 		do
 		{
-			i = wal->nextsector;
+			const int i = wal->nextsector;
+			
 			if (i >= 0)
 				if (inside(x,y,(short)i) == 1)
 				{
 					*sectnum = i;
 					return;
 				}
-			wal++;
-			j--;
+
+			++wal;
+			--j;
 		} while (j != 0);
 	}
 
-	for(i=numsectors-1;i>=0;i--)
-		if (inside(x,y,(short)i) == 1)
-		{
+	for(int i = numsectors - 1; i >= 0; --i) {
+		if (inside(x, y, (short)i) == 1) {
 			*sectnum = i;
 			return;
 		}
+	}
 
 	*sectnum = -1;
 }
@@ -11328,6 +11347,7 @@ int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char
 }
 
 
+// TODO: Make constexpr?
 void setvgapalette()
 {
 	for (int i{0}; i < 256; i++) {
@@ -12095,35 +12115,29 @@ void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 //
 void printext256(int xpos, int ypos, short col, short backcol, std::span<const char> name, char fontsize)
 {
-	int stx;
-	int i;
-	int x;
-	int y;
-	const unsigned char *letptr;
-	unsigned char *ptr;
-
 #if USE_POLYMOST && USE_OPENGL
-	if (!polymost_printext256(xpos, ypos, col, backcol, name, fontsize)) return;
+	if (!polymost_printext256(xpos, ypos, col, backcol, name, fontsize))
+		return;
 #endif
 
 	const auto* f = &textfonts[std::min(static_cast<int>(fontsize), 2)]; // FIXME: Don't use char for indexing.
-	stx = xpos;
+	int stx = xpos;
 
-	for(i=0;name[i];i++)
-	{
-		letptr = &f->font[((int)(unsigned char)name[i])*f->cellh + f->cellyoff];
-		ptr = (unsigned char *)(ylookup[ypos+f->charysiz-1]+stx+frameplace);
-		for(y=f->charysiz-1;y>=0;y--)
-		{
-			for(x=f->charxsiz-1;x>=0;x--)
-			{
+	for(int i{0}; name[i]; ++i) {
+		const unsigned char* letptr = &f->font[((int)(unsigned char)name[i])*f->cellh + f->cellyoff];
+		auto* ptr = (unsigned char *)(ylookup[ypos+f->charysiz-1]+stx+frameplace);
+		
+		for(int y = f->charysiz - 1; y >= 0; --y) {
+			for(int x = f->charxsiz - 1; x >= 0; --x) {
 				if (letptr[y] & pow2char[7 - x - f->cellxoff])
 					ptr[x] = (unsigned char)col;
 				else if (backcol >= 0)
 					ptr[x] = (unsigned char)backcol;
 			}
+
 			ptr -= bytesperline;
 		}
+
 		stx += f->charxsiz;
 	}
 }
@@ -12189,26 +12203,23 @@ void setrollangle(int rolla)
 //
 void invalidatetile(short tilenume, int pal, int how)
 {
-	int numpal;
-	int firstpal;
-	int np;
-	int hp;
-
 	if (rendmode < 3)
 		return;
 
-	if (pal < 0) {
-		numpal = MAXPALOOKUPS;
-		firstpal = 0;
-	} else {
-		numpal = 1;
-		firstpal = pal % MAXPALOOKUPS;
-	}
+	const auto [numpal, firstpal] = [pal]() -> std::pair<int, int> {
+		if(pal < 0) {
+			return {MAXPALOOKUPS, 0};
+		}
+		else {
+			return {1, pal % MAXPALOOKUPS};
+		}
+	}();
 
-	for (hp = 0; hp < 8; hp+=4) {
-		if (!(how & pow2long[hp])) continue;
+	for (int hp{0}; hp < 8; hp += 4) {
+		if (!(how & pow2long[hp]))
+			continue;
 
-		for (np = firstpal; np < firstpal+numpal; np++) {
+		for (int np{firstpal}; np < firstpal + numpal; ++np) {
 			polymost_texinvalidate(tilenume, np, hp);
 		}
 	}
@@ -12221,10 +12232,11 @@ void invalidatetile(short tilenume, int pal, int how)
 //
 void setpolymost2dview()
 {
-	if (rendmode < 3) return;
+	if (rendmode < 3)
+		return;
 
 	if (gloy1 != -1) {
-		glfunc.glViewport(0,0,xres,yres);
+		glfunc.glViewport(0, 0, xres, yres);
 	}
 
 	gloy1 = -1;
