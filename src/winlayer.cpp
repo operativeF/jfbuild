@@ -1653,9 +1653,10 @@ static int SetupDIB(int width, int height)
 //
 // loadgldriver -- loads an OpenGL DLL
 //
-int loadgldriver(const char *dll)
+bool loadgldriver(const char *dll)
 {
-	if (hGLDLL) return 0;	// Already loaded
+	if (hGLDLL)
+		return false;	// Already loaded
 
 	if (!dll) {
 		dll = "OPENGL32.DLL";
@@ -1664,9 +1665,11 @@ int loadgldriver(const char *dll)
 	buildprintf("Loading %s\n", dll);
 
 	hGLDLL = ::LoadLibrary(dll);
-	if (!hGLDLL) return -1;
 
-	return 0;
+	if (!hGLDLL)
+		return true;
+
+	return false;
 }
 
 int unloadgldriver()
@@ -2148,7 +2151,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 			if (SetupOpenGL(vw, vh, bitspp)) {
 				// No luck. Write off OpenGL and try DIB.
 				buildputs("OpenGL initialisation failed. Falling back to DIB mode.\n");
-				glunavailable = 1;
+				glunavailable = true;
 				return ::CreateAppWindow(width, height, bitspp, fs, refresh);
 			}
 

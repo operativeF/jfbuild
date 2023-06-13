@@ -17,9 +17,10 @@ int initsystem();
 void uninitsystem();
 
 #if USE_OPENGL
-extern int glunavailable;
+// FIXME: Reverse logic.
+inline bool glunavailable{false};
 
-int loadgldriver(const char *driver);   // or nullptr for platform default
+bool loadgldriver(const char *driver);   // or nullptr for platform default
 void *getglprocaddress(const char *name, int ext);
 int unloadgldriver();
 #endif

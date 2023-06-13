@@ -168,6 +168,7 @@ static const auto configspec = std::to_array<configspec_t>({
 	{ nullptr, 0, nullptr, nullptr }
 });
 
+// FIXME: Use a variant instead of switch-type resolver.
 int loadsetup(const char *fn)
 {
 	scriptfile* cfg = scriptfile_fromfile(fn);
@@ -265,6 +266,7 @@ int loadsetup(const char *fn)
 	return 0;
 }
 
+// FIXME: Use a variant instead of a switch type resolver.
 int writesetup(const char *fn)
 {
 	std::FILE* fp = std::fopen(fn, "wt");

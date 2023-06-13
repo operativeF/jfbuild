@@ -11252,7 +11252,7 @@ void setbrightness(int dabrightness, std::span<const unsigned char> dapal, char 
 	curgamma = 1.0F + (static_cast<float>(curbrightness) / 10.0F);
 
 	const int j = []() {
-		if(setgamma(curgamma))
+		if(setgamma(curgamma) != 0)
 			return curbrightness;
 
 		return 0;
@@ -11312,6 +11312,7 @@ void setpalettefade(unsigned char r, unsigned char g, unsigned char b, unsigned 
 
 	int k{0};
 
+	// FIXME: Check for gammabrightness only once.
 	for (int i{0}; i < 256; i++) {
 		palette_t p;
 

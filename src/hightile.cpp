@@ -27,8 +27,6 @@
  */
 hicreplctyp* hicfindsubst(int picnum, int palnum, int skybox)
 {
-	hicreplctyp *hr;
-
 	if (!hicfirstinit)
 		return nullptr;
 
@@ -36,7 +34,7 @@ hicreplctyp* hicfindsubst(int picnum, int palnum, int skybox)
 		return nullptr;
 
 	do {
-		for (hr = hicreplc[picnum]; hr; hr = hr->next) {
+		for (hicreplctyp* hr = hicreplc[picnum]; hr; hr = hr->next) {
 			if (hr->palnum == palnum) {
 				if (skybox) {
 					if (hr->skybox && !hr->skybox->ignore)
@@ -63,7 +61,6 @@ void hicinit()
 {
 	int i;
 	int j;
-	hicreplctyp *hr;
 	hicreplctyp *next;
 
 	// all tints should be 100%
@@ -75,7 +72,8 @@ void hicinit()
 
 	if (hicfirstinit) {
 		for (i=MAXTILES-1;i>=0;i--) {
-			for (hr=hicreplc[i]; hr; ) {
+			for (hicreplctyp* hr = hicreplc[i]; hr; ) {
+				// TODO: Assumes hr != nullptr
 				next = hr->next;
 
 				if (hr->skybox) {
@@ -112,7 +110,7 @@ void hicinit()
 //
 void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect)
 {
-	if ((unsigned int)palnum >= (unsigned int)MAXPALOOKUPS)
+	if ((unsigned int)palnum >= MAXPALOOKUPS)
 		return;
 
 	if (!hicfirstinit)
@@ -131,7 +129,6 @@ void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned ch
 //
 int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, unsigned char flags)
 {
-	hicreplctyp* hr;
 	hicreplctyp* hrn;
 
 	if ((unsigned int)picnum >= (unsigned int)MAXTILES)
@@ -143,6 +140,7 @@ int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, un
 	if (!hicfirstinit)
 		hicinit();
 
+	hicreplctyp* hr{nullptr};
 	for (hr = hicreplc[picnum]; hr; hr = hr->next) {
 		if (hr->palnum == palnum)
 			break;
@@ -193,7 +191,6 @@ int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, un
 //
 int hicsetskybox(int picnum, int palnum, const char* const faces[6])
 {
-	hicreplctyp* hr;
 	hicreplctyp* hrn;
 	int j;
 
@@ -210,6 +207,7 @@ int hicsetskybox(int picnum, int palnum, const char* const faces[6])
 	if (!hicfirstinit)
 		hicinit();
 
+	hicreplctyp* hr{nullptr};
 	for (hr = hicreplc[picnum]; hr; hr = hr->next) {
 		if (hr->palnum == palnum)
 			break;
@@ -272,7 +270,6 @@ int hicsetskybox(int picnum, int palnum, const char* const faces[6])
 //
 int hicclearsubst(int picnum, int palnum)
 {
-	hicreplctyp *hr;
 	hicreplctyp* hrn{nullptr};
 
 	if ((unsigned int)picnum >= (unsigned int)MAXTILES)
@@ -284,6 +281,8 @@ int hicclearsubst(int picnum, int palnum)
 	if (!hicfirstinit)
 		return 0;
 
+
+	hicreplctyp *hr{nullptr};
 	for (hr = hicreplc[picnum]; hr; hrn = hr, hr = hr->next) {
 		if (hr->palnum == palnum)
 			break;

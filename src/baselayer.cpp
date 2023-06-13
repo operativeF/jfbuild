@@ -17,7 +17,6 @@
 #if USE_OPENGL
 #include "glbuild.hpp"
 struct glbuild_info glinfo;
-int glunavailable;
 #endif //USE_OPENGL
 
 #include <limits>
@@ -37,7 +36,8 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 	getvalidmodes();
 
 #if USE_OPENGL
-	if (c > 8 && glunavailable) return -1;
+	if (c > 8 && glunavailable)
+		return -1;
 #else
 	if (c > 8)
 		return -1;
@@ -106,7 +106,7 @@ unsigned char bgetchar()
 
 int bkbhit()
 {
-	return (keyasciififoplc != keyasciififoend);
+	return keyasciififoplc != keyasciififoend;
 }
 
 void bflushchars()
@@ -133,7 +133,7 @@ int bgetkey()
 
 int bkeyhit()
 {
-	return (keyfifoplc != keyfifoend);
+	return keyfifoplc != keyfifoend;
 }
 
 void bflushkeys()

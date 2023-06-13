@@ -99,6 +99,7 @@ void convertHSVtoRGB(struct hsv *hsv, struct rgb *rgb)
 {
 	int i;
 	float f, p, q, t;
+	// FIXME: Comparison with zero for float
 	if( hsv->s == 0 ) {
 		// achromatic (grey)
 		rgb->r = rgb->g = rgb->b = hsv->v;

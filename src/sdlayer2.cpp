@@ -325,7 +325,7 @@ int initsystem()
 #if USE_OPENGL
 	if (getenv("BUILD_NOGL")) {
 		buildputs("OpenGL disabled.\n");
-		glunavailable = 1;
+		glunavailable = true;
 	} else {
 		glunavailable = loadgldriver(getenv("BUILD_GLDRV"));
 		if (glunavailable) {
@@ -945,11 +945,11 @@ int setvideomode(int x, int y, int c, int fs)
 			sdl_glcontext = SDL_GL_CreateContext(sdl_window);
 			if (!sdl_glcontext) {
 				buildprintf("Error creating OpenGL context: %s\n", SDL_GetError());
-				glunavailable = 1;
+				glunavailable = true;
 			} else if (glbuild_init()) {
-				glunavailable = 1;
+				glunavailable = true;
 			} else if (glbuild_prepare_8bit_shader(&gl8bit, x, y, pitch, winx, winy) < 0) {
-				glunavailable = 1;
+				glunavailable = true;
 			}
 			if (glunavailable) {
 				// Try again but without OpenGL.
@@ -1172,7 +1172,7 @@ int setgamma(float gamma)
 //
 // loadgldriver -- loads an OpenGL DLL
 //
-int loadgldriver(const char *soname)
+bool loadgldriver(const char *soname)
 {
 	const char *name = soname;
 	if (!name) {
@@ -1180,8 +1180,11 @@ int loadgldriver(const char *soname)
 	}
 
 	buildprintf("Loading %s\n", name);
-	if (SDL_GL_LoadLibrary(soname)) return -1;
-	return 0;
+
+	if (SDL_GL_LoadLibrary(soname))
+		return true;
+	
+	return false;
 }
 
 int unloadgldriver()
