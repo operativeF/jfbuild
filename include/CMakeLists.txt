@@ -11,6 +11,7 @@ set(BUILD_HEADERS
   ${CMAKE_CURRENT_LIST_DIR}/mmulti.hpp
   ${CMAKE_CURRENT_LIST_DIR}/osd.hpp
   ${CMAKE_CURRENT_LIST_DIR}/pragmas.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/screencapture.hpp
   ${CMAKE_CURRENT_LIST_DIR}/scriptfile.hpp
   ${CMAKE_CURRENT_LIST_DIR}/sdlayer.hpp
   ${CMAKE_CURRENT_LIST_DIR}/textfonts.hpp

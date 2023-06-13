@@ -5,6 +5,8 @@
 #ifndef __baselayer_h__
 #define __baselayer_h__
 
+#include "compat.hpp"
+
 #include <array>
 
 inline int _buildargc{0};

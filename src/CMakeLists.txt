@@ -14,6 +14,7 @@ set(ENGINE_BASE_SRCS
   ${CMAKE_CURRENT_LIST_DIR}/mmulti.cpp
   ${CMAKE_CURRENT_LIST_DIR}/osd.cpp
   ${CMAKE_CURRENT_LIST_DIR}/pragmas.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/screencapture.cpp
   ${CMAKE_CURRENT_LIST_DIR}/scriptfile.cpp
 )
 
