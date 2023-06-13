@@ -15,6 +15,7 @@
 #include "polymosttex_priv.hpp"
 #include "mdsprite_priv.hpp"
 
+#include <algorithm>
 #include <array>
 
 #if defined(_M_IX86) || defined(_M_AMD64) || defined(__i386) || defined(__x86_64)
@@ -279,36 +280,53 @@ int md_defineanimation (int modelid, const char *framestart, const char *frameen
 
 int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int surfnum)
 {
-	mdskinmap_t *sk;
-	mdskinmap_t *skl;
-	md2model *m;
+	if (!mdinited)
+		mdinit();
 
-	if (!mdinited) mdinit();
+	if ((unsigned int)modelid >= (unsigned int)nextmodelid)
+		return -1;
 
-	if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
-	if (!skinfn) return -2;
-	if ((unsigned)palnum >= (unsigned)MAXPALOOKUPS) return -3;
+	if (!skinfn)
+		return -2;
 
-	m = (md2model *)models[modelid];
-	if (m->mdnum < 2) return 0;
-	if (m->mdnum == 2) surfnum = 0;
+	if ((unsigned)palnum >= (unsigned)MAXPALOOKUPS)
+		return -3;
 
-	skl = nullptr;
-	for (sk = m->skinmap; sk; skl = sk, sk = sk->next)
-		if (sk->palette == (unsigned char)palnum && skinnum == sk->skinnum && surfnum == sk->surfnum) break;
+	md2model* m = (md2model *)models[modelid];
+
+	if (m->mdnum < 2)
+		return 0;
+	
+	if (m->mdnum == 2)
+		surfnum = 0;
+
+	mdskinmap_t* skl{nullptr};
+	mdskinmap_t *sk = m->skinmap;
+
+	for (; sk; skl = sk, sk = sk->next)
+		if (sk->palette == (unsigned char)palnum && skinnum == sk->skinnum && surfnum == sk->surfnum)
+			break;
+
 	if (!sk) {
 		sk = (mdskinmap_t *)std::calloc(1,sizeof(mdskinmap_t));
-		if (!sk) return -4;
+		if (!sk)
+			return -4;
 
-		if (!skl) m->skinmap = sk;
-		else skl->next = sk;
-	} else if (sk->fn) std::free(sk->fn);
+		if (!skl)
+			m->skinmap = sk;
+		else 
+			skl->next = sk;
+	} else if (sk->fn)
+		std::free(sk->fn);
 
 	sk->palette = (unsigned char)palnum;
 	sk->skinnum = skinnum;
 	sk->surfnum = surfnum;
 	sk->fn = (char *)std::malloc(std::strlen(skinfn)+1);
-	if (!sk->fn) return(-4);
+	
+	if (!sk->fn)
+		return(-4);
+
 	std::strcpy(sk->fn, skinfn);
 
 	return 0;
@@ -316,10 +334,14 @@ int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int
 
 int md_definehud (int modelid, int tilex, double xadd, double yadd, double zadd, double angadd, int flags)
 {
-	if (!mdinited) mdinit();
+	if (!mdinited)
+		mdinit();
 
-	if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
-	if ((unsigned int)tilex >= (unsigned int)MAXTILES) return -2;
+	if ((unsigned int)modelid >= (unsigned int)nextmodelid)
+		return -1;
+
+	if ((unsigned int)tilex >= (unsigned int)MAXTILES)
+		return -2;
 
 	hudmem[(flags>>2)&1][tilex].xadd = xadd;
 	hudmem[(flags>>2)&1][tilex].yadd = yadd;
@@ -332,22 +354,29 @@ int md_definehud (int modelid, int tilex, double xadd, double yadd, double zadd,
 
 int md_undefinetile(int tile)
 {
-	if (!mdinited) return 0;
-	if ((unsigned)tile >= (unsigned)MAXTILES) return -1;
+	if (!mdinited)
+		return 0;
+
+	if ((unsigned)tile >= (unsigned)MAXTILES)
+		return -1;
 
 	tile2model[tile].modelid = -1;
+
 	return 0;
 }
 
 int md_undefinemodel(int modelid)
 {
-	int i;
-	if (!mdinited) return 0;
-	if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
+	if (!mdinited)
+		return 0;
 
-	for (i=MAXTILES-1; i>=0; i--)
-		if (tile2model[i].modelid == modelid)
-			tile2model[i].modelid = -1;
+	if ((unsigned int)modelid >= (unsigned int)nextmodelid)
+		return -1;
+
+	std::ranges::for_each(tile2model, [modelid](auto& tile) {
+		if(tile.modelid == modelid)
+			tile.modelid = -1;
+	});
 
 	if (models) {
 		mdfree(models[modelid]);
@@ -455,10 +484,8 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 	{
 		if ((*tex)->sizx != (*tex)->tsizx || (*tex)->sizy != (*tex)->tsizy)
 		{
-			float fx;
-			float fy;
-			fx = ((float)(*tex)->tsizx)/((float)(*tex)->sizx);
-			fy = ((float)(*tex)->tsizy)/((float)(*tex)->sizy);
+			auto fx = ((float)(*tex)->tsizx)/((float)(*tex)->sizx);
+			auto fy = ((float)(*tex)->tsizy)/((float)(*tex)->sizy);
 			if (m->mdnum == 2)
 			{
 				//FIXME correct uvs for non-2^x textures
@@ -504,9 +531,13 @@ static void updateanimation (md2model *m, spritetype *tspr)
 	m->cframe = m->nframe = tile2model[tspr->picnum].framenum;
 
 	for (anim = m->animations;
-		  anim && anim->startframe != m->cframe;
-		  anim = anim->next) ;
-	if (!anim) { m->interpol = 0; return; }
+		 anim && anim->startframe != m->cframe;
+		 anim = anim->next);
+
+	if (!anim) {
+		m->interpol = 0;
+		return;
+	}
 
 	if (((int)spriteext[tspr->owner].mdanimcur) != anim->startframe ||
 			(spriteext[tspr->owner].flags & SPREXT_NOMDANIM))
@@ -741,7 +772,7 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 	// floor aligned
 	float k1 = tspr->y;
 
-	if((globalorientation&48)==32)
+	if((globalorientation & 48) == 32)
 	{
 		m0.z = -m0.z;
 		m1.z = -m1.z;
@@ -781,7 +812,7 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 	mat[14] += a0.y*mat[2] + a0.z*mat[6] + a0.x*mat[10];
 
 	// floor aligned
-	if((globalorientation&48)==32)
+	if((globalorientation & 48) == 32)
 	{
         f = mat[4]; mat[4] = mat[8]*16.0; mat[8] = -f*(1.0/16.0);
         f = mat[5]; mat[5] = mat[9]*16.0; mat[9] = -f*(1.0/16.0);
@@ -1097,7 +1128,7 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 
 	// floor aligned
 	k1 = tspr->y;
-	if((globalorientation&48)==32)
+	if((globalorientation & 48) == 32)
 	{
 		m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
 		m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y;
@@ -1131,7 +1162,7 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 	mat[14] += a0.y*mat[2] + a0.z*mat[6] + a0.x*mat[10];
 
 	// floor aligned
-	if((globalorientation&48)==32)
+	if((globalorientation & 48) == 32)
 	{
 		f = mat[4]; mat[4] = mat[8]*16.0; mat[8] = -f*(1.0/16.0);
 		f = mat[5]; mat[5] = mat[9]*16.0; mat[9] = -f*(1.0/16.0);

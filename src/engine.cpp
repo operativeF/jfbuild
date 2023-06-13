@@ -1156,48 +1156,42 @@ static void slowhline(int xr, int yp)
 //
 static void prepwall(int z, const walltype *wal)
 {
-	int i;
-	int l=0;
-	int ol=0;
-	int splc;
-	int sinc;
-	int x;
-	int topinc;
-	int top;
-	int botinc;
-	int bot;
-	int walxrepeat;
+	int l{0};
+	int ol{0};
 
-	walxrepeat = (wal->xrepeat<<3);
+	int walxrepeat = (wal->xrepeat << 3);
 
-		//lwall calculation
-	i = xb1[z]-halfxdimen;
-	topinc = -(ry1[z]>>2);
-	botinc = ((ry2[z]-ry1[z])>>8);
-	top = mulscale5(rx1[z],xdimen)+mulscale2(topinc,i);
-	bot = mulscale11(rx1[z]-rx2[z],xdimen)+mulscale2(botinc,i);
+	//lwall calculation
+	int i = xb1[z]-halfxdimen;
+	int topinc = -(ry1[z]>>2);
+	int botinc = ((ry2[z]-ry1[z])>>8);
+	int top = mulscale5(rx1[z],xdimen)+mulscale2(topinc,i);
+	int bot = mulscale11(rx1[z]-rx2[z],xdimen)+mulscale2(botinc,i);
 
-	splc = mulscale19(ry1[z],xdimscale);
-	sinc = mulscale16(ry2[z]-ry1[z],xdimscale);
+	int splc = mulscale19(ry1[z],xdimscale);
+	int sinc = mulscale16(ry2[z]-ry1[z],xdimscale);
 
-	x = xb1[z];
-	if (bot != 0)
-	{
+	int x = xb1[z];
+
+	if (bot != 0) {
 		l = divscale12(top,bot);
 		swall[x] = mulscale21(l,sinc)+splc;
 		l *= walxrepeat;
 		lwall[x] = (l>>18);
 	}
-	while (x+4 <= xb2[z])
-	{
-		top += topinc; bot += botinc;
-		if (bot != 0)
-		{
-			ol = l; l = divscale12(top,bot);
+
+	while (x+4 <= xb2[z]) {
+		top += topinc;
+		bot += botinc;
+
+		if (bot != 0) {
+			ol = l;
+			l = divscale12(top,bot);
 			swall[x+4] = mulscale21(l,sinc)+splc;
 			l *= walxrepeat;
 			lwall[x+4] = (l>>18);
 		}
+
 		i = ((ol+l)>>1);
 		lwall[x+2] = (i>>18);
 		lwall[x+1] = ((ol+i)>>19);
@@ -1207,37 +1201,47 @@ static void prepwall(int z, const walltype *wal)
 		swall[x+3] = ((swall[x+4]+swall[x+2])>>1);
 		x += 4;
 	}
+
 	if (x+2 <= xb2[z])
 	{
-		top += (topinc>>1); bot += (botinc>>1);
-		if (bot != 0)
-		{
-			ol = l; l = divscale12(top,bot);
+		top += (topinc>>1);
+		bot += (botinc>>1);
+		
+		if (bot != 0) {
+			ol = l;
+			l = divscale12(top,bot);
 			swall[x+2] = mulscale21(l,sinc)+splc;
 			l *= walxrepeat;
 			lwall[x+2] = (l>>18);
 		}
+
 		lwall[x+1] = ((l+ol)>>19);
 		swall[x+1] = ((swall[x]+swall[x+2])>>1);
 		x += 2;
 	}
+
 	if (x+1 <= xb2[z])
 	{
 		bot += (botinc>>2);
-		if (bot != 0)
-		{
+
+		if (bot != 0) {
 			l = divscale12(top+(topinc>>2),bot);
 			swall[x+1] = mulscale21(l,sinc)+splc;
 			lwall[x+1] = mulscale18(l,walxrepeat);
 		}
 	}
 
-	if (lwall[xb1[z]] < 0) lwall[xb1[z]] = 0;
-	if ((lwall[xb2[z]] >= walxrepeat) && (walxrepeat)) lwall[xb2[z]] = walxrepeat-1;
-	if (wal->cstat&8)
-	{
+	if (lwall[xb1[z]] < 0)
+		lwall[xb1[z]] = 0;
+	
+	if ((lwall[xb2[z]] >= walxrepeat) && (walxrepeat))
+		lwall[xb2[z]] = walxrepeat-1;
+	
+	if (wal->cstat&8) {
 		walxrepeat--;
-		for(x=xb1[z];x<=xb2[z];x++) lwall[x] = walxrepeat-lwall[x];
+
+		for(x=xb1[z];x<=xb2[z];x++)
+			lwall[x] = walxrepeat-lwall[x];
 	}
 }
 
@@ -1297,8 +1301,10 @@ static int owallmost(std::span<short> mostbuf, int w, int z)
 	if ((bad & 3) == 3)
 	{
 		//clearbufbyte(&mostbuf[ix1],(ix2-ix1+1)*sizeof(mostbuf[0]),0L);
-		for (int i{ix1}; i <= ix2; ++i)
-			mostbuf[i] = 0;
+		std::ranges::subrange submost{ std::next(mostbuf.begin(), ix1),
+		                               std::next(mostbuf.begin(), ix2 + 1) };
+
+		std::ranges::fill(submost, 0);
 
 		return bad;
 	}
@@ -1306,8 +1312,10 @@ static int owallmost(std::span<short> mostbuf, int w, int z)
 	if ((bad & 12) == 12)
 	{
 		//clearbufbyte(&mostbuf[ix1],(ix2-ix1+1)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-		for (int i{ix1}; i <= ix2; ++i)
-			mostbuf[i] = ydimen;
+		std::ranges::subrange submost{ std::next(mostbuf.begin(), ix1),
+								       std::next(mostbuf.begin(), ix2 + 1) };
+
+		std::ranges::fill(submost, ydimen);
 
 		return bad;
 	}
@@ -1325,8 +1333,10 @@ static int owallmost(std::span<short> mostbuf, int w, int z)
 				ix2 = xcross;
 			}
 			//clearbufbyte(&mostbuf[xcross+1],(xb2[w]-xcross)*sizeof(mostbuf[0]),0L);
-			for (int i = xcross + 1; i <= xb2[w]; ++i)
-				mostbuf[i] = 0;
+			std::ranges::subrange submost{ std::next(mostbuf.begin(), xcross + 1),
+								           std::next(mostbuf.begin(), xb2[w] + 1) };
+
+			std::ranges::fill(submost, 0);
 		}
 		else
 		{
@@ -1335,12 +1345,14 @@ static int owallmost(std::span<short> mostbuf, int w, int z)
 				ix1 = xcross;
 			}
 			//clearbufbyte(&mostbuf[xb1[w]],(xcross-xb1[w]+1)*sizeof(mostbuf[0]),0L);
-			for (int i = xb1[w]; i <= xcross; ++i)
-				mostbuf[i] = 0;
+			std::ranges::subrange submost{ std::next(mostbuf.begin(), xb1[w]),
+								           std::next(mostbuf.begin(), xcross + 1) };
+
+			std::ranges::fill(submost, 0);
 		}
 	}
 
-	if (bad&12)
+	if (bad & 12)
 	{
 		const int t = divscale30(z - s3, s4 - s3);
 		const int inty = yb1[w] + mulscale30(yb2[w] - yb1[w], t);
@@ -1352,9 +1364,12 @@ static int owallmost(std::span<short> mostbuf, int w, int z)
 				iy2 = inty;
 				ix2 = xcross;
 			}
+
 			//clearbufbyte(&mostbuf[xcross+1],(xb2[w]-xcross)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-			for (int i = xcross + 1; i <= xb2[w]; ++i)
-				mostbuf[i] = ydimen;
+			std::ranges::subrange submost{ std::next(mostbuf.begin(), xcross + 1),
+								           std::next(mostbuf.begin(), xb2[w] + 1) };
+
+			std::ranges::fill(submost, ydimen);
 		}
 		else
 		{
@@ -1362,9 +1377,12 @@ static int owallmost(std::span<short> mostbuf, int w, int z)
 				iy1 = inty;
 				ix1 = xcross;
 			}
+
 			//clearbufbyte(&mostbuf[xb1[w]],(xcross-xb1[w]+1)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-			for (int i = xb1[w]; i <= xcross; ++i)
-				mostbuf[i] = ydimen;
+			std::ranges::subrange submost{ std::next(mostbuf.begin(), xb1[w]),
+								           std::next(mostbuf.begin(), xcross + 1) };
+
+			std::ranges::fill(submost, ydimen);
 		}
 	}
 
@@ -1519,8 +1537,10 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	if ((bad & 3) == 3)
 	{
 		//clearbufbyte(&mostbuf[ix1],(ix2-ix1+1)*sizeof(mostbuf[0]),0L);
-		for (i = ix1; i <= ix2; ++i)
-			mostbuf[i] = 0;
+		std::ranges::subrange submost{ std::next(mostbuf.begin(), ix1),
+		                               std::next(mostbuf.begin(), ix2 + 1)};
+
+		std::ranges::fill(submost, 0);
 
 		return bad;
 	}
@@ -1528,9 +1548,11 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	if ((bad & 12) == 12)
 	{
 		//clearbufbyte(&mostbuf[ix1],(ix2-ix1+1)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-		for (i=ix1; i<=ix2; i++)
-			mostbuf[i] = ydimen;
-		
+		std::ranges::subrange submost{ std::next(mostbuf.begin(), ix1),
+		                               std::next(mostbuf.begin(), ix2 + 1)};
+
+		std::ranges::fill(submost, ydimen);
+
 		return bad;
 	}
 
@@ -1548,15 +1570,29 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 
 		if ((bad&3) == 2)
 		{
-			if (xb1[w] <= xcross) { z2 = intz; iy2 = inty; ix2 = xcross; }
+			if (xb1[w] <= xcross) {
+				z2 = intz;
+				iy2 = inty;
+				ix2 = xcross;
+			}
 			//clearbufbyte(&mostbuf[xcross+1],(xb2[w]-xcross)*sizeof(mostbuf[0]),0L);
-			for (i=xcross+1; i<=xb2[w]; i++) mostbuf[i] = 0;
+			std::ranges::subrange submost{ std::next(mostbuf.begin(), xcross + 1),
+		                                   std::next(mostbuf.begin(), xb2[w] + 1)};
+
+			std::ranges::fill(submost, 0);
 		}
 		else
 		{
-			if (xcross <= xb2[w]) { z1 = intz; iy1 = inty; ix1 = xcross; }
+			if (xcross <= xb2[w]) {
+				z1 = intz;
+				iy1 = inty;
+				ix1 = xcross;
+			}
 			//clearbufbyte(&mostbuf[xb1[w]],(xcross-xb1[w]+1)*sizeof(mostbuf[0]),0L);
-			for (i=xb1[w]; i<=xcross; i++) mostbuf[i] = 0;
+			std::ranges::subrange submost{ std::next(mostbuf.begin(), xb1[w]),
+		                                   std::next(mostbuf.begin(), xcross + 1)};
+
+			std::ranges::fill(submost, 0);
 		}
 	}
 
@@ -1580,8 +1616,10 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 				ix2 = xcross;
 			}
 			//clearbufbyte(&mostbuf[xcross+1],(xb2[w]-xcross)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-			for (i = xcross + 1; i <= xb2[w]; ++i) 
-				mostbuf[i] = ydimen;
+			std::ranges::subrange submost{ std::next(mostbuf.begin(), xcross + 1),
+		                                   std::next(mostbuf.begin(), xb2[w] + 1)};
+
+				std::ranges::fill(submost, ydimen);		
 		}
 		else
 		{
@@ -1590,9 +1628,12 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 				iy1 = inty;
 				ix1 = xcross;
 			}
+
 			//clearbufbyte(&mostbuf[xb1[w]],(xcross-xb1[w]+1)*sizeof(mostbuf[0]),ydimen+(ydimen<<16));
-			for (i = xb1[w]; i <= xcross; ++i)
-				mostbuf[i] = ydimen;
+			std::ranges::subrange submost{ std::next(mostbuf.begin(), xb1[w]),
+		                                   std::next(mostbuf.begin(), xcross + 1)};
+
+			std::ranges::fill(submost, ydimen);
 		}
 	}
 
@@ -1641,19 +1682,34 @@ static void ceilscan(int x1, int x2, int sectnum)
 	}
 
 	globalzd = sec->ceilingz-globalposz;
-	if (globalzd > 0) return;
+	
+	if (globalzd > 0)
+		return;
+	
 	globalpicnum = sec->ceilingpicnum;
-	if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
+	
+	if ((unsigned)globalpicnum >= (unsigned)MAXTILES)
+		globalpicnum = 0;
+	
 	setgotpic(globalpicnum);
-	if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) return;
-	if (picanm[globalpicnum]&192) globalpicnum += animateoffs((short)globalpicnum,(short)sectnum);
+	
+	if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0))
+		return;
 
-	if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+	if (picanm[globalpicnum] & 192)
+		globalpicnum += animateoffs((short)globalpicnum,(short)sectnum);
+
+	if (waloff[globalpicnum] == 0)
+		loadtile(globalpicnum);
+	
 	globalbufplc = waloff[globalpicnum];
 
 	globalshade = (int)sec->ceilingshade;
 	globvis = globalcisibility;
-	if (sec->visibility != 0) globvis = mulscale4(globvis,(int)((unsigned char)(sec->visibility+16)));
+	
+	if (sec->visibility != 0)
+		globvis = mulscale4(globvis,(int)((unsigned char)(sec->visibility+16)));
+
 	globalorientation = (int)sec->ceilingstat;
 
 
@@ -1682,11 +1738,16 @@ static void ceilscan(int x1, int x2, int sectnum)
 		globalxpanning = globalx1*ox - globaly1*oy;
 		globalypanning = globaly2*ox + globalx2*oy;
 	}
+
 	globalx2 = mulscale16(globalx2,viewingrangerecip);
 	globaly1 = mulscale16(globaly1,viewingrangerecip);
 	globalxshift = (8-(picsiz[globalpicnum]&15));
 	globalyshift = (8-(picsiz[globalpicnum]>>4));
-	if (globalorientation&8) { globalxshift++; globalyshift++; }
+
+	if (globalorientation & 8) {
+		globalxshift++;
+		globalyshift++;
+	}
 
 	if ((globalorientation&0x4) > 0)
 	{
@@ -3695,54 +3756,56 @@ static void drawsprite(int snum)
 			if (xp1 > yp1) return;
 
 			if (yp1 == 0) return;
-			xb1[MAXWALLSB-1] = halfxdimen + scale(xp1,halfxdimen,yp1);
-			if (xp1 >= 0) xb1[MAXWALLSB-1]++;   //Fix for SIGNED divide
-			if (xb1[MAXWALLSB-1] >= xdimen) xb1[MAXWALLSB-1] = xdimen-1;
-			yb1[MAXWALLSB-1] = yp1;
+			xb1.back() = halfxdimen + scale(xp1,halfxdimen,yp1);
+			if (xp1 >= 0) xb1.back()++;   //Fix for SIGNED divide
+			if (xb1.back() >= xdimen) xb1.back() = xdimen-1;
+			yb1.back() = yp1;
 		}
 		else
 		{
 			if (xp2 < -yp2) return;
-			xb1[MAXWALLSB-1] = 0;
+			xb1.back() = 0;
 			i = yp1-yp2+xp1-xp2;
 			if (i == 0) return;
-			yb1[MAXWALLSB-1] = yp1 + scale(yp2-yp1,xp1+yp1,i);
+			yb1.back() = yp1 + scale(yp2-yp1,xp1+yp1,i);
 		}
 		if (xp2 <= yp2)
 		{
 			if (xp2 < -yp2) return;
 
 			if (yp2 == 0) return;
-			xb2[MAXWALLSB-1] = halfxdimen + scale(xp2,halfxdimen,yp2) - 1;
-			if (xp2 >= 0) xb2[MAXWALLSB-1]++;   //Fix for SIGNED divide
-			if (xb2[MAXWALLSB-1] >= xdimen) xb2[MAXWALLSB-1] = xdimen-1;
-			yb2[MAXWALLSB-1] = yp2;
+			xb2.back() = halfxdimen + scale(xp2,halfxdimen,yp2) - 1;
+			if (xp2 >= 0) xb2.back()++;   //Fix for SIGNED divide
+			if (xb2.back() >= xdimen) xb2.back() = xdimen-1;
+			yb2.back() = yp2;
 		}
 		else
 		{
 			if (xp1 > yp1) return;
 
-			xb2[MAXWALLSB-1] = xdimen-1;
+			xb2.back() = xdimen-1;
 			i = xp2-xp1+yp1-yp2;
 			if (i == 0) return;
-			yb2[MAXWALLSB-1] = yp1 + scale(yp2-yp1,yp1-xp1,i);
+			yb2.back() = yp1 + scale(yp2-yp1,yp1-xp1,i);
 		}
 
-		if ((yb1[MAXWALLSB-1] < 256) || (yb2[MAXWALLSB-1] < 256) || (xb1[MAXWALLSB-1] > xb2[MAXWALLSB-1]))
+		if ((yb1.back() < 256) || (yb2.back() < 256) || (xb1.back() > xb2.back()))
 			return;
 
 		topinc = -mulscale10(yp1,xspan);
-		top = (((mulscale10(xp1,xdimen) - mulscale9(xb1[MAXWALLSB-1]-halfxdimen,yp1))*xspan)>>3);
+		top = (((mulscale10(xp1,xdimen) - mulscale9(xb1.back()-halfxdimen,yp1))*xspan)>>3);
 		botinc = ((yp2-yp1)>>8);
-		bot = mulscale11(xp1-xp2,xdimen) + mulscale2(xb1[MAXWALLSB-1]-halfxdimen,botinc);
+		bot = mulscale11(xp1-xp2,xdimen) + mulscale2(xb1.back()-halfxdimen,botinc);
 
-		j = xb2[MAXWALLSB-1]+3;
+		j = xb2.back()+3;
 		z = mulscale20(top,krecipasm(bot));
-		lwall[xb1[MAXWALLSB-1]] = (z>>8);
-		for(x=xb1[MAXWALLSB-1]+4;x<=j;x+=4)
+		lwall[xb1.back()] = (z>>8);
+		for(x=xb1.back()+4;x<=j;x+=4)
 		{
-			top += topinc; bot += botinc;
-			zz = z; z = mulscale20(top,krecipasm(bot));
+			top += topinc;
+			bot += botinc;
+			zz = z;
+			z = mulscale20(top,krecipasm(bot));
 			lwall[x] = (z>>8);
 			i = ((z+zz)>>1);
 			lwall[x-2] = (i>>8);
@@ -3750,22 +3813,24 @@ static void drawsprite(int snum)
 			lwall[x-1] = ((i+z)>>9);
 		}
 
-		if (lwall[xb1[MAXWALLSB-1]] < 0) lwall[xb1[MAXWALLSB-1]] = 0;
-		if (lwall[xb2[MAXWALLSB-1]] >= xspan) lwall[xb2[MAXWALLSB-1]] = xspan-1;
+		if (lwall[xb1.back()] < 0) lwall[xb1.back()] = 0;
+		if (lwall[xb2.back()] >= xspan) lwall[xb2.back()] = xspan-1;
 
 		if ((swapped^((cstat&4)>0)) > 0)
 		{
 			j = xspan-1;
-			for(x=xb1[MAXWALLSB-1];x<=xb2[MAXWALLSB-1];x++)
+			for(x=xb1.back();x<=xb2.back();x++)
 				lwall[x] = j-lwall[x];
 		}
 
-		rx1[MAXWALLSB-1] = xp1; ry1[MAXWALLSB-1] = yp1;
-		rx2[MAXWALLSB-1] = xp2; ry2[MAXWALLSB-1] = yp2;
+		rx1.back() = xp1;
+		ry1.back() = yp1;
+		rx2.back() = xp2;
+		ry2.back() = yp2;
 
-		hplc = divscale19(xdimenscale,yb1[MAXWALLSB-1]);
-		hinc = divscale19(xdimenscale,yb2[MAXWALLSB-1]);
-		hinc = (hinc-hplc)/(xb2[MAXWALLSB-1]-xb1[MAXWALLSB-1]+1);
+		hplc = divscale19(xdimenscale, yb1.back());
+		hinc = divscale19(xdimenscale, yb2.back());
+		hinc = (hinc-hplc) / (xb2.back() - xb1.back() + 1);
 
 		z2 = tspr->z - ((yoff*tspr->yrepeat)<<2);
 		if (cstat&128)
@@ -3800,19 +3865,19 @@ static void drawsprite(int snum)
 
 		owallmost(uwall,(int)(MAXWALLSB-1),z1-globalposz);
 		owallmost(dwall,(int)(MAXWALLSB-1),z2-globalposz);
-		for(i=xb1[MAXWALLSB-1];i<=xb2[MAXWALLSB-1];i++)
+		for(i=xb1.back(); i <= xb2.back() ;i++)
 			{ swall[i] = (krecipasm(hplc)<<2); hplc += hinc; }
 
 		for(i=smostwallcnt-1;i>=0;i--)
 		{
 			j = smostwall[i];
 
-			if ((xb1[j] > xb2[MAXWALLSB-1]) || (xb2[j] < xb1[MAXWALLSB-1])) continue;
+			if ((xb1[j] > xb2.back()) || (xb2[j] < xb1.back())) continue;
 
 			dalx2 = xb1[j]; darx2 = xb2[j];
-			if (std::max(yb1[MAXWALLSB-1], yb2[MAXWALLSB-1]) > std::min(yb1[j], yb2[j]))
+			if (std::max(yb1.back(), yb2.back()) > std::min(yb1[j], yb2[j]))
 			{
-				if (std::min(yb1[MAXWALLSB - 1], yb2[MAXWALLSB - 1]) > std::max(yb1[j], yb2[j]))
+				if (std::min(yb1.back(), yb2.back()) > std::max(yb1[j], yb2[j]))
 				{
 					x = 0x80000000;
 				}
@@ -3868,14 +3933,14 @@ static void drawsprite(int snum)
 				}
 				if (x < 0)
 				{
-					if (dalx2 < xb1[MAXWALLSB-1]) dalx2 = xb1[MAXWALLSB-1];
-					if (darx2 > xb2[MAXWALLSB-1]) darx2 = xb2[MAXWALLSB-1];
+					if (dalx2 < xb1.back()) dalx2 = xb1.back();
+					if (darx2 > xb2.back()) darx2 = xb2.back();
 					switch(smostwalltype[i])
 					{
 						case 0:
 							if (dalx2 <= darx2)
 							{
-								if ((dalx2 == xb1[MAXWALLSB-1]) && (darx2 == xb2[MAXWALLSB-1])) return;
+								if ((dalx2 == xb1.back()) && (darx2 == xb2.back())) return;
 								//clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
 								for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
 							}
@@ -3896,7 +3961,7 @@ static void drawsprite(int snum)
 		}
 
 			//sprite
-		if ((searchit >= 1) && (searchx >= xb1[MAXWALLSB-1]) && (searchx <= xb2[MAXWALLSB-1]))
+		if ((searchit >= 1) && (searchx >= xb1.back()) && (searchx <= xb2.back()))
 			if ((searchy >= uwall[searchx]) && (searchy <= dwall[searchx]))
 			{
 				searchsector = sectnum; searchwall = spritenum;
@@ -3904,9 +3969,9 @@ static void drawsprite(int snum)
 			}
 
 		if ((cstat&2) == 0) {
-			maskwallscan(xb1[MAXWALLSB-1],xb2[MAXWALLSB-1],uwall,dwall,swall,lwall);
+			maskwallscan(xb1.back(), xb2.back(), uwall, dwall, swall, lwall);
 		} else {
-			transmaskwallscan(xb1[MAXWALLSB-1],xb2[MAXWALLSB-1]);
+			transmaskwallscan(xb1.back(), xb2.back());
 		}
 	}
 	else if ((cstat&48) == 32)
@@ -6172,14 +6237,28 @@ void uninitengine()
 		kclose(artfil);
 	}
 
-	if (transluc != nullptr) { std::free(transluc); transluc = nullptr; }
-	if (pic != nullptr) { std::free(pic); pic = nullptr; }
-	if (lookups != nullptr) { std::free(lookups); lookups = nullptr; }
-	for (int i{0}; i < MAXPALOOKUPS; ++i) {
-		if (palookup[i] != nullptr) {
-			std::free(palookup[i]); palookup[i] = nullptr;
-		}
+	if (transluc != nullptr) {
+		std::free(transluc);
+		transluc = nullptr;
 	}
+
+	if (pic != nullptr) {
+		std::free(pic);
+		pic = nullptr;
+	}
+
+	if (lookups != nullptr) {
+		std::free(lookups);
+		lookups = nullptr;
+	}
+
+	std::ranges::for_each(palookup.begin(), std::next(palookup.begin(), MAXPALOOKUPS),
+		[](auto& plook) {
+			if(plook != nullptr) {
+				std::free(plook);
+				plook = nullptr;
+			}
+		});
 }
 
 
@@ -6188,8 +6267,6 @@ void uninitengine()
 //
 void initspritelists()
 {
-	int i;
-
 	//Init doubly-linked sprite sector lists
 	std::ranges::fill(headspritesect, -1);
 	headspritesect[MAXSECTORS] = 0;
@@ -6208,7 +6285,7 @@ void initspritelists()
 	headspritestat[MAXSTATUS] = 0;
 
 	std::iota(prevspritestat.begin(), prevspritestat.end(), -1);
-	std::iota(nextspritestat.begin(), nextspritestat.end(), 1);
+	std::iota(nextspritestat.begin(), nextspritestat.end(),  1);
 	
 	for(auto& aSprite : sprite) {
 		aSprite.statnum = MAXSTATUS;
@@ -8455,7 +8532,6 @@ writeerror:
 int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 {
 	int i;
-	int j;
 
 	if ((qsetmode == 200) && (videomodereset == 0) &&
 	    (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp))
@@ -8467,7 +8543,8 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 	const int oldbpp{ bpp };
 #endif
 	//bytesperline is set in this function
-	if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return(-1);
+	if (setvideomode(daxdim, daydim, dabpp, davidoption) < 0)
+		return -1;
 
 #ifndef USING_A_C
 	// it's possible the previous call protected our code sections again
@@ -8475,8 +8552,10 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 #endif
 
 #if USE_POLYMOST && USE_OPENGL
-	if (dabpp > 8) rendmode = 3;	// GL renderer
-	else if (dabpp == 8 && oldbpp != 8) rendmode = 0;	// going from GL to software activates classic
+	if (dabpp > 8)
+		rendmode = 3;	// GL renderer
+	else if (dabpp == 8 && oldbpp != 8)
+		rendmode = 0;	// going from GL to software activates classic
 #endif
 
 	xdim = xres;
@@ -8508,17 +8587,21 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 		}
 	}
 
-	j = ydim*4*sizeof(int);  //Leave room for horizlookup&horizlookup2
+	int looktable_size = ydim * 4 * sizeof(int);  // Leave room for horizlookup and horizlookup2
 
-	if (lookups != nullptr) { std::free((void *)lookups); lookups = nullptr; }
-	if ((lookups = static_cast<int*>(std::malloc(j<<1))) == nullptr) {
+	if (lookups != nullptr) {
+		std::free((void *)lookups);
+		lookups = nullptr;
+	}
+
+	if ((lookups = static_cast<int*>(std::malloc(looktable_size << 1))) == nullptr) {
 		engineerrstr = "Failed to allocate lookups memory";
 		return -1;
 	}
 
 	horizlookup = (int *)(lookups);
-	horizlookup2 = (int *)((intptr_t)lookups+j);
-	horizycent = ((ydim*4)>>1);
+	horizlookup2 = (int *)((intptr_t)lookups + looktable_size);
+	horizycent = ((ydim * 4) >> 1);
 
 	//Force drawrooms to call dosetaspect & recalculate stuff
 	oxyaspect = -1;
@@ -8526,11 +8609,14 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 	oviewingrange = -1;
 
 	setvlinebpl(bytesperline);
-	j = 0;
 
-	for(i=0;i<=ydim;i++) ylookup[i] = j, j += bytesperline;
+	std::for_each(ylookup.begin(), std::next(ylookup.begin(), ydim + 1),
+		[j = 0](auto& ylook) mutable {
+			ylook = j;
+			j += bytesperline;
+		});
 
-	setview(0L,0L,xdim-1,ydim-1);
+	setview(0L, 0L, xdim - 1, ydim - 1);
 
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode == 3) {
@@ -8727,8 +8813,7 @@ int loadpics(const char* filename, int askedsize)
 
 			numtilefiles++;
 		}
-	}
-	while (k != numtilefiles);
+	} while (k != numtilefiles);
 
 	clearbuf(&gotpic[0],(int)((MAXTILES+31)>>5),0L);
 
@@ -8764,7 +8849,7 @@ int loadpics(const char* filename, int askedsize)
 	artfilnum = -1;
 	artfilplc = 0L;
 
-	return(0);
+	return 0;
 }
 
 
@@ -8832,7 +8917,7 @@ intptr_t allocatepermanenttile(short tilenume, int xsiz, int ysiz)
 	int j;
 
 	if ((xsiz <= 0) || (ysiz <= 0) || ((unsigned)tilenume >= (unsigned)MAXTILES))
-		return(0);
+		return 0;
 
 	const int dasiz = xsiz*ysiz;
 
@@ -8843,12 +8928,19 @@ intptr_t allocatepermanenttile(short tilenume, int xsiz, int ysiz)
 	tilesizy[tilenume] = ysiz;
 	picanm[tilenume] = 0;
 
-	j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
+	j = 15;
+	while ((j > 1) && (pow2long[j] > xsiz))
+		j--;
+
 	picsiz[tilenume] = ((unsigned char)j);
-	j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
+
+	j = 15;
+	while ((j > 1) && (pow2long[j] > ysiz))
+		j--;
+
 	picsiz[tilenume] += ((unsigned char)(j<<4));
 
-	return(waloff[tilenume]);
+	return waloff[tilenume];
 }
 
 
@@ -8941,6 +9033,7 @@ int qloadkvx(int voxindex, const char* filename)
 			break;
 		}
 	}
+
 	kclose(fil);
 
 #if USE_POLYMOST && USE_OPENGL
@@ -8971,10 +9064,11 @@ int clipinsidebox(int x, int y, short wallnum, int walldist)
 	int x2 = wal->x+walldist - x;
 	int y2 = wal->y+walldist - y;
 
-	if ((x1 < 0) && (x2 < 0)) return(0);
-	if ((y1 < 0) && (y2 < 0)) return(0);
-	if ((x1 >= r) && (x2 >= r)) return(0);
-	if ((y1 >= r) && (y2 >= r)) return(0);
+	if (((x1 < 0)  && (x2 < 0))  || 
+		((y1 < 0)  && (y2 < 0))  ||
+	    ((x1 >= r) && (x2 >= r)) ||
+		((y1 >= r) && (y2 >= r)))
+		return 0;
 
 	x2 -= x1;
 	y2 -= y1;
@@ -9090,11 +9184,6 @@ int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist
 //
 int inside(int x, int y, short sectnum)
 {
-	int x1;
-	int y1;
-	int x2;
-	int y2;
-
 	if ((sectnum < 0) || (sectnum >= numsectors)) {
 		return -1;
 	}
@@ -9107,13 +9196,13 @@ int inside(int x, int y, short sectnum)
 
 	do
 	{
-		y1 = wal->y - y;
-		y2 = wall[wal->point2].y - y;
+		int y1 = wal->y - y;
+		int y2 = wall[wal->point2].y - y;
 
 		if ((y1 ^ y2) < 0)
 		{
-			x1 = wal->x - x;
-			x2 = wall[wal->point2].x - x;
+			int x1 = wal->x - x;
+			int x2 = wall[wal->point2].x - x;
 
 			if ((x1 ^ x2) >= 0) {
 				cnt ^= x1;
@@ -9123,8 +9212,8 @@ int inside(int x, int y, short sectnum)
 			}
 		}
 
-		wal++;
-		i--;
+		++wal;
+		--i;
 	} while (i);
 	
 	return cnt >> 31;
@@ -9134,16 +9223,28 @@ int inside(int x, int y, short sectnum)
 //
 // getangle
 //
+ // FIXME: Shifting on boolean results
 int getangle(int xvect, int yvect)
 {
-	if ((xvect|yvect) == 0) return(0);
-	if (xvect == 0) return(512+((yvect<0)<<10));
-	if (yvect == 0) return(((xvect<0)<<10));
-	if (xvect == yvect) return(256+((xvect<0)<<10));
-	if (xvect == -yvect) return(768+((xvect>0)<<10));
+	if ((xvect|yvect) == 0)
+		return 0;
+
+	if (xvect == 0)
+		return 512 + ((yvect < 0) << 10);
+
+	if (yvect == 0)
+		return (xvect < 0) << 10;
+
+	if (xvect == yvect)
+		return 256 + ((xvect < 0) << 10);
+
+	if (xvect == -yvect)
+		return 768 + ((xvect > 0) << 10);
+
 	if (std::abs(xvect) > std::abs(yvect))
-		return(((radarang[640+scale(160,yvect,xvect)]>>6)+((xvect<0)<<10))&2047);
-	return(((radarang[640-scale(160,xvect,yvect)]>>6)+512+((yvect<0)<<10))&2047);
+		return ((radarang[640 + scale(160, yvect, xvect)] >> 6) + ((xvect < 0) << 10)) & 2047;
+
+	return ((radarang[640 - scale(160, xvect, yvect)] >> 6) + 512 + ((yvect < 0) << 10)) & 2047;
 }
 
 
