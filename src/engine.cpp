@@ -12144,12 +12144,15 @@ void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 
 	if (std::abs(dx) >= std::abs(dy))
 	{
-		if (dx == 0) return;
+		if (dx == 0)
+			return;
+
 		if (dx < 0)
 		{
-			i = x1; x1 = x2; x2 = i;
-			i = y1; y1 = y2; y2 = i;
-			x1+=4096; x2+=4096;
+			std::swap(x1, x2);
+			std::swap(y1, y2);
+			x1 += 4096;
+			x2 += 4096;
 		}
 
 		inc = divscale12(dy,dx);
@@ -12168,9 +12171,10 @@ void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 	{
 		if (dy < 0)
 		{
-			i = x1; x1 = x2; x2 = i;
-			i = y1; y1 = y2; y2 = i;
-			y1+=4096; y2+=4096;
+			std::swap(x1, x2);
+			std::swap(y1, y2);
+			y1 += 4096;
+			y2 += 4096;
 		}
 
 		inc = divscale12(dx,dy);
