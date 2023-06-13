@@ -127,6 +127,10 @@ static int repeatcounty;
 
 static std::array<int, 640> fillist;
 
+enum class ClockDir_t {
+	CW, // clockwise
+	CCW // counter-clockwise
+};
 
 void qsetmodeany(int,int);
 void clear2dscreen();
@@ -134,15 +138,15 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride);
 void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride);
 
 unsigned char changechar(unsigned char dachar, int dadir, unsigned char smooshyalign, unsigned char boundcheck);
-int adjustmark(int *xplc, int *yplc, short danumwalls);
-int checkautoinsert(int dax, int day, short danumwalls);
+void adjustmark(int *xplc, int *yplc, short danumwalls);
+bool checkautoinsert(int dax, int day, short danumwalls);
 void keytimerstuff();
-int clockdir(short wallstart);
+ClockDir_t clockdir(short wallstart);
 void flipwalls(short numwalls, short newnumwalls);
 void insertpoint(short linehighlight, int dax, int day);
 void deletepoint(short point);
-int deletesector(short sucksect);
-int checksectorpointer(short i, short sectnum);
+void deletesector(short sucksect);
+void checksectorpointer(short i, short sectnum);
 void fixrepeats(short i);
 short loopinside(int x, int y, short startwall);
 void fillsector(short sectnum, unsigned char fillcolor);
@@ -152,11 +156,11 @@ void copysector(short soursector, short destsector, short deststartwall, unsigne
 void showsectordata(short sectnum);
 void showwalldata(short wallnum);
 void showspritedata(short spritenum);
-int drawtilescreen(int pictopleft, int picbox);
+void drawtilescreen(int pictopleft, int picbox);
 void overheadeditor();
 int getlinehighlight(int xplc, int yplc);
 void fixspritesectors();
-int movewalls(int start, int offs);
+void movewalls(int start, int offs);
 int loadnames();
 void updatenumsprites();
 void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny);
@@ -166,7 +170,7 @@ int gettile(int tilenum);
 
 char *findfilename(char *path);
 int menuselect(int newpathmode);
-int getfilenames(const char *path, const char* kind);
+void getfilenames(const char *path, const char* kind);
 void clearfilenames();
 
 void clearkeys() {
@@ -2663,7 +2667,7 @@ int gettile(int tilenum)
 	return tilenum;
 }
 
-int drawtilescreen(int pictopleft, int picbox)
+void drawtilescreen(int pictopleft, int picbox)
 {
 	intptr_t vidpos;
 	intptr_t vidpos2;
@@ -2772,8 +2776,6 @@ int drawtilescreen(int pictopleft, int picbox)
 
 	std::sprintf(&snotbuf[0],"%dx%d",tilesizx[i],tilesizy[i]);
 	printext256(xdim>>2,ydim-8,whitecol,-1,snotbuf,0);
-
-	return(0);
 }
 
 void overheadeditor()
@@ -4397,7 +4399,7 @@ void overheadeditor()
 		{
 			keystatus[0x39] = 0;
 			adjustmark(&mousxplc,&mousyplc,newnumwalls);
-			if (checkautoinsert(mousxplc,mousyplc,newnumwalls) == 1)
+			if (checkautoinsert(mousxplc,mousyplc,newnumwalls))
 			{
 				printmessage16("You must insert a point there first.");
 				bad = 0;
@@ -4521,7 +4523,7 @@ void overheadeditor()
 								k = i;
 						if (k == -1)   //if not inside another sector either
 						{              //add island sector
-							if (clockdir(numwalls) == 1)
+							if (clockdir(numwalls) == ClockDir_t::CCW)
 								flipwalls(numwalls,newnumwalls);
 
 							//clearbufbyte(&sector[numsectors],sizeof(sectortype),0L);
@@ -4548,7 +4550,7 @@ void overheadeditor()
 						}
 						else       //else add loop to sector
 						{
-							if (clockdir(numwalls) == 0)
+							if (clockdir(numwalls) == ClockDir_t::CW)
 								flipwalls(numwalls,newnumwalls);
 
 							j = newnumwalls-numwalls;
@@ -4590,7 +4592,7 @@ void overheadeditor()
 					else
 					{
 						  //add new sector with connections
-						if (clockdir(numwalls) == 1)
+						if (clockdir(numwalls) == ClockDir_t::CCW)
 							flipwalls(numwalls,newnumwalls);
 
 						//clearbufbyte(&sector[numsectors],sizeof(sectortype),0L);
@@ -5828,7 +5830,7 @@ int getpointhighlight(int xplc, int yplc)
 	return(closest);
 }
 
-int adjustmark(int *xplc, int *yplc, short danumwalls)
+void adjustmark(int *xplc, int *yplc, short danumwalls)
 {
 	int i;
 	int dst;
@@ -5866,10 +5868,9 @@ int adjustmark(int *xplc, int *yplc, short danumwalls)
 
 	*xplc = dax;
 	*yplc = day;
-	return(0);
 }
 
-int checkautoinsert(int dax, int day, short danumwalls)
+bool checkautoinsert(int dax, int day, short danumwalls)
 {
 	int i;
 	int x1;
@@ -5891,12 +5892,13 @@ int checkautoinsert(int dax, int day, short danumwalls)
 				if (((x1 <= dax) && (dax <= x2)) || ((x2 <= dax) && (dax <= x1)))
 					if (((y1 <= day) && (day <= y2)) || ((y2 <= day) && (day <= y1)))
 						if ((dax-x1)*(y2-y1) == (day-y1)*(x2-x1))
-							return(1);          //insertpoint((short)i,dax,day);
+							return true;          //insertpoint((short)i,dax,day);
 	}
-	return(0);
+
+	return false;
 }
 
-int clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
+ClockDir_t clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
 {
 	short i{wallstart - 1};
 	short themin{-1};
@@ -5919,15 +5921,15 @@ int clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
 	int x2 = wall[wall[wall[themin].point2].point2].x;
 	int y2 = wall[wall[wall[themin].point2].point2].y;
 
-	if ((y1 >= y2) && (y1 <= y0)) return 0;
-	if ((y1 >= y0) && (y1 <= y2)) return 1;
+	if ((y1 >= y2) && (y1 <= y0)) return ClockDir_t::CW;
+	if ((y1 >= y0) && (y1 <= y2)) return ClockDir_t::CCW;
 
 	int templong = (x0 - x1) * (y2 - y1) - (x2 - x1) * (y0 - y1);
 
 	if (templong < 0)
-		return 0;
+		return ClockDir_t::CW;
 	else
-		return 1;
+		return ClockDir_t::CCW;
 }
 
 void flipwalls(short numwalls, short newnumwalls)
@@ -6025,7 +6027,7 @@ void deletepoint(short point)
 	checksectorpointer((short)j,(short)sucksect);
 }
 
-int deletesector(short sucksect)
+void deletesector(short sucksect)
 {
 	int i;
 
@@ -6065,7 +6067,6 @@ int deletesector(short sucksect)
 	for(i=0;i<numwalls;i++)
 		if (wall[i].nextwall >= startwall)
 			wall[i].nextsector--;
-	return(0);
 }
 
 void fixspritesectors()
@@ -6101,7 +6102,7 @@ void fixspritesectors()
 	}
 }
 
-int movewalls(int start, int offs)
+void movewalls(int start, int offs)
 {
 	int i;
 
@@ -6121,10 +6122,9 @@ int movewalls(int start, int offs)
 		if (wall[i].nextwall >= start) wall[i].nextwall += offs;
 		if (wall[i].point2 >= start) wall[i].point2 += offs;
 	}
-	return 0;
 }
 
-int checksectorpointer(short i, short sectnum)
+void checksectorpointer(short i, short sectnum)
 {
 	const int x1 = wall[i].x;
 	const int y1 = wall[i].y;
@@ -6136,7 +6136,7 @@ int checksectorpointer(short i, short sectnum)
 		const int k = wall[i].nextwall;
 		if ((wall[k].x == x2) && (wall[k].y == y2))
 			if ((wall[wall[k].point2].x == x1) && (wall[wall[k].point2].y == y1))
-				return(0);
+				return;
 	}
 
 	wall[i].nextsector = -1;
@@ -6160,8 +6160,6 @@ int checksectorpointer(short i, short sectnum)
 					}
 		}
 	}
-
-	return 0;
 }
 
 void fixrepeats(short i)
@@ -6187,7 +6185,7 @@ short loopinside(int x, int y, short startwall)
 {
 	int templong;
 
-	short cnt = clockdir(startwall);
+	short direc = static_cast<int>(clockdir(startwall));
 	short i{startwall};
 
 	do
@@ -6208,13 +6206,13 @@ short loopinside(int x, int y, short startwall)
 
 			if ((y1 <= y) && (y2 > y))
 				if (x1*(y-y2)+x2*(y1-y) <= x*(y1-y2))
-					cnt ^= 1;
+					direc ^= 1;
 		}
 
 		i = wall[i].point2;
 	} while (i != startwall);
 	
-	return cnt;
+	return direc;
 }
 
 int numloopsofsector(short sectnum)
@@ -6331,7 +6329,7 @@ void clearfilenames()
 	numfiles = numdirs = 0;
 }
 
-int getfilenames(const char *path, const char* kind)
+void getfilenames(const char *path, const char* kind)
 {
 	CACHE1D_FIND_REC *r;
 	int type = 0;
@@ -6350,8 +6348,6 @@ int getfilenames(const char *path, const char* kind)
 	findfileshigh = findfiles;
 	currentlist = 0;
 	if (findfileshigh) currentlist = 1;
-
-	return(0);
 }
 
 char *findfilename(char *path)
@@ -6661,7 +6657,7 @@ short whitelinescan(short dalinehighlight)
 		wall[i].point2 = i+1;
 	wall[newnumwalls-1].point2 = numwalls;
 
-	if (clockdir(numwalls) == 1) {
+	if (clockdir(numwalls) == ClockDir_t::CCW) {
 		return -1;
 	}
 	else {
@@ -7838,8 +7834,6 @@ static std::array<char, 8192> visited;
 
 int GetWallZPeg(int nWall)
 {
-	int z{0};
-
 	const int nSector = sectorofwall((short)nWall);
 	const int nNextSector = wall[nWall].nextsector;
 	
@@ -7847,25 +7841,25 @@ int GetWallZPeg(int nWall)
 	{
 		//1-sided wall
 		if (wall[nWall].cstat&4)
-			z = sector[nSector].floorz;
+			return sector[nSector].floorz;
 		else
-			z = sector[nSector].ceilingz;
+			return sector[nSector].ceilingz;
 	}
 	else
 	{
 			//2-sided wall
 		if (wall[nWall].cstat&4)
-			z = sector[nSector].ceilingz;
+			return sector[nSector].ceilingz;
 		else
 		{
 			if (sector[nNextSector].ceilingz > sector[nSector].ceilingz)
-				z = sector[nNextSector].ceilingz;   //top step
+				return sector[nNextSector].ceilingz;   //top step
 			if (sector[nNextSector].floorz < sector[nSector].floorz)
-				z = sector[nNextSector].floorz;   //bottom step
+				return sector[nNextSector].floorz;   //bottom step
 		}
 	}
 
-	return z;
+	return 0;
 }
 
 void AlignWalls(int nWall0, int z0, int nWall1, int z1, int nTile)
