@@ -1306,15 +1306,19 @@ int setvideomode(int x, int y, int c, int fs)
 //
 // getvalidmodes() -- figure out what video modes are available
 //
-#define ADDMODE(x,y,c,f,n) if (validmodecnt<MAXVALIDMODES) { \
-	validmode[validmodecnt].xdim=x; \
-	validmode[validmodecnt].ydim=y; \
-	validmode[validmodecnt].bpp=c; \
-	validmode[validmodecnt].fs=f; \
-	validmode[validmodecnt].extra=n; \
-	validmodecnt++; \
-	buildprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed"); \
-	}
+
+static void addmode(int x, int y, unsigned char c, unsigned char fs, int ext)
+{
+	validmode.emplace_back(validmode_t{
+		.xdim = x,
+		.ydim = y,
+		.bpp = c,
+		.fs = fs,
+		.extra = ext
+	});
+
+	buildprintf("  - %dx%d %d-bit %s\n", x, y, c, (fs & 1)?"fullscreen":"windowed"); \
+}
 
 #define CHECKL(w,h) if ((w < maxx) && (h < maxy))
 #define CHECKLE(w,h) if ((w <= maxx) && (h <= maxy))
@@ -1362,7 +1366,7 @@ static void cdsenummodes()
 	// Add what was found to the list.
 	for (i=0;i<nmodes;i++) {
 		CHECKLE(modes[i].x, modes[i].y) {
-			ADDMODE(modes[i].x, modes[i].y, modes[i].bpp, 1, modes[i].freq);
+			addmode(modes[i].x, modes[i].y, modes[i].bpp, 1, modes[i].freq);
 		}
 	}
 }
@@ -1393,7 +1397,6 @@ void getvalidmodes()
 
 	if (modeschecked) return;
 
-	validmodecnt=0;
 	buildputs("Detecting video modes:\n");
 
 	// Fullscreen 8-bit modes: upsamples to the desktop mode.
@@ -1401,7 +1404,7 @@ void getvalidmodes()
 	maxy = desktopydim;
 	for (i=0; defaultres[i][0]; i++) {
 		CHECKLE(defaultres[i][0],defaultres[i][1]) {
-			ADDMODE(defaultres[i][0], defaultres[i][1], 8, 1, -1);
+			addmode(defaultres[i][0], defaultres[i][1], 8, 1, -1);
 		}
 	}
 
@@ -1417,7 +1420,7 @@ void getvalidmodes()
 	// Windows 8-bit modes
 	for (i=0; defaultres[i][0]; i++) {
 		CHECKL(defaultres[i][0],defaultres[i][1]) {
-			ADDMODE(defaultres[i][0], defaultres[i][1], 8, 0, -1);
+			addmode(defaultres[i][0], defaultres[i][1], 8, 0, -1);
 		}
 	}
 
@@ -1426,19 +1429,18 @@ void getvalidmodes()
 	if (!glunavailable) {
 		for (i=0; defaultres[i][0]; i++) {
 			CHECKL(defaultres[i][0],defaultres[i][1]) {
-				ADDMODE(defaultres[i][0], defaultres[i][1], desktopbpp, 0, -1);
+				addmode(defaultres[i][0], defaultres[i][1], desktopbpp, 0, -1);
 			}
 		}
 	}
 #endif
 
-	qsort((void*) &validmode[0], validmodecnt, sizeof(struct validmode_t), (int(*)(const void*,const void*))sortmodes);
+	qsort((void*) &validmode[0], validmode.size(), sizeof(struct validmode_t), (int(*)(const void*,const void*))sortmodes);
 
 	modeschecked=1;
 }
 
 #undef CHECK
-#undef ADDMODE
 
 
 //

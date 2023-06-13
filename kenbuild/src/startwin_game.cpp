@@ -74,16 +74,19 @@ static void populate_video_modes(BOOL firstTime)
 
     // Repopulate the list.
     ComboBox_ResetContent(hwnd);
-    for (i=0; i<validmodecnt; i++) {
-        if (validmode[i].fs != fullscreen) continue;
+    for (int i{0}; const auto& vmode : validmode) {
+        if (vmode.fs != fullscreen)
+            continue;
 
         StringCbPrintf(modestr, sizeof(modestr), TEXT("%d x %d %d-bpp"),
-            validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+            vmode.xdim, vmode.ydim, vmode.bpp);
         j = ComboBox_AddString(hwnd, modestr);
         ComboBox_SetItemData(hwnd, j, i);
         if (i == mode3d) {
             ComboBox_SetCurSel(hwnd, j);
         }
+
+        ++i;
     }
 }
 

@@ -24,6 +24,7 @@
 #include <array>
 #include <span>
 #include <string>
+#include <vector>
 
 inline constexpr auto MAXSECTORSV8 {4096};
 inline constexpr auto MAXWALLSV8 {16384};
@@ -248,8 +249,6 @@ inline int viewingrange{0};
 
 inline constexpr auto MAXVALIDMODES{256};
 
-inline int validmodecnt{0};
-
 struct validmode_t {
 	int xdim;
 	int ydim;
@@ -259,7 +258,7 @@ struct validmode_t {
 	int extra;	// internal use
 };
 
-inline std::array<struct validmode_t, MAXVALIDMODES> validmode{};
+inline std::vector<validmode_t> validmode{};
 
 inline short numsectors{0};
 inline short numwalls{0};

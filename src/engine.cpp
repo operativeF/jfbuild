@@ -6175,7 +6175,6 @@ int preinitengine()
 	if (dommxoverlay) mmxoverlay();
 #endif
 
-	validmodecnt = 0;
 	getvalidmodes();
 
 	initcrc32table();

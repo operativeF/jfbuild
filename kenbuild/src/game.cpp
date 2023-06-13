@@ -4307,24 +4307,37 @@ void drawscreen(short snum, int dasmoothratio)
 		} else {
 
 			//cycle through all modes
-			j=-1;
+			j = -1;
 
 			// work out a mask to select the mode
-			for (i=0; i<validmodecnt; i++)
-				if ((validmode[i].xdim == xdim) &&
-					 (validmode[i].ydim == ydim) &&
-					(validmode[i].fs == fullscreen) &&
-					(validmode[i].bpp == bpp))
-					{ j=i; break; }
+			for (int i{0}; const auto& vmode : validmode) {
+				if ((vmode.xdim == xdim) &&
+				    (vmode.ydim == ydim) &&
+					(vmode.fs == fullscreen) &&
+					(vmode.bpp == bpp)) {
+						j = i;
+						break;
+				}
 
-			for (k=0; k<validmodecnt; k++)
-				if (validmode[k].fs == fullscreen && validmode[k].bpp == bpp) break;
+				++i;
+			}
 
-			if (j==-1) j=k;
+			k = 0;
+
+			for (const auto& vmode : validmode) {
+				if (vmode.fs == fullscreen && vmode.bpp == bpp)
+					break;
+				
+				++k;
+			}
+
+			if (j==-1)
+				j = k;
 			else {
 				j++;
-				if (j==validmodecnt) j=k;
+				if (j == validmode.size()) j=k;
 			}
+
 			setgamemode(fullscreen,validmode[j].xdim,validmode[j].ydim,bpp);
 		}
 		screensize = xdim+1;

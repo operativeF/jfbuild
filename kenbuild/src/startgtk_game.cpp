@@ -98,11 +98,11 @@ static void populate_video_modes(gboolean firsttime)
 
     // Repopulate the list.
     gtk_list_store_clear(controls.vmode3dlist);
-    for (i = 0; i < validmodecnt; i++) {
-        if (validmode[i].fs != fullscreen) continue;
+    for (const auto& vmode : validmode) {
+        if (vmode.fs != fullscreen) continue;
 
         sprintf(modestr, "%d \xc3\x97 %d %d-bpp",
-            validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+            vmode.xdim, vmode.ydim, vmode.bpp);
         gtk_list_store_insert_with_values(controls.vmode3dlist,
             &iter, -1,
             0, modestr, 1, i, -1);

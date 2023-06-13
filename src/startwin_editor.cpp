@@ -87,24 +87,26 @@ static void populate_video_modes(BOOL firstTime)
     // Repopulate the lists.
     ComboBox_ResetContent(hwnd);
     ComboBox_ResetContent(hwnd2d);
-    for (i=0; i<validmodecnt; i++) {
-        if (validmode[i].fs != fullscreen) continue;
+    for (int i{0}; const auto& vmode : validmode) {
+        if (vmode.fs != fullscreen) continue;
 
-        std::sprintf(modestr, "%d x %d %d-bpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+        std::sprintf(modestr, "%d x %d %d-bpp", vmode.xdim, vmode.ydim, vmode.bpp);
         j = ComboBox_AddString(hwnd, modestr);
         ComboBox_SetItemData(hwnd, j, i);
         if (i == mode3d) {
             ComboBox_SetCurSel(hwnd, j);
         }
 
-        if (validmode[i].bpp == 8 && validmode[i].xdim >= 640 && validmode[i].ydim >= 480) {
-            std::sprintf(modestr, "%d x %d", validmode[i].xdim, validmode[i].ydim);
+        if (vmode.bpp == 8 && vmode.xdim >= 640 && vmode.ydim >= 480) {
+            std::sprintf(modestr, "%d x %d", vmode.xdim, vmode.ydim);
             j = ComboBox_AddString(hwnd2d, modestr);
             ComboBox_SetItemData(hwnd2d, j, i);
             if (i == mode2d) {
                 ComboBox_SetCurSel(hwnd2d, j);
             }
         }
+
+        ++i;
     }
 }
 
@@ -171,12 +173,12 @@ static void cancelbutton_clicked()
 
 static void startbutton_clicked()
 {
-    int i;
-    HWND hwnd;
-
-    hwnd = GetDlgItem(pages[TAB_CONFIG], IDC_VMODE3D);
-    i = ComboBox_GetCurSel(hwnd);
-    if (i != CB_ERR) i = ComboBox_GetItemData(hwnd, i);
+    HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDC_VMODE3D);
+    int i = ComboBox_GetCurSel(hwnd);
+    
+    if (i != CB_ERR)
+        i = ComboBox_GetItemData(hwnd, i);
+    
     if (i != CB_ERR) {
         settings->xdim3d = validmode[i].xdim;
         settings->ydim3d = validmode[i].ydim;
@@ -186,7 +188,10 @@ static void startbutton_clicked()
 
     hwnd = GetDlgItem(pages[TAB_CONFIG], IDC_VMODE2D);
     i = ComboBox_GetCurSel(hwnd);
-    if (i != CB_ERR) i = ComboBox_GetItemData(hwnd, i);
+    
+    if (i != CB_ERR)
+        i = ComboBox_GetItemData(hwnd, i);
+    
     if (i != CB_ERR) {
         settings->xdim2d = validmode[i].xdim;
         settings->ydim2d = validmode[i].ydim;

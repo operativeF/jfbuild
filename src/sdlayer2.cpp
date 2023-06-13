@@ -695,8 +695,6 @@ void getvalidmodes()
 
 	if (modeschecked) return;
 
-	validmodecnt=0;
-
 	if (SDL_GetNumVideoDisplays() < 1) {
 		buildputs("No video displays available!\n");
 		return;
@@ -765,7 +763,7 @@ void getvalidmodes()
 #undef CHECK
 #undef ADDMODE
 
-	qsort((void*)validmode, validmodecnt, sizeof(struct validmode_t), (int(*)(const void*,const void*))sortmodes);
+	qsort((void*)validmode, validmode.size(), sizeof(struct validmode_t), (int(*)(const void*,const void*))sortmodes);
 
 	modeschecked=1;
 }

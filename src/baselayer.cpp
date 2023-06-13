@@ -51,29 +51,35 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 	if (*y > MAXYDIM) *y = MAXYDIM;
 	*x &= 0xfffffff8L;
 
-	for (int i{0}; i < validmodecnt; ++i) {
-		if (validmode[i].bpp != c) continue;
-		if (validmode[i].fs != fs) continue;
+	for (int i{0}; const auto& vmode : validmode) {
+		if (vmode.bpp != c)
+			continue;
+		
+		if (vmode.fs != fs)
+			continue;
 
-		const int dx = std::abs(validmode[i].xdim - *x);
-		const int dy = std::abs(validmode[i].ydim - *y);
+		const int dx = std::abs(vmode.xdim - *x);
+		const int dy = std::abs(vmode.ydim - *y);
 
 		if (!(dx | dy)) { 	// perfect match
 			nearest = i;
 			break;
 		}
+
 		if ((dx <= odx) && (dy <= ody)) {
 			nearest = i;
 			odx = dx;
 			ody = dy;
 		}
+
+		++i;
 	}
 
 #ifdef ANY_WINDOWED_SIZE
 	if (!forced && (fs&1) == 0 && (nearest < 0 || validmode[nearest].xdim!=*x || validmode[nearest].ydim!=*y)) {
 		// check the colour depth is recognised at the very least
-		for (int i{0}; i < validmodecnt; ++i)
-			if (validmode[i].bpp == c)
+		for (const auto& vmode : validmode)
+			if (vmode.bpp == c)
 				return 0x7fffffffL;
 		return -1;	// strange colour depth
 	}

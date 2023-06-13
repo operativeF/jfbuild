@@ -198,7 +198,7 @@ void ExtPreCheckKeys()
 			j=-1;
 
 			// work out a mask to select the mode
-			for (i=0; i<validmodecnt; i++) {
+			for(int i{0}; const auto& vmode : validmode) {
 				if ((validmode[i].xdim == xdim) &&
 					(validmode[i].ydim == ydim) &&
 					(validmode[i].fs == fullscreen) &&
@@ -206,18 +206,23 @@ void ExtPreCheckKeys()
 						j = i;
 						break;
 				}
+
+				++i;
 			}
 			
-			for (k=0; k<validmodecnt; k++) {
-				if (validmode[k].fs == fullscreen && validmode[k].bpp == bpp)
+			k = 0;
+			for (const auto& vmode : validmode) {
+				if (vmode.fs == fullscreen && vmode.bpp == bpp)
 					break;
+				++k;
 			}
 
 			if (j==-1)
 				j = k;
 			else {
-				j++;
-				if (j==validmodecnt)
+				++j;
+
+				if (j == validmode.size())
 					j = k;
 			}
 

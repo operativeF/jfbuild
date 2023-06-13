@@ -109,11 +109,11 @@ static void populate_video_modes(gboolean firsttime)
     // Repopulate the list.
     gtk_list_store_clear(controls.vmode3dlist);
     gtk_list_store_clear(controls.vmode2dlist);
-    for (i = 0; i < validmodecnt; i++) {
-        if (validmode[i].fs != fullscreen) continue;
+    for (const auto& vmode : validmode) {
+        if (vmode.fs != fullscreen) continue;
 
         sprintf(modestr, "%d \xc3\x97 %d %d-bpp",
-            validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+            vmode.xdim, vmode.ydim, vmode.bpp);
         gtk_list_store_insert_with_values(controls.vmode3dlist,
             &iter, -1,
             0, modestr, 1, i, -1);
@@ -121,9 +121,9 @@ static void populate_video_modes(gboolean firsttime)
             gtk_combo_box_set_active_iter(GTK_COMBO_BOX(controls.vmode3dcombo), &iter);
         }
 
-        if (validmode[i].bpp == 8 && validmode[i].xdim >= 640 && validmode[i].ydim >= 480) {
+        if (vmode.bpp == 8 && vmode.xdim >= 640 && vmode.ydim >= 480) {
             sprintf(modestr, "%d \xc3\x97 %d",
-                validmode[i].xdim, validmode[i].ydim);
+                vmode.xdim, vmode.ydim);
             gtk_list_store_insert_with_values(controls.vmode2dlist,
                 &iter, -1,
                 0, modestr, 1, i, -1);
