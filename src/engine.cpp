@@ -2400,39 +2400,51 @@ static void ceilspritehline(int x2, int y)
 //
 static void ceilspritescan(int x1, int x2)
 {
-	int x;
-	int y1;
-	int y2;
-	int twall;
-	int bwall;
-
-	y1 = uwall[x1]; y2 = y1;
-	for(x=x1;x<=x2;x++)
+	int y1 = uwall[x1];
+	int y2 = y1;
+	
+	for(int x{x1}; x <= x2; ++x)
 	{
-		twall = uwall[x]-1; bwall = dwall[x];
-		if (twall < bwall-1)
+		const int twall = uwall[x]- 1;
+		const int bwall = dwall[x];
+		
+		if (twall < bwall - 1)
 		{
-			if (twall >= y2)
-			{
-				while (y1 < y2-1) ceilspritehline(x-1,++y1);
+			if (twall >= y2) {
+				while (y1 < y2 - 1)
+					ceilspritehline(x - 1, ++y1);
 				y1 = twall;
 			}
-			else
-			{
-				while (y1 < twall) ceilspritehline(x-1,++y1);
-				while (y1 > twall) lastx[y1--] = x;
+			else {
+				while (y1 < twall)
+					ceilspritehline(x - 1,++y1);
+				
+				while (y1 > twall)
+					lastx[y1--] = x;
 			}
-			while (y2 > bwall) ceilspritehline(x-1,--y2);
-			while (y2 < bwall) lastx[y2++] = x;
+
+			while (y2 > bwall)
+				ceilspritehline(x - 1, --y2);
+
+			while (y2 < bwall)
+				lastx[y2++] = x;
 		}
 		else
 		{
-			while (y1 < y2-1) ceilspritehline(x-1,++y1);
-			if (x == x2) break;
-			y1 = uwall[x+1]; y2 = y1;
+			while (y1 < y2 - 1)
+				ceilspritehline(x - 1, ++y1);
+			
+			if (x == x2)
+				break;
+
+			y1 = uwall[x + 1];
+			y2 = y1;
 		}
 	}
-	while (y1 < y2-1) ceilspritehline(x2,++y1);
+
+	while (y1 < y2 - 1)
+		ceilspritehline(x2, ++y1);
+	
 	faketimerhandler();
 }
 
@@ -4907,63 +4919,99 @@ static int clippoly(int npoints, int clipstat)
 	//JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
 static int clippoly4(int cx1, int cy1, int cx2, int cy2)
 {
-	int n;
-	int nn{0};
 	int z{0};
-	int zz;
-	int x;
-	int x1;
-	int x2;
-	int y;
-	int y1;
-	int y2;
-	int t;
+	int nn{0};
 
 	do
 	{
-		zz = ((z+1)&3);
-		x1 = nrx1[z]; x2 = nrx1[zz]-x1;
+		const int zz = ((z + 1) & 3);
+		const int x1 = nrx1[z];
+		const int x2 = nrx1[zz] - x1;
 
-		if ((cx1 <= x1) && (x1 <= cx2))
-			nrx2[nn] = x1, nry2[nn] = nry1[z], nn++;
+		if ((cx1 <= x1) && (x1 <= cx2)) {
+			nrx2[nn] = x1;
+			nry2[nn] = nry1[z];
+			++nn;
+		}
 
-		if (x2 <= 0) x = cx2; else x = cx1;
-		t = x-x1;
-		if (((t-x2)^t) < 0)
-			nrx2[nn] = x, nry2[nn] = nry1[z]+scale(t,nry1[zz]-nry1[z],x2), nn++;
+		int x{0};
+		if (x2 <= 0)
+			x = cx2;
+		else
+			x = cx1;
+		
+		int t = x - x1;
 
-		if (x2 <= 0) x = cx1; else x = cx2;
-		t = x-x1;
-		if (((t-x2)^t) < 0)
-			nrx2[nn] = x, nry2[nn] = nry1[z]+scale(t,nry1[zz]-nry1[z],x2), nn++;
+		if (((t - x2) ^ t) < 0) {
+			nrx2[nn] = x;
+			nry2[nn] = nry1[z] + scale(t, nry1[zz] - nry1[z], x2);
+			++nn;
+		}
+
+		if (x2 <= 0)
+			x = cx1;
+		else
+			x = cx2;
+		
+		t = x - x1;
+
+		if (((t - x2) ^ t) < 0) {
+			nrx2[nn] = x;
+			nry2[nn] = nry1[z] + scale(t, nry1[zz] - nry1[z], x2);
+			++nn;
+		}
 
 		z = zz;
 	} while (z != 0);
-	if (nn < 3) return(0);
+	
+	if (nn < 3)
+		return 0;
 
-	n = 0; z = 0;
+	int n{0};
+	z = 0;
+	
 	do
 	{
-		zz = z + 1;
+		int zz = z + 1;
 		
 		if (zz == nn) 
 			zz = 0;
 
-		y1 = nry2[z];
-		y2 = nry2[zz] - y1;
+		const int y1 = nry2[z];
+		const int y2 = nry2[zz] - y1;
 
-		if ((cy1 <= y1) && (y1 <= cy2))
-			nry1[n] = y1, nrx1[n] = nrx2[z], n++;
+		if ((cy1 <= y1) && (y1 <= cy2)) {
+			nry1[n] = y1;
+			nrx1[n] = nrx2[z];
+			++n;
+		}
 
-		if (y2 <= 0) y = cy2; else y = cy1;
-		t = y-y1;
-		if (((t-y2)^t) < 0)
-			nry1[n] = y, nrx1[n] = nrx2[z]+scale(t,nrx2[zz]-nrx2[z],y2), n++;
+		int y{0};
+		if (y2 <= 0)
+			y = cy2;
+		else
+			y = cy1;
+		
+		int t = y - y1;
+		
+		if (((t - y2) ^ t) < 0) {
+			nry1[n] = y;
+			nrx1[n] = nrx2[z] + scale(t, nrx2[zz] - nrx2[z], y2);
+			++n;
+		}
 
-		if (y2 <= 0) y = cy1; else y = cy2;
-		t = y-y1;
-		if (((t-y2)^t) < 0)
-			nry1[n] = y, nrx1[n] = nrx2[z]+scale(t,nrx2[zz]-nrx2[z],y2), n++;
+		if (y2 <= 0)
+			y = cy1;
+		else
+			y = cy2;
+
+		t = y - y1;
+
+		if (((t - y2) ^ t) < 0) {
+			nry1[n] = y;
+			nrx1[n] = nrx2[z] + scale(t, nrx2[zz] - nrx2[z], y2);
+			++n;
+		}
 
 		z = zz;
 	} while (z != 0);
