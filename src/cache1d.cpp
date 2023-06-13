@@ -327,12 +327,15 @@ int addsearchpath(const char *p)
 		return -1;
 	}
 	std::strcpy(srch->path, p);
-	for (s=srch->path; *s; s++) ;
+	for (s=srch->path; *s; s++);
 	s--;
 	if (s<srch->path || toupperlookup[(int)(unsigned char)*s] != '/') std::strcat(srch->path, "/");
 
 	searchpathhead = srch;
-	if (srch->pathlen > maxsearchpathlen) maxsearchpathlen = srch->pathlen;
+	
+	if (srch->pathlen > maxsearchpathlen)
+		maxsearchpathlen = srch->pathlen;
+	
 	buildprintf("Added %s to search path.\n", srch->path);
 
 	return 0;

@@ -1240,8 +1240,11 @@ static void prepwall(int z, const walltype *wal)
 	if (wal->cstat&8) {
 		walxrepeat--;
 
-		for(x=xb1[z];x<=xb2[z];x++)
-			lwall[x] = walxrepeat-lwall[x];
+		std::ranges::for_each(std::next(lwall.begin(), xb1[z]),
+		                      std::next(lwall.begin(), xb2[z] + 1),
+							  [walxrepeat](auto& aWall) {
+								aWall = walxrepeat - aWall;
+							  });
 	}
 }
 
@@ -12346,7 +12349,7 @@ static void writepcxline(unsigned char *buf, int bytes, int step, std::FILE* fp)
 		}
 	}
 
-	if (runCount)
+	if (runCount != 0)
 		writepcxbyte(last, runCount, fp);
 
 	if (bytes & 1)
