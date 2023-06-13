@@ -99,7 +99,8 @@ static void populate_video_modes(gboolean firsttime)
     // Repopulate the list.
     gtk_list_store_clear(controls.vmode3dlist);
     for (const auto& vmode : validmode) {
-        if (vmode.fs != fullscreen) continue;
+        if (vmode.fs != fullscreen)
+            continue;
 
         sprintf(modestr, "%d \xc3\x97 %d %d-bpp",
             vmode.xdim, vmode.ydim, vmode.bpp);

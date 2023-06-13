@@ -78,10 +78,11 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 #ifdef ANY_WINDOWED_SIZE
 	if (!forced && (fs&1) == 0 && (nearest < 0 || validmode[nearest].xdim!=*x || validmode[nearest].ydim!=*y)) {
 		// check the colour depth is recognised at the very least
-		for (const auto& vmode : validmode)
-			if (vmode.bpp == c)
-				return 0x7fffffffL;
-		return -1;	// strange colour depth
+		if (const auto vit = std::ranges::find_if(validmode, [c](const auto& vmode) { return vmode.bpp == c; });
+			vit != validmode.end())
+			return 0x7FFFFFFFL;
+
+		return -1; // strange colour depth
 	}
 #endif
 
