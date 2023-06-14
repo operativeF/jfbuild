@@ -9,8 +9,6 @@
 #include <cstdint>
 #include <limits>
 
-inline int dmval{0};
-
 #if defined(__GNUC__) && defined(__i386__) && USE_ASM
 
 //
@@ -3631,9 +3629,6 @@ static inline void drawpixels(void* s, int16_t a)  { *((int16_t*)(s)) = a; }
 static inline void drawpixelses(void* s, int32_t a) { *((int32_t*)(s)) = a; }
 
 inline constexpr int mul3(int a) { return (a<<1)+a; }
-
-static inline int divmod(int a, int b) { const unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a%_b; return _a/_b; }
-static inline int moddiv(int a, int b) { const unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a/_b; return _a%_b; }
 
 static inline int ksgn(int a)  { if (a > 0) return 1; if (a < 0) return -1; return 0; }
 
