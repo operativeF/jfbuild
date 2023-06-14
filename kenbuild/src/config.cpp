@@ -11,6 +11,8 @@
 #endif
 #include "baselayer.hpp"
 
+#include <fmt/core.h>
+
 #include <array>
 
 extern std::array<char, 8> option;
@@ -318,23 +320,23 @@ int writesetup(const char *fn)
 		std::fputs(" = ", fp);
 		switch (configspec[item].type) {
 			case type_bool: {
-				std::fprintf(fp, "%d\n", (*(int*)configspec[item].store != 0));
+				fmt::print(fp, "{}\n", (*(int*)configspec[item].store != 0));
 				break;
 			}
 			case type_int: {
-				std::fprintf(fp, "%d\n", *(int*)configspec[item].store);
+				fmt::print(fp, "{}\n", *(int*)configspec[item].store);
 				break;
 			}
 			case type_hex: {
-				std::fprintf(fp, "%X\n", *(int*)configspec[item].store);
+				fmt::print(fp, "{:X}\n", *(int*)configspec[item].store);
 				break;
 			}
 			case type_double: {
-				std::fprintf(fp, "%g\n", *(double*)configspec[item].store);
+				fmt::print(fp, "{}\n", *(double*)configspec[item].store);
 				break;
 			}
 			default: {
-				std::fputs("?\n", fp);
+				fmt::print(fp, "?\n");
 				break;
 			}
 		}

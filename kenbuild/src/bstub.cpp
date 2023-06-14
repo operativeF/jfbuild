@@ -101,7 +101,8 @@ int ExtInit()
 
         // the global support files directory
         if (supportdir) {
-            Bsnprintf(dirpath, sizeof(dirpath), "%s/KenBuild", supportdir);
+			// FIXME: Defaults to '/'; use '\ on windows.
+			fmt::format_to(&dirpath[0], "{}/KenBuild", supportdir);
             addsearchpath(dirpath);
             std::free(supportdir);
         }
@@ -126,7 +127,7 @@ int ExtInit()
 #else
             const char *dirname = ".kenbuild";
 #endif
-            snprintf(dirpath, sizeof dirpath, "%s/%s", supportdir, dirname);
+			fmt::format_to(&dirpath[0], "{}/{}", supportdir, dirname);
             asperr = addsearchpath(dirpath);
             if (asperr == -2) {
                 if (Bmkdir(dirpath, S_IRWXU) == 0) {

@@ -235,7 +235,6 @@ int Bclosedir(BDIR *dir);
 # define mkdir(s,x) _mkdir(s)
 # define open      _open
 # define read      _read
-# define snprintf  _snprintf
 # define stat      _stat
 # define strcasecmp _stricmp
 # define strdup    _strdup
@@ -331,7 +330,6 @@ int Bwildmatch (const char *i, const char *j);
 # define Bstrlwr strlwr
 # define Bstrupr strupr
 # define Bmkdir mkdir
-# define Bsnprintf snprintf
 # define Bvsnprintf vsnprintf
 # define Bgetcwd getcwd
 #endif

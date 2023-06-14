@@ -5737,7 +5737,7 @@ void overheadeditor()
 		ExtUnInit();
 		uninitengine();
 		clearfilenames();
-		std::printf("%d * %d not supported in this graphics mode\n",xdim,ydim);
+		fmt::print(stderr, "{} * {} not supported in this graphics mode\n",xdim,ydim);
 		std::exit(0);
 	}
 
