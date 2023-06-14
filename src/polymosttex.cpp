@@ -289,7 +289,6 @@ incompatible:
 int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effects)
 {
 	int y;
-	char* picdata{nullptr};
 	
 	bool writetocache{false};
 	bool iscached{false};
@@ -321,13 +320,10 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 	
 	const int picdatalen = kfilelength(filh);
 
-	picdata = (char *) std::malloc(picdatalen);
-	if (!picdata) {
-		kclose(filh);
-		return -2;
-	}
+	std::vector<char> picdata;
+	picdata.resize(picdatalen);
 
-	if (kread(filh, picdata, picdatalen) != picdatalen) {
+	if (kread(filh, &picdata[0], picdatalen) != picdatalen) {
 		kclose(filh);
 		return -3;
 	}
@@ -336,9 +332,8 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 
 	PTTexture tex;
 
-	kpgetdim(picdata, picdatalen, (int *) &tex.tsizx, (int *) &tex.tsizy);
+	kpgetdim(&picdata[0], picdatalen, (int *) &tex.tsizx, (int *) &tex.tsizy);
 	if (tex.tsizx == 0 || tex.tsizy == 0) {
-		std::free(picdata);
 		return -4;
 	}
 
@@ -356,14 +351,10 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 	}
 	std::memset(tex.pic, 0, tex.sizx * tex.sizy * sizeof(coltype));
 
-	if (kprender(picdata, picdatalen, (intptr_t)tex.pic, tex.sizx * sizeof(coltype), tex.sizx, tex.sizy, 0, 0)) {
-		std::free(picdata);
+	if (kprender(&picdata[0], picdatalen, (intptr_t)tex.pic, tex.sizx * sizeof(coltype), tex.sizx, tex.sizy, 0, 0)) {
 		std::free(tex.pic);
 		return -5;
 	}
-
-	std::free(picdata);
-	picdata = nullptr;
 
 	ptm_applyeffects(&tex, effects);	// updates tex.hasalpha
 

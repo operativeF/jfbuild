@@ -86,7 +86,9 @@ Low priority:
 #endif
 
 #include <cmath>
+#include <numeric>
 #include <span>
+#include <vector>
 
 int rendmode{0};
 int usegoodalpha{0};
@@ -617,14 +619,13 @@ static void checkindexbuffer(unsigned int size)
 	if (size <= elementindexbuffersize)
 		return;
 
-	auto* indexes = (GLushort *) std::malloc(sizeof(GLushort)*size);
+	std::vector<GLushort> indexes;
+	indexes.resize(size);
 
-	for (GLushort i{0}; i < size; ++i)
-		indexes[i] = i;
+	std::iota(indexes.begin(), indexes.end(), 0);
 
 	glfunc.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementindexbuffer);
-	glfunc.glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort)*size, indexes, GL_STATIC_DRAW);
-	std::free(indexes);
+	glfunc.glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort)*size, &indexes[0], GL_STATIC_DRAW);
 
 	elementindexbuffersize = size;
 }
@@ -5068,13 +5069,8 @@ static int polymost_preparetext()
 	if (!texttexture)
 		return -1;
 
-	auto* tbuf = (unsigned int *) std::calloc(256*256, sizeof(unsigned int));
-
-	if (!tbuf) {
-		glfunc.glDeleteTextures(1,&texttexture);
-		texttexture = 0;
-		return -1;
-	}
+	std::vector<unsigned int> tbuf;
+	tbuf.resize(256 * 256);
 
 	// 8x8 - lines 0 to 63, 8 lines per row
 	// 4x6 - lines 64 to 127, 8 lines per row
@@ -5082,7 +5078,7 @@ static int polymost_preparetext()
 
 	for (int fn{0}; fn < 3; ++fn) {
 		const struct textfontspec *f = &textfonts[fn];
-		unsigned int* tptr = tbuf + 256 * 64 * fn;
+		unsigned int* tptr = &tbuf[0] + 256 * 64 * fn;
 		const int cellh = fn < 2 ? 8 : 16;
 
 		for (int c = 0; c < 256; ++c) {
@@ -5104,10 +5100,9 @@ static int polymost_preparetext()
 
 	glfunc.glActiveTexture(GL_TEXTURE0);
 	glfunc.glBindTexture(GL_TEXTURE_2D, texttexture);
-	glfunc.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,256,256,0,GL_RGBA,GL_UNSIGNED_BYTE,(GLvoid*)tbuf);
+	glfunc.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,256,256,0,GL_RGBA,GL_UNSIGNED_BYTE,static_cast<GLvoid*>(&tbuf[0]));
 	glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	std::free(tbuf);
 
 	return 0;
 }

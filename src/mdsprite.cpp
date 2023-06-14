@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <array>
+#include <memory>
 
 #if defined(_M_IX86) || defined(_M_AMD64) || defined(__i386) || defined(__x86_64)
 #define SHIFTMOD32(a) (a)
@@ -2389,8 +2390,13 @@ static int voxloadbufs(voxmodel *m)
 
 	const int numindexes = 6 * m->qcnt;
 	const int numvertexes = 4 * m->qcnt;
-	auto* indexes = static_cast<GLushort *>(std::malloc(numindexes * sizeof(GLushort)));
-	auto* vertexes = static_cast<struct polymostvboitem *>(std::malloc(numvertexes * sizeof(struct polymostvboitem)));
+
+	// WARNING: Implicit conversions in vector constructors.
+	std::vector<GLushort> indexes;
+	indexes.resize(numindexes);
+
+	std::vector<polymostvboitem> vertexes;
+	vertexes.resize(numvertexes);
 
 	for(i=0,vxi=0,ixi=0;i<m->qcnt;i++)
 	{
@@ -2426,15 +2432,12 @@ static int voxloadbufs(voxmodel *m)
 
 	glfunc.glGenBuffers(1, &m->indexbuf);
 	glfunc.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->indexbuf);
-	glfunc.glBufferData(GL_ELEMENT_ARRAY_BUFFER, numindexes * sizeof(GLushort), indexes, GL_STATIC_DRAW);
+	glfunc.glBufferData(GL_ELEMENT_ARRAY_BUFFER, numindexes * sizeof(GLushort), &indexes[0], GL_STATIC_DRAW);
 	m->indexcount = numindexes;
 
 	glfunc.glGenBuffers(1, &m->vertexbuf);
 	glfunc.glBindBuffer(GL_ARRAY_BUFFER, m->vertexbuf);
-	glfunc.glBufferData(GL_ARRAY_BUFFER, numvertexes * sizeof(struct polymostvboitem), vertexes, GL_STATIC_DRAW);
-
-	std::free(indexes);
-	std::free(vertexes);
+	glfunc.glBufferData(GL_ARRAY_BUFFER, numvertexes * sizeof(struct polymostvboitem), &vertexes[0], GL_STATIC_DRAW);
 
 	return 0;
 }
