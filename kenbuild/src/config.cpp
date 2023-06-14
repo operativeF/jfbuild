@@ -313,11 +313,13 @@ int writesetup(const char *fn)
 
 	for (item = 0; configspec[item].name; item++) {
 		if (configspec[item].doc) {
-			if (item > 0) std::fputs("\n", fp);
-			std::fputs(configspec[item].doc, fp);
+			if (item > 0)
+				fmt::print(fp, "\n");
+			fmt::print(fp, "{}", configspec[item].doc);
 		}
-		std::fputs(configspec[item].name, fp);
-		std::fputs(" = ", fp);
+		
+		fmt::print(fp, "{} = ", configspec[item].name);
+
 		switch (configspec[item].type) {
 			case type_bool: {
 				fmt::print(fp, "{}\n", (*(int*)configspec[item].store != 0));

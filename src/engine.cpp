@@ -12331,10 +12331,10 @@ void setpolymost2dview()
 
 void buildputs(const char *str)
 {
-    std::fputs(str, stdout);
+	fmt::print(stdout, "{}", str);
 
     if (logfile)
-		std::fputs(str, logfile);
+		fmt::print(logfile, "{}", str);
     
 	initputs(str);  // the startup window
     OSD_Puts(str);  // the onscreen-display
