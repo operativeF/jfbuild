@@ -653,7 +653,7 @@ void buildprintf(std::string_view form, Args&&... args)
 	OSD_Puts(tmpstr.c_str());
 }
 
-void buildputs(const char *str);
+void buildputs(std::string_view str);
 void buildsetlogfile(const char *fn);
 
 #ifdef _MSC_VER

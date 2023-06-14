@@ -12329,15 +12329,17 @@ void setpolymost2dview()
 
 #endif //USE_POLYMOST && USE_OPENGL
 
-void buildputs(const char *str)
+void buildputs(std::string_view str)
 {
 	fmt::print(stdout, "{}", str);
 
     if (logfile)
 		fmt::print(logfile, "{}", str);
     
-	initputs(str);  // the startup window
-    OSD_Puts(str);  // the onscreen-display
+	const std::string tmpstr{str.begin(), str.end()};
+
+	initputs(tmpstr.c_str());  // the startup window
+    OSD_Puts(tmpstr.c_str());  // the onscreen-display
 }
 
 void buildsetlogfile(const char *fn)

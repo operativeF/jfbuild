@@ -68,7 +68,7 @@ inline char joynumaxes{0};
 inline char joynumbuttons{0};
 
 
-void initputs(const char *);
+void initputs(const char* buf);
 void debugprintf(const char *,...) PRINTF_FORMAT(1, 2);
 
 int handleevents();
