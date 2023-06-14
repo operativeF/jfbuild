@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <array>
+#include <limits>
 #include <numeric>
 
 constexpr auto TIMERINTSPERSECOND{120};
@@ -416,7 +417,7 @@ int app_main(int argc, char const * const argv[])
 
 	setbrightness(brightness, palette, 0);
 
-	int dark = INT_MAX;
+	int dark = std::numeric_limits<int>::max();
 	int light = 0;
 	for(i=0;i<256;i++)
 	{
