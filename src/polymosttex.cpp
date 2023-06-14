@@ -225,7 +225,7 @@ static int ptm_loadcachedtexturefile(const char* filename, PTMHead* ptmh, int fl
 		default:
 incompatible:
 			if (polymosttexverbosity >= 2) {
-				buildprintf("PolymostTex: cached %s (effects %d, flags %d) has incompatible format %s (0x%x)\n",
+				buildprintf("PolymostTex: cached {} (effects {}, flags {}) has incompatible format {} (0x%x)\n",
 						   tdef->filename, tdef->effects, tdef->flags,
 						   compress ? compressfourcc[compress] : "?",
 						   tdef->format);
@@ -235,7 +235,7 @@ incompatible:
 	}
 
 	if (polymosttexverbosity >= 2) {
-		buildprintf("PolymostTex: loaded %s (effects %d, flags %d, %s) from cache\n",
+		buildprintf("PolymostTex: loaded {} (effects {}, flags {}, {}) from cache\n",
 				   tdef->filename, tdef->effects, tdef->flags, compressfourcc[compress]);
 	}
 
@@ -418,7 +418,7 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 
 	if (writetocache) {
 		if (polymosttexverbosity >= 2) {
-			buildprintf("PolymostTex: writing %s (effects %d, flags %d) to cache\n",
+			buildprintf("PolymostTex: writing {} (effects {}, flags {}) to cache\n",
 					   tdef->filename, tdef->effects, tdef->flags);
 		}
 		PTCacheWriteTile(tdef);
@@ -817,7 +817,7 @@ static int pt_load_hightile(PTHead * pth)
 		if ((err = PTM_LoadTextureFile(filename, pth->pic[texture], pth->flags, effects))) {
 			if (polymosttexverbosity >= 1) {
 				const char * errstr = PTM_GetLoadTextureFileErrorString(err);
-				buildprintf("PolymostTex: %s (pic %d pal %d) %s\n",
+				buildprintf("PolymostTex: {} (pic {} pal {}) {}\n",
 						   filename, pth->picnum, pth->palnum, errstr);
 			}
 			continue;
@@ -1202,7 +1202,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 			starttime = getticks();
 			ptcompress_compress(tex->pic, tex->sizx, tex->sizy, comprdata, compress);
 			if (polymosttexverbosity >= 2) {
-				buildprintf("PolymostTex: ptcompress_compress (%dx%d, %s) took %f sec\n",
+				buildprintf("PolymostTex: ptcompress_compress ({}x{}, {}) took {} sec\n",
 					   tex->sizx, tex->sizy, compressfourcc[compress],
 					   (float)(getticks() - starttime) / 1000.F);
 			}
@@ -1227,7 +1227,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 		starttime = getticks();
 		ptcompress_compress(tex->pic, tex->sizx, tex->sizy, comprdata, compress);
 		if (polymosttexverbosity >= 2) {
-			buildprintf("PolymostTex: ptcompress_compress (%dx%d, %s) took %f sec\n",
+			buildprintf("PolymostTex: ptcompress_compress ({}x{}, {}) took {} sec\n",
 				   tex->sizx, tex->sizy, compressfourcc[compress],
 				   (float)(getticks() - starttime) / 1000.F);
 		}
@@ -1268,7 +1268,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 			starttime = getticks();
 			ptcompress_compress(tex->pic, tex->sizx, tex->sizy, comprdata, compress);
 			if (polymosttexverbosity >= 2) {
-				buildprintf("PolymostTex: ptcompress_compress (%dx%d, %s) took %f sec\n",
+				buildprintf("PolymostTex: ptcompress_compress ({}x{}, {}) took {} sec\n",
 					   tex->sizx, tex->sizy, compressfourcc[compress],
 					   (float)(getticks() - starttime) / 1000.F);
 			}

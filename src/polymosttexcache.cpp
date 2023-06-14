@@ -173,7 +173,7 @@ void PTCacheLoadIndex()
 			;
 		}
 		else {
-			buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHESTORAGEFILE);
+			buildprintf("PolymostTexCache: error opening {}, texture cache disabled\n", CACHESTORAGEFILE);
 			cachedisabled = true;
 			return;
 		}
@@ -192,7 +192,7 @@ void PTCacheLoadIndex()
 			// file doesn't exist, which is fine
 			return;
 		} else {
-			buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHEINDEXFILE);
+			buildprintf("PolymostTexCache: error opening {}, texture cache disabled\n", CACHEINDEXFILE);
 			cachedisabled = true;
 			return;
 		}
@@ -247,7 +247,7 @@ void PTCacheLoadIndex()
 
 	std::fclose(fh);
 
-	buildprintf("PolymostTexCache: cache index loaded (%d entries, %d old entries skipped)\n", total, dups);
+	buildprintf("PolymostTexCache: cache index loaded ({} entries, {} old entries skipped)\n", total, dups);
 }
 
 /**
@@ -298,7 +298,7 @@ static PTCacheTile * ptcache_load(off_t offset)
 
 	if (!fh) {
 		cachedisabled = true;
-		buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHESTORAGEFILE);
+		buildprintf("PolymostTexCache: error opening {}, texture cache disabled\n", CACHESTORAGEFILE);
 		return nullptr;
 	}
 
@@ -472,7 +472,7 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 
 	if (!fh) {
 		cachedisabled = true;
-		buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHESTORAGEFILE);
+		buildprintf("PolymostTexCache: error opening {}, texture cache disabled\n", CACHESTORAGEFILE);
 		return 0;
 	}
 
@@ -536,7 +536,7 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 
 	if (!fh) {
 		cachedisabled = true;
-		buildprintf("PolymostTexCache: error opening %s, texture cache disabled\n", CACHEINDEXFILE);
+		buildprintf("PolymostTexCache: error opening {}, texture cache disabled\n", CACHEINDEXFILE);
 		return 0;
 	}
 

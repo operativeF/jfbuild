@@ -113,7 +113,7 @@ void initcache(void *dacachestart, size_t dacachesize)
 	cac[0].lock = &zerochar;
 	cacnum = 1;
 
-	buildprintf("initcache(): Initialised with %zu bytes\n", cache1dsize);
+	buildprintf("initcache(): Initialised with {} bytes\n", cache1dsize);
 }
 
 void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
@@ -134,8 +134,8 @@ void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
 
 	if (newbytes > cache1dsize)
 	{
-		buildprintf("Cachesize: %zu\n",cache1dsize);
-		buildprintf("Newhandle: 0x%p, Newbytes: %zu, *Newlock: %d\n", (void*)newhandle,newbytes,*newlockptr);
+		buildprintf("Cachesize: {}\n",cache1dsize);
+		buildprintf("Newhandle: {}, Newbytes: {}, *Newlock: {}\n", (void*)newhandle,newbytes,*newlockptr);
 		reportandexit("BUFFER TOO BIG TO FIT IN CACHE!");
 	}
 
@@ -262,19 +262,19 @@ static void reportandexit(const char* errormessage)
 
     for(int i{0}; i < cacnum; i++)
     {
-        buildprintf("%d- ", i);
+        buildprintf("{}- ", i);
 
         if (cac[i].hand) {
-            buildprintf("ptr: 0x%p, ",*cac[i].hand);
+            buildprintf("ptr: {}, ", *cac[i].hand);
         }
 		else {
             buildprintf("ptr: nullptr, ");
         }
 
-        buildprintf("leng: %zu, ",cac[i].leng);
+        buildprintf("leng: {}, ",cac[i].leng);
 
         if (cac[i].lock) {
-            buildprintf("lock: %d\n",*cac[i].lock);
+            buildprintf("lock: {}\n",*cac[i].lock);
         }
 		else {
             buildprintf("lock: nullptr\n");
@@ -283,10 +283,10 @@ static void reportandexit(const char* errormessage)
         j += cac[i].leng;
     }
 
-	buildprintf("Cachesize = %zu\n",cache1dsize);
-	buildprintf("Cacnum = %d\n",cacnum);
-	buildprintf("Cache length sum = %zu\n",j);
-	buildprintf("ERROR: %s\n",errormessage);
+	buildprintf("Cachesize = {}\n",cache1dsize);
+	buildprintf("Cacnum = {}\n",cacnum);
+	buildprintf("Cache length sum = {}\n",j);
+	buildprintf("ERROR: {}\n",errormessage);
 	std::exit(0);
 }
 
@@ -336,7 +336,7 @@ int addsearchpath(const char *p)
 	if (srch->pathlen > maxsearchpathlen)
 		maxsearchpathlen = srch->pathlen;
 	
-	buildprintf("Added %s to search path.\n", srch->path);
+	buildprintf("Added {} to search path.\n", srch->path);
 
 	return 0;
 }
@@ -381,7 +381,7 @@ int findfrompath(const char *fn, char **where)
 	for (auto sp = searchpathhead; sp; sp = sp->next) {
 		std::strcpy(pfn, sp->path);
 		std::strcat(pfn, ffn);
-		//buildprintf("Trying %s\n", pfn);
+		//buildprintf("Trying {}\n", pfn);
 		if (access(pfn, F_OK) >= 0) {
 			*where = pfn;
 			std::free(ffn);
@@ -525,7 +525,7 @@ int initgroupfile(const char *filename)
 		if (Bread(groupfil[numgroupfiles],gfilelist[numgroupfiles],
 			 gnumfiles[numgroupfiles]<<4) != gnumfiles[numgroupfiles]<<4)
 		{
-			buildprintf("Group file %s is damaged\n", filename);
+			buildprintf("Group file {} is damaged\n", filename);
 			std::free(gfilelist[numgroupfiles]); gfilelist[numgroupfiles] = nullptr;
 			std::free(gfileoffs[numgroupfiles]); gfileoffs[numgroupfiles] = nullptr;
 			Bclose(groupfil[numgroupfiles]);
@@ -956,7 +956,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 		for (j=0; (path[j] = path[i]); j++,i++) ;
 		while (j>0 && toupperlookup[(int)(unsigned char)path[j-1]] == '/') j--;
 		path[j] = 0;
-		//buildprintf("Cleaned up path = \"%s\"\n",path);
+		//buildprintf("Cleaned up path = \"{}\"\n",path);
 	}
 	
 	if (*path && (type & CACHE1D_FIND_DIR)) {
@@ -992,8 +992,8 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 								(dirent->mode & BS_IFDIR) ? CACHE1D_FIND_DIR : CACHE1D_FIND_FILE,
 										  stackdepth)) {
 						case -1: goto failure;
-						//case 1: buildprintf("%s:%s dropped for lower priority\n", d,dirent->name); break;
-						//case 0: buildprintf("%s:%s accepted\n", d,dirent->name); break;
+						//case 1: buildprintf("{}:{} dropped for lower priority\n", d,dirent->name); break;
+						//case 0: buildprintf("{}:{} accepted\n", d,dirent->name); break;
 						default: break;
 					}
 				}
@@ -1067,8 +1067,8 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 			// the entry is in the clear
 			switch (klistaddentry(&rec, buf, ftype, CACHE1D_SOURCE_ZIP)) {
 				case -1: goto failure;
-				//case 1: buildprintf("<ZIP>:%s dropped for lower priority\n", buf); break;
-				//case 0: buildprintf("<ZIP>:%s accepted\n", buf); break;
+				//case 1: buildprintf("<ZIP>:{} dropped for lower priority\n", buf); break;
+				//case 0: buildprintf("<ZIP>:{} accepted\n", buf); break;
 				default: break;
 			}
 		}
@@ -1089,8 +1089,8 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 				if (!Bwildmatch(&buf[0], mask)) continue;
 				switch (klistaddentry(&rec, &buf[0], CACHE1D_FIND_FILE, CACHE1D_SOURCE_GRP)) {
 					case -1: goto failure;
-					//case 1: buildprintf("<GRP>:%s dropped for lower priority\n", workspace); break;
-					//case 0: buildprintf("<GRP>:%s accepted\n", workspace); break;
+					//case 1: buildprintf("<GRP>:{} dropped for lower priority\n", workspace); break;
+					//case 0: buildprintf("<GRP>:{} accepted\n", workspace); break;
 					default: break;
 				}
 			}

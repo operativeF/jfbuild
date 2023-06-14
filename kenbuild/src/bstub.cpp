@@ -132,12 +132,12 @@ int ExtInit()
                 if (Bmkdir(dirpath, S_IRWXU) == 0) {
                     asperr = addsearchpath(dirpath);
                 } else {
-                    buildprintf("warning: could not create directory %s\n", dirpath);
+                    buildprintf("warning: could not create directory {}\n", dirpath);
                     asperr = -1;
                 }
             }
             if (asperr == 0 && chdir(dirpath) < 0) {
-                buildprintf("warning: could not change directory to %s\n", dirpath);
+                buildprintf("warning: could not change directory to {}\n", dirpath);
             }
             std::free(supportdir);
         }

@@ -30,6 +30,8 @@
 #include "a.hpp"
 #include "osd.hpp"
 
+#include <fmt/core.h>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -300,9 +302,9 @@ int wm_filechooser(const char *initialdir, const char *initialfile, const char *
 
 	// ext Files\0*.ext\0\0
 	std::memset(filter, 0, sizeof(filter));
-	std::sprintf(filterp, "%s Files", type);
+	fmt::format_to(filterp, "{} Files", type);
 	filterp += std::strlen(filterp) + 1;
-	std::sprintf(filterp, "*.%s", type);
+	fmt::format_to(filterp, "*.{}", type);
 
 	OPENFILENAME ofn;
 
@@ -505,7 +507,7 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 			buildputs("maxrefreshfreq = No maximum\n");
 		}
 		else {
-			buildprintf("maxrefreshfreq = %d Hz\n",maxrefreshfreq);
+			buildprintf("maxrefreshfreq = {} Hz\n",maxrefreshfreq);
 		}
 
 		return OSDCMD_OK;
@@ -536,8 +538,8 @@ static int set_glswapinterval(const osdfuncparm_t *parm)
 	}
 
 	if (parm->numparms == 0) {
-		if (glswapinterval == -1) buildprintf("glswapinterval is %d (adaptive vsync)\n", glswapinterval);
-		else buildprintf("glswapinterval is %d\n", glswapinterval);
+		if (glswapinterval == -1) buildprintf("glswapinterval is {} (adaptive vsync)\n", glswapinterval);
+		else buildprintf("glswapinterval is {}\n", glswapinterval);
 		return OSDCMD_OK;
 	}
 
@@ -766,7 +768,7 @@ int initinput()
 		}
 		
 		if (xinputusernum >= 0) {
-			buildprintf("  - Using controller in port %d\n", xinputusernum);
+			buildprintf("  - Using controller in port {}\n", xinputusernum);
 		}
 		else {
 			buildputs("  - No usable controller found\n");
@@ -809,7 +811,7 @@ int initmouse()
 	};
 
 	if (!::RegisterRawInputDevices(&rid, 1, sizeof(rid))) {
-		buildprintf("initinput: could not register for raw mouse input (%s)\n",
+		buildprintf("initinput: could not register for raw mouse input ({})\n",
 			getwindowserrorstr(::GetLastError()));
 		return -1;
 	}
@@ -845,7 +847,7 @@ void uninitmouse()
 	};
 
 	if (!::RegisterRawInputDevices(&rid, 1, sizeof(rid))) {
-		buildprintf("initinput: could not unregister for raw mouse input (%s)\n",
+		buildprintf("initinput: could not unregister for raw mouse input ({})\n",
 			getwindowserrorstr(::GetLastError()));
 	}
 }
@@ -1014,7 +1016,7 @@ static void putkeyname(int vsc, int ex, int scan) {
 	if (::GetKeyNameText(vsc, tbuf, 24) == 0) return;
 	::CharToOemBuff(tbuf, keynames[scan], 24-1);
 
-	//buildprintf("VSC %8x scan %-2x = %s\n", vsc, scan, keynames[scan]);
+	//buildprintf("VSC %8x scan %-2x = {}\n", vsc, scan, keynames[scan]);
 }
 
 static void fetchkeynames()
@@ -1273,7 +1275,7 @@ int setvideomode(int x, int y, int c, int fs)
 
 	shutdownvideo();
 
-	buildprintf("Setting video mode %dx%d (%d-bit %s)\n",
+	buildprintf("Setting video mode {}x{} ({}-bit {})\n",
 			x, y, c, ((fs & 1) ? "fullscreen" : "windowed"));
 
 	if (::CreateAppWindow(x, y, c, fs, refresh)) {
@@ -1317,7 +1319,7 @@ static void addmode(int x, int y, unsigned char c, unsigned char fs, int ext)
 		.extra = ext
 	});
 
-	buildprintf("  - %dx%d %d-bit %s\n", x, y, c, (fs & 1)?"fullscreen":"windowed"); \
+	buildprintf("  - {}x{} {}-bit {}\n", x, y, c, (fs & 1)?"fullscreen":"windowed"); \
 }
 
 #define CHECKL(w,h) if ((w < maxx) && (h < maxy))
@@ -1664,7 +1666,7 @@ bool loadgldriver(const char *dll)
 		dll = "OPENGL32.DLL";
 	}
 
-	buildprintf("Loading %s\n", dll);
+	buildprintf("Loading {}\n", dll);
 
 	hGLDLL = ::LoadLibrary(dll);
 
@@ -2266,10 +2268,10 @@ static void UpdateAppWindowTitle()
 		return;
 	}
 
-	std::array<char, 256 + 3 + 256 + 1> tmp;		//sizeof(wintitle) + " - " + sizeof(apptitle) + '\0'
+	std::array<char, 256 + 3 + 256 + 1> tmp{};		//sizeof(wintitle) + " - " + sizeof(apptitle) + '\0'
 
 	if (wintitle[0]) {
-		snprintf(&tmp[0], sizeof(tmp), "%s - %s", wintitle, apptitle);
+		fmt::format_to(&tmp[0], "{} - {}", wintitle, apptitle);
 		::SetWindowText(hWindow, &tmp[0]);
 	} else {
 		::SetWindowText(hWindow, apptitle);
@@ -2392,7 +2394,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 					scan = wscantable[wscan];
 				}
 
-				//buildprintf("VK %-2x VSC %8x scan %-2x = %s\n", wParam, (UINT)lParam, scan, keynames[scan]);
+				//buildprintf("VK %-2x VSC %8x scan %-2x = {}\n", wParam, (UINT)lParam, scan, keynames[scan]);
 
 				if (scan == 0) {
 					// Not a key we want, so give it to the OS to handle.
@@ -2417,7 +2419,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 				if (((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc) {
 					keyasciififo[keyasciififoend] = (unsigned char)wParam;
 					keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
-					//buildprintf("Char %d, %d-%d\n",wParam,keyasciififoplc,keyasciififoend);
+					//buildprintf("Char {}, {}-{}\n",wParam,keyasciififoplc,keyasciififoend);
 				}
 			}
 			return 0;

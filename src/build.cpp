@@ -246,7 +246,7 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 static int osdcmd_mapversion(const osdfuncparm_t *parm)
 {
 	if (parm->numparms < 1) {
-		buildprintf("mapversion is %d\n", mapversion);
+		buildprintf("mapversion is {}\n", mapversion);
 		return OSDCMD_OK;
 	}
 	const int newversion = std::atoi(parm->parms[0]);
@@ -255,7 +255,7 @@ static int osdcmd_mapversion(const osdfuncparm_t *parm)
 		return OSDCMD_SHOWHELP;
 	}
 
-	buildprintf("mapversion is now %d (was %d)\n", newversion, mapversion);
+	buildprintf("mapversion is now {} (was {})\n", newversion, mapversion);
 	mapversion = newversion;
 
 	return OSDCMD_OK;
@@ -264,7 +264,7 @@ static int osdcmd_mapversion(const osdfuncparm_t *parm)
 static int osdcmd_showspriteextents(const osdfuncparm_t *parm)
 {
 	if (parm->numparms != 1) {
-		buildprintf("showspriteextents is %d\n", showspriteextents);
+		buildprintf("showspriteextents is {}\n", showspriteextents);
 		return OSDCMD_OK;
 	}
 	
@@ -274,7 +274,7 @@ static int osdcmd_showspriteextents(const osdfuncparm_t *parm)
 		return OSDCMD_SHOWHELP;
 	}
 
-	buildprintf("showspriteextents is now %d (was %d)\n", newval, showspriteextents);
+	buildprintf("showspriteextents is now {} (was {})\n", newval, showspriteextents);
 	showspriteextents = newval;
 	return OSDCMD_OK;
 }
@@ -333,7 +333,7 @@ int app_main(int argc, char const * const argv[])
 #endif
 					;
 #ifdef HAVE_STARTWIN
-				wm_msgbox("BUILD by Ken Silverman","%s",s);
+				wm_msgbox("BUILD by Ken Silverman","{}",s);
 #else
 				std::puts(s);
 #endif
@@ -387,7 +387,7 @@ int app_main(int argc, char const * const argv[])
 
 	if (grps && grpstoadd > 0) {
 		for (i=0;i<grpstoadd;i++) {
-			buildprintf("Adding %s\n",grps[i]);
+			buildprintf("Adding {}\n",grps[i]);
 			initgroupfile(grps[i]);
 		}
 		std::free((void *)grps);
@@ -411,7 +411,7 @@ int app_main(int argc, char const * const argv[])
 	{
 		ExtUnInit();
 		uninitengine();
-		buildprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
+		buildprintf("{} * {} not supported in this graphics mode\n",xdim,ydim);
 		std::exit(0);
 	}
 
@@ -558,8 +558,8 @@ int app_main(int argc, char const * const argv[])
 	ExtUnInit();
 	uninitengine();
 
-	buildprintf("Memory status: %d(%d) bytes\n", cachesize, artsize);
-	buildprintf("%s\n", &kensig[0]);
+	buildprintf("Memory status: {}({}) bytes\n", cachesize, artsize);
+	buildprintf("{}\n", &kensig[0]);
 	return(0);
 }
 
@@ -2869,7 +2869,7 @@ void overheadeditor()
 	drawline16(192,0,192,24,7);
 	printext16(9L,9L,4,-1, &kensig[0],0);
 	printext16(8L,8L,12,-1, &kensig[0], 0);
-	std::sprintf(buffer, "Version: %s", build_version);
+	fmt::format_to(buffer, "Version: {}", build_version);
 	printmessage16(buffer);
 	drawline16(0,ydim16-1-24,xdim-1,ydim16-1-24,7);
 	drawline16(256,ydim16-1-24,256,ydim16-1,7);
@@ -5551,7 +5551,7 @@ void overheadeditor()
 					bflushchars();
 					while (bad == 0)
 					{
-						snprintf(buffer, sizeof(buffer), "Save as: %s_", filename);
+						fmt::format_to(buffer, "Save as: {}_", filename);
 						printmessage16(buffer);
 						showframe();
 
@@ -5586,7 +5586,7 @@ void overheadeditor()
 						keystatus[0x1c] = 0;
 
 						std::strcat(filename, ".map");
-						std::sprintf(buffer,"Saving to %s...",filename);
+						fmt::format_to(buffer, "Saving to {}...", filename);
 						printmessage16(buffer);
 						showframe();
 
@@ -5701,8 +5701,8 @@ void overheadeditor()
 							clearfilenames();
 							ExtUnInit();
 							uninitengine();
-							std::printf("Memory status: %d(%d) bytes\n",cachesize,artsize);
-							std::printf("%s\n", &kensig[0]);
+							fmt::print("Memory status: {}({}) bytes\n", cachesize, artsize);
+							fmt::print("{}\n", &kensig[0]);
 							std::exit(0);
 						} else if (ch == 'n' || ch == 'N' || ch == 13 || ch == ' ') {
 							break;
@@ -6248,7 +6248,7 @@ short getnumber16(char *namestart, short num, int maxnumber, char sign)
 
 		ch = bgetchar();
 
-		snprintf(buffer, sizeof(buffer), "%s%d_ ",namestart,danum);
+		fmt::format_to(buffer, "{}{}_ ", namestart, danum);
 		printmessage16(buffer);
 		showframe();
 
@@ -6295,7 +6295,7 @@ short getnumber256(char *namestart, short num, int maxnumber, char sign)
 
 		ch = bgetchar();
 
-		snprintf(buffer, sizeof(buffer), "%s%d_ ",namestart,danum);
+		fmt::format_to(buffer, "{}{}_ ", namestart, danum);
 		printmessage256(buffer);
 		showframe();
 
@@ -6406,7 +6406,7 @@ int menuselect(int newpathmode)
 		}
 		printext16(halfxdim16-(8*(int)std::strlen(&buffer[0])/2), 4, 14, 0, &buffer[0], 0);
 
-		snprintf(&buffer[0], sizeof(buffer),"(%d dirs, %d files) %s",numdirs,numfiles, &selectedboardfilename[0]);
+		fmt::format_to(&buffer[0],"({} dirs, {} files) {}", numdirs, numfiles, &selectedboardfilename[0]);
 		printext16(1,ydim16-8-1,8,0, &buffer[0], 0);
 
 		if (finddirshigh) {
@@ -6505,7 +6505,7 @@ int menuselect(int newpathmode)
 			else
 				Bcorrectfilename(&selectedboardfilename[0], 1);
 
-			//std::printf("Changing directories to: %s\n", selectedboardfilename);
+			//std::printf("Changing directories to: {}\n", selectedboardfilename);
 
 			getfilenames(&selectedboardfilename[0], "*.map");
 			ch = 0;
@@ -6519,7 +6519,7 @@ int menuselect(int newpathmode)
 	if (ch == 13)
 	{
 		std::strcat(&selectedboardfilename[0], findfileshigh->name);
-		//std::printf("Selected file: %s\n", selectedboardfilename);
+		//std::printf("Selected file: {}\n", selectedboardfilename);
 
 		return(0);
 	}
@@ -6717,7 +6717,7 @@ int loadnames()
 				p += 7;
 				while (*p == 32) p++;
 				if (*p == 0) {
-					buildprintf("Error: Malformed #define at line %d\n", line-1);
+					buildprintf("Error: Malformed #define at line {}\n", line-1);
 					continue;
 				}
 
@@ -6727,7 +6727,7 @@ int loadnames()
 					*(p++) = 0;
 					while (*p == 32) p++;
 					if (*p == 0) {	// #define_NAME with no number
-						buildprintf("Error: No number given for name \"%s\" (line %d)\n", name, line-1);
+						buildprintf("Error: No number given for name \"{}\" (line {})\n", name, line-1);
 						continue;
 					}
 
@@ -6742,12 +6742,12 @@ int loadnames()
 						goto badline;
 					}
 					if (num < 0 || num >= MAXTILES) {
-						buildprintf("Error: Constant %d for name \"%s\" out of range (line %d)\n", num, name, line-1);
+						buildprintf("Error: Constant {} for name \"{}\" out of range (line {})\n", num, name, line-1);
 						continue;
 					}
 
 					if (std::strlen(name) > 24)
-						buildprintf("Warning: Name \"%s\" longer than 24 characters (line %d). Truncating.\n", name, line-1);
+						buildprintf("Warning: Name \"{}\" longer than 24 characters (line {}). Truncating.\n", name, line-1);
 
 					std::strncpy(names[num], name, 24);
 					names[num][24] = 0;
@@ -6757,7 +6757,7 @@ int loadnames()
 					continue;
 
 				} else {	// #define_NAME with no number
-					buildprintf("Error: No number given for name \"%s\" (line %d)\n", name, line-1);
+					buildprintf("Error: No number given for name \"{}\" (line {})\n", name, line-1);
 					continue;
 				}
 			} else goto badline;
@@ -6765,9 +6765,9 @@ int loadnames()
 			if (*(p+1) == '/') continue;	// comment
 		}
 badline:
-		buildprintf("Error: Invalid statement found at character %d on line %d\n", (int)(p - &buffer[0]), line-1);
+		buildprintf("Error: Invalid statement found at character {} on line {}\n", (int)(p - &buffer[0]), line-1);
 	}
-	buildprintf("Read %d lines, loaded %d names.\n", line, syms);
+	buildprintf("Read {} lines, loaded {} names.\n", line, syms);
 
 	std::fclose(fp);
 	return 0;

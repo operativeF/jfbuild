@@ -360,7 +360,7 @@ void polymost_texinvalidate (int dapicnum, int dapalnum, int dameth)
 		if (pth->pic[PTHPIC_BASE]) {
 			pth->pic[PTHPIC_BASE]->flags |= PTH_DIRTY;
 		}
-		/*buildprintf("invalidating picnum:%d palnum:%d effects:%d skyface:%d flags:%04X repldef:%p\n",
+		/*buildprintf("invalidating picnum:{} palnum:{} effects:{} skyface:{} flags:{04X} repldef:{}\n",
 			   pth->picnum, pth->palnum, pth->effects, pth->skyface,
 			   pth->flags, pth->repldef);*/
 	}
@@ -557,7 +557,7 @@ static GLint polymost_get_attrib(GLuint program, const GLchar *name)
 	const GLint attribloc = glfunc.glGetAttribLocation(program, name);
 	
 	if (attribloc < 0) {
-		buildprintf("polymost_get_attrib: could not get location of attribute \"%s\"\n", name);
+		buildprintf("polymost_get_attrib: could not get location of attribute \"{}\"\n", name);
 	}
 
 	return attribloc;
@@ -568,7 +568,7 @@ static GLint polymost_get_uniform(GLuint program, const GLchar *name)
 	const GLint uniformloc = glfunc.glGetUniformLocation(program, name);
 	
 	if (uniformloc < 0) {
-		buildprintf("polymost_get_uniform: could not get location of uniform \"%s\"\n", name);
+		buildprintf("polymost_get_uniform: could not get location of uniform \"{}\"\n", name);
 	}
 
 	return uniformloc;
@@ -595,7 +595,7 @@ static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, co
 		std::fclose(shaderfh);
 		shaderfh = nullptr;
 
-		buildprintf("polymost_load_shader: loaded %s (%ld bytes)\n", filename, shadersrclen);
+		buildprintf("polymost_load_shader: loaded {} ({} bytes)\n", filename, shadersrclen);
 		shadersrc = fileshadersrc;
 	}
 #endif
@@ -1015,8 +1015,8 @@ void polymost_nextpage()
 	if (polymostshowcallcounts) {
 		char buf[1024];
 		std::sprintf(buf,
-			"drawpoly_gl(%d) drawaux_gl(%d) drawpoly(%d) "
-			"domost(%d) drawalls(%d) drawmaskwall(%d) drawsprite(%d)",
+			"drawpoly_gl({}) drawaux_gl({}) drawpoly({}) "
+			"domost({}) drawalls({}) drawmaskwall({}) drawsprite({})",
 	    		polymostcallcounts.drawpoly_glcall,
 	    		polymostcallcounts.drawaux_glcall,
 	    		polymostcallcounts.drawpoly,
@@ -5131,7 +5131,7 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
 		return;//dapalnum = 0;
 
 		//FIXME
-	//buildprintf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
+	//buildprintf("precached {} {} type {}\n", dapicnum, dapalnum, datype);
 	unsigned short flags = (datype & 1) ? PTH_CLAMPED : 0;
 
 	if (usehightile) flags |= PTH_HIGHTILE;
@@ -5173,11 +5173,11 @@ static int osdcmd_debugdumptexturedefs(const osdfuncparm_t *parm)
 	for (i=0;i<MAXTILES;i++) {
 		hr = hicreplc[i];
 		if (!hr) continue;
-		buildprintf("texture %d {\n", i);
+		buildprintf("texture {} {\n", i);
 		for (; hr; hr = hr->next) {
 			if (!hr->filename) continue;
-			buildprintf("    pal %d { name \"%s\" ", hr->palnum, hr->filename);
-			if (hr->alphacut >= 0.0) buildprintf("alphacut %g ", hr->alphacut);
+			buildprintf("    pal {} { name \"{}\" ", hr->palnum, hr->filename);
+			if (hr->alphacut >= 0.0) buildprintf("alphacut {} ", hr->alphacut);
 			buildprintf("}\n");
 		}
 		buildprintf("}\n");
@@ -5201,12 +5201,12 @@ static int osdcmd_debugtexturehash(const osdfuncparm_t *parm)
 	buildprintf("// Begin texture hash dump\n");
 	iter = PTIterNew();
 	while ((pth = PTIterNext(iter)) != 0) {
-		buildprintf(" picnum:%d palnum:%d flags:%04X repldef:%p\n",
+		buildprintf(" picnum:{} palnum:{} flags:{:04X} repldef:{}\n",
 			   pth->picnum, pth->palnum, pth->flags,
 			   (void*)pth->repldef);
 		for (i=0; i<6; i++) {
 			if (pth->pic[i]) {
-				buildprintf("   pic[%d]: %p => glpic:%d flags:%x sizx/y:%d/%d tsizx/y:%d/%d\n",
+				buildprintf("   pic[{}]: {} => glpic:{} flags:{} sizx/y:{}/{} tsizx/y:{}/{}\n",
 					   i, (void*)pth->pic[i], pth->pic[i]->glpic, pth->pic[i]->flags,
 					   pth->pic[i]->sizx, pth->pic[i]->sizy,
 					   pth->pic[i]->tsizx, pth->pic[i]->tsizy);
@@ -5234,10 +5234,10 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 	const char *p;
 
 	if (parm->numparms != 1) {
-		buildprintf("Current texturing mode is %s\n", glfiltermodes[gltexfiltermode].name);
+		buildprintf("Current texturing mode is {}\n", glfiltermodes[gltexfiltermode].name);
 		buildprintf("  Vaild modes are:\n");
 		for (int m{0}; m < numglfiltermodes; ++m)
-			buildprintf("     %d - %s\n",m,glfiltermodes[m].name);
+			buildprintf("     {} - {}\n",m,glfiltermodes[m].name);
 
 		return OSDCMD_OK;
 	}
@@ -5261,7 +5261,7 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 		gltexapplyprops();
 	}
 
-	buildprintf("Texture filtering mode changed to %s\n", glfiltermodes[gltexfiltermode].name );
+	buildprintf("Texture filtering mode changed to {}\n", glfiltermodes[gltexfiltermode].name );
 
 	return OSDCMD_OK;
 }
@@ -5269,8 +5269,8 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 static int osdcmd_gltextureanisotropy(const osdfuncparm_t *parm)
 {
 	if (parm->numparms != 1) {
-		buildprintf("Current texture anisotropy is %d\n", glanisotropy);
-		buildprintf("  Maximum is %f\n", glinfo.maxanisotropy);
+		buildprintf("Current texture anisotropy is {}\n", glanisotropy);
+		buildprintf("  Maximum is {}\n", glinfo.maxanisotropy);
 
 		return OSDCMD_OK;
 	}
@@ -5286,7 +5286,7 @@ static int osdcmd_gltextureanisotropy(const osdfuncparm_t *parm)
 		gltexapplyprops();
 	}
 
-	buildprintf("Texture anisotropy changed to %d\n", glanisotropy );
+	buildprintf("Texture anisotropy changed to {}\n", glanisotropy );
 
 	return OSDCMD_OK;
 }
@@ -5309,22 +5309,22 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 	if (!showval) val = std::atoi(parm->parms[0]);
 #if USE_OPENGL
 	if (!Bstrcasecmp(parm->name, "usemodels")) {
-		if (showval) { buildprintf("usemodels is %d\n", usemodels); }
+		if (showval) { buildprintf("usemodels is {}\n", usemodels); }
 		else usemodels = (val != 0);
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "usehightile")) {
-		if (showval) { buildprintf("usehightile is %d\n", usehightile); }
+		if (showval) { buildprintf("usehightile is {}\n", usehightile); }
 		else usehightile = (val != 0);
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "glusetexcompr")) {
-		if (showval) { buildprintf("glusetexcompr is %d\n", glusetexcompr); }
+		if (showval) { buildprintf("glusetexcompr is {}\n", glusetexcompr); }
 		else glusetexcompr = (val != 0);
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "gltexcomprquality")) {
-		if (showval) { buildprintf("gltexcomprquality is %d\n", gltexcomprquality); }
+		if (showval) { buildprintf("gltexcomprquality is {}\n", gltexcomprquality); }
 		else {
 			if (val < 0 || val > 2) val = 0;
 			gltexcomprquality = val;
@@ -5332,55 +5332,55 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "glredbluemode")) {
-		if (showval) { buildprintf("glredbluemode is %d\n", glredbluemode); }
+		if (showval) { buildprintf("glredbluemode is {}\n", glredbluemode); }
 		else glredbluemode = (val != 0);
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "gltexturemaxsize")) {
-		if (showval) { buildprintf("gltexturemaxsize is %d\n", gltexmaxsize); }
+		if (showval) { buildprintf("gltexturemaxsize is {}\n", gltexmaxsize); }
 		else gltexmaxsize = val;
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "gltexturemiplevel")) {
-		if (showval) { buildprintf("gltexturemiplevel is %d\n", gltexmiplevel); }
+		if (showval) { buildprintf("gltexturemiplevel is {}\n", gltexmiplevel); }
 		else gltexmiplevel = val;
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "usegoodalpha")) {
-		if (showval) { buildprintf("usegoodalpha is %d\n", usegoodalpha); }
+		if (showval) { buildprintf("usegoodalpha is {}\n", usegoodalpha); }
 		else usegoodalpha = (val != 0);
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "glpolygonmode")) {
-		if (showval) { buildprintf("glpolygonmode is %d\n", glpolygonmode); }
+		if (showval) { buildprintf("glpolygonmode is {}\n", glpolygonmode); }
 		else glpolygonmode = val;
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "glusetexcache")) {
-		if (showval) { buildprintf("glusetexcache is %d\n", glusetexcache); }
+		if (showval) { buildprintf("glusetexcache is {}\n", glusetexcache); }
 		else glusetexcache = (val != 0);
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "glmultisample")) {
 		if (showval) {
-			if (!glmultisample) buildprintf("glmultisample is %d (off)\n", glmultisample);
-			else buildprintf("glmultisample is %d (%dx)\n", glmultisample, 1<<glmultisample);
+			if (!glmultisample) buildprintf("glmultisample is {} (off)\n", glmultisample);
+			else buildprintf("glmultisample is {} ({}x)\n", glmultisample, 1<<glmultisample);
 		}
 		else glmultisample = std::min(2, std::max(0, val));
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "glnvmultisamplehint")) {
-		if (showval) { buildprintf("glnvmultisamplehint is %d\n", glnvmultisamplehint); }
+		if (showval) { buildprintf("glnvmultisamplehint is {}\n", glnvmultisamplehint); }
 		else glnvmultisamplehint = (val != 0);
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "glsampleshading")) {
-		if (showval) { buildprintf("glsampleshading is %d\n", glsampleshading); }
+		if (showval) { buildprintf("glsampleshading is {}\n", glsampleshading); }
 		else glsampleshading = (val != 0);
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "polymosttexverbosity")) {
-		if (showval) { buildprintf("polymosttexverbosity is %d\n", polymosttexverbosity); }
+		if (showval) { buildprintf("polymosttexverbosity is {}\n", polymosttexverbosity); }
 		else {
 			if (val < 0 || val > 2) val = 1;
 			polymosttexverbosity = val;
@@ -5390,7 +5390,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 #endif //USE_OPENGL
 #ifdef DEBUGGINGAIDS
 	if (!Bstrcasecmp(parm->name, "debugshowcallcounts")) {
-		if (showval) { buildprintf("debugshowcallcounts is %d\n", polymostshowcallcounts); }
+		if (showval) { buildprintf("debugshowcallcounts is {}\n", polymostshowcallcounts); }
 		else polymostshowcallcounts = (val != 0);
 		return OSDCMD_OK;
 	}

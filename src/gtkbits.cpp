@@ -125,7 +125,7 @@ void wmgtk_init(int *argc, char ***argv)
 
 	appicon = gdk_pixbuf_new_from_resource("/appicon.png", &error);
 	if (!appicon) {
-        buildprintf("gdk_pixbuf_new_from_resource error: %s\n", error->message);
+        buildprintf("gdk_pixbuf_new_from_resource error: {}\n", error->message);
 	} else {
 		gtk_window_set_default_icon(appicon);
 		g_object_unref(G_OBJECT(appicon));

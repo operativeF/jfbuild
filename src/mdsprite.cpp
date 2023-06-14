@@ -472,7 +472,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 		if ((err = PTM_LoadTextureFile(skinfile, *tex, PTH_CLAMPED, hictinting[pal].f))) {
 			if (polymosttexverbosity >= 1) {
 				const char * errstr = PTM_GetLoadTextureFileErrorString(err);
-				buildprintf("MDSprite: %s %s\n",
+				buildprintf("MDSprite: {} {}\n",
 						   skinfile, errstr);
 			}
 			return nullptr;
@@ -2484,7 +2484,7 @@ int mddraw (spritetype *tspr, int method)
 		auto* vl = static_cast<point3d *>(std::realloc(vertlist, sizeof(point3d) * maxmodelverts));
 		
 		if (!vl) {
-			buildprintf("ERROR: Not enough memory to allocate %d vertices!\n", maxmodelverts);
+			buildprintf("ERROR: Not enough memory to allocate {} vertices!\n", maxmodelverts);
 			return 0;
 		}
 
@@ -2496,7 +2496,7 @@ int mddraw (spritetype *tspr, int method)
 		auto* vbo = static_cast<struct polymostvboitem *>(std::realloc(elementvbo, maxelementvbo * sizeof(struct polymostvboitem)));
 		
 		if (!vbo) {
-			buildprintf("ERROR: Not enough memory to allocate %d vertex buffer items!\n",maxelementvbo);
+			buildprintf("ERROR: Not enough memory to allocate {} vertex buffer items!\n",maxelementvbo);
 			return 0;
 		}
 

@@ -46,7 +46,7 @@ static GObject * get_and_connect_signal(GtkBuilder *builder, const char *name, c
 
     object = gtk_builder_get_object(builder, name);
     if (!object) {
-        buildprintf("gtk_builder_get_object: %s not found\n", name);
+        buildprintf("gtk_builder_get_object: {} not found\n", name);
         return 0;
     }
     g_signal_connect(object, signal_name, handler, nullptr);
@@ -256,7 +256,7 @@ static GtkWindow *create_window()
         goto fail;
     }
     if (!gtk_builder_add_from_resource(builder, "/startgtk.glade", &error)) {
-        buildprintf("gtk_builder_add_from_resource error: %s\n", error->message);
+        buildprintf("gtk_builder_add_from_resource error: {}\n", error->message);
         goto fail;
     }
 

@@ -465,7 +465,7 @@ int screencapture(const char* filename, char mode)
 	}
 
 	if (ret == 0) {
-		buildprintf("Saved screenshot to %s\n", capturename);
+		buildprintf("Saved screenshot to {}\n", capturename);
 	}
 
 	return ret;

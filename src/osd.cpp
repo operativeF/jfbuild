@@ -1151,14 +1151,14 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 	// check for illegal characters in name
 	for (cp = name; *cp; cp++) {
 		if ((cp == name) && (*cp >= '0') && (*cp <= '9')) {
-			buildprintf("OSD_RegisterFunction(): first character of function name \"%s\" must not be a numeral\n", name);
+			buildprintf("OSD_RegisterFunction(): first character of function name \"{}\" must not be a numeral\n", name);
 			return -1;
 		}
 		if ((*cp < '0') ||
 		    (*cp > '9' && *cp < 'A') ||
 		    (*cp > 'Z' && *cp < 'a' && *cp != '_') ||
 		    (*cp > 'z')) {
-			buildprintf("OSD_RegisterFunction(): illegal character in function name \"%s\"\n", name);
+			buildprintf("OSD_RegisterFunction(): illegal character in function name \"{}\"\n", name);
 			return -1;
 		}
 	}
@@ -1174,13 +1174,13 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 		// Same function being defined a second time, so we'll quietly ignore it.
 		return 0;
 	} else if (symb) {
-		buildprintf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
+		buildprintf("OSD_RegisterFunction(): \"{}\" is already defined\n", name);
 		return -1;
 	}
 
 	symb = addnewsymbol(name);
 	if (!symb) {
-		buildprintf("OSD_RegisterFunction(): Failed registering function \"%s\"\n", name);
+		buildprintf("OSD_RegisterFunction(): Failed registering function \"{}\"\n", name);
 		return -1;
 	}
 

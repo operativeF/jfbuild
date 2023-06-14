@@ -96,7 +96,6 @@ int reciptable[2048];
 int fpuasm;
 
 static std::array<char, 128> kensmessage;
-static std::FILE *logfile{nullptr};		// log filehandle
 
 const struct textfontspec textfonts[3] = {
 	{	//8x8
@@ -5710,7 +5709,7 @@ static bool loadpalette()
 	} else if ((flen - 32640 - 768) % 256 == 0) {
 		// Old format palette.
 		numpalookups = (flen - 32640 - 768) >> 8;
-		buildprintf("loadpalette: old format palette (%d shades)\n",
+		buildprintf("loadpalette: old format palette ({} shades)\n",
 			numpalookups);
 		goto badpalette;
 	} else {
@@ -6143,7 +6142,7 @@ static void sighandler(int sig, siginfo_t *info, void *ctx)
 				case FPE_FLTSUB: s = "FPE_FLTSUB (floating-point subscript out of range)"; break;
 				default: s = "?! (unknown)"; break;
 			}
-			std::fprintf(stderr, "Caught SIGFPE at address %p, code %s. Aborting.\n", info->si_addr, s);
+			fmt::print(stderr, "Caught SIGFPE at address {}, code {}. Aborting.\n", info->si_addr, s);
 			break;
 		default: break;
 	}
@@ -6157,21 +6156,21 @@ static void sighandler(int sig, siginfo_t *info, void *ctx)
 static int preinitcalled = 0;
 int preinitengine()
 {
-	char compiler[30] = "an unidentified compiler";
-
 #if defined(_MSC_VER)
-	std::sprintf(compiler, "MS Visual C++ %d.%02d", _MSC_VER/100, _MSC_VER%100);
+	auto compstr = fmt::format("MS Visual C++ {}.{:02d}", _MSC_VER / 100, _MSC_VER % 100);
 #elif defined(__clang__)
-	std::sprintf(compiler, "Clang %d.%d", __clang_major__, __clang_minor__);
+	auto compstr = fmt::format("Clang {}.{}", __clang_major__, __clang_minor__);
 #elif defined(__GNUC__)
-	std::sprintf(compiler, "GCC %d.%d", __GNUC__, __GNUC_MINOR__);
+	auto compstr = fmt::format("GCC {}.{}", __GNUC__, __GNUC_MINOR__);
+#else // Unidentified compiler
+	auto compstr = "an unidentified compiler"
 #endif
 
 	buildprintf("\nBUILD engine by Ken Silverman (http://www.advsys.net/ken)\n"
 	       "Additional improvements by Jonathon Fowler (http://www.jonof.id.au)\n"
 	       "and other contributors. See BUILDLIC.TXT for terms.\n\n"
-	       "Version %s.\nBuilt %s %s using %s.\n%d-bit word size.\n\n",
-	       build_version, build_date, build_time, compiler, (int)(sizeof(intptr_t)<<3));
+	       "Version {}.\nBuilt {} {} using {}.\n{}-bit word size.\n\n",
+	       build_version, build_date, build_time, compstr, (int)(sizeof(intptr_t)<<3));
 
 	// Detect anomalous structure packing.
 	assert(sizeof(sectortype) == 40);
@@ -6302,7 +6301,7 @@ bool initengine()
 //
 void uninitengine()
 {
-	//buildprintf("cacheresets = %d, cacheinvalidates = %d\n", cacheresets, cacheinvalidates);
+	//buildprintf("cacheresets = {}, cacheinvalidates = {}\n", cacheresets, cacheinvalidates);
 
 #if USE_POLYMOST && USE_OPENGL
 	polymost_glreset();
@@ -6398,10 +6397,10 @@ void drawrooms(int daposx, int daposy, int daposz,
 	short *shortptr1, *shortptr2;
 
 #if defined(DEBUGGINGAIDS)
-	if (numscans > MAXWALLSB) debugprintf("damage report: numscans %d exceeded %d\n", numscans, MAXWALLSB);
-	if (numbunches > MAXWALLSB) debugprintf("damage report: numbunches %d exceeded %d\n", numbunches, MAXWALLSB);
-	if (maskwallcnt > MAXWALLSB) debugprintf("damage report: maskwallcnt %d exceeded %d\n", maskwallcnt, MAXWALLSB);
-	if (smostwallcnt > MAXWALLSB) debugprintf("damage report: smostwallcnt %d exceeded %d\n", smostwallcnt, MAXWALLSB);
+	if (numscans > MAXWALLSB) debugprintf("damage report: numscans {} exceeded {}\n", numscans, MAXWALLSB);
+	if (numbunches > MAXWALLSB) debugprintf("damage report: numbunches {} exceeded {}\n", numbunches, MAXWALLSB);
+	if (maskwallcnt > MAXWALLSB) debugprintf("damage report: maskwallcnt {} exceeded {}\n", maskwallcnt, MAXWALLSB);
+	if (smostwallcnt > MAXWALLSB) debugprintf("damage report: smostwallcnt {} exceeded {}\n", smostwallcnt, MAXWALLSB);
 #endif
 
 	beforedrawrooms = 0;
@@ -8311,7 +8310,7 @@ int loadmaphack(const char *filename)
 
 				if ((unsigned)whichsprite >= (unsigned)MAXSPRITES) {
 					// sprite number out of range
-					buildprintf("Sprite number out of range 0-%d on line %s:%d\n",
+					buildprintf("Sprite number out of range 0-{} on line {}:{}\n",
 							MAXSPRITES-1,script->filename, scriptfile_getlinum(script,cmdtokptr));
 					whichsprite = -1;
 					break;
@@ -8325,7 +8324,7 @@ int loadmaphack(const char *filename)
 
 					if (whichsprite < 0) {
 						// no sprite directive preceeding
-						buildprintf("Ignoring angle offset directive because of absent/invalid sprite number on line %s:%d\n",
+						buildprintf("Ignoring angle offset directive because of absent/invalid sprite number on line {}:{}\n",
 							script->filename, scriptfile_getlinum(script,cmdtokptr));
 						break;
 					}
@@ -8335,7 +8334,7 @@ int loadmaphack(const char *filename)
 			case 2:      // notmd
 				if (whichsprite < 0) {
 					// no sprite directive preceeding
-					buildprintf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line %s:%d\n",
+					buildprintf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line {}:{}\n",
 							script->filename, scriptfile_getlinum(script,cmdtokptr));
 					break;
 				}
@@ -8344,7 +8343,7 @@ int loadmaphack(const char *filename)
 			case 3:      // nomdanim
 				if (whichsprite < 0) {
 					// no sprite directive preceeding
-					buildprintf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line %s:%d\n",
+					buildprintf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line {}:{}\n",
 							script->filename, scriptfile_getlinum(script,cmdtokptr));
 					break;
 				}
@@ -8518,14 +8517,14 @@ int saveoldboard(const char *filename, const int *daposx, const int *daposy, con
 	switch (mapversion) {
 		case 5:
 			if (numsectors > MAXSECTORSV5 || numwalls > MAXWALLSV5 || numsprites > MAXSPRITESV5) {
-				buildprintf("saveoldboard: too many sectors/walls/sprites for map version 5 (%d/%d, %d/%d, %d/%d)\n",
+				buildprintf("saveoldboard: too many sectors/walls/sprites for map version 5 ({}/{}, {}/{}, {}/{})\n",
 					numsectors, MAXSECTORSV5, numwalls, MAXWALLSV5, numsprites, MAXSPRITESV5);
 				return -2;
 			}
 			break;
 		case 6:
 			if (numsectors > MAXSECTORSV6 || numwalls > MAXWALLSV6 || numsprites > MAXSPRITESV6) {
-				buildprintf("saveoldboard: too many sectors/walls/sprites for map version 6 (%d/%d, %d/%d, %d/%d)\n",
+				buildprintf("saveoldboard: too many sectors/walls/sprites for map version 6 ({}/{}, {}/{}, {}/{})\n",
 					numsectors, MAXSECTORSV6, numwalls, MAXWALLSV6, numsprites, MAXSPRITESV6);
 				return -2;
 			}
@@ -8872,7 +8871,7 @@ int loadpics(const char* filename, int askedsize)
 		{
 			kread(fil,&artversion,4); artversion = B_LITTLE32(artversion);
 			if (artversion != 1) {
-				buildprintf("loadpics(): Invalid art file version in %s\n", artfilename);
+				buildprintf("loadpics(): Invalid art file version in {}\n", artfilename);
 				return(-1);
 			}
 			kread(fil,&numtiles,4);       numtiles       = B_LITTLE32(numtiles);
@@ -8978,7 +8977,7 @@ void loadtile(short tilenume)
 	}
 
 	if (cachedebug)
-		buildprintf("Tile:%d\n", tilenume);
+		buildprintf("Tile:{}\n", tilenume);
 
 	if (waloff[tilenume] == 0)
 	{
@@ -12329,35 +12328,6 @@ void setpolymost2dview()
 }
 
 #endif //USE_POLYMOST && USE_OPENGL
-
-
-void buildprintf(const char *fmt, ...)
-{
-	char tmpstr[1024];
-	va_list va;
-	va_list vac;
-
-	va_start(va, fmt);
-
-	va_copy(vac, va);
-	std::vfprintf(stdout, fmt, vac);
-	va_end(vac);
-
-	if (logfile) {
-		va_copy(vac, va);
-		std::vfprintf(logfile, fmt, vac);
-		va_end(vac);
-	}
-
-	va_copy(vac, va);
-	vsnprintf(tmpstr, sizeof(tmpstr), fmt, vac);
-	va_end(vac);
-
-	initputs(tmpstr);
-	OSD_Puts(tmpstr);
-
-	va_end(va);
-}
 
 void buildputs(const char *str)
 {

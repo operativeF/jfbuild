@@ -14,9 +14,6 @@
 #define KDMSOUND_INTERNAL
 #include "kdmsound.hpp"
 
-// Nicked from build.h
-void buildprintf(const char *,...);
-
 static IXAudio2 *xaudio;
 static IXAudio2MasteringVoice *mastervoice;
 static IXAudio2SourceVoice *sourcevoice;
@@ -187,7 +184,7 @@ static DWORD WINAPI bufferthreadproc(LPVOID lpParam)
                     buffer.pContext = (void *)&bufferfull[i];
 
                     if (FAILED(hr = sourcevoice->SubmitSourceBuffer(&buffer))) {
-                        buildprintf("bufferthreadproc(): failed to submit source buffer (%08x)\n", hr);
+                        buildprintf("bufferthreadproc(): failed to submit source buffer ({:08x})\n", hr);
                         break;
                     }
 

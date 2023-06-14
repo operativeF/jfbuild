@@ -349,7 +349,7 @@ static inline void * getproc_(const char *func, int *err, int fatal)
 {
 	void *proc = getglprocaddress(func, 1);
 	if (!proc && fatal) {
-		buildprintf("glbuild_loadfunctions: failed to find %s\n", func);
+		buildprintf("glbuild_loadfunctions: failed to find {}\n", func);
 		*err = 1;
 	}
 	return proc;
@@ -570,7 +570,7 @@ GLuint glbuild_compile_shader(GLuint type, const GLchar *source)
 
 		logtext = (GLchar *)std::malloc(loglen);
 		glfunc.glGetShaderInfoLog(shader, loglen, &loglen, logtext);
-		buildprintf("GL shader compile error: %s\n", logtext);
+		buildprintf("GL shader compile error: {}\n", logtext);
 		std::free(logtext);
 
 		glfunc.glDeleteShader(shader);
@@ -606,7 +606,7 @@ GLuint glbuild_link_program(int shadercount, const GLuint *shaders)
 
 		logtext = (GLchar *)std::malloc(loglen);
 		glfunc.glGetProgramInfoLog(program, loglen, &loglen, logtext);
-		buildprintf("glbuild_link_program: link error: %s\n", logtext);
+		buildprintf("glbuild_link_program: link error: {}\n", logtext);
 		std::free(logtext);
 
 		glfunc.glDeleteProgram(program);
@@ -849,11 +849,11 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 
 	if (!Bstrcasecmp(parm->name, "gldebuglogseverity")) {
 		const char *levels[] = {"none", "notification", "low", "medium", "high"};
-		if (showval) { buildprintf("gldebuglogseverity is %s (%d)\n", levels[gldebuglogseverity], gldebuglogseverity); }
+		if (showval) { buildprintf("gldebuglogseverity is {} ({})\n", levels[gldebuglogseverity], gldebuglogseverity); }
 		else {
 			gldebuglogseverity = atoi(parm->parms[0]);
 			gldebuglogseverity = std::max(0, std::min(4, gldebuglogseverity));
-			buildprintf("gldebuglogseverity is now %s (%d)\n", levels[gldebuglogseverity], gldebuglogseverity);
+			buildprintf("gldebuglogseverity is now {} ({})\n", levels[gldebuglogseverity], gldebuglogseverity);
 		}
 		return OSDCMD_OK;
 	}
@@ -881,23 +881,23 @@ static void dumpglinfo()
 
 	buildprintf(
 		"OpenGL Information:\n"
-		" Version:      %s\n"
-		" Vendor:       %s\n"
-		" Renderer:     %s\n"
-		" GLSL version: %s\n"
-		" Anisotropic filtering: %s (%.1f)\n"
-		" BGRA textures:         %s\n"
-		" Non-2^x textures:      %s\n"
-		" DXT1 texture compr:    %s\n"
-		" DXT5 texture compr:    %s\n"
-		" ETC1 texture compr:    %s\n"
-		" Clamp-to-edge:         %s\n"
-		" Multisampling:         %s\n"
-		"   Nvidia quincunx:     %s\n"
-		"   Sample shading:      %s\n",
-		glfunc.glGetString(GL_VERSION),
-		glfunc.glGetString(GL_VENDOR),
-		glfunc.glGetString(GL_RENDERER),
+		" Version:      {}\n"
+		" Vendor:       {}\n"
+		" Renderer:     {}\n"
+		" GLSL version: {}\n"
+		" Anisotropic filtering: {} ({:.1f})\n"
+		" BGRA textures:         {}\n"
+		" Non-2^x textures:      {}\n"
+		" DXT1 texture compr:    {}\n"
+		" DXT5 texture compr:    {}\n"
+		" ETC1 texture compr:    {}\n"
+		" Clamp-to-edge:         {}\n"
+		" Multisampling:         {}\n"
+		"   Nvidia quincunx:     {}\n"
+		"   Sample shading:      {}\n",
+		reinterpret_cast<const char*>(glfunc.glGetString(GL_VERSION)),
+		reinterpret_cast<const char*>(glfunc.glGetString(GL_VENDOR)),
+		reinterpret_cast<const char*>(glfunc.glGetString(GL_RENDERER)),
 		glslverstr,
 		glinfo.maxanisotropy > 1.0 ? supported : unsupported, glinfo.maxanisotropy,
 		glinfo.bgra ? supported : unsupported,
@@ -913,9 +913,9 @@ static void dumpglinfo()
 
 #ifdef DEBUGGINGAIDS
 	buildprintf(
-		" Multitexturing:        %d units\n"
-		" Max 1/2D texture size: %d\n"
-		" Max vertex attribs:    %d\n",
+		" Multitexturing:        {} units\n"
+		" Max 1/2D texture size: {}\n"
+		" Max vertex attribs:    {}\n",
 		glinfo.multitex,
 		glinfo.maxtexsize,
 		glinfo.maxvertexattribs

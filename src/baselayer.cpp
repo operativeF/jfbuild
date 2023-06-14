@@ -20,6 +20,7 @@ struct glbuild_info glinfo;
 #endif //USE_OPENGL
 
 #include <limits>
+#include <string_view>
 
 void (*baselayer_videomodewillchange)() = nullptr;
 void (*baselayer_videomodedidchange)() = nullptr;
@@ -153,7 +154,7 @@ void bflushkeys()
 #if USE_POLYMOST
 static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 {
-	const char* const modestrs[] = {
+	constexpr std::string_view modestrs[] = {
 		"classic software",
 		"polygonal flat-shaded software",
 		"polygonal textured software",
@@ -169,7 +170,7 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 		return OSDCMD_SHOWHELP;
 
 	setrendermode(m);
-	buildprintf("Rendering method changed to %s\n", modestrs[ getrendermode() ] );
+	buildprintf("Rendering method changed to {}\n", modestrs[ getrendermode() ] );
 
 	return OSDCMD_OK;
 }
@@ -209,16 +210,16 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 				}
 			if (i == 3) return OSDCMD_SHOWHELP;
 		}
-		buildprintf("screencaptureformat is %s\n", fmts[captureformat]);
+		buildprintf("screencaptureformat is {}\n", fmts[captureformat]);
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "novoxmips")) {
-		if (showval) { buildprintf("novoxmips is %d\n", novoxmips); }
+		if (showval) { buildprintf("novoxmips is {}\n", novoxmips); }
 		else { novoxmips = std::atoi(parm->parms[0]) != 0; }
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "usevoxels")) {
-		if (showval) { buildprintf("usevoxels is %d\n", usevoxels); }
+		if (showval) { buildprintf("usevoxels is {}\n", usevoxels); }
 		else { usevoxels = std::atoi(parm->parms[0]) != 0; }
 		return OSDCMD_OK;
 	}

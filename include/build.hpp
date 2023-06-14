@@ -19,7 +19,11 @@
 #define USE_GL3 3
 #define USE_GLES2 12
 
+#include "baselayer.hpp"
 #include "compat.hpp"
+#include "osd.hpp"
+
+#include <fmt/core.h>
 
 #include <array>
 #include <span>
@@ -73,6 +77,9 @@ inline short searchit{0};
 inline int searchx{-1};
 inline int searchy{-1};
 inline short searchsector{0};
+
+inline std::FILE *logfile{nullptr};		// log filehandle
+
 
 #ifdef __GNUC__
 #  if __GNUC__ == 4 && __GNUC_MINOR__ >= 7
@@ -631,7 +638,21 @@ inline int mapversion{7L};	// JBF 20040211: default mapversion to 7;
                             // if loadboard() fails with -2 return, try loadoldboard(). if it fails with -2, board is dodgy
 int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
 
-void buildprintf(const char *fmt, ...) PRINTF_FORMAT(1, 2);
+template<typename... Args>
+void buildprintf(std::string_view form, Args&&... args)
+{
+	fmt::vprint(stdout, form, fmt::make_format_args(args...));
+
+	if (logfile) {
+		fmt::vprint(logfile, form, fmt::make_format_args(args...));
+	}
+
+	const auto tmpstr = fmt::vformat(form, fmt::make_format_args(args...));
+
+	initputs(tmpstr.c_str());
+	OSD_Puts(tmpstr.c_str());
+}
+
 void buildputs(const char *str);
 void buildsetlogfile(const char *fn);
 

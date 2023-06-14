@@ -47,7 +47,7 @@ int scriptfile_getstring(scriptfile *sf, char **retst)
 	(*retst) = scriptfile_gettoken(sf);
 	if (*retst == nullptr)
 	{
-		buildprintf("Error on line %s:%d: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
+		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
 		return(-2);
 	}
 	return(0);
@@ -58,7 +58,7 @@ static int scriptfile_getnumber_radix(scriptfile *sf, int *num, int radix)
 	skipoverws(sf);
 	if (sf->textptr >= sf->eof)
 	{
-		buildprintf("Error on line %s:%d: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
+		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
 		return -1;
 	}
 
@@ -70,7 +70,7 @@ static int scriptfile_getnumber_radix(scriptfile *sf, int *num, int radix)
 	if (!is_whitespace(*sf->textptr) && *sf->textptr) {
 		char *p = sf->textptr;
 		skipovertoken(sf);
-		buildprintf("Error on line %s:%d: expecting int, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
+		buildprintf("Error on line {}:{}: expecting int, got \"{}\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
 		return -2;
 	}
 	return 0;
@@ -151,7 +151,7 @@ int scriptfile_getdouble(scriptfile *sf, double *num)
 	skipoverws(sf);
 	if (sf->textptr >= sf->eof)
 	{
-		buildprintf("Error on line %s:%d: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
+		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
 		return -1;
 	}
 	
@@ -164,7 +164,7 @@ int scriptfile_getdouble(scriptfile *sf, double *num)
 	if (!is_whitespace(*sf->textptr) && *sf->textptr) {
 		char *p = sf->textptr;
 		skipovertoken(sf);
-		buildprintf("Error on line %s:%d: expecting float, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
+		buildprintf("Error on line {}:{}: expecting float, got \"{}\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
 		return -2;
 	}
 	return 0;
@@ -183,7 +183,7 @@ int scriptfile_getsymbol(scriptfile *sf, int *num)
 	if (*e) {
 		// looks like a string, so find it in the symbol table
 		if (scriptfile_getsymbolvalue(t, num)) return 0;
-		buildprintf("Error on line %s:%d: expecting symbol, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),t);
+		buildprintf("Error on line {}:{}: expecting symbol, got \"{}\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),t);
 		return -2;   // not found
 	}
 
@@ -198,12 +198,12 @@ int scriptfile_getbraces(scriptfile *sf, char **braceend)
 
 	if (sf->textptr >= sf->eof)
 	{
-		buildprintf("Error on line %s:%d: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
+		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
 		return -1;
 	}
 
 	if (sf->textptr[0] != '{') {
-		buildprintf("Error on line %s:%d: expecting '{'\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
+		buildprintf("Error on line {}:{}: expecting '{'\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
 		return -1;
 	}
 
@@ -361,10 +361,10 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 
 #if 0
 		//for debugging only:
-	std::printf("pre-parsed file:flen=%d,nflen=%d\n",flen,nflen);
-	for(i=0;i<nflen;i++) { if (tx[i] < 32) std::printf("_"); else std::printf("%c",tx[i]); }
-	std::printf("[eof]\nnumlines=%d\n",sf->linenum);
-	for(i=0;i<sf->linenum;i++) std::printf("line %d = byte %d\n",i,sf->lineoffs[i]);
+	std::printf("pre-parsed file:flen={},nflen={}\n",flen,nflen);
+	for(i=0;i<nflen;i++) { if (tx[i] < 32) std::printf("_"); else std::printf("{}",tx[i]); }
+	std::printf("[eof]\nnumlines={}\n",sf->linenum);
+	for(i=0;i<sf->linenum;i++) std::printf("line {} = byte {}\n",i,sf->lineoffs[i]);
 #endif
 	flen = nflen;
 

@@ -230,7 +230,7 @@ static int defsparser(scriptfile *script)
 		char* cmdtokptr = script->ltextptr;
 		switch (tokn) {
 			case TokenType::T_ERROR:
-				buildprintf("Error on line %s:%d.\n", script->filename,scriptfile_getlinum(script,cmdtokptr));
+				buildprintf("Error on line {}:{}.\n", script->filename,scriptfile_getlinum(script,cmdtokptr));
 				break;
 			case TokenType::T_EOF:
 				return(0);
@@ -242,7 +242,7 @@ static int defsparser(scriptfile *script)
 
 						included = scriptfile_fromfile(fn);
 						if (!included) {
-							buildprintf("Warning: Failed including %s on line %s:%d\n",
+							buildprintf("Warning: Failed including {} on line {}:{}\n",
 									fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
 						} else {
 							defsparser(included);
@@ -268,7 +268,7 @@ static int defsparser(scriptfile *script)
 					if (scriptfile_getsymbol(script,&number)) break;
 
 					if (scriptfile_addsymbolvalue(name,number) < 0)
-						buildprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
+						buildprintf("Warning: Symbol {} was NOT redefined to {} on line {}:{}\n",
 								name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
 					break;
 				}
@@ -341,7 +341,7 @@ static int defsparser(scriptfile *script)
 #if USE_POLYMOST && USE_OPENGL
 					lastmodelid = md_loadmodel(modelfn);
 					if (lastmodelid < 0) {
-						buildprintf("Failure loading MD2/MD3 model \"%s\"\n", modelfn);
+						buildprintf("Failure loading MD2/MD3 model \"{}\"\n", modelfn);
 						break;
 					}
 					md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0);
@@ -362,7 +362,7 @@ static int defsparser(scriptfile *script)
 					if (scriptfile_getnumber(script,&ftilenume)) break; //first tile number
 					if (scriptfile_getnumber(script,&ltilenume)) break; //last tile number (inclusive)
 					if (ltilenume < ftilenume) {
-						buildprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+						buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 						tilex = ftilenume;
 						ftilenume = ltilenume;
 						ltilenume = tilex;
@@ -378,11 +378,11 @@ static int defsparser(scriptfile *script)
 						switch (md_defineframe(lastmodelid, framename, tilex, std::max(0, modelskin))) {
 							case 0: break;
 							case -1: happy = 0; break; // invalid model id!?
-							case -2: buildprintf("Invalid tile number on line %s:%d\n",
+							case -2: buildprintf("Invalid tile number on line {}:{}\n",
 										 script->filename, scriptfile_getlinum(script,cmdtokptr));
 								 happy = 0;
 								 break;
-							case -3: buildprintf("Invalid frame name on line %s:%d\n",
+							case -3: buildprintf("Invalid frame name on line {}:{}\n",
 										 script->filename, scriptfile_getlinum(script,cmdtokptr));
 								 happy = 0;
 								 break;
@@ -412,13 +412,13 @@ static int defsparser(scriptfile *script)
 					switch (md_defineanimation(lastmodelid, startframe, endframe, (int)(dfps*(65536.0*.001)), flags)) {
 						case 0: break;
 						case -1: break; // invalid model id!?
-						case -2: buildprintf("Invalid starting frame name on line %s:%d\n",
+						case -2: buildprintf("Invalid starting frame name on line {}:{}\n",
 									 script->filename, scriptfile_getlinum(script,cmdtokptr));
 							 break;
-						case -3: buildprintf("Invalid ending frame name on line %s:%d\n",
+						case -3: buildprintf("Invalid ending frame name on line {}:{}\n",
 									 script->filename, scriptfile_getlinum(script,cmdtokptr));
 							 break;
-						case -4: buildprintf("Out of memory on line %s:%d\n",
+						case -4: buildprintf("Out of memory on line {}:{}\n",
 									 script->filename, scriptfile_getlinum(script,cmdtokptr));
 							 break;
 					}
@@ -452,13 +452,13 @@ static int defsparser(scriptfile *script)
 					switch (md_defineskin(lastmodelid, skinfn, palnum, std::max(0, modelskin), 0)) {
 						case 0: break;
 						case -1: break; // invalid model id!?
-						case -2: buildprintf("Invalid skin filename on line %s:%d\n",
+						case -2: buildprintf("Invalid skin filename on line {}:{}\n",
 									 script->filename, scriptfile_getlinum(script,cmdtokptr));
 							 break;
-						case -3: buildprintf("Invalid palette number on line %s:%d\n",
+						case -3: buildprintf("Invalid palette number on line {}:{}\n",
 									 script->filename, scriptfile_getlinum(script,cmdtokptr));
 							 break;
-						case -4: buildprintf("Out of memory on line %s:%d\n",
+						case -4: buildprintf("Out of memory on line {}:{}\n",
 									 script->filename, scriptfile_getlinum(script,cmdtokptr));
 							 break;
 					}
@@ -482,7 +482,7 @@ static int defsparser(scriptfile *script)
 					}
 
 					if (qloadkvx(nextvoxid, fn)) {
-						buildprintf("Failure loading voxel file \"%s\"\n",fn);
+						buildprintf("Failure loading voxel file \"{}\"\n",fn);
 						break;
 					}
 
@@ -499,14 +499,14 @@ static int defsparser(scriptfile *script)
 					if (scriptfile_getnumber(script,&ltilenume)) break; //last tile #
 
 					if (ltilenume < ftilenume) {
-						buildprintf("Warning: backwards tile range on line %s:%d\n",
+						buildprintf("Warning: backwards tile range on line {}:{}\n",
 								script->filename, scriptfile_getlinum(script,cmdtokptr));
 						tilex = ftilenume;
 						ftilenume = ltilenume;
 						ltilenume = tilex;
 					}
 					if (ltilenume < 0 || ftilenume >= MAXTILES) {
-						buildprintf("Invalid tile range on line %s:%d\n",
+						buildprintf("Invalid tile range on line {}:{}\n",
 								script->filename, scriptfile_getlinum(script,cmdtokptr));
 						break;
 					}
@@ -540,14 +540,14 @@ static int defsparser(scriptfile *script)
 #if USE_POLYMOST && USE_OPENGL
 					lastmodelid = md_loadmodel(modelfn);
 					if (lastmodelid < 0) {
-						buildprintf("Failure loading MD2/MD3 model \"%s\"\n", modelfn);
+						buildprintf("Failure loading MD2/MD3 model \"{}\"\n", modelfn);
 						break;
 					}
 #endif
 					if (scriptfile_getbraces(script,&modelend)) break;
 					while (script->textptr < modelend) {
 						switch (getatoken(script, modeltokens)) {
-							//case TokenType::T_ERROR: buildprintf("Error on line %s:%d in model tokens\n", script->filename,script->linenum); break;
+							//case TokenType::T_ERROR: buildprintf("Error on line {}:{} in model tokens\n", script->filename,script->linenum); break;
 							case TokenType::T_SCALE: scriptfile_getdouble(script,&scale); break;
 							case TokenType::T_SHADE: scriptfile_getnumber(script,&shadeoffs); break;
 							case TokenType::T_ZADD:  scriptfile_getdouble(script,&mzadd); break;
@@ -572,17 +572,17 @@ static int defsparser(scriptfile *script)
 								}
 
 								if (ftilenume < 0) {
-									buildprintf("Error: missing 'first tile number' for frame definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,frametokptr));
+									buildprintf("Error: missing 'first tile number' for frame definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,frametokptr));
 									happy = 0;
 								}
 								if (ltilenume < 0) {
-									buildprintf("Error: missing 'last tile number' for frame definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,frametokptr));
+									buildprintf("Error: missing 'last tile number' for frame definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,frametokptr));
 									happy = 0;
 								}
 								if (!happy) break;
 
 								if (ltilenume < ftilenume) {
-									buildprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,frametokptr));
+									buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,frametokptr));
 									tilex = ftilenume;
 									ftilenume = ltilenume;
 									ltilenume = tilex;
@@ -597,11 +597,11 @@ static int defsparser(scriptfile *script)
 									switch (md_defineframe(lastmodelid, framename, tilex, std::max(0, modelskin))) {
 										case 0: break;
 										case -1: happy = 0; break; // invalid model id!?
-										case -2: buildprintf("Invalid tile number on line %s:%d\n",
+										case -2: buildprintf("Invalid tile number on line {}:{}\n",
 													 script->filename, scriptfile_getlinum(script,frametokptr));
 											 happy = 0;
 											 break;
-										case -3: buildprintf("Invalid frame name on line %s:%d\n",
+										case -3: buildprintf("Invalid frame name on line {}:{}\n",
 													 script->filename, scriptfile_getlinum(script,frametokptr));
 											 happy = 0;
 											 break;
@@ -632,11 +632,11 @@ static int defsparser(scriptfile *script)
 								}
 
 								if (!startframe) {
-									buildprintf("Error: missing 'start frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script, animtokptr));
+									buildprintf("Error: missing 'start frame' for anim definition near line {}:{}\n", script->filename, scriptfile_getlinum(script, animtokptr));
 									happy = 0;
 								}
 								if (!endframe) {
-									buildprintf("Error: missing 'end frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script, animtokptr));
+									buildprintf("Error: missing 'end frame' for anim definition near line {}:{}\n", script->filename, scriptfile_getlinum(script, animtokptr));
 									happy = 0;
 								}
 								if (!happy) break;
@@ -649,13 +649,13 @@ static int defsparser(scriptfile *script)
 								switch (md_defineanimation(lastmodelid, startframe, endframe, (int)(dfps*(65536.0*.001)), flags)) {
 									case 0: break;
 									case -1: break; // invalid model id!?
-									case -2: buildprintf("Invalid starting frame name on line %s:%d\n",
+									case -2: buildprintf("Invalid starting frame name on line {}:{}\n",
 												 script->filename, scriptfile_getlinum(script,animtokptr));
 										 break;
-									case -3: buildprintf("Invalid ending frame name on line %s:%d\n",
+									case -3: buildprintf("Invalid ending frame name on line {}:{}\n",
 												 script->filename, scriptfile_getlinum(script,animtokptr));
 										 break;
-									case -4: buildprintf("Out of memory on line %s:%d\n",
+									case -4: buildprintf("Out of memory on line {}:{}\n",
 												 script->filename, scriptfile_getlinum(script,animtokptr));
 										 break;
 								}
@@ -679,7 +679,7 @@ static int defsparser(scriptfile *script)
 								}
 
 								if (!skinfn) {
-										buildprintf("Error: missing 'skin filename' for skin definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skintokptr));
+										buildprintf("Error: missing 'skin filename' for skin definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,skintokptr));
 										break;
 								}
 
@@ -690,13 +690,13 @@ static int defsparser(scriptfile *script)
 								switch (md_defineskin(lastmodelid, skinfn, palnum, std::max(0, modelskin), surfnum)) {
 									case 0: break;
 									case -1: break; // invalid model id!?
-									case -2: buildprintf("Invalid skin filename on line %s:%d\n",
+									case -2: buildprintf("Invalid skin filename on line {}:{}\n",
 												 script->filename, scriptfile_getlinum(script,skintokptr));
 										 break;
-									case -3: buildprintf("Invalid palette number on line %s:%d\n",
+									case -3: buildprintf("Invalid palette number on line {}:{}\n",
 												 script->filename, scriptfile_getlinum(script,skintokptr));
 										 break;
-									case -4: buildprintf("Out of memory on line %s:%d\n",
+									case -4: buildprintf("Out of memory on line {}:{}\n",
 												 script->filename, scriptfile_getlinum(script,skintokptr));
 										 break;
 								}
@@ -734,17 +734,17 @@ static int defsparser(scriptfile *script)
 								}
 
 								if (ftilenume < 0) {
-									buildprintf("Error: missing 'first tile number' for hud definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,hudtokptr));
+									buildprintf("Error: missing 'first tile number' for hud definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,hudtokptr));
 									happy = 0;
 								}
 								if (ltilenume < 0) {
-									buildprintf("Error: missing 'last tile number' for hud definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,hudtokptr));
+									buildprintf("Error: missing 'last tile number' for hud definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,hudtokptr));
 									happy = 0;
 								}
 								if (!happy) break;
 
 								if (ltilenume < ftilenume) {
-									buildprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,hudtokptr));
+									buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,hudtokptr));
 									tilex = ftilenume;
 									ftilenume = ltilenume;
 									ltilenume = tilex;
@@ -759,11 +759,11 @@ static int defsparser(scriptfile *script)
 									switch (md_definehud(lastmodelid, tilex, xadd, yadd, zadd, angadd, flags)) {
 										case 0: break;
 										case -1: happy = 0; break; // invalid model id!?
-										case -2: buildprintf("Invalid tile number on line %s:%d\n",
+										case -2: buildprintf("Invalid tile number on line {}:{}\n",
 												script->filename, scriptfile_getlinum(script,hudtokptr));
 											happy = 0;
 											break;
-										case -3: buildprintf("Invalid frame name on line %s:%d\n",
+										case -3: buildprintf("Invalid frame name on line {}:{}\n",
 												script->filename, scriptfile_getlinum(script,hudtokptr));
 											happy = 0;
 											break;
@@ -794,17 +794,17 @@ static int defsparser(scriptfile *script)
 
 					if (scriptfile_getstring(script,&fn)) break; //voxel filename
 					if (nextvoxid == MAXVOXELS) { buildputs("Maximum number of voxels already defined.\n"); break; }
-					if (qloadkvx(nextvoxid, fn)) { buildprintf("Failure loading voxel file \"%s\"\n",fn); break; }
+					if (qloadkvx(nextvoxid, fn)) { buildprintf("Failure loading voxel file \"{}\"\n",fn); break; }
 					lastvoxid = nextvoxid++;
 
 					if (scriptfile_getbraces(script,&modelend)) break;
 					while (script->textptr < modelend) {
 						switch (getatoken(script, voxeltokens)) {
-							//case TokenType::T_ERROR: buildprintf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
+							//case TokenType::T_ERROR: buildprintf("Error on line {}:{} in voxel tokens\n", script->filename,linenum); break;
 							case TokenType::T_TILE:
 								scriptfile_getsymbol(script,&tilex);
 								if ((unsigned int)tilex < MAXTILES) tiletovox[tilex] = lastvoxid;
-								else buildprintf("Invalid tile number on line %s:%d\n",script->filename, scriptfile_getlinum(script,voxeltokptr));
+								else buildprintf("Invalid tile number on line {}:{}\n",script->filename, scriptfile_getlinum(script,voxeltokptr));
 								break;
 							case TokenType::T_TILE0:
 								scriptfile_getsymbol(script,&tile0); break; //1st tile #
@@ -812,11 +812,11 @@ static int defsparser(scriptfile *script)
 								scriptfile_getsymbol(script,&tile1);
 								if (tile0 > tile1)
 								{
-									buildprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,voxeltokptr));
+									buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,voxeltokptr));
 									tilex = tile0; tile0 = tile1; tile1 = tilex;
 								}
 								if ((tile1 < 0) || (tile0 >= MAXTILES))
-									{ buildprintf("Invalid tile range on line %s:%d\n",script->filename, scriptfile_getlinum(script,voxeltokptr)); break; }
+									{ buildprintf("Invalid tile range on line {}:{}\n",script->filename, scriptfile_getlinum(script,voxeltokptr)); break; }
 								for(tilex=tile0;tilex<=tile1;tilex++) tiletovox[tilex] = lastvoxid;
 								break; //last tile number (inclusive)
 							case TokenType::T_SCALE: {
@@ -843,7 +843,7 @@ static int defsparser(scriptfile *script)
 					if (scriptfile_getbraces(script,&modelend)) break;
 					while (script->textptr < modelend) {
 						switch (getatoken(script, skyboxtokens)) {
-							//case TokenType::T_ERROR: buildprintf("Error on line %s:%d in skybox tokens\n",script->filename,linenum); break;
+							//case TokenType::T_ERROR: buildprintf("Error on line {}:{} in skybox tokens\n",script->filename,linenum); break;
 							case TokenType::T_TILE:  scriptfile_getsymbol(script,&tile ); break;
 							case TokenType::T_PAL:   scriptfile_getsymbol(script,&pal  ); break;
 							case TokenType::T_FRONT: scriptfile_getstring(script,&fn[0]); break;
@@ -856,12 +856,12 @@ static int defsparser(scriptfile *script)
 					}
 
 					if (tile < 0) {
-						buildprintf("Error: missing 'tile number' for skybox definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skyboxtokptr));
+						buildprintf("Error: missing 'tile number' for skybox definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,skyboxtokptr));
 						happy=0;
 					}
 					for (i=0;i<6;i++) {
 						if (!fn[i]) {
-							buildprintf("Error: missing '%s filename' for skybox definition near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr));
+							buildprintf("Error: missing '{} filename' for skybox definition near line {}:{}\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr));
 							happy = 0;
 						}
 					}
@@ -895,7 +895,7 @@ static int defsparser(scriptfile *script)
 					}
 
 					if (pal < 0) {
-							buildprintf("Error: missing 'palette number' for tint definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+							buildprintf("Error: missing 'palette number' for tint definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,tinttokptr));
 							break;
 					}
 
@@ -936,11 +936,11 @@ static int defsparser(scriptfile *script)
 								if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
 								if ((unsigned)pal > (unsigned)MAXPALOOKUPS) {
 									buildprintf("Error: missing or invalid 'palette number' for texture definition near "
-												"line %s:%d\n", script->filename, scriptfile_getlinum(script,paltokptr));
+												"line {}:{}\n", script->filename, scriptfile_getlinum(script,paltokptr));
 									break;
 								}
 								if (!fn) {
-									buildprintf("Error: missing 'file name' for texture definition near line %s:%d\n",
+									buildprintf("Error: missing 'file name' for texture definition near line {}:{}\n",
 												script->filename, scriptfile_getlinum(script,paltokptr));
 									break;
 								}
@@ -961,7 +961,7 @@ static int defsparser(scriptfile *script)
 					}
 
 					if ((unsigned)tile >= (unsigned)MAXTILES) {
-						buildprintf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
+						buildprintf("Error: missing or invalid 'tile number' for texture definition near line {}:{}\n",
 									script->filename, scriptfile_getlinum(script,texturetokptr));
 						break;
 					}
@@ -1003,16 +1003,16 @@ static int defsparser(scriptfile *script)
 							const int t{ r1 };
 							r1 = r0;
 							r0 = t;
-							buildprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+							buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 						}
 						if (r0 < 0 || r1 >= MAXTILES) {
-							buildprintf("Error: invalid tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+							buildprintf("Error: invalid tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 							break;
 						}
 					} else {
 						r1 = r0;
 						if ((unsigned)r0 >= (unsigned)MAXTILES) {
-							buildprintf("Error: invalid tile number on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+							buildprintf("Error: invalid tile number on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 							break;
 						}
 					}
@@ -1031,7 +1031,7 @@ static int defsparser(scriptfile *script)
 					}
 
 					if ((unsigned)r0 >= (unsigned)MAXTILES) {
-						buildprintf("Error: invalid tile number on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+						buildprintf("Error: invalid tile number on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 						break;
 					}
 
@@ -1057,16 +1057,16 @@ static int defsparser(scriptfile *script)
 							const int t{ r1 };
 							r1 = r0;
 							r0 = t;
-							buildprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+							buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 						}
 						if (r0 < 0 || r1 >= MAXTILES) {
-							buildprintf("Error: invalid tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+							buildprintf("Error: invalid tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 							break;
 						}
 					} else {
 						r1 = r0;
 						if ((unsigned)r0 >= (unsigned)MAXTILES) {
-							buildprintf("Error: invalid tile number on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+							buildprintf("Error: invalid tile number on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 							break;
 						}
 					}

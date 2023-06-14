@@ -242,7 +242,7 @@ int loadsetup(const char *fn)
 		}
 
 		if (!configspec[item].name) {
-			buildprintf("loadsetup: error on line %d\n", scriptfile_getlinum(cfg, cfg->ltextptr));
+			buildprintf("loadsetup: error on line {}\n", scriptfile_getlinum(cfg, cfg->ltextptr));
 			continue;
 		}
 	}

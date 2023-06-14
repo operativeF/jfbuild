@@ -589,7 +589,7 @@ size_t Bgetsysmemsize()
 	if (scpagesiz >= 0 && scphyspages >= 0)
 		siz = (size_t)std::min(INT64_C(0x7fffffff), (int64_t)scpagesiz * (int64_t)scphyspages);
 
-	//buildprintf("Bgetsysmemsize(): %d pages of %d bytes, %d bytes of system memory\n",
+	//buildprintf("Bgetsysmemsize(): {} pages of {} bytes, {} bytes of system memory\n",
 	//		scphyspages, scpagesiz, siz);
 
 	return siz;
