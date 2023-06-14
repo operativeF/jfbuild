@@ -203,9 +203,9 @@ int loadsetup(const char *fn)
 
 				switch (configspec[item].type) {
 					case type_bool: {
-						int value = 0;
-						if (scriptfile_getnumber(cfg, &value)) break;
-						*(int*)configspec[item].store = (value != 0);
+						bool value{false};
+						if (scriptfile_getbool(cfg, &value)) break;
+						*(bool*)configspec[item].store = value;
 						break;
 					}
 					case type_int: {

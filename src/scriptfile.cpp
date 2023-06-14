@@ -86,6 +86,30 @@ int scriptfile_gethex(scriptfile *sf, int *num)
 	return scriptfile_getnumber_radix(sf, num, 16);
 }
 
+int scriptfile_getbool(scriptfile* sf, bool* b)
+{
+	const auto* boolean_val = scriptfile_gettoken(sf);
+
+	if (boolean_val == nullptr)
+	{
+		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
+		return -2;
+	}
+
+	std::string_view boolean_strv{boolean_val};
+
+	if(boolean_strv == "true")
+		*b = true;
+	else if(boolean_strv == "false")
+		*b = false;
+	else {
+		buildprintf("Error on line {}:{}: expecting bool (true / false), got \"{}\"\n",sf->filename, scriptfile_getlinum(sf,sf->textptr), boolean_strv);
+		return -2;
+	}
+
+	return 0;	
+}
+
 static double parsedouble(char *ptr, char **end)
 {	
 
