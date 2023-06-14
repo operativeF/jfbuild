@@ -4355,7 +4355,7 @@ void polymost_dorotatesprite (int sx, int sy, int z, short a, short picnum,
 				x = xdimenscale;   //= scale(xdimen,yxaspect,320);
 				sx = ((cx1+cx2+2)<<15)+scale(sx-(320<<15),oxdimen,320);
 			}
-			sy = ((cy1+cy2+2)<<15)+mulscale16(sy-(200<<15),x);
+			sy = ((cy1+cy2+2)<<15)+mulscalen<16>(sy-(200<<15),x);
 		}
 		else
 		{
@@ -4368,9 +4368,9 @@ void polymost_dorotatesprite (int sx, int sy, int z, short a, short picnum,
 				x = scale(xdim,yxaspect,320);
 				sx = (xdim<<15)+32768+scale(sx-(320<<15),xdim,320);
 			}
-			sy = (ydim<<15)+32768+mulscale16(sy-(200<<15),x);
+			sy = (ydim<<15)+32768+mulscalen<16>(sy-(200<<15),x);
 		}
-		z = mulscale16(z,x);
+		z = mulscalen<16>(z,x);
 	}
 
 	d = (double)z/(65536.0*16384.0);
@@ -4679,8 +4679,8 @@ void polymost_fillpolygon (int npoints)
 	int i;
 	struct polymostdrawpolycall draw;
 
-	globalx1 = mulscale16(globalx1,xyaspect);
-	globaly2 = mulscale16(globaly2,xyaspect);
+	globalx1 = mulscalen<16>(globalx1,xyaspect);
+	globaly2 = mulscalen<16>(globaly2,xyaspect);
 	gux = ((double)asm1)*(1.0/4294967296.0);
 	gvx = ((double)asm2)*(1.0/4294967296.0);
 	guy = ((double)globalx1)*(1.0/4294967296.0);

@@ -644,8 +644,8 @@ void editinput()
 	mousz = 0;
 	getmousevalues(&mousx,&mousy,&bstatus);
 	{
-	  const div_t ldx = div(mulscale16(mousx<<16, msens) + mousexsurp, (1<<16)); mousx = ldx.quot; mousexsurp = ldx.rem;
-	  const div_t ldy = div(mulscale16(mousy<<16, msens) + mouseysurp, (1<<16)); mousy = ldy.quot; mouseysurp = ldy.rem;
+	  const div_t ldx = div(mulscalen<16>(mousx<<16, msens) + mousexsurp, (1<<16)); mousx = ldx.quot; mousexsurp = ldx.rem;
+	  const div_t ldy = div(mulscalen<16>(mousy<<16, msens) + mouseysurp, (1<<16)); mousy = ldy.quot; mouseysurp = ldy.rem;
 	}
 	searchx += mousx;
 	searchy += mousy;
@@ -1287,7 +1287,7 @@ void editinput()
 						k = ((j+2048-daang)&2047);
 						if (k > 1024)
 							k = 2048-k;
-						wall[i].shade = dashade[0]+mulscale10(k,dashade[1]-dashade[0]);
+						wall[i].shade = dashade[0]+mulscalen<10>(k,dashade[1]-dashade[0]);
 
 						i = wall[i].point2;
 					}
@@ -2292,7 +2292,7 @@ void editinput()
 		if (keystatus[0x1f] > 0)  //S (insert sprite) (3D)
 		{
 			dax = 16384;
-			day = divscale14(searchx-(xdim>>1),xdim>>1);
+			day = divscalen<14>(searchx-(xdim>>1),xdim>>1);
 			rotatepoint(0,0,dax,day,ang,&dax,&day);
 
 			hitscan(posx,posy,posz,cursectnum,               //Start position
@@ -2924,8 +2924,8 @@ void overheadeditor()
 		oldmousebstatus = bstatus;
 		getmousevalues(&mousx,&mousy,&bstatus);
 		{
-		  const div_t ldx = div(mulscale16(mousx<<16, msens) + mousexsurp, (1<<16)); mousx = ldx.quot; mousexsurp = ldx.rem;
-		  const div_t ldy = div(mulscale16(mousy<<16, msens) + mouseysurp, (1<<16)); mousy = ldy.quot; mouseysurp = ldy.rem;
+		  const div_t ldx = div(mulscalen<16>(mousx<<16, msens) + mousexsurp, (1<<16)); mousx = ldx.quot; mousexsurp = ldx.rem;
+		  const div_t ldy = div(mulscalen<16>(mousy<<16, msens) + mouseysurp, (1<<16)); mousy = ldy.quot; mouseysurp = ldy.rem;
 		}
 		searchx += mousx;
 		searchy += mousy;
@@ -2987,13 +2987,13 @@ void overheadeditor()
 		clear2dscreen();
 		draw2dgrid(posx,posy,ang,zoom,grid);
 
-		x2 = mulscale14(startposx-posx,zoom);          //Draw brown arrow (start)
-		y2 = mulscale14(startposy-posy,zoom);
+		x2 = mulscalen<14>(startposx-posx,zoom);          //Draw brown arrow (start)
+		y2 = mulscalen<14>(startposy-posy,zoom);
 		if (((halfxdim16+x2) >= 2) && ((halfxdim16+x2) <= xdim-3))
 			if (((midydim16+y2) >= 2) && ((midydim16+y2) <= ydim16-3))
 			{
-				x1 = mulscale11(sintable[(startang+2560)&2047],zoom) / 768;
-				y1 = mulscale11(sintable[(startang+2048)&2047],zoom) / 768;
+				x1 = mulscalen<11>(sintable[(startang+2560)&2047],zoom) / 768;
+				y1 = mulscalen<11>(sintable[(startang+2048)&2047],zoom) / 768;
 				drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)-x1,(midydim16+y2)-y1,6);
 				drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)+y1,(midydim16+y2)-x1,6);
 				drawline16((halfxdim16+x2)+x1,(midydim16+y2)+y1,(halfxdim16+x2)-y1,(midydim16+y2)+x1,6);
@@ -3023,8 +3023,8 @@ void overheadeditor()
 						day /= (endwall-startwall+1);
 					}
 
-					dax = mulscale14(dax-posx,zoom);
-					day = mulscale14(day-posy,zoom);
+					dax = mulscalen<14>(dax-posx,zoom);
+					day = mulscalen<14>(day-posy,zoom);
 
 					sl = (int)std::strlen(dabuffer);
 					x1 = halfxdim16+dax-(sl<<1);
@@ -3036,10 +3036,10 @@ void overheadeditor()
 				}
 			}
 
-			x3 = divscale14(-halfxdim16,zoom)+posx;
-			y3 = divscale14(-(midydim16-4),zoom)+posy;
-			x4 = divscale14(halfxdim16,zoom)+posx;
-			y4 = divscale14(ydim16-(midydim16-4),zoom)+posy;
+			x3 = divscalen<14>(-halfxdim16,zoom)+posx;
+			y3 = divscalen<14>(-(midydim16-4),zoom)+posy;
+			x4 = divscalen<14>(halfxdim16,zoom)+posx;
+			y4 = divscalen<14>(ydim16-(midydim16-4),zoom)+posy;
 
 			for(i=numwalls-1,wal=&wall[i];i>=0;i--,wal--)
 			{
@@ -3051,8 +3051,8 @@ void overheadeditor()
 					dabuffer = ExtGetWallCaption(i);
 					if (dabuffer[0] != 0)
 					{
-						dax = mulscale14(dax-posx,zoom);
-						day = mulscale14(day-posy,zoom);
+						dax = mulscalen<14>(dax-posx,zoom);
+						day = mulscalen<14>(day-posy,zoom);
 						sl = (int)std::strlen(dabuffer);
 						x1 = halfxdim16+dax-(sl<<1);
 						y1 = midydim16+day-4;
@@ -3076,8 +3076,8 @@ void overheadeditor()
 						dax = sprite[i].x;
 						day = sprite[i].y;
 
-						dax = mulscale14(dax-posx,zoom);
-						day = mulscale14(day-posy,zoom);
+						dax = mulscalen<14>(dax-posx,zoom);
+						day = mulscalen<14>(day-posy,zoom);
 
 						sl = (int)std::strlen(dabuffer);
 						x1 = halfxdim16+dax-(sl<<1);
@@ -3116,8 +3116,8 @@ void overheadeditor()
 
 			//Draw the white pixel closest to mouse cursor on linehighlight
 		getclosestpointonwall(mousxplc,mousyplc,(int)linehighlight,&dax,&day);
-		x2 = mulscale14(dax-posx,zoom);
-		y2 = mulscale14(day-posy,zoom);
+		x2 = mulscalen<14>(dax-posx,zoom);
+		y2 = mulscalen<14>(day-posy,zoom);
 		if (wall[linehighlight].nextsector >= 0)
 			drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,15);
 		else
@@ -4335,15 +4335,15 @@ void overheadeditor()
 			x3 = mousxplc;
 			y3 = mousyplc;
 			adjustmark(&x3,&y3,newnumwalls);
-			templong1 = dmulscale4(x3-x2,x1-x3,y1-y3,y3-y2);
-			templong2 = dmulscale4(y1-y2,x1-x3,y1-y3,x2-x1);
+			templong1 = dmulscalen<4>(x3-x2,x1-x3,y1-y3,y3-y2);
+			templong2 = dmulscalen<4>(y1-y2,x1-x3,y1-y3,x2-x1);
 			if (templong2 != 0)
 			{
 				const int centerx = (((x1+x2) + scale(y1-y2,templong1,templong2))>>1);
 				const int centery = (((y1+y2) + scale(x2-x1,templong1,templong2))>>1);
 
-				dax = mulscale14(centerx-posx,zoom);
-				day = mulscale14(centery-posy,zoom);
+				dax = mulscalen<14>(centerx-posx,zoom);
+				day = mulscalen<14>(centery-posy,zoom);
 				drawline16(halfxdim16+dax-2,midydim16+day-2,halfxdim16+dax+2,midydim16+day+2,14);
 				drawline16(halfxdim16+dax-2,midydim16+day+2,halfxdim16+dax+2,midydim16+day-2,14);
 
@@ -4351,18 +4351,18 @@ void overheadeditor()
 				circleang2 = getangle(x2-centerx,y2-centery);
 
 				k = ((circleang2-circleang1)&2047);
-				if (mulscale4(x3-x1,y2-y1) < mulscale4(x2-x1,y3-y1))
+				if (mulscalen<4>(x3-x1,y2-y1) < mulscalen<4>(x2-x1,y3-y1))
 				{
 					k = -((circleang1-circleang2)&2047);
 				}
 
-				circlerad = (ksqrt(dmulscale4(centerx-x1,centerx-x1,centery-y1,centery-y1))<<2);
+				circlerad = (ksqrt(dmulscalen<4>(centerx-x1,centerx-x1,centery-y1,centery-y1))<<2);
 
 				for(i=circlepoints;i>0;i--)
 				{
 					j = ((circleang1 + scale(i,k,circlepoints+1))&2047);
-					dax = centerx+mulscale14(sintable[(j+512)&2047],circlerad);
-					day = centery+mulscale14(sintable[j],circlerad);
+					dax = centerx+mulscalen<14>(sintable[(j+512)&2047],circlerad);
+					day = centery+mulscalen<14>(sintable[j],circlerad);
 
 					if (dax <= -editorgridextent) dax = -editorgridextent;
 					if (dax >= editorgridextent) dax = editorgridextent;
@@ -4377,8 +4377,8 @@ void overheadeditor()
 						insertpoint(circlewall,dax,day);
 						circlewall += m;
 					}
-					dax = mulscale14(dax-posx,zoom);
-					day = mulscale14(day-posy,zoom);
+					dax = mulscalen<14>(dax-posx,zoom);
+					day = mulscalen<14>(day-posy,zoom);
 					drawline16(halfxdim16+dax-2,midydim16+day-2,halfxdim16+dax+2,midydim16+day-2,14);
 					drawline16(halfxdim16+dax+2,midydim16+day-2,halfxdim16+dax+2,midydim16+day+2,14);
 					drawline16(halfxdim16+dax+2,midydim16+day+2,halfxdim16+dax-2,midydim16+day+2,14);
@@ -5752,8 +5752,8 @@ void getpoint(int searchxe, int searchye, int *x, int *y)
 	if (posy <= -editorgridextent) posy = -editorgridextent;
 	if (posy >= editorgridextent) posy = editorgridextent;
 
-	*x = posx + divscale14(searchxe-halfxdim16,zoom);
-	*y = posy + divscale14(searchye-midydim16,zoom);
+	*x = posx + divscalen<14>(searchxe-halfxdim16,zoom);
+	*y = posy + divscalen<14>(searchye-midydim16,zoom);
 
 	if (*x <= -editorgridextent) *x = -editorgridextent;
 	if (*x >= editorgridextent) *x = editorgridextent;
@@ -5792,7 +5792,7 @@ int getlinehighlight(int xplc, int yplc)
 		y1 = wall[closest].y;
 		x2 = wall[wall[closest].point2].x;
 		y2 = wall[wall[closest].point2].y;
-		if (dmulscale32(xplc-x1,y2-y1,-(x2-x1),yplc-y1) >= 0)
+		if (dmulscalen<32>(xplc-x1,y2-y1,-(x2-x1),yplc-y1) >= 0)
 			closest = wall[closest].nextwall;
 	}
 
@@ -6169,7 +6169,7 @@ void fixrepeats(short i)
 	const int dist = ksqrt(dax * dax + day * day);
 	dax = wall[i].xrepeat; // TODO: Why set this again?
 	day = wall[i].yrepeat;
-	wall[i].xrepeat = static_cast<unsigned char>(std::min(std::max(mulscale10(dist, day), 1), 255));
+	wall[i].xrepeat = static_cast<unsigned char>(std::min(std::max(mulscalen<10>(dist, day), 1), 255));
 }
 
 void clearmidstatbar16()
@@ -7002,19 +7002,19 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
 
 	if (gride > 0)
 	{
-		yp1 = midydim16-mulscale14(posye+editorgridextent,zoome);
+		yp1 = midydim16-mulscalen<14>(posye+editorgridextent,zoome);
 		if (yp1 < 0) yp1 = 0;
-		yp2 = midydim16-mulscale14(posye-editorgridextent,zoome);
+		yp2 = midydim16-mulscalen<14>(posye-editorgridextent,zoome);
 		if (yp2 >= ydim16) yp2 = ydim16-1;
 
 		if ((yp1 < ydim16) && (yp2 >= 0) && (yp2 >= yp1))
 		{
-			xp1 = halfxdim16-mulscale14(posxe+editorgridextent,zoome);
+			xp1 = halfxdim16-mulscalen<14>(posxe+editorgridextent,zoome);
 
 			for(i=-editorgridextent;i<=editorgridextent;i+=(2048>>gride))
 			{
 				xp2 = xp1;
-				xp1 = halfxdim16-mulscale14(posxe-i,zoome);
+				xp1 = halfxdim16-mulscalen<14>(posxe-i,zoome);
 
 				if (xp1 >= xdim) break;
 				if (xp1 >= 0)
@@ -7033,8 +7033,8 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
 			}
 		}
 
-		xp1 = mulscale14(posxe+editorgridextent,zoome);
-		xp2 = mulscale14(posxe-editorgridextent,zoome);
+		xp1 = mulscalen<14>(posxe+editorgridextent,zoome);
+		xp2 = mulscalen<14>(posxe-editorgridextent,zoome);
 		tempy = 0x80000000L;
 		for(i=-editorgridextent;i<=editorgridextent;i+=(2048>>gride))
 		{
@@ -7107,10 +7107,10 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 				if (totalclock & 8) col += (2<<2);
 		}
 
-		xp1 = mulscale14(wal->x-posxe,zoome);
-		yp1 = mulscale14(wal->y-posye,zoome);
-		xp2 = mulscale14(wall[wal->point2].x-posxe,zoome);
-		yp2 = mulscale14(wall[wal->point2].y-posye,zoome);
+		xp1 = mulscalen<14>(wal->x-posxe,zoome);
+		yp1 = mulscalen<14>(wal->y-posye,zoome);
+		xp2 = mulscalen<14>(wall[wal->point2].x-posxe,zoome);
+		yp2 = mulscalen<14>(wall[wal->point2].y-posye,zoome);
 
 		if ((wal->cstat&64) > 0)
 		{
@@ -7185,8 +7185,8 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 						}
 					}
 
-					xp1 = mulscale14(sprite[j].x-posxe,zoome);
-					yp1 = mulscale14(sprite[j].y-posye,zoome);
+					xp1 = mulscalen<14>(sprite[j].x-posxe,zoome);
+					yp1 = mulscalen<14>(sprite[j].y-posye,zoome);
 					if (((halfxdim16+xp1) >= 2) && ((halfxdim16+xp1) <= xdim-3))
 						if (((midydim16+yp1) >= 2) && ((midydim16+yp1) <= ydim16-3))
 						{
@@ -7242,30 +7242,30 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 									dax = ((tilesizx[tilenum]>>1)+xoff)*xrepeat;
 									day = ((tilesizy[tilenum]>>1)+yoff)*yrepeat;
 
-									rxi[0] = dmulscale16(sinang,dax,cosang,day);
-									ryi[0] = dmulscale16(sinang,day,-cosang,dax);
-									rxi[1] = rxi[0] - mulscale16(sinang,tilesizx[tilenum]*xrepeat);
-									ryi[1] = ryi[0] + mulscale16(cosang,tilesizx[tilenum]*xrepeat);
-									rxi[2] = rxi[1] - mulscale16(cosang,tilesizy[tilenum]*yrepeat);
-									rxi[3] = rxi[0] - mulscale16(cosang,tilesizy[tilenum]*yrepeat);
-									ryi[2] = ryi[1] - mulscale16(sinang,tilesizy[tilenum]*yrepeat);
-									ryi[3] = ryi[0] - mulscale16(sinang,tilesizy[tilenum]*yrepeat);
+									rxi[0] = dmulscalen<16>(sinang,dax,cosang,day);
+									ryi[0] = dmulscalen<16>(sinang,day,-cosang,dax);
+									rxi[1] = rxi[0] - mulscalen<16>(sinang,tilesizx[tilenum]*xrepeat);
+									ryi[1] = ryi[0] + mulscalen<16>(cosang,tilesizx[tilenum]*xrepeat);
+									rxi[2] = rxi[1] - mulscalen<16>(cosang,tilesizy[tilenum]*yrepeat);
+									rxi[3] = rxi[0] - mulscalen<16>(cosang,tilesizy[tilenum]*yrepeat);
+									ryi[2] = ryi[1] - mulscalen<16>(sinang,tilesizy[tilenum]*yrepeat);
+									ryi[3] = ryi[0] - mulscalen<16>(sinang,tilesizy[tilenum]*yrepeat);
 									np = 4;
 								} else {
 									// Wall sprite
 									dax = sintable[ang&2047]*xrepeat;
 									day = sintable[(ang+1536)&2047]*xrepeat;
-									rxi[2] = rxi[1] = -mulscale16(dax,(tilesizx[tilenum]>>1)+xoff);
-									rxi[3] = rxi[0] = rxi[1] + mulscale16(dax,tilesizx[tilenum]);
-									ryi[2] = ryi[1] = -mulscale16(day,(tilesizx[tilenum]>>1)+xoff);
-									ryi[3] = ryi[0] = ryi[1] + mulscale16(day,tilesizx[tilenum]);
+									rxi[2] = rxi[1] = -mulscalen<16>(dax,(tilesizx[tilenum]>>1)+xoff);
+									rxi[3] = rxi[0] = rxi[1] + mulscalen<16>(dax,tilesizx[tilenum]);
+									ryi[2] = ryi[1] = -mulscalen<16>(day,(tilesizx[tilenum]>>1)+xoff);
+									ryi[3] = ryi[0] = ryi[1] + mulscalen<16>(day,tilesizx[tilenum]);
 									np = 1;
 								}
 
 								if (showspriteextents >= 2) {
 									// Apply clipping boundary.
-									dax = mulscale14(sintable[(ang-256+512)&2047],kenswalldist);
-									day = mulscale14(sintable[(ang-256)&2047],kenswalldist);
+									dax = mulscalen<14>(sintable[(ang-256+512)&2047],kenswalldist);
+									day = mulscalen<14>(sintable[(ang-256)&2047],kenswalldist);
 									clipx[1] = rxi[1]-day; clipy[1] = ryi[1]+dax;
 									clipx[0] = rxi[0]+dax; clipy[0] = ryi[0]+day;
 									clipx[3] = rxi[3]+day; clipy[3] = ryi[3]-dax;
@@ -7273,10 +7273,10 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 								}
 
 								// Correct for zoom.
-								std::ranges::transform(rxi, rxi.begin(), [zoome](auto rxip) { return mulscale14(rxip, zoome); });
-								std::ranges::transform(ryi, ryi.begin(), [zoome](auto ryip) { return mulscale14(ryip, zoome); });
-								std::ranges::transform(clipx, clipx.begin(), [zoome](auto clipxp) { return mulscale14(clipxp, zoome); });
-								std::ranges::transform(clipy, clipy.begin(), [zoome](auto clipyp) { return mulscale14(clipyp, zoome); });
+								std::ranges::transform(rxi, rxi.begin(), [zoome](auto rxip) { return mulscalen<14>(rxip, zoome); });
+								std::ranges::transform(ryi, ryi.begin(), [zoome](auto ryip) { return mulscalen<14>(ryip, zoome); });
+								std::ranges::transform(clipx, clipx.begin(), [zoome](auto clipxp) { return mulscalen<14>(clipxp, zoome); });
+								std::ranges::transform(clipy, clipy.begin(), [zoome](auto clipyp) { return mulscalen<14>(clipyp, zoome); });
 
 								drawlinepat = 0x99999999;
 								for (p=0;p<np;p++) {
@@ -7295,8 +7295,8 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 								drawlinepat = 0xffffffff;
 							}
 
-							xp2 = mulscale11(sintable[(sprite[j].ang+2560)&2047],zoome) / 768;
-							yp2 = mulscale11(sintable[(sprite[j].ang+2048)&2047],zoome) / 768;
+							xp2 = mulscalen<11>(sintable[(sprite[j].ang+2560)&2047],zoome) / 768;
+							yp2 = mulscalen<11>(sintable[(sprite[j].ang+2048)&2047],zoome) / 768;
 
 							if ((sprite[j].cstat&256) > 0)
 							{
@@ -7317,8 +7317,8 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 				}
 
 	faketimerhandler();
-	xp1 = mulscale11(sintable[(ange+2560)&2047],zoome) / 768; //Draw white arrow
-	yp1 = mulscale11(sintable[(ange+2048)&2047],zoome) / 768;
+	xp1 = mulscalen<11>(sintable[(ange+2560)&2047],zoome) / 768; //Draw white arrow
+	yp1 = mulscalen<11>(sintable[(ange+2048)&2047],zoome) / 768;
 	drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16-xp1,midydim16-yp1,15);
 	drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+yp1,midydim16-xp1,15);
 	drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16-yp1,midydim16+xp1,15);
@@ -7805,9 +7805,9 @@ void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny)
 		return;
 	}
 
-	i = divscale30(i, j);
-	*nx = wal->x + mulscale30(dx, i);
-	*ny = wal->y + mulscale30(dy, i);
+	i = divscalen<30>(i, j);
+	*nx = wal->x + mulscalen<30>(dx, i);
+	*ny = wal->y + mulscalen<30>(dy, i);
 }
 
 void initcrc()

@@ -1478,20 +1478,20 @@ void showframe()
 			int ypos;
 			int xscl;
 			int yscl;
-			const int desktopaspect = divscale16(desktopxdim, desktopydim);
-			const int frameaspect = divscale16(xres, yres);
+			const int desktopaspect = divscalen<16>(desktopxdim, desktopydim);
+			const int frameaspect = divscalen<16>(xres, yres);
 
 			if (desktopaspect >= frameaspect) {
 				// Desktop is at least as wide as the frame. We maximise frame height and centre on width.
 				ypos = 0;
 				yscl = desktopydim;
-				xscl = mulscale16(desktopydim, frameaspect);
+				xscl = mulscalen<16>(desktopydim, frameaspect);
 				xpos = (desktopxdim - xscl) >> 1;
 			} else {
 				// Desktop is narrower than the frame. We maximise frame width and centre on height.
 				xpos = 0;
 				xscl = desktopxdim;
-				yscl = divscale16(desktopxdim, frameaspect);
+				yscl = divscalen<16>(desktopxdim, frameaspect);
 				ypos = (desktopydim - yscl) >> 1;
 			}
 

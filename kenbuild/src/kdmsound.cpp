@@ -130,7 +130,7 @@ int initkdm(char dadigistat, char damusistat, int dasamplerate, char danumspeake
     for(i=1;i<76;i++)
     {
         frqtable[i] = j;
-        j = mulscale30(j,1137589835);  //(pow(2,1/12)<<30) = 1137589835
+        j = mulscalen<30>(j,1137589835);  //(pow(2,1/12)<<30) = 1137589835
     }
     for(i=0;i>=-14;i--) frqtable[i&255] = (frqtable[(i+12)&255]>>1);
 
@@ -459,8 +459,8 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
                 oy = *(int *)yplc[i];
             }
             ox -= globposx; oy -= globposy;
-            x = dmulscale28(oy,globxvect,-ox,globyvect);
-            y = dmulscale28(ox,globxvect,oy,globyvect);
+            x = dmulscalen<28>(oy,globxvect,-ox,globyvect);
+            y = dmulscalen<28>(ox,globxvect,oy,globyvect);
 
             if ((std::abs(x) >= 32768) || (std::abs(y) >= 32768))
                 { splc[i] = 0; continue; }
@@ -489,7 +489,7 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
             while ((notecnt < numnotes) && (timecount >= nttime[notecnt]))
             {
                 j = trinst[nttrack[notecnt]];
-                k = mulscale24(frqtable[ntfreq[notecnt]],finetune[j]+748);
+                k = mulscalen<24>(frqtable[ntfreq[notecnt]],finetune[j]+748);
 
                 if (ntvol1[notecnt] == 0)   //Note off
                 {
@@ -518,7 +518,7 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
 
             if (frqeff[i] != 0)
             {
-                dasinc = mulscale16(dasinc,eff[frqeff[i]-1][frqoff[i]]);
+                dasinc = mulscalen<16>(dasinc,eff[frqeff[i]-1][frqoff[i]]);
                 frqoff[i]++; if (frqoff[i] >= 256) frqeff[i] = 0;
             }
             if ((voleff[i]) || (paneff[i]))
@@ -527,8 +527,8 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
                 voloffs2 = svol2[i];
                 if (voleff[i])
                 {
-                    voloffs1 = mulscale16(voloffs1,eff[voleff[i]-1][voloff[i]]);
-                    voloffs2 = mulscale16(voloffs2,eff[voleff[i]-1][voloff[i]]);
+                    voloffs1 = mulscalen<16>(voloffs1,eff[voleff[i]-1][voloff[i]]);
+                    voloffs2 = mulscalen<16>(voloffs2,eff[voleff[i]-1][voloff[i]]);
                     voloff[i]++; if (voloff[i] >= 256) voleff[i] = 0;
                 }
 
@@ -538,8 +538,8 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
                 {
                     if (paneff[i])
                     {
-                        voloffs1 = mulscale16(voloffs1,131072-eff[paneff[i]-1][panoff[i]]);
-                        voloffs2 = mulscale16(voloffs2,eff[paneff[i]-1][panoff[i]]);
+                        voloffs1 = mulscalen<16>(voloffs1,131072-eff[paneff[i]-1][panoff[i]]);
+                        voloffs2 = mulscalen<16>(voloffs2,eff[paneff[i]-1][panoff[i]]);
                         panoff[i]++; if (panoff[i] >= 256) paneff[i] = 0;
                     }
                     calcvolookupstereo(&volookup[i<<9],-(voloffs1<<7),voloffs1,-(voloffs2<<7),voloffs2);
@@ -569,7 +569,7 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
         if (numspeakers == 1)
         {
             for(i=(samplerate>>11)-1;i>=0;i--)
-                stemp[i] += mulscale16(stemp[i+1024]-stemp[i],ramplookup[i]);
+                stemp[i] += mulscalen<16>(stemp[i+1024]-stemp[i],ramplookup[i]);
             j = bytespertic; k = (samplerate>>11);
             copybuf(&stemp[j],&stemp[1024],k);
             clearbuf(&stemp[j],k,32768);
@@ -579,8 +579,8 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
             for(i=(samplerate>>11)-1;i>=0;i--)
             {
                 j = (i<<1);
-                stemp[j+0] += mulscale16(stemp[j+1024]-stemp[j+0],ramplookup[i]);
-                stemp[j+1] += mulscale16(stemp[j+1025]-stemp[j+1],ramplookup[i]);
+                stemp[j+0] += mulscalen<16>(stemp[j+1024]-stemp[j+0],ramplookup[i]);
+                stemp[j+1] += mulscalen<16>(stemp[j+1025]-stemp[j+1],ramplookup[i]);
             }
             j = (bytespertic<<1); k = ((samplerate>>11)<<1);
             copybuf(&stemp[j],&stemp[1024],k);

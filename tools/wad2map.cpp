@@ -1558,7 +1558,7 @@ int main(int argc, char **argv)
 			wall[z].xrepeat = 255;
 		else
 		{
-			zx = mulscale10(ksqrtasm(x*x+y*y),wall[z].yrepeat);
+			zx = mulscalen<10>(ksqrtasm(x*x+y*y),wall[z].yrepeat);
 			wall[z].xrepeat = static_cast<char>(std::min(std::max(zx, 1), 255));
 		}
 

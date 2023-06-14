@@ -161,7 +161,7 @@ void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
 #if SIZE_MAX > UINT_MAX
 			daval += ((cac[zz].leng+65536) * lockrecip[*cac[zz].lock]) >> 32;
 #else
-			daval += mulscale32(cac[zz].leng+65536,lockrecip[*cac[zz].lock]);
+			daval += mulscalen<32>(cac[zz].leng+65536,lockrecip[*cac[zz].lock]);
 #endif
 			if (daval >= bestval) break;
 		}

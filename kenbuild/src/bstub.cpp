@@ -261,19 +261,19 @@ void ExtPreCheckKeys()
 		cosang = sintable[(hang+512)&2047];
 		sinang = sintable[hang&2047];
 
-		dx = dmulscale1(320,cosang,i,sinang); mindx = dx;
-		dy = dmulscale1(-i,cosang,320,sinang);
+		dx = dmulscalen<1>(320,cosang,i,sinang); mindx = dx;
+		dy = dmulscalen<1>(-i,cosang,320,sinang);
 		horizval1 = dy*(320>>1)/dx-1;
 
-		dx = dmulscale1(320,cosang,-i,sinang);
+		dx = dmulscalen<1>(320,cosang,-i,sinang);
 		mindx = std::min(dx, mindx);
-		dy = dmulscale1(i,cosang,320,sinang);
+		dy = dmulscalen<1>(i,cosang,320,sinang);
 		horizval2 = dy*(320>>1)/dx+1;
 
 		daviewingrange = scale(65536,16384*(xdim>>1),mindx-16);
 		daaspect = scale(daviewingrange,scale(320,tilesizx[4094],tilesizy[4094]),horizval2+6-horizval1);
 		setaspect(daviewingrange,scale(daaspect,ydim*320,xdim*i));
-		horiz = 100-divscale15(horizval1+horizval2,daviewingrange);
+		horiz = 100-divscalen<15>(horizval1+horizval2,daviewingrange);
 	}
 #endif
 }
@@ -332,24 +332,24 @@ void ExtCheckKeys()
 #if 0
 		if (hang != 0)
 		{
-			bufplc = waloff[4094]+(mulscale16(horiz-100,xdimenscale)+(tilesizx[4094]>>1))*tilesizy[4094];
+			bufplc = waloff[4094]+(mulscalen<16>(horiz-100,xdimenscale)+(tilesizx[4094]>>1))*tilesizy[4094];
 			setviewback();
 			cosang = sintable[(hang+512)&2047];
 			sinang = sintable[hang&2047];
-			dx = dmulscale1(xdim,cosang,ydim,sinang);
-			dy = dmulscale1(-ydim,cosang,xdim,sinang);
+			dx = dmulscalen<1>(xdim,cosang,ydim,sinang);
+			dy = dmulscalen<1>(-ydim,cosang,xdim,sinang);
 
 			tsizy = tilesizy[4094];
 			tsizyup15 = (tsizy<<15);
-			dx = mulscale14(dx,daviewingrange);
-			dy = mulscale14(dy,daaspect);
-			sinang = mulscale14(sinang,daviewingrange);
-			cosang = mulscale14(cosang,daaspect);
+			dx = mulscalen<14>(dx,daviewingrange);
+			dy = mulscalen<14>(dy,daaspect);
+			sinang = mulscalen<14>(sinang,daviewingrange);
+			cosang = mulscalen<14>(cosang,daaspect);
 			p = ylookup[windowy1]+frameplace+windowx2+1;
 			for(y=windowy1;y<=windowy2;y++)
 			{
-				i = divscale16(tsizyup15,dx);
-				stretchhline(0,(xdim>>1)*i+tsizyup15,xdim>>2,i,mulscale32(i,dy)*tsizy+bufplc,p);
+				i = divscalen<16>(tsizyup15,dx);
+				stretchhline(0,(xdim>>1)*i+tsizyup15,xdim>>2,i,mulscalen<32>(i,dy)*tsizy+bufplc,p);
 				dx -= sinang; dy += cosang; p += ylookup[1];
 			}
 			walock[4094] = 1;

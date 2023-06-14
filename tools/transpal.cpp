@@ -91,7 +91,7 @@ unsigned char getpalookup(char dashade, unsigned char dacol)
 	unsigned char *ptr;
 
 	ptr = &palette[dacol*3];
-	t = divscale16(numpalookups-dashade,numpalookups);
+	t = divscalen<16>(numpalookups-dashade,numpalookups);
 	r = ((ptr[0]*t+32768)>>16);
 	g = ((ptr[1]*t+32768)>>16);
 	b = ((ptr[2]*t+32768)>>16);

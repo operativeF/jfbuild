@@ -1611,9 +1611,9 @@ void prepareboard(char *daboardfilename)
 						sprite[i].cstat |= 128;
 					}
 					sprite[i].extra = sprite[i].ang;
-					sprite[i].clipdist = mulscale7(sprite[i].xrepeat,tilesizx[sprite[i].picnum]);
+					sprite[i].clipdist = mulscalen<7>(sprite[i].xrepeat,tilesizx[sprite[i].picnum]);
 					if (sprite[i].statnum != 1) changespritestat(i,2);   //on waiting for you (list 2)
-					sprite[i].lotag = mulscale5(sprite[i].xrepeat,sprite[i].yrepeat);
+					sprite[i].lotag = mulscalen<5>(sprite[i].xrepeat,sprite[i].yrepeat);
 					sprite[i].cstat |= 0x101;    //Set the hitscan sensitivity bit
 					break;
 				case AL:
@@ -1698,8 +1698,8 @@ void checktouchsprite(short snum, short sectnum)
 					}
 					break;
 				case GIFTBOX:
-					wsayfollow("getstuff.wav",4096L+(krand()&127)+256-mulscale4(sprite[i].xrepeat,sprite[i].yrepeat),208L,&sprite[i].x,&sprite[i].y,0);
-					changehealth(snum, std::max(mulscale8(sprite[i].xrepeat, sprite[i].yrepeat), 1));
+					wsayfollow("getstuff.wav",4096L+(krand()&127)+256-mulscalen<4>(sprite[i].xrepeat,sprite[i].yrepeat),208L,&sprite[i].x,&sprite[i].y,0);
+					changehealth(snum, std::max(mulscalen<8>(sprite[i].xrepeat, sprite[i].yrepeat), 1));
 					if (sprite[i].statnum == 12) deletesprite((short)i);
 					else {
 						sprite[i].cstat |= 0x8000;
@@ -1805,8 +1805,8 @@ void checkgrabbertouchsprite(short snum, short sectnum)   // Andy did this
 					}
 					break;
 				case GIFTBOX:
-					wsayfollow("getstuff.wav",4096L+(krand()&127)+256-mulscale4(sprite[i].xrepeat,sprite[i].yrepeat),208L,&sprite[i].x,&sprite[i].y,0);
-					changehealth(onum, std::max(mulscale8(sprite[i].xrepeat, sprite[i].yrepeat), 1));
+					wsayfollow("getstuff.wav",4096L+(krand()&127)+256-mulscalen<4>(sprite[i].xrepeat,sprite[i].yrepeat),208L,&sprite[i].x,&sprite[i].y,0);
+					changehealth(onum, std::max(mulscalen<8>(sprite[i].xrepeat, sprite[i].yrepeat), 1));
 					if (sprite[i].statnum == 12) deletesprite((short)i);
 					else {
 						sprite[i].cstat |= 0x8000;
@@ -2049,11 +2049,11 @@ void analyzesprites(int dax, int day)
 				case 15: j = (smoothratio>>4)+(((nummoves-tspr->owner)&15)<<12); break;
 			}
 			k = tspr->x-ospr->x; tspr->x = ospr->x;
-			if (k != 0) tspr->x += mulscale16(k,j);
+			if (k != 0) tspr->x += mulscalen<16>(k,j);
 			k = tspr->y-ospr->y; tspr->y = ospr->y;
-			if (k != 0) tspr->y += mulscale16(k,j);
+			if (k != 0) tspr->y += mulscalen<16>(k,j);
 			k = tspr->z-ospr->z; tspr->z = ospr->z;
-			if (k != 0) tspr->z += mulscale16(k,j);
+			if (k != 0) tspr->z += mulscalen<16>(k,j);
 		}
 
 			//Don't allow close explosion sprites to be transluscent
@@ -2488,7 +2488,7 @@ void statuslistcode()
 		dax = sprite[i].x;   //Back up old x&y if stepping off cliff
 		day = sprite[i].y;
 
-		doubvel = std::max(mulscale7(sprite[i].xrepeat, sprite[i].yrepeat), 4);
+		doubvel = std::max(mulscalen<7>(sprite[i].xrepeat, sprite[i].yrepeat), 4);
 
 		osectnum = sprite[i].sectnum;
 		movestat = movesprite((short)i,(int)sintable[(sprite[i].ang+512)&2047]*doubvel,(int)sintable[sprite[i].ang]*doubvel,0L,4L<<8,4L<<8,CLIPMASK0);
@@ -2721,13 +2721,13 @@ void statuslistcode()
 					}
 				}
 				if (l != 0x7fffffff) {
-					sprite[i].xvel = (divscale7(dax,l) + sprite[i].xvel);   // 1/5 of velocity is homing, 4/5 is momentum
-					sprite[i].yvel = (divscale7(day,l) + sprite[i].yvel);   // 1/5 of velocity is homing, 4/5 is momentum
-					sprite[i].zvel = (divscale7(daz,l) + sprite[i].zvel);   // 1/5 of velocity is homing, 4/5 is momentum
+					sprite[i].xvel = (divscalen<7>(dax,l) + sprite[i].xvel);   // 1/5 of velocity is homing, 4/5 is momentum
+					sprite[i].yvel = (divscalen<7>(day,l) + sprite[i].yvel);   // 1/5 of velocity is homing, 4/5 is momentum
+					sprite[i].zvel = (divscalen<7>(daz,l) + sprite[i].zvel);   // 1/5 of velocity is homing, 4/5 is momentum
 					l = ksqrt((sprite[i].xvel * sprite[i].xvel) + (sprite[i].yvel * sprite[i].yvel) + ((sprite[i].zvel * sprite[i].zvel) >> 8));
-					sprite[i].xvel = divscale9(sprite[i].xvel,l);
-					sprite[i].yvel = divscale9(sprite[i].yvel,l);
-					sprite[i].zvel = divscale9(sprite[i].zvel,l);
+					sprite[i].xvel = divscalen<9>(sprite[i].xvel,l);
+					sprite[i].yvel = divscalen<9>(sprite[i].yvel,l);
+					sprite[i].zvel = divscalen<9>(sprite[i].zvel,l);
 					sprite[i].ang = getangle(sprite[i].xvel,sprite[i].yvel);
 				}
 			}
@@ -2739,8 +2739,8 @@ void statuslistcode()
 				{
 					k = sector[j].wallptr;
 					daang = getangle(wall[wall[k].point2].x-wall[k].x,wall[wall[k].point2].y-wall[k].y);
-					sprite[i].xvel += mulscale22(sintable[(daang+1024)&2047],sector[j].floorheinum);
-					sprite[i].yvel += mulscale22(sintable[(daang+512)&2047],sector[j].floorheinum);
+					sprite[i].xvel += mulscalen<22>(sintable[(daang+1024)&2047],sector[j].floorheinum);
+					sprite[i].yvel += mulscalen<22>(sintable[(daang+512)&2047],sector[j].floorheinum);
 				}
 			}
 
@@ -2772,7 +2772,7 @@ void statuslistcode()
 					sprite[i].xoffset = (krand()&15)-8;
 					sprite[i].yoffset = (krand()&15)-8;
 				}
-				if (mulscale30(krand(),dist) == 0)
+				if (mulscalen<30>(krand(),dist) == 0)
 				{
 					sprite[i].xvel -= ksgn(sprite[i].xvel);
 					sprite[i].yvel -= ksgn(sprite[i].yvel);
@@ -2790,18 +2790,18 @@ void statuslistcode()
 				if (sprite[i].z < ((k+l)>>1)) k = sector[hitobject&(MAXSECTORS-1)].ceilingheinum;
 												 else k = sector[hitobject&(MAXSECTORS-1)].floorheinum;
 
-				dax = mulscale14(k,sintable[(daang)&2047]);
-				day = mulscale14(k,sintable[(daang+1536)&2047]);
+				dax = mulscalen<14>(k,sintable[(daang)&2047]);
+				day = mulscalen<14>(k,sintable[(daang+1536)&2047]);
 				daz = 4096;
 
-				k = sprite[i].xvel*dax+sprite[i].yvel*day+mulscale4(sprite[i].zvel,daz);
+				k = sprite[i].xvel*dax+sprite[i].yvel*day+mulscalen<4>(sprite[i].zvel,daz);
 				l = dax*dax+day*day+daz*daz;
 				if ((std::abs(k)>>14) < l)
 				{
-					k = divscale17(k,l);
-					sprite[i].xvel -= mulscale16(dax,k);
-					sprite[i].yvel -= mulscale16(day,k);
-					sprite[i].zvel -= mulscale12(daz,k);
+					k = divscalen<17>(k,l);
+					sprite[i].xvel -= mulscalen<16>(dax,k);
+					sprite[i].yvel -= mulscalen<16>(day,k);
+					sprite[i].zvel -= mulscalen<12>(daz,k);
 				}
 				wsayfollow("bouncy.wav",4096L+(krand()&127)-64,255,&sprite[i].x,&sprite[i].y,1);
 				hitobject = 0;
@@ -2818,14 +2818,14 @@ void statuslistcode()
 						j = getangle(wall[l].x-wall[k].x,wall[l].y-wall[k].y)+512;
 
 							//k = cos(ang) * sin(ang) * 2
-						k = mulscale13(sintable[(j+512)&2047],sintable[j&2047]);
+						k = mulscalen<13>(sintable[(j+512)&2047],sintable[j&2047]);
 							//l = cos(ang * 2)
 						l = sintable[((j<<1)+512)&2047];
 
 						ox = sprite[i].xvel; oy = sprite[i].yvel;
 						dax = -ox; day = -oy;
-						sprite[i].xvel = dmulscale14(day,k,dax,l);
-						sprite[i].yvel = dmulscale14(dax,k,-day,l);
+						sprite[i].xvel = dmulscalen<14>(day,k,dax,l);
+						sprite[i].yvel = dmulscalen<14>(dax,k,-day,l);
 
 						if (sprite[i].picnum == BOMB)
 						{
@@ -2857,14 +2857,14 @@ void statuslistcode()
 						j = sprite[hitobject&4095].ang;
 
 							//k = cos(ang) * sin(ang) * 2
-						k = mulscale13(sintable[(j+512)&2047],sintable[j&2047]);
+						k = mulscalen<13>(sintable[(j+512)&2047],sintable[j&2047]);
 							//l = cos(ang * 2)
 						l = sintable[((j<<1)+512)&2047];
 
 						ox = sprite[i].xvel; oy = sprite[i].yvel;
 						dax = -ox; day = -oy;
-						sprite[i].xvel = dmulscale14(day,k,dax,l);
-						sprite[i].yvel = dmulscale14(dax,k,-day,l);
+						sprite[i].xvel = dmulscalen<14>(day,k,dax,l);
+						sprite[i].yvel = dmulscalen<14>(dax,k,-day,l);
 
 						ox -= sprite[i].xvel; oy -= sprite[i].yvel;
 						dist = ((ox*ox+oy*oy)>>8);
@@ -2954,7 +2954,7 @@ void statuslistcode()
 										changehealth((sprite[i].owner - 4096),k);
 										changehealth(j,-k);
 									}
-									else changehealth(j,-mulscale8(sprite[i].xrepeat,sprite[i].yrepeat));
+									else changehealth(j,-mulscalen<8>(sprite[i].xrepeat,sprite[i].yrepeat));
 									deletesprite((short)i);
 									goto bulletisdeletedskip;
 								}
@@ -2972,7 +2972,7 @@ void statuslistcode()
 										changehealth((sprite[i].owner - 4096),k);
 										sprite[j].lotag -= k;
 									}
-									sprite[j].lotag -= mulscale8(sprite[i].xrepeat,sprite[i].yrepeat);
+									sprite[j].lotag -= mulscalen<8>(sprite[i].xrepeat,sprite[i].yrepeat);
 								}
 								if (sprite[j].lotag > 0)
 								{
@@ -3705,21 +3705,21 @@ void view(short snum, int *vx, int *vy, int *vz, short *vsectnum, short ang, int
 				  wall[wall[hitwall].point2].y-wall[hitwall].y);
 
 			i = nx*sintable[daang]+ny*sintable[(daang+1536)&2047];
-			if (std::abs(nx) > std::abs(ny)) hx -= mulscale28(nx,i);
-			else hy -= mulscale28(ny,i);
+			if (std::abs(nx) > std::abs(ny)) hx -= mulscalen<28>(nx,i);
+			else hy -= mulscalen<28>(ny,i);
 		}
 		else if (hitsprite < 0)
 		{
 			if (std::abs(nx) > std::abs(ny)) hx -= (nx>>5);
 			else hy -= (ny>>5);
 		}
-		if (std::abs(nx) > std::abs(ny)) i = divscale16(hx,nx);
-		else i = divscale16(hy,ny);
+		if (std::abs(nx) > std::abs(ny)) i = divscalen<16>(hx,nx);
+		else i = divscalen<16>(hy,ny);
 		if (i < cameradist) cameradist = i;
 	}
-	*vx = (*vx)+mulscale16(nx,cameradist);
-	*vy = (*vy)+mulscale16(ny,cameradist);
-	*vz = (*vz)+mulscale16(nz,cameradist);
+	*vx = (*vx)+mulscalen<16>(nx,cameradist);
+	*vy = (*vy)+mulscalen<16>(ny,cameradist);
+	*vz = (*vz)+mulscalen<16>(nz,cameradist);
 
 	updatesectorz(*vx,*vy,*vz,vsectnum);
 
@@ -3771,21 +3771,21 @@ void drawscreen(short snum, int dasmoothratio)
 
 	if ((snum == myconnectindex) && ((networkmode == 1) || (myconnectindex != connecthead)))
 	{
-		cposx = omyx+mulscale16(myx-omyx,smoothratio);
-		cposy = omyy+mulscale16(myy-omyy,smoothratio);
-		cposz = omyz+mulscale16(myz-omyz,smoothratio);
-		choriz = omyhoriz+mulscale16(myhoriz-omyhoriz,smoothratio);
-		cang = omyang+mulscale16((int)(((myang+1024-omyang)&2047)-1024),smoothratio);
+		cposx = omyx+mulscalen<16>(myx-omyx,smoothratio);
+		cposy = omyy+mulscalen<16>(myy-omyy,smoothratio);
+		cposz = omyz+mulscalen<16>(myz-omyz,smoothratio);
+		choriz = omyhoriz+mulscalen<16>(myhoriz-omyhoriz,smoothratio);
+		cang = omyang+mulscalen<16>((int)(((myang+1024-omyang)&2047)-1024),smoothratio);
 	}
 	else
 	{
-		cposx = oposx[snum]+mulscale16(posx[snum]-oposx[snum],smoothratio);
-		cposy = oposy[snum]+mulscale16(posy[snum]-oposy[snum],smoothratio);
-		cposz = oposz[snum]+mulscale16(posz[snum]-oposz[snum],smoothratio);
-		choriz = ohoriz[snum]+mulscale16(horiz[snum]-ohoriz[snum],smoothratio);
-		cang = oang[snum]+mulscale16(((ang[snum]+1024-oang[snum])&2047)-1024,smoothratio);
+		cposx = oposx[snum]+mulscalen<16>(posx[snum]-oposx[snum],smoothratio);
+		cposy = oposy[snum]+mulscalen<16>(posy[snum]-oposy[snum],smoothratio);
+		cposz = oposz[snum]+mulscalen<16>(posz[snum]-oposz[snum],smoothratio);
+		choriz = ohoriz[snum]+mulscalen<16>(horiz[snum]-ohoriz[snum],smoothratio);
+		cang = oang[snum]+mulscalen<16>(((ang[snum]+1024-oang[snum])&2047)-1024,smoothratio);
 	}
-	czoom = ozoom[snum]+mulscale16(zoom[snum]-ozoom[snum],smoothratio);
+	czoom = ozoom[snum]+mulscalen<16>(zoom[snum]-ozoom[snum],smoothratio);
 
 	setears(cposx,cposy,(int)sintable[(cang+512)&2047]<<14,(int)sintable[cang&2047]<<14);
 
@@ -3883,7 +3883,7 @@ void drawscreen(short snum, int dasmoothratio)
 						if (frame2draw[i] == 0)
 						{
 							x2 = posx[i]-x1; y2 = posy[i]-y1;
-							dist = dmulscale12(x2,x2,y2,y2);
+							dist = dmulscalen<12>(x2,x2,y2,y2);
 
 							if (dist < 64) dist = 16384;
 							else if (dist > 16384) dist = 64;
@@ -3986,7 +3986,7 @@ void drawscreen(short snum, int dasmoothratio)
 			if (POLYMOST_RENDERMODE_POLYMOST()) {
 				tiltlock = screentilt;
 					// Ken loves to interpolate
-				setrollangle(oscreentilt + mulscale16(((screentilt-oscreentilt+1024)&2047)-1024,smoothratio));
+				setrollangle(oscreentilt + mulscalen<16>(((screentilt-oscreentilt+1024)&2047)-1024,smoothratio));
 			} else
 #endif
 			{
@@ -5034,7 +5034,7 @@ void findrandomspot(int *x, int *y, short *sectnum)
 	{
 		do
 		{
-			dasector = mulscale16(krand(),numsectors);
+			dasector = mulscalen<16>(krand(),numsectors);
 		} while ((sector[dasector].ceilingz+(8<<8) >= sector[dasector].floorz) || ((sector[dasector].lotag|sector[dasector].hitag) != 0) || ((sector[dasector].floorstat&1) != 0));
 
 		startwall = sector[dasector].wallptr;
@@ -6113,8 +6113,8 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 
 	xvect = sintable[(-cang)&2047] * czoom;
 	yvect = sintable[(1536-cang)&2047] * czoom;
-	xvect2 = mulscale16(xvect,yxaspect);
-	yvect2 = mulscale16(yvect,yxaspect);
+	xvect2 = mulscalen<16>(xvect,yxaspect);
+	yvect2 = mulscalen<16>(yvect,yxaspect);
 
 		//Draw red lines
 	for(i=0;i<numsectors;i++)
@@ -6149,13 +6149,13 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 			}
 
 			ox = wal->x-cposx; oy = wal->y-cposy;
-			x1 = dmulscale16(ox,xvect,-oy,yvect)+(xdim<<11);
-			y1 = dmulscale16(oy,xvect2,ox,yvect2)+(ydim<<11);
+			x1 = dmulscalen<16>(ox,xvect,-oy,yvect)+(xdim<<11);
+			y1 = dmulscalen<16>(oy,xvect2,ox,yvect2)+(ydim<<11);
 
 			wal2 = &wall[wal->point2];
 			ox = wal2->x-cposx; oy = wal2->y-cposy;
-			x2 = dmulscale16(ox,xvect,-oy,yvect)+(xdim<<11);
-			y2 = dmulscale16(oy,xvect2,ox,yvect2)+(ydim<<11);
+			x2 = dmulscalen<16>(ox,xvect,-oy,yvect)+(xdim<<11);
+			y2 = dmulscalen<16>(oy,xvect2,ox,yvect2)+(ydim<<11);
 
 			drawline256(x1,y1,x2,y2,col);
 		}
@@ -6185,23 +6185,23 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 						case 7: l = (smoothratio>>3)+(((nummoves-j)&7)<<13); break;
 						case 15: l = (smoothratio>>4)+(((nummoves-j)&15)<<12); break;
 					}
-					sprx = osprite[j].x+mulscale16(sprx-osprite[j].x,l);
-					spry = osprite[j].y+mulscale16(spry-osprite[j].y,l);
+					sprx = osprite[j].x+mulscalen<16>(sprx-osprite[j].x,l);
+					spry = osprite[j].y+mulscalen<16>(spry-osprite[j].y,l);
 				}
 
 				switch (spr->cstat&48)
 				{
 					case 0:
 						ox = sprx-cposx; oy = spry-cposy;
-						x1 = dmulscale16(ox,xvect,-oy,yvect);
-						y1 = dmulscale16(oy,xvect2,ox,yvect2);
+						x1 = dmulscalen<16>(ox,xvect,-oy,yvect);
+						y1 = dmulscalen<16>(oy,xvect2,ox,yvect2);
 
 						if (dimensionmode[screenpeek] == 1)
 						{
 							ox = (sintable[(spr->ang+512)&2047]>>7);
 							oy = (sintable[(spr->ang)&2047]>>7);
-							x2 = dmulscale16(ox,xvect,-oy,yvect);
-							y2 = dmulscale16(oy,xvect,ox,yvect);
+							x2 = dmulscalen<16>(ox,xvect,-oy,yvect);
+							y2 = dmulscalen<16>(oy,xvect,ox,yvect);
 
 							if (j == playersprite[screenpeek])
 							{
@@ -6209,8 +6209,8 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 								y2 = -(czoom<<5);
 							}
 
-							x3 = mulscale16(x2,yxaspect);
-							y3 = mulscale16(y2,yxaspect);
+							x3 = mulscalen<16>(x2,yxaspect);
+							y3 = mulscalen<16>(y2,yxaspect);
 
 							drawline256(x1-x2+(xdim<<11),y1-y3+(ydim<<11),
 											x1+x2+(xdim<<11),y1+y3+(ydim<<11),col);
@@ -6225,7 +6225,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 							{
 								daang = (spr->ang-cang)&2047;
 								if (j == playersprite[screenpeek]) { x1 = 0; y1 = 0; daang = 0; }
-								rotatesprite((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),mulscale16(czoom*spr->yrepeat,yxaspect),daang,spr->picnum,spr->shade,spr->pal,(spr->cstat&2)>>1,windowx1,windowy1,windowx2,windowy2);
+								rotatesprite((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),mulscalen<16>(czoom*spr->yrepeat,yxaspect),daang,spr->picnum,spr->shade,spr->pal,(spr->cstat&2)>>1,windowx1,windowy1,windowx2,windowy2);
 							}
 						}
 						break;
@@ -6237,16 +6237,16 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 						k = spr->ang; l = spr->xrepeat;
 						dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
 						l = tilesizx[tilenum]; k = (l>>1)+xoff;
-						x1 -= mulscale16(dax,k); x2 = x1+mulscale16(dax,l);
-						y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
+						x1 -= mulscalen<16>(dax,k); x2 = x1+mulscalen<16>(dax,l);
+						y1 -= mulscalen<16>(day,k); y2 = y1+mulscalen<16>(day,l);
 
 						ox = x1-cposx; oy = y1-cposy;
-						x1 = dmulscale16(ox,xvect,-oy,yvect);
-						y1 = dmulscale16(oy,xvect2,ox,yvect2);
+						x1 = dmulscalen<16>(ox,xvect,-oy,yvect);
+						y1 = dmulscalen<16>(oy,xvect2,ox,yvect2);
 
 						ox = x2-cposx; oy = y2-cposy;
-						x2 = dmulscale16(ox,xvect,-oy,yvect);
-						y2 = dmulscale16(oy,xvect2,ox,yvect2);
+						x2 = dmulscalen<16>(ox,xvect,-oy,yvect);
+						y2 = dmulscalen<16>(oy,xvect2,ox,yvect2);
 
 						drawline256(x1+(xdim<<11),y1+(ydim<<11),
 										x2+(xdim<<11),y2+(ydim<<11),col);
@@ -6267,30 +6267,30 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 							yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
 
 							dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
-							x1 = sprx + dmulscale16(sinang,dax,cosang,day);
-							y1 = spry + dmulscale16(sinang,day,-cosang,dax);
+							x1 = sprx + dmulscalen<16>(sinang,dax,cosang,day);
+							y1 = spry + dmulscalen<16>(sinang,day,-cosang,dax);
 							l = xspan*xrepeat;
-							x2 = x1 - mulscale16(sinang,l);
-							y2 = y1 + mulscale16(cosang,l);
+							x2 = x1 - mulscalen<16>(sinang,l);
+							y2 = y1 + mulscalen<16>(cosang,l);
 							l = yspan*yrepeat;
-							k = -mulscale16(cosang,l); x3 = x2+k; x4 = x1+k;
-							k = -mulscale16(sinang,l); y3 = y2+k; y4 = y1+k;
+							k = -mulscalen<16>(cosang,l); x3 = x2+k; x4 = x1+k;
+							k = -mulscalen<16>(sinang,l); y3 = y2+k; y4 = y1+k;
 
 							ox = x1-cposx; oy = y1-cposy;
-							x1 = dmulscale16(ox,xvect,-oy,yvect);
-							y1 = dmulscale16(oy,xvect2,ox,yvect2);
+							x1 = dmulscalen<16>(ox,xvect,-oy,yvect);
+							y1 = dmulscalen<16>(oy,xvect2,ox,yvect2);
 
 							ox = x2-cposx; oy = y2-cposy;
-							x2 = dmulscale16(ox,xvect,-oy,yvect);
-							y2 = dmulscale16(oy,xvect2,ox,yvect2);
+							x2 = dmulscalen<16>(ox,xvect,-oy,yvect);
+							y2 = dmulscalen<16>(oy,xvect2,ox,yvect2);
 
 							ox = x3-cposx; oy = y3-cposy;
-							x3 = dmulscale16(ox,xvect,-oy,yvect);
-							y3 = dmulscale16(oy,xvect2,ox,yvect2);
+							x3 = dmulscalen<16>(ox,xvect,-oy,yvect);
+							y3 = dmulscalen<16>(oy,xvect2,ox,yvect2);
 
 							ox = x4-cposx; oy = y4-cposy;
-							x4 = dmulscale16(ox,xvect,-oy,yvect);
-							y4 = dmulscale16(oy,xvect2,ox,yvect2);
+							x4 = dmulscalen<16>(ox,xvect,-oy,yvect);
+							y4 = dmulscalen<16>(oy,xvect2,ox,yvect2);
 
 							drawline256(x1+(xdim<<11),y1+(ydim<<11),
 											x2+(xdim<<11),y2+(ydim<<11),col);
@@ -6330,14 +6330,14 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 			else
 			{
 				ox = wal->x-cposx; oy = wal->y-cposy;
-				x1 = dmulscale16(ox,xvect,-oy,yvect)+(xdim<<11);
-				y1 = dmulscale16(oy,xvect2,ox,yvect2)+(ydim<<11);
+				x1 = dmulscalen<16>(ox,xvect,-oy,yvect)+(xdim<<11);
+				y1 = dmulscalen<16>(oy,xvect2,ox,yvect2)+(ydim<<11);
 			}
 
 			k = wal->point2; wal2 = &wall[k];
 			ox = wal2->x-cposx; oy = wal2->y-cposy;
-			x2 = dmulscale16(ox,xvect,-oy,yvect)+(xdim<<11);
-			y2 = dmulscale16(oy,xvect2,ox,yvect2)+(ydim<<11);
+			x2 = dmulscalen<16>(ox,xvect,-oy,yvect)+(xdim<<11);
+			y2 = dmulscalen<16>(oy,xvect2,ox,yvect2)+(ydim<<11);
 
 			drawline256(x1,y1,x2,y2,24);
 		}
@@ -6574,7 +6574,7 @@ void dointerpolations()       //Stick at beginning of drawscreen
 	{
 		bakipos[i] = *curipos[i];
 		odelta = ndelta; ndelta = (*curipos[i])-oldipos[i];
-		if (odelta != ndelta) j = mulscale16(ndelta,smoothratio);
+		if (odelta != ndelta) j = mulscalen<16>(ndelta,smoothratio);
 		*curipos[i] = oldipos[i]+j;
 	}
 }

@@ -5,6 +5,10 @@
 #ifndef __pragmas_h__
 #define __pragmas_h__
 
+#include <algorithm>
+#include <cstdint>
+#include <limits>
+
 inline int dmval{0};
 
 #if defined(__GNUC__) && defined(__i386__) && USE_ASM
@@ -3591,40 +3595,32 @@ static __inline void swapchar2(void *a, void *b, int s)
 // Generic C
 //
 
-#define qw(x)	((int64_t)(x))		// quadword cast
-#define dw(x)	((int32_t)(x))		// doubleword cast
-#define wo(x)	((int16_t)(x))		// word cast
-#define by(x)	((int8_t)(x))		// byte cast
+#define qw(x)	(static_cast<int64_t>(x))		// quadword cast
+#define dw(x)	(static_cast<int32_t>(x))		// doubleword cast
+#define wo(x)	(static_cast<int16_t>(x))		// word cast
+#define by(x)	(static_cast<int8_t>(x))		// byte cast
 
-#define _scaler(a) \
-static inline int mulscale##a(int eax, int edx) \
-{ \
-	return dw((qw(eax) * qw(edx)) >> a); \
-} \
-\
-static inline int divscale##a(int eax, int ebx) \
-{ \
-	return dw((qw(eax) << a) / qw(ebx)); \
-} \
-\
-static inline int dmulscale##a(int eax, int edx, int esi, int edi) \
-{ \
-	return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> a); \
-} \
-\
-static inline int tmulscale##a(int eax, int edx, int ebx, int ecx, int esi, int edi) \
-{ \
-	return dw(((qw(eax) * qw(edx)) + (qw(ebx) * qw(ecx)) + (qw(esi) * qw(edi))) >> a); \
-} \
+template<std::uint8_t N>
+inline constexpr int mulscalen(int eax, int edx) {
+	return dw((qw(eax) * qw(edx)) >> N);
+}
 
-_scaler(1)	_scaler(2)	_scaler(3)	_scaler(4)
-_scaler(5)	_scaler(6)	_scaler(7)	_scaler(8)
-_scaler(9)	_scaler(10)	_scaler(11)	_scaler(12)
-_scaler(13)	_scaler(14)	_scaler(15)	_scaler(16)
-_scaler(17)	_scaler(18)	_scaler(19)	_scaler(20)
-_scaler(21)	_scaler(22)	_scaler(23)	_scaler(24)
-_scaler(25)	_scaler(26)	_scaler(27)	_scaler(28)
-_scaler(29)	_scaler(30)	_scaler(31)	_scaler(32)
+template<std::uint8_t N>
+inline constexpr int divscalen(int eax, int ebx) {
+	return dw((qw(eax) << N) / qw(ebx));
+}
+
+template<std::uint8_t N>
+inline constexpr int dmulscalen(int eax, int edx, int esi, int edi)
+{
+	return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> N);
+}
+
+template<std::uint8_t N>
+inline constexpr int tmulscalen(int eax, int edx, int ebx, int ecx, int esi, int edi)
+{
+	return dw(((qw(eax) * qw(edx)) + (qw(ebx) * qw(ecx)) + (qw(esi) * qw(edi))) >> N);
+}
 
 static inline void swapchar(void* a, void* b)  { int8_t t = *((int8_t*)b); *((int8_t*)b) = *((int8_t*)a); *((int8_t*)a) = t; }
 static inline void swapchar2(void* a, void* b, int s) { swapchar(a,b); swapchar((int8_t*)a+1, (int8_t*)b+s); }
@@ -3637,35 +3633,29 @@ static inline void drawpixel(void* s, int8_t a)    { *((int8_t*)(s)) = a; }
 static inline void drawpixels(void* s, int16_t a)  { *((int16_t*)(s)) = a; }
 static inline void drawpixelses(void* s, int32_t a) { *((int32_t*)(s)) = a; }
 
-static inline int mul3(int a) { return (a<<1)+a; }
-static inline int mul5(int a) { return (a<<2)+a; }
-static inline int mul9(int a) { return (a<<3)+a; }
+inline constexpr int mul3(int a) { return (a<<1)+a; }
 
 static inline int divmod(int a, int b) { const unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a%_b; return _a/_b; }
 static inline int moddiv(int a, int b) { const unsigned int _a=(unsigned int)a, _b=(unsigned int)b; dmval = _a/_b; return _a%_b; }
 
 static inline int ksgn(int a)  { if (a > 0) return 1; if (a < 0) return -1; return 0; }
 
-static inline int sqr(int eax) { return (eax) * (eax); }
-static inline int scale(int eax, int edx, int ecx) { return dw((qw(eax) * qw(edx)) / qw(ecx)); }
-static inline int mulscale(int eax, int edx, int ecx) { return dw((qw(eax) * qw(edx)) >> by(ecx)); }
-static inline int divscale(int eax, int ebx, int ecx) { return dw((qw(eax) << by(ecx)) / qw(ebx)); }
-static inline int dmulscale(int eax, int edx, int esi, int edi, int ecx) { return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> by(ecx)); }
+inline constexpr int sqr(int eax) { return (eax) * (eax); }
+inline constexpr int scale(int eax, int edx, int ecx) { return dw((qw(eax) * qw(edx)) / qw(ecx)); }
+inline constexpr int mulscale(int eax, int edx, int ecx) { return dw((qw(eax) * qw(edx)) >> by(ecx)); }
+inline constexpr int divscale(int eax, int ebx, int ecx) { return dw((qw(eax) << by(ecx)) / qw(ebx)); }
+inline constexpr int dmulscale(int eax, int edx, int esi, int edi, int ecx) { return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> by(ecx)); }
 
-static inline int boundmulscale(int a, int d, int c)
+inline constexpr int boundmulscale(int a, int d, int c)
 { // courtesy of Ken
-    int64_t p;
-    p = (((int64_t)a)*((int64_t)d))>>c;
-    if (p >= INT_MAX) p = INT_MAX;
-    if (p < INT_MIN) p = INT_MIN;
-    return((int)p);
+    const int64_t p = (qw(a) * qw(d)) >> c;
+    return dw(std::clamp(p, qw(std::numeric_limits<int>::min()), qw(std::numeric_limits<int>::max())));
 }
 
 #undef qw
 #undef dw
 #undef wo
 #undef by
-#undef _scaler
 
 inline void qinterpolatedown16(void *bufptr, int num, int val, int add)
 { // gee, I wonder who could have provided this...
