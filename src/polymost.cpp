@@ -578,11 +578,9 @@ static GLint polymost_get_uniform(GLuint program, const GLchar *name)
 
 static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, const char *filename)
 {
-	const GLchar *shadersrc{defaultsrc};
+	std::string shadersrc{defaultsrc};
 
 #ifdef SHADERDEV
-	GLchar *fileshadersrc{nullptr};
-
 	std::FILE* shaderfh = std::fopen(filename, "rb");
 	
 	if (shaderfh) {
@@ -590,8 +588,9 @@ static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, co
 		auto shadersrclen = ftell(shaderfh);
 		std::fseek(shaderfh, 0, SEEK_SET);
 
-		fileshadersrc = (GLchar *)std::malloc(shadersrclen + 1);
-		shadersrclen = std::fread(fileshadersrc, 1, shadersrclen, shaderfh);
+		std::string fileshadersrc;
+		fileshadersrc.resize(shadersrclen + 1);
+		shadersrclen = std::fread(&fileshadersrc[0], 1, shadersrclen, shaderfh);
 		fileshadersrc[shadersrclen] = 0;
 
 		std::fclose(shaderfh);
@@ -602,16 +601,7 @@ static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, co
 	}
 #endif
 
-	const GLuint shader = glbuild_compile_shader(shadertype, shadersrc);
-
-#ifdef SHADERDEV
-	if (fileshadersrc) {
-		std::free(fileshadersrc);
-		fileshadersrc = nullptr;
-	}
-#endif
-
-	return shader;
+	return glbuild_compile_shader(shadertype, &shadersrc[0]);
 }
 
 static void checkindexbuffer(unsigned int size)

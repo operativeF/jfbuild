@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
 
 struct glbuild_funcs glfunc;
 
@@ -563,17 +564,17 @@ GLuint glbuild_compile_shader(GLuint type, const GLchar *source)
 
 	glfunc.glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE) {
-		GLint loglen = 0;
-		GLchar *logtext = nullptr;
-
+		GLint loglen{0};
 		glfunc.glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &loglen);
 
-		logtext = (GLchar *)std::malloc(loglen);
-		glfunc.glGetShaderInfoLog(shader, loglen, &loglen, logtext);
+		std::string logtext;
+		logtext.resize(loglen);
+
+		glfunc.glGetShaderInfoLog(shader, loglen, &loglen, &logtext[0]);
 		buildprintf("GL shader compile error: {}\n", logtext);
-		std::free(logtext);
 
 		glfunc.glDeleteShader(shader);
+
 		return 0;
 	}
 
@@ -599,15 +600,14 @@ GLuint glbuild_link_program(int shadercount, const GLuint *shaders)
 
 	glfunc.glGetProgramiv(program, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE) {
-		GLint loglen = 0;
-		GLchar *logtext = nullptr;
+		GLint loglen{0};
 
 		glfunc.glGetProgramiv(program, GL_INFO_LOG_LENGTH, &loglen);
 
-		logtext = (GLchar *)std::malloc(loglen);
-		glfunc.glGetProgramInfoLog(program, loglen, &loglen, logtext);
+		std::string logtext;
+		logtext.resize(loglen);
+		glfunc.glGetProgramInfoLog(program, loglen, &loglen, &logtext[0]);
 		buildprintf("glbuild_link_program: link error: {}\n", logtext);
-		std::free(logtext);
 
 		glfunc.glDeleteProgram(program);
 		return 0;
