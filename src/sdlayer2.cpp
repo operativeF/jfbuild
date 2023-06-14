@@ -121,7 +121,7 @@ int wm_msgbox(const char *name, const char *fmt, ...)
 			break;
 		}
 
-		std::puts(buf);
+		fmt::print("{}\n", buf);
 	} while(0);
 
 	std::free(buf);
@@ -172,8 +172,8 @@ int wm_ynbox(const char *name, const char *fmt, ...)
 			break;
 		}
 
-		std::puts(buf);
-		std::puts("   (assuming 'No')");
+		fmt::print("{}\n", buf);
+		fmt::print("   (assuming 'No')");
 		rv = 0;
 	} while(0);
 

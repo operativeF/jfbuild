@@ -335,7 +335,7 @@ int app_main(int argc, char const * const argv[])
 #ifdef HAVE_STARTWIN
 				wm_msgbox("BUILD by Ken Silverman","{}",s);
 #else
-				std::puts(s);
+				fmt::print("{}\n", s);
 #endif
 				return 0;
 			}
