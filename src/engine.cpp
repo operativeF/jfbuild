@@ -6590,9 +6590,9 @@ killsprite:
 			for(l=i;l>=0;l-=gap)
 			{
 				if (spritesy[l] <= spritesy[l+gap]) break;
-				swaplong(&tspriteptr[l],&tspriteptr[l+gap]);
-				swaplong(&spritesx[l],&spritesx[l+gap]);
-				swaplong(&spritesy[l],&spritesy[l+gap]);
+				std::swap(tspriteptr[l], tspriteptr[l + gap]);
+				std::swap(spritesx[l], spritesx[l + gap]);
+				std::swap(spritesy[l], spritesy[l + gap]);
 			}
 
 	if (spritesortcnt > 0)
@@ -6621,18 +6621,18 @@ killsprite:
 				for(l=i;l<k;l++)
 					if (std::abs(spritesz[k]-globalposz) < std::abs(spritesz[l]-globalposz))
 					{
-						swaplong(&tspriteptr[k],&tspriteptr[l]);
-						swaplong(&spritesx[k],&spritesx[l]);
-						swaplong(&spritesy[k],&spritesy[l]);
-						swaplong(&spritesz[k],&spritesz[l]);
+						std::swap(tspriteptr[k], tspriteptr[l]);
+						std::swap(spritesx[k], spritesx[l]);
+						std::swap(spritesy[k], spritesy[l]);
+						std::swap(spritesz[k], spritesz[l]);
 					}
 			for(k=i+1;k<j;k++)
 				for(l=i;l<k;l++)
 					if (tspriteptr[k]->statnum < tspriteptr[l]->statnum)
 					{
-						swaplong(&tspriteptr[k],&tspriteptr[l]);
-						swaplong(&spritesx[k],&spritesx[l]);
-						swaplong(&spritesy[k],&spritesy[l]);
+						std::swap(tspriteptr[k], tspriteptr[l]);
+						std::swap(spritesx[k], spritesx[l]);
+						std::swap(spritesy[k], spritesy[l]);
 					}
 		}
 		i = j;
@@ -6966,7 +6966,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			for(j=i;j>=0;j-=gap)
 			{
 				if (sprite[tsprite[j].owner].z <= sprite[tsprite[j+gap].owner].z) break;
-				swapshort(&tsprite[j].owner,&tsprite[j+gap].owner);
+				std::swap(tsprite[j].owner, tsprite[j + gap].owner);
 			}
 
 	for(s=sortnum-1;s>=0;s--)

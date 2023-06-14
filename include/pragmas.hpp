@@ -3624,9 +3624,6 @@ inline constexpr int tmulscalen(int eax, int edx, int ebx, int ecx, int esi, int
 
 static inline void swapchar(void* a, void* b)  { int8_t t = *((int8_t*)b); *((int8_t*)b) = *((int8_t*)a); *((int8_t*)a) = t; }
 static inline void swapchar2(void* a, void* b, int s) { swapchar(a,b); swapchar((int8_t*)a+1, (int8_t*)b+s); }
-static inline void swapshort(void* a, void* b) { int16_t t = *((int16_t*)b); *((int16_t*)b) = *((int16_t*)a); *((int16_t*)a) = t; }
-static inline void swaplong(void* a, void* b)  { int32_t t = *((int32_t*)b); *((int32_t*)b) = *((int32_t*)a); *((int32_t*)a) = t; }
-static inline void swap64bit(void* a, void* b) { int64_t t = *((int64_t*)b); *((int64_t*)b) = *((int64_t*)a); *((int64_t*)a) = t; }
 
 static inline int8_t readpixel(void* s)    { return (*((int8_t*)(s))); }
 static inline void drawpixel(void* s, int8_t a)    { *((int8_t*)(s)) = a; }

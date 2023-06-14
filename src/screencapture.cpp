@@ -77,7 +77,7 @@ int screencapture_writeframe(std::FILE *fil, char mode, void *v,
 			glfunc.glReadPixels(0,0,xdim,ydim,GL_RGB,GL_UNSIGNED_BYTE,buf);
 			if (bgr) {
 				for (j=(xdim*ydim-1)*3; j>=0; j-=3) {
-					swapchar(&buf[j+0], &buf[j+2]);
+					std::swap(buf[j + 0], buf[j + 2]);
 				}
 			}
 			for (y = ystart; y != yend; y += yinc) {

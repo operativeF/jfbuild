@@ -388,7 +388,7 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 	if (!glinfo.bgra) {
 		int j;
 		for (j = tex.sizx * tex.sizy - 1; j >= 0; j--) {
-			swapchar(&tex.pic[j].r, &tex.pic[j].b);
+			std::swap(tex.pic[j].r, tex.pic[j].b);
 		}
 		tex.rawfmt = GL_RGBA;
 	}
