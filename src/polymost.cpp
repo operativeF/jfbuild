@@ -4698,7 +4698,7 @@ void polymost_fillpolygon (int npoints)
 		ptflags |= PTH_HIGHTILE;
 
 	draw.texture0 = 0;
-	PTHead* pth = PT_GetHead(globalpicnum, globalpal, ptflags, 0);
+	const PTHead* pth = PT_GetHead(globalpicnum, globalpal, ptflags, 0);
 
 	if (pth && pth->pic[PTHPIC_BASE]) {
 		draw.texture0 = pth->pic[ PTHPIC_BASE ]->glpic;
@@ -4741,8 +4741,8 @@ int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 	if ((rendmode != 3) || (qsetmode != 200))
 		return -1;
 
-	auto xdime = (float)tilesizx[wallnum];
-	auto ydime = (float)tilesizy[wallnum];
+	const auto xdime = (float)tilesizx[wallnum];
+	const auto ydime = (float)tilesizy[wallnum];
 
 	float scx;
 	float scy;
@@ -4760,7 +4760,7 @@ int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 		}
 	}
 
-	PTHead* pth = PT_GetHead(wallnum, 0, (usehightile ? PTH_HIGHTILE : 0) | PTH_CLAMPED, 0);
+	const PTHead* pth = PT_GetHead(wallnum, 0, (usehightile ? PTH_HIGHTILE : 0) | PTH_CLAMPED, 0);
 
 	float xdimepad;
 	float ydimepad;

@@ -5,6 +5,8 @@
 #ifndef __editor_h__
 #define __editor_h__
 
+#include <string>
+
 inline constexpr auto NUMBUILDKEYS{20};
 
 // extern int qsetmode;
@@ -79,7 +81,7 @@ extern void ExtEditSpriteData(short spritenum);
 inline constexpr auto STATUS2DSIZ{144};
 
 int loadsetup(const char *fn);	// from config.c
-int writesetup(const char *fn);	// from config.c
+int writesetup(const std::string& fn);	// from config.c
 
 void editinput();
 void clearmidstatbar16();

@@ -864,9 +864,9 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 
 static void dumpglinfo()
 {
-	const char* supported = "supported";
-	const char* unsupported = "not supported";
-	const char* glslverstr = "not supported";
+	constexpr std::string_view supported   = "supported";
+	constexpr std::string_view unsupported = "not supported";
+	std::string glslverstr  = "not supported";
 
 	if (!glinfo.loaded) {
 		buildputs("OpenGL information not available.\n");

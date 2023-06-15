@@ -291,12 +291,12 @@ int loadsetup(const char *fn)
 	return 0;
 }
 
-int writesetup(const char *fn)
+int writesetup(const std::string& fn)
 {
 	std::FILE *fp;
 	int item;
 
-	fp = std::fopen(fn,"wt");
+	fp = std::fopen(fn.c_str(), "wt");
 	if (!fp) return -1;
 
 	tmpbrightness = brightness;

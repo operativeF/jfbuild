@@ -26,7 +26,7 @@ constexpr auto EYEHEIGHT = 32 << 8;   //Normally (32<<8), (51<<8) to make mirror
 
 // declared in config.c
 int loadsetup(const char *);
-int writesetup(const char *);
+int writesetup(const std::string&);
 
 
 /***************************************************************************
@@ -465,7 +465,7 @@ int app_main(int argc, char const * const argv[])
 
         if ((supportdir = Bgetsupportdir(0))) {
 #if defined(_WIN32) || defined(__APPLE__)
-            const char *dirname = "KenBuild";
+            constexpr std::string_view dirname = "KenBuild";
 #else
             const char *dirname = ".kenbuild";
 #endif
@@ -608,9 +608,9 @@ int app_main(int argc, char const * const argv[])
 	pskyoff[0] = 0; pskyoff[1] = 0; pskybits = 1;
 
 	loadpics("tiles000.art", 1048576);                      //Load artwork
-	if (!qloadkvx(nextvoxid,"voxel000.kvx"))
+	if (!qloadkvx(nextvoxid, "voxel000.kvx"))
 		tiletovox[PLAYER] = nextvoxid++;
-	if (!qloadkvx(nextvoxid,"voxel001.kvx"))
+	if (!qloadkvx(nextvoxid, "voxel001.kvx"))
 		tiletovox[BROWNMONSTER] = nextvoxid++;
 	if (!loaddefinitionsfile("kenbuild.def")) buildputs("Definitions file loaded.\n");
 
@@ -5213,7 +5213,7 @@ int addlava(void *b)
 #else
 int addlava(void *bx)
 {
-	unsigned char *b = (unsigned char *)bx;
+	const unsigned char *b = (unsigned char *)bx;
 	return b[-133] + b[-132] + b[-131] + b[1] + b[-1] + b[131] + b[132];
 }
 #endif

@@ -110,7 +110,7 @@ static void findwhite()
 
 static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
-	char st[2] = {ch, 0};
+	const char st[2] = {ch, 0};
 	(void)shade;
 
 	int colour;
@@ -1095,7 +1095,7 @@ int OSD_Dispatch(const char *cmd)
 			continue;
 		}
 
-		symbol_t* symb = findexactsymbol(wp);
+		const symbol_t* symb = findexactsymbol(wp);
 		if (!symb) {
 			OSD_Printf("Error: \"%s\" is not defined\n", wp);
 			std::free(workbuf);

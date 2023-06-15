@@ -207,7 +207,7 @@ int scriptfile_getsymbol(scriptfile *sf, int *num)
 	if (*e) {
 		// looks like a string, so find it in the symbol table
 		if (scriptfile_getsymbolvalue(t, num)) return 0;
-		buildprintf("Error on line {}:{}: expecting symbol, got \"{}\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),t);
+		buildprintf("Error on line {}:{}: expecting symbol, got \"{}\"\n",sf->filename, scriptfile_getlinum(sf,sf->ltextptr),t);
 		return -2;   // not found
 	}
 

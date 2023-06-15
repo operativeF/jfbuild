@@ -104,7 +104,7 @@ static inline void bound2short(int count, int *stemp, short *shortptr);
 static void calcvolookupmono(int *edi, int eax, int ebx);
 static void calcvolookupstereo(int *edi, int eax, int ebx, int ecx, int edx);
 static int monohicomb(int unused, int *volptr, int cnt, int dasinc, int dasplc, int *stemp);
-static int stereohicomb(int unused, int *volptr, int cnt, int dasinc, int dasplc, int *stemp);
+static int stereohicomb(int unused, const int *volptr, int cnt, int dasinc, int dasplc, int *stemp);
 
 
 int initkdm(char dadigistat, char damusistat, int dasamplerate, char danumspeakers, char dabytespersample)
@@ -784,7 +784,7 @@ static int monohicomb(int unused, int *volptr, int cnt, int dasinc, int dasplc, 
     return dasplc;
 }
 
-static int stereohicomb(int unused, int *volptr, int cnt, int dasinc, int dasplc, int *stemp)
+static int stereohicomb(int unused, const int *volptr, int cnt, int dasinc, int dasplc, int *stemp)
 {
     unsigned char al;
     unsigned char ah;

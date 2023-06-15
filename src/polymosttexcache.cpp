@@ -378,7 +378,7 @@ PTCacheTile* PTCacheLoadTile(const char * filename, int effects, int flags)
 		return nullptr;
 	}
 
-	PTCacheIndex* pci = ptcache_findhash(filename, effects, flags);
+	const PTCacheIndex* pci = ptcache_findhash(filename, effects, flags);
 
 	if (!pci) {
 		return nullptr;
@@ -496,12 +496,12 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 	}
 
 	{
-		int32_t tsizx = B_LITTLE32(tdef->tsizx);
+		const int32_t tsizx = B_LITTLE32(tdef->tsizx);
 		const int32_t tsizy = B_LITTLE32(tdef->tsizy);
 		int32_t flags = tdef->flags & (PTH_CLAMPED | PTH_HASALPHA);
 		flags = B_LITTLE32(flags);
-		int32_t format = B_LITTLE32(tdef->format);
-		int32_t nmipmaps = B_LITTLE32(tdef->nummipmaps);
+		const int32_t format = B_LITTLE32(tdef->format);
+		const int32_t nmipmaps = B_LITTLE32(tdef->nummipmaps);
 
 		if (std::fwrite(&tsizx, 4, 1, fh) != 1 ||
 		    std::fwrite(&tsizy, 4, 1, fh) != 1 ||
@@ -513,9 +513,9 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 	}
 
 	for (int i{0}; i < tdef->nummipmaps; i++) {
-		int32_t sizx = B_LITTLE32(tdef->mipmap[i].sizx);
-		int32_t sizy = B_LITTLE32(tdef->mipmap[i].sizy);
-		int32_t length = B_LITTLE32(tdef->mipmap[i].length);
+		const int32_t sizx = B_LITTLE32(tdef->mipmap[i].sizx);
+		const int32_t sizy = B_LITTLE32(tdef->mipmap[i].sizy);
+		const int32_t length = B_LITTLE32(tdef->mipmap[i].length);
 
 		if (std::fwrite(&sizx, 4, 1, fh) != 1 ||
 		    std::fwrite(&sizy, 4, 1, fh) != 1 ||

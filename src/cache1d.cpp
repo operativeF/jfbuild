@@ -98,7 +98,7 @@ static unsigned char toupperlookup[256] =
 	0xf0,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xff
 };
 
-static void reportandexit(const char* errormessage);
+static void reportandexit(std::string_view errormessage);
 
 void initcache(void *dacachestart, size_t dacachesize)
 {
@@ -256,7 +256,7 @@ void agecache()
 	}
 }
 
-static void reportandexit(const char* errormessage)
+static void reportandexit(std::string_view errormessage)
 {
     size_t j{0};
 
@@ -423,7 +423,7 @@ std::FILE* fopenfrompath(const char *fn, const char *mode)
 		else c++;
 	}
 
-	int fh = openfrompath(fn, bmode, smode);
+	const int fh = openfrompath(fn, bmode, smode);
 	
 	if (fh < 0)
 		return nullptr;
@@ -462,7 +462,7 @@ static char filenamsav[MAXOPENFILES][260];
 static int kzcurhand{-1};
 #endif
 
-int initgroupfile(const char *filename)
+int initgroupfile(const std::string& filename)
 {
 #ifdef WITHKPLIB
 	char *zfn;
@@ -474,7 +474,7 @@ int initgroupfile(const char *filename)
 #endif
 	
 #ifdef WITHKPLIB
-	if (findfrompath(filename, &zfn) < 0) return -1;
+	if (findfrompath(filename.c_str(), &zfn) < 0) return -1;
 	
 	// check to see if the file passed is a ZIP and pass it on to kplib if it is
 	int i = Bopen(zfn,BO_BINARY|BO_RDONLY,BS_IREAD);
@@ -500,7 +500,7 @@ int initgroupfile(const char *filename)
 	Blseek(i, 0, BSEEK_SET);
 	groupfil[numgroupfiles] = i;
 #else
-	groupfil[numgroupfiles] = openfrompath(filename,BO_BINARY|BO_RDONLY,BS_IREAD);
+	groupfil[numgroupfiles] = openfrompath(filename.c_str(), BO_BINARY | BO_RDONLY , BS_IREAD);
 	if (groupfil[numgroupfiles] != -1)
 #endif
 	{
@@ -536,7 +536,7 @@ int initgroupfile(const char *filename)
 		int j{0};
 		for(int gnum{0}; gnum < gnumfiles[numgroupfiles]; ++gnum)
 		{
-			int k = B_LITTLE32(*((int *)&gfilelist[numgroupfiles][(gnum << 4) + 12]));
+			const int k = B_LITTLE32(*((int *)&gfilelist[numgroupfiles][(gnum << 4) + 12]));
 			gfilelist[numgroupfiles][(gnum << 4) + 12] = 0;
 			gfileoffs[numgroupfiles][gnum] = j;
 			j += k;
@@ -665,7 +665,7 @@ int kopen4load(const char *filename, char searchfirst)
 		{
 			for(int i = gnumfiles[k] - 1; i >= 0; --i)
 			{
-				auto* gfileptr = (char *)&gfilelist[k][i << 4];
+				const auto* gfileptr = (char *)&gfilelist[k][i << 4];
 
 				char bad{0};
 				int j{0};
@@ -695,8 +695,8 @@ int kopen4load(const char *filename, char searchfirst)
 
 int kread(int handle, void *buffer, unsigned leng)
 {
-	int filenum = filehan[handle];
-	int groupnum = filegrp[handle];
+	const int filenum = filehan[handle];
+	const int groupnum = filegrp[handle];
 	if (leng > std::numeric_limits<int>::max()) {
 		errno = EINVAL;
 		return -1;
@@ -743,7 +743,7 @@ int kgetc(int handle)
 {
 	unsigned char ch;
 
-	int len = kread(handle, &ch, 1);
+	const int len = kread(handle, &ch, 1);
 	
 	if (len < 1)
 		return EOF;
@@ -753,7 +753,7 @@ int kgetc(int handle)
 
 int klseek(int handle, int offset, int whence)
 {
-	int groupnum = filegrp[handle];
+	const int groupnum = filegrp[handle];
 
 	if (groupnum == 255) return((int)lseek(filehan[handle],offset,whence));
 #ifdef WITHKPLIB
@@ -794,7 +794,7 @@ int klseek(int handle, int offset, int whence)
 
 int kfilelength(int handle)
 {
-	int groupnum = filegrp[handle];
+	const int groupnum = filegrp[handle];
 
 	if (groupnum == 255) {
 		return (int)Bfilelength(filehan[handle]);
@@ -855,7 +855,7 @@ void kclose(int handle)
 	filehan[handle] = -1;
 }
 
-static int klistaddentry(CACHE1D_FIND_REC **rec, const char* name, int type, int source)
+static int klistaddentry(CACHE1D_FIND_REC **rec, const std::string& name, int type, int source)
 {
 	CACHE1D_FIND_REC *r = nullptr;
 	CACHE1D_FIND_REC *attach = nullptr;
@@ -877,8 +877,8 @@ static int klistaddentry(CACHE1D_FIND_REC **rec, const char* name, int type, int
 			else
 				insensitive = 0;
 #endif
-			if (insensitive) v = Bstrcasecmp(name, attach->name);
-			else v = std::strcmp(name, attach->name);
+			if (insensitive) v = Bstrcasecmp(name.c_str(), attach->name);
+			else v = std::strcmp(name.c_str(), attach->name);
 			
 			// sorted list
 			if (v > 0) continue;	// item to add is bigger than the current one
@@ -904,12 +904,12 @@ static int klistaddentry(CACHE1D_FIND_REC **rec, const char* name, int type, int
 		return 0;
 	}
 
-	r = (CACHE1D_FIND_REC *)std::malloc(sizeof(CACHE1D_FIND_REC)+std::strlen(name)+1);
+	r = (CACHE1D_FIND_REC *)std::malloc(sizeof(CACHE1D_FIND_REC) + name.length() + 1);
 	
 	if (!r)
 		return -1;
 	
-	r->name = (char*)r + sizeof(CACHE1D_FIND_REC); std::strcpy(r->name, name);
+	r->name = (char*)r + sizeof(CACHE1D_FIND_REC); std::strcpy(r->name, name.c_str());
 	r->type = type;
 	r->source = source;
 	r->usera = r->userb = nullptr;

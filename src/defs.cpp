@@ -474,7 +474,7 @@ static int defsparser(scriptfile *script)
 				{
 					char *fn;
 
-					if (scriptfile_getstring(script,&fn)) break; //voxel filename
+					if (scriptfile_getstring(script, &fn)) break; //voxel filename
 
 					if (nextvoxid == MAXVOXELS) {
 						buildputs("Maximum number of voxels already defined.\n");

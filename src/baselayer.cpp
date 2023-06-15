@@ -200,7 +200,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 	const bool showval = parm->numparms < 1;
 
 	if (!Bstrcasecmp(parm->name, "screencaptureformat")) {
-		const char* const fmts[3] = { "TGA", "PCX", "PNG" };
+		constexpr std::array<const char*, 3> fmts = { "TGA", "PCX", "PNG" };
 		if (!showval) {
 			int i;
 			for (i=0; i<3; i++)

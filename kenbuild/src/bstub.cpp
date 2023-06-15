@@ -123,7 +123,7 @@ int ExtInit()
 
         if ((supportdir = Bgetsupportdir(0))) {
 #if defined(_WIN32) || defined(__APPLE__)
-            const char *dirname = "KenBuild";
+            constexpr std::string_view dirname = "KenBuild";
 #else
             const char *dirname = ".kenbuild";
 #endif
@@ -292,7 +292,7 @@ void ExtAnalyzeSprites()
 		{
 			case PLAYER:
 				if (!voxoff[ tiletovox[PLAYER] ][0]) {
-					if (qloadkvx(tiletovox[PLAYER],"voxel000.kvx")) {
+					if (qloadkvx(tiletovox[PLAYER], "voxel000.kvx")) {
 						tiletovox[PLAYER] = -1;
 						break;
 					}
@@ -305,7 +305,7 @@ void ExtAnalyzeSprites()
 				break;
 			case BROWNMONSTER:
 				if (!voxoff[ tiletovox[BROWNMONSTER] ][0]) {
-					if (qloadkvx(tiletovox[BROWNMONSTER],"voxel001.kvx")) {
+					if (qloadkvx(tiletovox[BROWNMONSTER], "voxel001.kvx")) {
 						tiletovox[BROWNMONSTER] = -1;
 						break;
 					}

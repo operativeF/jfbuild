@@ -3,6 +3,8 @@
 #ifndef __cache1d_h__
 #define __cache1d_h__
 
+#include <string>
+
 void	initcache(void *dacachestart, size_t dacachesize);
 void	allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr);
 void	suckcache(void *suckptr);
@@ -25,7 +27,7 @@ int		findfrompath(const char *fn, char **where);
 int     openfrompath(const char *fn, int flags, int mode);
 std::FILE  *fopenfrompath(const char *fn, const char *mode);
 
-int 	initgroupfile(const char *filename);
+int 	initgroupfile(const std::string& filename);
 void	uninitsinglegroupfile(int grphandle);
 void	uninitgroupfile();
 int 	kopen4load(const char *filename, char searchfirst);	// searchfirst: 0 = anywhere, 1 = first group, 2 = any group

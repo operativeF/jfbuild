@@ -485,8 +485,8 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 	{
 		if ((*tex)->sizx != (*tex)->tsizx || (*tex)->sizy != (*tex)->tsizy)
 		{
-			auto fx = ((float)(*tex)->tsizx)/((float)(*tex)->sizx);
-			auto fy = ((float)(*tex)->tsizy)/((float)(*tex)->sizy);
+			const auto fx = ((float)(*tex)->tsizx)/((float)(*tex)->sizx);
+			const auto fy = ((float)(*tex)->tsizy)/((float)(*tex)->sizy);
 			if (m->mdnum == 2)
 			{
 				//FIXME correct uvs for non-2^x textures

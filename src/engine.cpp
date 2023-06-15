@@ -1156,13 +1156,13 @@ static void prepwall(int z, const walltype *wal)
 
 	//lwall calculation
 	int i = xb1[z]-halfxdimen;
-	int topinc = -(ry1[z]>>2);
-	int botinc = ((ry2[z]-ry1[z])>>8);
+	const int topinc = -(ry1[z]>>2);
+	const int botinc = ((ry2[z]-ry1[z])>>8);
 	int top = mulscalen<5>(rx1[z],xdimen)+mulscalen<2>(topinc,i);
 	int bot = mulscalen<11>(rx1[z]-rx2[z],xdimen)+mulscalen<2>(botinc,i);
 
 	int splc = mulscalen<19>(ry1[z],xdimscale);
-	int sinc = mulscalen<16>(ry2[z]-ry1[z],xdimscale);
+	const int sinc = mulscalen<16>(ry2[z]-ry1[z],xdimscale);
 
 	int x = xb1[z];
 
@@ -1668,7 +1668,7 @@ static void ceilscan(int x1, int x2, int sectnum)
 	int twall;
 	int bwall;
 
-	sectortype* sec = &sector[sectnum];
+	const sectortype* sec = &sector[sectnum];
 	
 	if (palookup[sec->ceilingpal] != globalpalwritten)
 	{
@@ -1868,7 +1868,7 @@ static void florscan(int x1, int x2, int sectnum)
 	int twall;
 	int bwall;
 
-	sectortype* sec = &sector[sectnum];
+	const sectortype* sec = &sector[sectnum];
 
 	if (palookup[sec->floorpal] != globalpalwritten)
 	{
@@ -3549,7 +3549,7 @@ static void drawsprite(int snum)
 	if ((tspr->xrepeat <= 0) || (tspr->yrepeat <= 0)) return;
 
 	sectnum = tspr->sectnum;
-	sectortype* sec = &sector[sectnum];
+	const sectortype* sec = &sector[sectnum];
 	globalpal = tspr->pal;
 	
 	if (palookup[globalpal] == nullptr) {
@@ -8261,7 +8261,7 @@ readerror:
 // loadmaphack
 //
 #include "scriptfile.hpp"
-int loadmaphack(const char *filename)
+int loadmaphack(const std::string& filename)
 {
 #if USE_POLYMOST && USE_OPENGL
 	static constexpr struct {
@@ -8282,7 +8282,7 @@ int loadmaphack(const char *filename)
 
 	int whichsprite = -1;
 
-	auto* script = scriptfile_fromfile(filename);
+	auto* script = scriptfile_fromfile(filename.c_str());
 	
 	if (!script) {
 		return -1;
@@ -8367,7 +8367,7 @@ int loadmaphack(const char *filename)
 //
 // saveboard
 //
-int saveboard(const char *filename, const int *daposx, const int *daposy, const int *daposz,
+int saveboard(const std::string& filename, const int *daposx, const int *daposy, const int *daposz,
 			 const short *daang, const short *dacursectnum)
 {
 	short fil;
@@ -8379,7 +8379,7 @@ int saveboard(const char *filename, const int *daposx, const int *daposy, const 
 	walltype   twall;
 	spritetype tspri;
 
-	if ((fil = Bopen(filename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
+	if ((fil = Bopen(filename.c_str(), BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
 		return(-1);
 
 	short numsprites{0};
@@ -8839,7 +8839,8 @@ void nextpage()
 //
 // loadpics
 //
-int loadpics(const char* filename, int askedsize)
+// TODO: Maybe consider a strict file format type for filename.
+int loadpics(const std::string& filename, int askedsize)
 {
 	int offscount;
 	int localtilestart;
@@ -8850,7 +8851,7 @@ int loadpics(const char* filename, int askedsize)
 	short j;
 	short k;
 
-	std::strcpy(artfilename, filename);
+	std::ranges::copy(filename, artfilename);
 
 	std::ranges::fill(tilesizx, 0);
 	std::ranges::fill(tilesizy, 0);
@@ -9095,13 +9096,13 @@ void copytilepiece(int tilenume1, int sx1, int sy1, int xsiz, int ysiz,
 //
 // qloadkvx
 //
-int qloadkvx(int voxindex, const char* filename)
+int qloadkvx(int voxindex, const std::string& filename)
 {
 	int fil;
 	int dasiz;
 	unsigned char *ptr;
 
-	if ((fil = kopen4load(filename, 0)) == -1) {
+	if ((fil = kopen4load(filename.c_str(), 0)) == -1) {
 		return -1;
 	}
 
@@ -9132,7 +9133,7 @@ int qloadkvx(int voxindex, const char* filename)
 		voxfree(voxmodels[voxindex]);
 		voxmodels[voxindex] = nullptr;
 	}
-	voxmodels[voxindex] = voxload(filename);
+	voxmodels[voxindex] = voxload(filename.c_str());
 #endif
 	return 0;
 }
@@ -9287,13 +9288,13 @@ int inside(int x, int y, short sectnum)
 
 	do
 	{
-		int y1 = wal->y - y;
-		int y2 = wall[wal->point2].y - y;
+		const int y1 = wal->y - y;
+		const int y2 = wall[wal->point2].y - y;
 
 		if ((y1 ^ y2) < 0)
 		{
-			int x1 = wal->x - x;
-			int x2 = wall[wal->point2].x - x;
+			const int x1 = wal->x - x;
+			const int x2 = wall[wal->point2].x - x;
 
 			if ((x1 ^ x2) >= 0) {
 				cnt ^= x1;

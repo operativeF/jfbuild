@@ -288,7 +288,7 @@ int wm_ynbox(const char *name, const char *fmt, ...) {
 //
 // wm_filechooser() -- display a file selector dialogue box
 //
-int wm_filechooser(const char *initialdir, const char *initialfile, const char *type, int foropen, char **choice)
+int wm_filechooser(const std::string& initialdir, const char *initialfile, const char *type, int foropen, char **choice)
 {
 	char filter[100];
 	char* filterp = filter;
@@ -315,7 +315,7 @@ int wm_filechooser(const char *initialdir, const char *initialfile, const char *
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFile = filename;
 	ofn.nMaxFile = sizeof(filename);
-	ofn.lpstrInitialDir = initialdir;
+	ofn.lpstrInitialDir = initialdir.c_str();
 	ofn.Flags = OFN_DONTADDTORECENT | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
 	ofn.lpstrDefExt = type;
 

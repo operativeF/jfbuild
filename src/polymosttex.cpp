@@ -69,7 +69,7 @@ static PTHash * pthashhead[PTHASHHEADSIZ];	// will be initialised 0 by .bss segm
 constexpr auto PTMHASHHEADSIZ{4096};
 static PTMHash * ptmhashhead[PTMHASHHEADSIZ];	// will be initialised 0 by .bss segment
 
-static constexpr std::array<const char*, 4> compressfourcc = {
+static constexpr std::array<std::string_view, 4> compressfourcc = {
 	"NONE",
 	"DXT1",
 	"DXT5",
@@ -286,7 +286,7 @@ incompatible:
  * @param effects HICEFFECT_* effects to apply
  * @return 0 on success, <0 on error
  */
-int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effects)
+int PTM_LoadTextureFile(const std::string& filename, PTMHead* ptmh, int flags, int effects)
 {
 	int y;
 	
@@ -294,7 +294,7 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 	bool iscached{false};
 
 	if (!(flags & PTH_NOCOMPRESS) && glusetexcache && glusetexcompr) {
-		iscached = PTCacheHasTile(filename, effects, (flags & PTH_CLAMPED));
+		iscached = PTCacheHasTile(filename.c_str(), effects, (flags & PTH_CLAMPED));
 
 		// if the texture exists in the cache but the original file is newer,
 		// ignore what's in the cache and overwrite it
@@ -308,12 +308,12 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 	}
 
 	if (iscached) {
-		if (ptm_loadcachedtexturefile(filename, ptmh, flags, effects) == 0) {
+		if (ptm_loadcachedtexturefile(filename.c_str(), ptmh, flags, effects) == 0) {
 			return 0;
 		}
 	}
 
-	const int filh = kopen4load((char *) filename, 0);
+	const int filh = kopen4load((char *) filename.c_str(), 0);
 	if (filh < 0) {
 		return -1;
 	}
@@ -400,7 +400,7 @@ int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effe
 		nmips++;
 
 		tdef = PTCacheAllocNewTile(nmips);
-		tdef->filename = strdup(filename);
+		tdef->filename = strdup(filename.c_str());
 		tdef->effects = effects;
 		tdef->flags = (flags | ptmh->flags) & (PTH_CLAMPED | PTH_HASALPHA);
 	}

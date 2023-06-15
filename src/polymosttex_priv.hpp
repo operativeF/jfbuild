@@ -179,7 +179,7 @@ PTMHead * PTM_GetHead(const PTMIdent *id);
  *
  * Shared method for mdsprite.c to call.
  */
-int PTM_LoadTextureFile(const char* filename, PTMHead* ptmh, int flags, int effects);
+int PTM_LoadTextureFile(const std::string& filename, PTMHead* ptmh, int flags, int effects);
 
 /**
  * Returns a string describing the error returned by PTM_LoadTextureFile

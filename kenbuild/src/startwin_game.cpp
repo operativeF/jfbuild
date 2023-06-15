@@ -40,7 +40,7 @@ static void populate_video_modes(BOOL firstTime)
     int bpp = 0;
     int fullscreen = 0;
     TCHAR modestr[64];
-    int cd[] = { 32, 24, 16, 15, 8, 0 };
+    const int cd[] = { 32, 24, 16, 15, 8, 0 };
     HWND hwnd;
 
     hwnd = GetDlgItem(pages[TAB_CONFIG], IDC_VMODE3D);

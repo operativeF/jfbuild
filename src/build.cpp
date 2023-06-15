@@ -171,7 +171,7 @@ int gettile(int tilenum);
 
 char *findfilename(char *path);
 int menuselect(int newpathmode);
-void getfilenames(const char *path, const char* kind);
+void getfilenames(const std::string& path, const std::string& kind);
 void clearfilenames();
 
 void clearkeys() {
@@ -2476,10 +2476,10 @@ int gettile(int tilenum)
 
 	if (tilenum < 0) tilenum = 0;
 
-	int xtiles = xdim >> 6;
-	int ytiles = ydim >> 6;
-	int tottiles = xtiles * ytiles;
-	int otilenum{tilenum};
+	const int xtiles = xdim >> 6;
+	const int ytiles = ydim >> 6;
+	const int tottiles = xtiles * ytiles;
+	const int otilenum{tilenum};
 
 	keystatus[0x2f] = 0;
 
@@ -2685,9 +2685,9 @@ void drawtilescreen(int pictopleft, int picbox)
 	unsigned char *picptr;
 	std::array<char, 80> snotbuf;
 
-	int xtiles = xdim >> 6;
-	int ytiles = ydim >> 6;
-	int tottiles = xtiles * ytiles;
+	const int xtiles = xdim >> 6;
+	const int ytiles = ydim >> 6;
+	const int tottiles = xtiles * ytiles;
 
 #if USE_POLYMOST && USE_OPENGL
 	setpolymost2dview();	// JBF 20040205: set to 2d rendering
@@ -5915,17 +5915,17 @@ ClockDir_t clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
 		}
 	} while ((wall[i].point2 != wallstart) && (i < MAXWALLS));
 
-	int x0 = wall[themin].x;
-	int y0 = wall[themin].y;
-	int x1 = wall[wall[themin].point2].x;
-	int y1 = wall[wall[themin].point2].y;
-	int x2 = wall[wall[wall[themin].point2].point2].x;
-	int y2 = wall[wall[wall[themin].point2].point2].y;
+	const int x0 = wall[themin].x;
+	const int y0 = wall[themin].y;
+	const int x1 = wall[wall[themin].point2].x;
+	const int y1 = wall[wall[themin].point2].y;
+	const int x2 = wall[wall[wall[themin].point2].point2].x;
+	const int y2 = wall[wall[wall[themin].point2].point2].y;
 
 	if ((y1 >= y2) && (y1 <= y0)) return ClockDir_t::CW;
 	if ((y1 >= y0) && (y1 <= y2)) return ClockDir_t::CCW;
 
-	int templong = (x0 - x1) * (y2 - y1) - (x2 - x1) * (y0 - y1);
+	const int templong = (x0 - x1) * (y2 - y1) - (x2 - x1) * (y0 - y1);
 
 	if (templong < 0)
 		return ClockDir_t::CW;
@@ -5938,7 +5938,7 @@ void flipwalls(short numwalls, short newnumwalls)
 	int i;
 	int j;
 
-	int nume = newnumwalls-numwalls;
+	const int nume = newnumwalls-numwalls;
 
 	for(i=numwalls;i<numwalls+(nume>>1);i++)
 	{
@@ -6001,9 +6001,8 @@ void deletepoint(short point)
 	int i;
 	int j;
 	int k;
-	int sucksect;
 
-	sucksect = sectorofwall(point);
+	const int sucksect = sectorofwall(point);
 
 	sector[sucksect].wallnum--;
 	for(i=sucksect+1;i<numsectors;i++)
@@ -6036,8 +6035,8 @@ void deletesector(short sucksect)
 		deletesprite(headspritesect[sucksect]);
 	updatenumsprites();
 
-	int startwall = sector[sucksect].wallptr;
-	int endwall = startwall + sector[sucksect].wallnum - 1;
+	const int startwall = sector[sucksect].wallptr;
+	const int endwall = startwall + sector[sucksect].wallnum - 1;
 	int j = sector[sucksect].wallnum;
 
 	for(i=sucksect;i<numsectors-1;i++)
@@ -6046,7 +6045,7 @@ void deletesector(short sucksect)
 		
 		while (k != -1)
 		{
-			int nextk = nextspritesect[k];
+			const int nextk = nextspritesect[k];
 			changespritesect((short)k,(short)i);
 			k = nextk;
 		}
@@ -6330,7 +6329,7 @@ void clearfilenames()
 	numfiles = numdirs = 0;
 }
 
-void getfilenames(const char *path, const char* kind)
+void getfilenames(const std::string& path, const std::string& kind)
 {
 	CACHE1D_FIND_REC *r;
 	int type = 0;
@@ -6340,8 +6339,8 @@ void getfilenames(const char *path, const char* kind)
 	}
 
 	clearfilenames();
-	finddirs = klistpath(path,"*",CACHE1D_FIND_DIR|CACHE1D_FIND_DRIVE|type);
-	findfiles = klistpath(path, kind, CACHE1D_FIND_FILE | type);
+	finddirs = klistpath(path.c_str(), "*", CACHE1D_FIND_DIR|CACHE1D_FIND_DRIVE|type);
+	findfiles = klistpath(path.c_str(), kind.c_str(), CACHE1D_FIND_FILE | type);
 	for (r = finddirs; r; r=r->next) numdirs++;
 	for (r = findfiles; r; r=r->next) numfiles++;
 
@@ -6376,7 +6375,7 @@ int menuselect(int newpathmode)
 
 	const int bakpathsearchmode{ pathsearchmode };
 
-	int listsize = (ydim16 - 32) / 8;
+	const int listsize = (ydim16 - 32) / 8;
 
 	if (newpathmode != pathsearchmode) {
 		std::strcpy(&selectedboardfilename[0], "");
@@ -7454,8 +7453,8 @@ void copysector(short soursector, short destsector, short deststartwall, unsigne
 	short newnumwalls = deststartwall;  //erase existing sector fragments
 
 		//duplicate walls
-	short startwall = sector[soursector].wallptr;
-	short endwall = startwall + sector[soursector].wallnum;
+	const short startwall = sector[soursector].wallptr;
+	const short endwall = startwall + sector[soursector].wallnum;
 
 	for(j=startwall;j<endwall;j++)
 	{
