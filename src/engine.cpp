@@ -11881,7 +11881,7 @@ int sectorofwall(short theline)
 //
 int getceilzofslope(short sectnum, int dax, int day)
 {
-	if (!(sector[sectnum].ceilingstat&2))
+	if (!(sector[sectnum].ceilingstat & 2))
 		return sector[sectnum].ceilingz;
 
 	const walltype* wal = &wall[sector[sectnum].wallptr];
@@ -12019,7 +12019,7 @@ int loopnumofsector(short sectnum, short wallnum)
 	{
 		if (i == wallnum) {
 			return numloops;
-	}
+		}
 
 		if (wall[i].point2 < i) {
 			numloops++;
@@ -12350,7 +12350,7 @@ void buildsetlogfile(const char *fn)
 	logfile = nullptr;
 
 	if (fn)
-		logfile = std::fopen(fn,"w");
+		logfile = std::fopen(fn, "w");
 
 	if (logfile)
 		setvbuf(logfile, (char*)nullptr, _IONBF, 0);

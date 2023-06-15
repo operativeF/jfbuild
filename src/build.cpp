@@ -6559,13 +6559,25 @@ void fillsector(short sectnum, unsigned char fillcolor)
 	{
 		y1 = (((wall[z].y-posy)*zoom)>>14)+midydim16;
 		y2 = (((wall[wall[z].point2].y-posy)*zoom)>>14)+midydim16;
-		if (y1 < miny) miny = y1;
-		if (y2 < miny) miny = y2;
-		if (y1 > maxy) maxy = y1;
-		if (y2 > maxy) maxy = y2;
+
+		if (y1 < miny)
+			miny = y1;
+
+		if (y2 < miny)
+			miny = y2;
+
+		if (y1 > maxy)
+			maxy = y1;
+
+		if (y2 > maxy)
+			maxy = y2;
 	}
-	if (miny < uborder) miny = uborder;
-	if (maxy >= dborder) maxy = dborder-1;
+
+	if (miny < uborder)
+		miny = uborder;
+
+	if (maxy >= dborder)
+		maxy = dborder - 1;
 
 	for(sy=miny+((totalclock>>2)&3);sy<=maxy;sy+=3)	// JBF 20040116: numframes%3 -> (totalclock>>2)&3
 	{
@@ -6604,7 +6616,7 @@ void fillsector(short sectnum, unsigned char fillcolor)
 				if (fillist[z] > rborder) break;
 				if (fillist[z+1] > rborder)
 					fillist[z+1] = rborder;
-				drawline16(fillist[z],sy,fillist[z+1],sy,fillcolor);
+				drawline16(fillist[z], sy, fillist[z + 1], sy, fillcolor);
 			}
 		}
 	}
@@ -6783,17 +6795,18 @@ badline:
 void drawline16(int x1, int y1, int x2, int y2, unsigned char col)
 {
 	int i;
-	int dx;
-	int dy;
 	int pinc;
 	int d;
 	intptr_t p;
 	unsigned int patc=0;
 
-	dx = x2-x1; dy = y2-y1;
+	int dx = x2 - x1;
+	int dy = y2 - y1;
+
 	if (dx >= 0)
 	{
-		if ((x1 >= xres) || (x2 < 0)) return;
+		if ((x1 >= xres) || (x2 < 0))
+			return;
 		if (x1 < 0) { if (dy) y1 += scale(0-x1,dy,dx); x1 = 0; }
 		if (x2 >= xres) { if (dy) y2 += scale(xres-1-x2,dy,dx); x2 = xres-1; }
 	}
@@ -6816,7 +6829,8 @@ void drawline16(int x1, int y1, int x2, int y2, unsigned char col)
 		if (y1 >= ydim16) { if (dx) x1 += scale(ydim16-1-y1,dx,dy); y1 = ydim16-1; if (x1 < 0) x1 = 0; }
 	}
 
-	dx = std::abs(x2-x1)+1; dy = std::abs(y2-y1)+1;
+	dx = std::abs(x2 - x1) + 1;
+	dy = std::abs(y2 - y1) + 1;
 	if (dx >= dy)
 	{
 		if (x2 < x1)
@@ -6845,11 +6859,16 @@ void drawline16(int x1, int y1, int x2, int y2, unsigned char col)
 
 	if (y2 < y1)
 	{
-		i = x1; x1 = x2; x2 = i;
-		i = y1; y1 = y2; y2 = i;
+		std::swap(x1, x2);
+		std::swap(y1, y2);
 	}
+
 	d = 0;
-	if (x2 > x1) pinc = 1; else pinc = -1;
+	
+	if (x2 > x1)
+		pinc = 1;
+	else
+		pinc = -1;
 
 	p = ((ytop16+y1)*bytesperline)+x1+frameplace;
 	for(i=dy;i>0;i--)
@@ -6864,16 +6883,6 @@ void drawline16(int x1, int y1, int x2, int y2, unsigned char col)
 
 void drawcircle16(int x1, int y1, int r, unsigned char col)
 {
-	int xp;
-	int yp;
-	int xpbpl;
-	int ypbpl;
-	int d;
-	int de;
-	int dse;
-	int patc=0;
-	intptr_t p;
-
 	if (r < 0) r = -r;
 	if (x1+r < 0 || x1-r >= xres) return;
 	if (y1+r < 0 || y1-r >= ydim16) return;
@@ -6890,14 +6899,15 @@ void drawcircle16(int x1, int y1, int r, unsigned char col)
 	 *      b
 	 */
 
-	xp = 0;
-	yp = r;
-	d = 1 - r;
-	de = 2;
-	dse = 5 - (r << 1);
+	int xp{0};
+	int yp{r};
+	int d = 1 - r;
+	int de = 2;
+	int dse = 5 - (r << 1);
 
-	p = ((ytop16+y1)*bytesperline)+x1+frameplace;
+	intptr_t p = ((ytop16 + y1) * bytesperline) + x1 + frameplace;
 
+	int patc{0};
 	if (drawlinepat & pow2long[(patc++) & 31]) {
 		if ((unsigned int)y1 < (unsigned int)ydim16 && (unsigned int)(x1+r) < (unsigned int)xres  )
 			drawpixel((void *)(p+r), col);			// a
@@ -6923,8 +6933,9 @@ void drawcircle16(int x1, int y1, int r, unsigned char col)
 			yp--;
 		}
 
-		ypbpl = yp*bytesperline;
-		xpbpl = xp*bytesperline;
+		const int ypbpl = yp * bytesperline;
+		const int xpbpl = xp * bytesperline;
+		
 		if (drawlinepat & pow2long[(patc++) & 31]) {
 			if ((unsigned int)(x1+yp) < (unsigned int)xres && (unsigned int)(y1+xp) < (unsigned int)ydim16)
 				drawpixel((void *)(p+yp+xpbpl), col);	// 1
@@ -7331,22 +7342,20 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 //
 void printext16(int xpos, int ypos, short col, short backcol, const char *name, char fontsize)
 {
-	int stx;
 	int i;
 	int x;
 	int y;
 	const unsigned char *letptr;
 	unsigned char *ptr;
-	const struct textfontspec *f;
 
-	f = &textfonts[std::min(static_cast<int>(fontsize), 2)]; // FIXME: Dumb way to index here.
-	stx = xpos;
+	const auto* f = &textfonts[std::min(static_cast<int>(fontsize), 2)]; // FIXME: Dumb way to index here.
+	int stx = xpos;
 
-	for(i=0;name[i];i++)
+	for(int i{0}; name[i]; ++i)
 	{
-		letptr = &f->font[((int)(unsigned char)name[i])*f->cellh + f->cellyoff];
-		ptr = (unsigned char *)(bytesperline*(ytop16+ypos+f->charysiz-1)+stx+frameplace);
-		for(y=f->charysiz-1;y>=0;y--)
+		letptr = &f->font[((int)(unsigned char) name[i]) * f->cellh + f->cellyoff];
+		ptr = (unsigned char *)(bytesperline * (ytop16 + ypos + f->charysiz - 1) + stx + frameplace);
+		for(y = f->charysiz - 1; y >= 0; --y)
 		{
 			for(x=f->charxsiz-1;x>=0;x--)
 			{
@@ -7364,7 +7373,6 @@ void printext16(int xpos, int ypos, short col, short backcol, const char *name, 
 void printcoords16(int posxe, int posye, short ange)
 {
 	std::array<char, 80> snotbuf;
-	int i;
 	int maxsect{0};
 	int maxwall{0};
 	int maxspri{0};
@@ -7372,7 +7380,7 @@ void printcoords16(int posxe, int posye, short ange)
 	setstatusbarviewport();
 
 	std::sprintf(&snotbuf[0],"x=%d y=%d ang=%d",posxe,posye,ange);
-	i = 0;
+	int i{0};
 	while ((snotbuf[i] != 0) && (i < 30))
 		i++;
 	while (i < 30)
@@ -7405,7 +7413,7 @@ void printcoords16(int posxe, int posye, short ange)
 			break;
 	}
 
-	printext16(8,128, 11, 6, &snotbuf[0],0);
+	printext16(8, 128, 11, 6, &snotbuf[0],0);
 
 	std::sprintf(&snotbuf[0],"v%d %d/%d sect %d/%d wall %d/%d spri",
 					mapversion,
@@ -7442,24 +7450,24 @@ void copysector(short soursector, short destsector, short deststartwall, unsigne
 	short j;
 	short k;
 	short m;
-	short newnumwalls;
-	short startwall;
-	short endwall;
 
-	newnumwalls = deststartwall;  //erase existing sector fragments
+	short newnumwalls = deststartwall;  //erase existing sector fragments
 
 		//duplicate walls
-	startwall = sector[soursector].wallptr;
-	endwall = startwall + sector[soursector].wallnum;
+	short startwall = sector[soursector].wallptr;
+	short endwall = startwall + sector[soursector].wallnum;
+
 	for(j=startwall;j<endwall;j++)
 	{
-		std::memcpy(&wall[newnumwalls],&wall[j],sizeof(walltype));
-		wall[newnumwalls].point2 += deststartwall-startwall;
+		std::memcpy(&wall[newnumwalls], &wall[j], sizeof(walltype));
+		wall[newnumwalls].point2 += deststartwall - startwall;
+		
 		if (wall[newnumwalls].nextwall >= 0)
 		{
 			wall[newnumwalls].nextwall += deststartwall-startwall;
 			wall[newnumwalls].nextsector += destsector-soursector;
 		}
+
 		newnumwalls++;
 	}
 
@@ -7841,7 +7849,7 @@ int GetWallZPeg(int nWall)
 	if (nNextSector == -1)
 	{
 		//1-sided wall
-		if (wall[nWall].cstat&4)
+		if (wall[nWall].cstat & 4)
 			return sector[nSector].floorz;
 		else
 			return sector[nSector].ceilingz;
@@ -7849,12 +7857,13 @@ int GetWallZPeg(int nWall)
 	else
 	{
 			//2-sided wall
-		if (wall[nWall].cstat&4)
+		if (wall[nWall].cstat & 4)
 			return sector[nSector].ceilingz;
 		else
 		{
 			if (sector[nNextSector].ceilingz > sector[nSector].ceilingz)
 				return sector[nNextSector].ceilingz;   //top step
+
 			if (sector[nNextSector].floorz < sector[nSector].floorz)
 				return sector[nNextSector].floorz;   //bottom step
 		}
