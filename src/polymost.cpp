@@ -4201,20 +4201,27 @@ void polymost_dorotatesprite (int sx, int sy, int z, short a, short picnum,
 	{
 		if ((tile2model[picnum].modelid >= 0) && (tile2model[picnum].framenum >= 0))
 		{
-			spritetype tspr;
-			std::memset(&tspr,0,sizeof(spritetype));
-
 			if (hudmem[(dastat&4)>>2][picnum].flags&1) return; //"HIDE" is specified in DEF
 
-			ogchang = gchang; gchang = 1.0;
-			ogshang = gshang; gshang = 0.0; d = (double)z/(65536.0*16384.0);
-			ogctang = gctang; gctang = (double)sintable[(a+512)&2047]*d;
-			ogstang = gstang; gstang = (double)sintable[a&2047]*d;
-			ogshade  = globalshade;  globalshade  = dashade;
-			ogpal    = globalpal;    globalpal    = (int)((unsigned char)dapalnum);
-			ogxyaspect = gxyaspect; gxyaspect = 1.0;
-			ogfogdensity = gfogdensity; gfogdensity = 0.0;
-			oldviewingrange = viewingrange; viewingrange = 65536;
+			ogchang = gchang;
+			gchang = 1.0;
+			ogshang = gshang;
+			gshang = 0.0;
+			d = (double)z/(65536.0*16384.0);
+			ogctang = gctang;
+			gctang = (double)sintable[(a+512)&2047]*d;
+			ogstang = gstang;
+			gstang = (double)sintable[a&2047]*d;
+			ogshade  = globalshade;
+			globalshade  = dashade;
+			ogpal    = globalpal;
+			globalpal    = (int)((unsigned char)dapalnum);
+			ogxyaspect = gxyaspect;
+			gxyaspect = 1.0;
+			ogfogdensity = gfogdensity;
+			gfogdensity = 0.0;
+			oldviewingrange = viewingrange;
+			viewingrange = 65536;
 
 			x1 = hudmem[(dastat&4)>>2][picnum].xadd;
 			y1 = hudmem[(dastat&4)>>2][picnum].yadd;
@@ -4250,17 +4257,38 @@ void polymost_dorotatesprite (int sx, int sy, int z, short a, short picnum,
 					y1 += fy/100.0-1.0; //-1: top of screen, +1: bottom of screen
 			}
 			}
-			tspr.ang = hudmem[(dastat&4)>>2][picnum].angadd+globalang;
-			tspr.xrepeat = tspr.yrepeat = 32;
 
-			if (dastat&4) { x1 = -x1; y1 = -y1; }
-			tspr.x = (int)(((double)gcosang*z1 - (double)gsinang*x1)*16384.0 + globalposx);
-			tspr.y = (int)(((double)gsinang*z1 + (double)gcosang*x1)*16384.0 + globalposy);
-			tspr.z = (int)(globalposz + y1*16384.0*0.8);
-			tspr.picnum = picnum;
-			tspr.shade = dashade;
-			tspr.pal = dapalnum;
-			tspr.owner = uniqid+MAXSPRITES;
+			if (dastat & 4) {
+				x1 = -x1;
+				y1 = -y1;
+			}
+
+			spritetype tspr{
+				.x = (int)(((double)gcosang*z1 - (double)gsinang*x1)*16384.0 + globalposx),
+				.y = (int)(((double)gsinang*z1 + (double)gcosang*x1)*16384.0 + globalposy),
+				.z = (int)(globalposz + y1 * 16384.0 * 0.8),
+				.cstat{0},
+				.picnum = picnum,
+				.shade = dashade,
+				.pal = dapalnum,
+				.clipdist{0},
+				.filler{0},
+				.xrepeat{32},
+				.yrepeat{32},
+				.xoffset{0},
+				.yoffset{0},
+				.sectnum{0},
+				.statnum{0},
+				.ang = hudmem[(dastat & 4) >> 2][picnum].angadd + globalang,
+				.owner = static_cast<short>(uniqid + MAXSPRITES), // FIXME: Narrowing conversion!
+				.xvel{0},
+				.yvel{0},
+				.zvel{0},
+				.lotag{0},
+				.hitag{0},
+				.extra{0}
+			};
+
 			globalorientation = (dastat&1)+((dastat&32)<<4)+((dastat&4)<<1);
 
 			if ((dastat&10) == 2) glfunc.glViewport(windowx1,yres-(windowy2+1),windowx2-windowx1+1,windowy2-windowy1+1);
@@ -4294,20 +4322,34 @@ void polymost_dorotatesprite (int sx, int sy, int z, short a, short picnum,
 	}
 #endif
 
-	ogpicnum = globalpicnum; globalpicnum = picnum;
-	ogshade  = globalshade;  globalshade  = dashade;
-	ogpal    = globalpal;    globalpal    = (int)((unsigned char)dapalnum);
-	oghalfx  = ghalfx;       ghalfx       = (double)(xdim>>1);
-	ogrhalfxdown10 = grhalfxdown10;    grhalfxdown10 = 1.0/(((double)ghalfx)*1024);
-	ogrhalfxdown10x = grhalfxdown10x;  grhalfxdown10x = grhalfxdown10;
-	oghoriz  = ghoriz;       ghoriz       = (double)(ydim>>1);
-	ofoffset = frameoffset;  frameoffset  = frameplace;
-	oxdimen  = xdimen;       xdimen       = xdim;
-	oydimen  = ydimen;       ydimen       = ydim;
-	ogchang = gchang; gchang = 1.0;
-	ogshang = gshang; gshang = 0.0;
-	ogctang = gctang; gctang = 1.0;
-	ogstang = gstang; gstang = 0.0;
+	ogpicnum = globalpicnum;
+	globalpicnum = picnum;
+	ogshade  = globalshade;
+	globalshade  = dashade;
+	ogpal    = globalpal;
+	globalpal    = (int)((unsigned char)dapalnum);
+	oghalfx  = ghalfx;
+	ghalfx       = (double)(xdim>>1);
+	ogrhalfxdown10 = grhalfxdown10;
+	grhalfxdown10 = 1.0/(((double)ghalfx)*1024);
+	ogrhalfxdown10x = grhalfxdown10x;
+	grhalfxdown10x = grhalfxdown10;
+	oghoriz  = ghoriz;
+	ghoriz       = (double)(ydim>>1);
+	ofoffset = frameoffset;
+	frameoffset  = frameplace;
+	oxdimen  = xdimen;
+	xdimen       = xdim;
+	oydimen  = ydimen;
+	ydimen       = ydim;
+	ogchang = gchang;
+	gchang = 1.0;
+	ogshang = gshang;
+	gshang = 0.0;
+	ogctang = gctang;
+	gctang = 1.0;
+	ogstang = gstang;
+	gstang = 0.0;
 
 #if USE_OPENGL
 	if (rendmode == 3)
