@@ -5026,12 +5026,7 @@ static int clippoly4(int cx1, int cy1, int cx2, int cy2)
 static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade,
 	unsigned char dapalnum, unsigned char dastat, int cx1, int cy1, int cx2, int cy2, int uniqid)
 {
-	int cosang;
-	int sinang;
-	int v;
-	int nextv;
 	int dax1;
-	int dax2;
 	int oy;
 	int bx;
 	int by;
@@ -5048,23 +5043,19 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 	intptr_t p;
 	intptr_t bufplc;
 	intptr_t palookupoffs;
-	int xsiz;
-	int ysiz;
-	int xoff;
-	int yoff;
-	int npoints;
 	int yplc;
 	int yinc;
 	int lx;
 	int rx;
-	int xv;
-	int yv;
 	int xv2;
 	int yv2;
 
 	//============================================================================= //POLYMOST BEGINS
 #if USE_POLYMOST
-	if (rendmode) { polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,uniqid); return; }
+	if (rendmode) {
+		polymost_dorotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, cx1, cy1, cx2, cy2, uniqid);
+		return;
+	}
 #else
 	(void)uniqid;
 #endif
@@ -5082,21 +5073,24 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 	if (cy2 > yres - 1)
 		cy2 = yres - 1;
 
-	xsiz = tilesizx[picnum];
-	ysiz = tilesizy[picnum];
+	const int xsiz = tilesizx[picnum];
+	const int ysiz = tilesizy[picnum];
 
-	if (dastat&16) { xoff = 0; yoff = 0; }
-	else
-	{
+	int xoff{0};
+	int yoff{0};
+
+	if ((dastat & 16) == 0) {
 		xoff = (int)((signed char)((picanm[picnum]>>8)&255))+(xsiz>>1);
 		yoff = (int)((signed char)((picanm[picnum]>>16)&255))+(ysiz>>1);
 	}
 
-	if (dastat&4) yoff = ysiz-yoff;
+	if (dastat & 4)
+		yoff = ysiz - yoff;
 
-	cosang = sintable[(a+512)&2047]; sinang = sintable[a&2047];
+	const int cosang = sintable[(a+512)&2047];
+	const int sinang = sintable[a&2047];
 
-	if ((dastat&2) != 0)  //Auto window size scaling
+	if ((dastat & 2) != 0)  //Auto window size scaling
 	{
 		if ((dastat&8) == 0)
 		{
@@ -5125,12 +5119,12 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 		z = mulscalen<16>(z,x);
 	}
 
-	xv = mulscalen<14>(cosang,z);
-	yv = mulscalen<14>(sinang,z);
-	if (((dastat&2) != 0) || ((dastat&8) == 0)) //Don't aspect unscaled perms
+	int xv = mulscalen<14>(cosang,z);
+	int yv = mulscalen<14>(sinang,z);
+	if (((dastat & 2) != 0) || ((dastat & 8) == 0)) //Don't aspect unscaled perms
 	{
-		xv2 = mulscalen<16>(xv,xyaspect);
-		yv2 = mulscalen<16>(yv,xyaspect);
+		xv2 = mulscalen<16>(xv, xyaspect);
+		yv2 = mulscalen<16>(yv, xyaspect);
 	}
 	else
 	{
@@ -5142,32 +5136,60 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 	nry1[1] = nry1[0] + yv * xsiz;
 	nry1[3] = nry1[0] + xv * ysiz;
 	nry1[2] = nry1[1]+nry1[3]-nry1[0];
-	i = (cy1<<16); if ((nry1[0]<i) && (nry1[1]<i) && (nry1[2]<i) && (nry1[3]<i)) return;
-	i = (cy2<<16); if ((nry1[0]>i) && (nry1[1]>i) && (nry1[2]>i) && (nry1[3]>i)) return;
+	i = (cy1<<16);
+	
+	if ((nry1[0]<i) && (nry1[1]<i) && (nry1[2]<i) && (nry1[3]<i))
+		return;
+	
+	i = (cy2<<16);
+	
+	if ((nry1[0]>i) && (nry1[1]>i) && (nry1[2]>i) && (nry1[3]>i))
+		return;
 
 	nrx1[0] = sx - (xv2*xoff - yv2*yoff);
 	nrx1[1] = nrx1[0] + xv2*xsiz;
 	nrx1[3] = nrx1[0] - yv2*ysiz;
-	nrx1[2] = nrx1[1]+nrx1[3]-nrx1[0];
-	i = (cx1<<16); if ((nrx1[0]<i) && (nrx1[1]<i) && (nrx1[2]<i) && (nrx1[3]<i)) return;
-	i = (cx2<<16); if ((nrx1[0]>i) && (nrx1[1]>i) && (nrx1[2]>i) && (nrx1[3]>i)) return;
+	nrx1[2] = nrx1[1] + nrx1[3] - nrx1[0];
+	
+	i = (cx1<<16);
+	
+	if ((nrx1[0]<i) && (nrx1[1]<i) && (nrx1[2]<i) && (nrx1[3]<i))
+		return;
+	
+	i = (cx2<<16);
 
-	gx1 = nrx1[0]; gy1 = nry1[0];   //back up these before clipping
+	if ((nrx1[0]>i) && (nrx1[1]>i) && (nrx1[2]>i) && (nrx1[3]>i))
+		return;
 
-	if ((npoints = clippoly4(cx1<<16,cy1<<16,(cx2+1)<<16,(cy2+1)<<16)) < 3) return;
+	gx1 = nrx1[0];
+	gy1 = nry1[0];   //back up these before clipping
+	
+	int npoints{0};
+	if ((npoints = clippoly4(cx1<<16,cy1<<16,(cx2+1)<<16,(cy2+1)<<16)) < 3)
+		return;
 
-	lx = nrx1[0]; rx = nrx1[0];
+	lx = nrx1[0];
+	rx = nrx1[0];
 
-	nextv = 0;
-	for(v=npoints-1;v>=0;v--)
+	for(int nextv{0}, v = npoints - 1; v >= 0; --v)
 	{
-		x1 = nrx1[v]; x2 = nrx1[nextv];
-		dax1 = (x1>>16); if (x1 < lx) lx = x1;
-		dax2 = (x2>>16); if (x1 > rx) rx = x1;
+		x1 = nrx1[v];
+		x2 = nrx1[nextv];
+		const int dax1 = (x1>>16);
+		if (x1 < lx)
+			lx = x1;
+
+		const int dax2 = (x2 >> 16);
+
+		if (x1 > rx)
+			rx = x1;
+
 		if (dax1 != dax2)
 		{
-			y1 = nry1[v]; y2 = nry1[nextv];
-			yinc = divscalen<16>(y2-y1,x2-x1);
+			y1 = nry1[v];
+			y2 = nry1[nextv];
+			yinc = divscalen<16>(y2 - y1, x2 - x1);
+
 			if (dax2 > dax1)
 			{
 				yplc = y1 + mulscalen<16>((dax1<<16)+65535-x1,yinc);
@@ -5179,6 +5201,7 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 				qinterpolatedown16short(&dplc[dax2],dax1-dax2,yplc,yinc);
 			}
 		}
+
 		nextv = v;
 	}
 
@@ -5534,7 +5557,7 @@ static void initksqrt()
 			++k;
 		}
 
-		sqrtable[i] = static_cast<unsigned short>(msqrtasm((i<<18)+131072)<<1);
+		sqrtable[i] = static_cast<unsigned short>(msqrtasm((i << 18) + 131072) << 1);
 		shlookup[i] = (k << 1) + ((10 - k) << 8);
 
 		if (i < 256)
@@ -5548,42 +5571,45 @@ static void initksqrt()
 //
 static void dosetaspect()
 {
-	int i;
-	int j;
-	int k;
-	int x;
-	int xinc;
-
 	if (xyaspect != oxyaspect)
 	{
 		oxyaspect = xyaspect;
-		j = xyaspect*320;
-		horizlookup2[horizycent-1] = divscalen<26>(131072,j);
-		for(i=ydim*4-1;i>=0;i--)
+		const int j = xyaspect*320;
+		horizlookup2[horizycent-1] = divscalen<26>(131072, j);
+		for(int i = ydim * 4 - 1; i >= 0; --i) {
 			if (i != (horizycent-1))
 			{
-				horizlookup[i] = divscalen<28>(1,i-(horizycent-1));
-				horizlookup2[i] = divscalen<14>(std::abs(horizlookup[i]),j);
+				horizlookup[i] = divscalen<28>(1, i - (horizycent - 1));
+				horizlookup2[i] = divscalen<14>(std::abs(horizlookup[i]), j);
 			}
+		}
 	}
+
 	if ((xdimen != oxdimen) || (viewingrange != oviewingrange))
 	{
 		oxdimen = xdimen;
 		oviewingrange = viewingrange;
-		xinc = mulscalen<32>(viewingrange*320,xdimenrecip);
-		x = (640<<16)-mulscalen<1>(xinc,xdimen);
-		for(i=0;i<xdimen;i++)
+		const int xinc = mulscalen<32>(viewingrange*320,xdimenrecip);
+		int x = (640 << 16) - mulscalen<1>(xinc, xdimen);
+		
+		for(int i{0}; i < xdimen; ++i)
 		{
-			j = (x&65535); k = (x>>16); x += xinc;
-			if (j != 0) j = mulscalen<16>((int)radarang[k+1]-(int)radarang[k],j);
+			int j = (x & 65535);
+			const int k = (x >> 16);
+			x += xinc;
+			
+			if (j != 0)
+				j = mulscalen<16>((int)radarang[k + 1] - (int)radarang[k], j);
+
 			radarang2[i] = (short)((static_cast<int>(radarang[k]) + j) >> 6);
 		}
-		for(i=1;i<65536;i++) {
+
+		for(int i{1}; i < 65536; ++i) {
 			distrecip[i] = divscalen<20>(xdimen, i);
 		}
 
-		nytooclose = xdimen*2100;
-		nytoofar = 65536*16384-1048576;
+		nytooclose = xdimen * 2100;
+		nytoofar = 65536 * 16384 - 1048576;
 	}
 }
 
@@ -5757,15 +5783,14 @@ badpalette:
 //
 int getclosestcol(int r, int g, int b)
 {
-	int i;
-	int k;
-	int dist;
 	unsigned char *pal1;
 
-	const int j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(g>>3)*FASTPALGRIDSIZ+(b>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
+	const int j = (r>>3) * FASTPALGRIDSIZ * FASTPALGRIDSIZ +
+	              (g>>3) * FASTPALGRIDSIZ +
+				  (b>>3) + FASTPALGRIDSIZ * FASTPALGRIDSIZ + FASTPALGRIDSIZ + 1;
 	int mindist = std::min(rdist[coldist[r & 7] + 64 + 8], gdist[coldist[g & 7] + 64 + 8]);
 	mindist = std::min(mindist, bdist[coldist[b & 7] + 64 + 8]);
-	mindist++;
+	++mindist;
 
 	r = 64 - r;
 	g = 64 - g;
@@ -5773,37 +5798,51 @@ int getclosestcol(int r, int g, int b)
 
 	int retcol{-1};
 
-	for(k=26;k>=0;k--)
+	for(int k{26}; k >= 0; --k)
 	{
-		i = colscan[k]+j; if ((colhere[i >> 3] & pow2char[i & 7]) == 0) continue;
+		int i = colscan[k] + j;
+		if ((colhere[i >> 3] & pow2char[i & 7]) == 0)
+			continue;
 		i = colhead[i];
+		
 		do
 		{
-			pal1 = &palette[i*3];
-			dist = gdist[pal1[1]+g];
+			pal1 = &palette[i * 3];
+			int dist = gdist[pal1[1] + g];
 			if (dist < mindist)
 			{
-				dist += rdist[pal1[0]+r];
+				dist += rdist[pal1[0] + r];
 				if (dist < mindist)
 				{
 					dist += bdist[pal1[2]+b];
-					if (dist < mindist) { mindist = dist; retcol = i; }
+					if (dist < mindist) {
+						mindist = dist;
+						retcol = i;
+					}
 				}
 			}
+
 			i = colnext[i];
 		} while (i >= 0);
 	}
 	
-	if (retcol >= 0) return(retcol);
+	if (retcol >= 0)
+		return retcol;
 
 	mindist = 0x7fffffff;
 	pal1 = &palette[768-3];
 	
-	for(i=255;i>=0;i--,pal1-=3)
+	for(int i{255}; i >= 0; --i, pal1 -= 3)
 	{
-		dist = gdist[pal1[1]  + g]; if (dist >= mindist) continue;
-		dist += rdist[pal1[0] + r]; if (dist >= mindist) continue;
-		dist += bdist[pal1[2] + b]; if (dist >= mindist) continue;
+		int dist = gdist[pal1[1]  + g];
+		if (dist >= mindist)
+			continue;
+		dist += rdist[pal1[0] + r];
+		if (dist >= mindist)
+			continue;
+		dist += bdist[pal1[2] + b];
+		if (dist >= mindist)
+			continue;
 		mindist = dist;
 		retcol = i;
 	}
@@ -5981,51 +6020,45 @@ static bool lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 static bool rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3,
 		  int y3, int x4, int y4, int *intx, int *inty, int *intz)
 {     //p1 towards p2 is a ray
-	int x34;
-	int y34;
-	int x31;
-	int y31;
-	int bot;
-	int topt;
-	int topu;
-	int t;
+	const int x34 = x3 - x4;
+	const int y34 = y3 - y4;
+	const int bot = vx * y34 - vy * x34;
 
-	x34 = x3 - x4;
-	y34 = y3 - y4;
-	bot = vx * y34 - vy * x34;
+	int topt{0};
+
 	if (bot >= 0)
 	{
 		if (bot == 0)
 			return false;
 		
-		x31 = x3 - x1;
-		y31 = y3 - y1;
+		const int x31 = x3 - x1;
+		const int y31 = y3 - y1;
 		topt = x31 * y34 - y31 * x34;
 		
 		if (topt < 0)
 			return false;
 
-		topu = vx * y31 - vy * x31;
+		const int topu = vx * y31 - vy * x31;
 		
 		if ((topu < 0) || (topu >= bot))
 			return false;
 	}
 	else
 	{
-		x31 = x3 - x1;
-		y31 = y3 - y1;
+		const int x31 = x3 - x1;
+		const int y31 = y3 - y1;
 		topt = x31 * y34 - y31 * x34;
 		
 		if (topt > 0)
 			return false;
 
-		topu = vx * y31 - vy * x31;
+		const int topu = vx * y31 - vy * x31;
 		
 		if ((topu > 0) || (topu <= bot))
 			return false;
 	}
 
-	t = divscalen<16>(topt, bot);
+	const int t = divscalen<16>(topt, bot);
 	*intx = x1 + mulscalen<16>(vx, t);
 	*inty = y1 + mulscalen<16>(vy, t);
 	*intz = z1 + mulscalen<16>(vz, t);
