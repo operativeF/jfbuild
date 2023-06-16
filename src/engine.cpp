@@ -5525,17 +5525,20 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 //
 static void initksqrt()
 {
-	int i;
-	int j;
-	int k;
-
-	j = 1; k = 0;
-	for(i=0;i<4096;i++)
+	int j{1};
+	int k{0};
+	for(int i{0}; i < 4096; ++i)
 	{
-		if (i >= j) { j <<= 2; k++; }
+		if (i >= j) {
+			j <<= 2;
+			++k;
+		}
+
 		sqrtable[i] = static_cast<unsigned short>(msqrtasm((i<<18)+131072)<<1);
 		shlookup[i] = (k << 1) + ((10 - k) << 8);
-		if (i < 256) shlookup[i + 4096] = ((k + 6) << 1)+((10 - (k + 6)) << 8);
+
+		if (i < 256)
+			shlookup[i + 4096] = ((k + 6) << 1)+((10 - (k + 6)) << 8);
 	}
 }
 
@@ -10684,7 +10687,6 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 	int daz2;
 	short startwall;
 	short endwall;
-	char bad2;
 
 	if ((*sectnum) < 0)
 		return -1;
@@ -10787,12 +10789,18 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 						j = getangle(wall[wal->point2].x-wal->x,wall[wal->point2].y-wal->y);
 						dx = (sintable[(j+1024)&2047]>>11);
 						dy = (sintable[(j+512)&2047]>>11);
-						bad2 = 16;
+						char bad2 = 16;
+						
 						do
 						{
-							*x = (*x) + dx; *y = (*y) + dy;
-							bad2--; if (bad2 == 0) break;
-						} while (clipinsidebox(*x,*y,i,walldist-4) != 0);
+							*x = (*x) + dx;
+							*y = (*y) + dy;
+							--bad2;
+
+							if (bad2 == 0)
+								break;
+						} while (clipinsidebox(*x, *y, i, walldist - 4) != 0);
+						
 						bad = -1;
 						k--; if (k <= 0) return(bad);
 						updatesector(*x,*y,sectnum);
@@ -10959,8 +10967,6 @@ void getzrange(int x, int y, int z, short sectnum,
 	int yoff;
 	int dax;
 	int day;
-	int j;
-	int k;
 	int l;
 	int daz;
 	int daz2;
@@ -11015,36 +11021,68 @@ void getzrange(int x, int y, int z, short sectnum,
 	do  //Collect sectors inside your square first
 	{
 		sec = &sector[clipsectorlist[clipsectcnt]];
-		startwall = sec->wallptr; endwall = startwall + sec->wallnum;
-		for(j=startwall,wal=&wall[startwall];j<endwall;j++,wal++)
+		startwall = sec->wallptr;
+		endwall = startwall + sec->wallnum;
+		int j{startwall};
+		for(wal=&wall[startwall]; j < endwall; ++j, ++wal)
 		{
-			k = wal->nextsector;
+			int k = wal->nextsector;
+			
 			if (k >= 0)
 			{
 				wal2 = &wall[wal->point2];
 				x1 = wal->x; x2 = wal2->x;
-				if ((x1 < xmin) && (x2 < xmin)) continue;
-				if ((x1 > xmax) && (x2 > xmax)) continue;
-				y1 = wal->y; y2 = wal2->y;
-				if ((y1 < ymin) && (y2 < ymin)) continue;
-				if ((y1 > ymax) && (y2 > ymax)) continue;
 
-				dx = x2-x1; dy = y2-y1;
-				if (dx*(y-y1) < (x-x1)*dy) continue; //back
-				if (dx > 0) dax = dx*(ymin-y1); else dax = dx*(ymax-y1);
-				if (dy > 0) day = dy*(xmax-x1); else day = dy*(xmin-x1);
+				if ((x1 < xmin) && (x2 < xmin))
+					continue;
+				if ((x1 > xmax) && (x2 > xmax))
+					continue;
+
+				y1 = wal->y;
+				y2 = wal2->y;
+
+				if ((y1 < ymin) && (y2 < ymin))
+					continue;
+				if ((y1 > ymax) && (y2 > ymax))
+					continue;
+
+				dx = x2 - x1;
+				dy = y2 - y1;
+				if (dx * (y - y1) < (x - x1) * dy)
+					continue; //back
+
+				if (dx > 0)
+					dax = dx * (ymin - y1);
+				else
+					dax = dx * (ymax - y1);
+				
+				if (dy > 0)
+					day = dy * (xmax - x1);
+				else
+					day = dy * (xmin - x1);
+				
 				if (dax >= day) continue;
 
-				if (wal->cstat&dawalclipmask) continue;
+				if (wal->cstat&dawalclipmask)
+					continue;
+
 				sec = &sector[k];
+				
 				if (editstatus == 0)
 				{
-					if (((sec->ceilingstat&1) == 0) && (z <= sec->ceilingz+(3<<8))) continue;
-					if (((sec->floorstat&1) == 0) && (z >= sec->floorz-(3<<8))) continue;
+					if (((sec->ceilingstat&1) == 0) && (z <= sec->ceilingz+(3<<8)))
+						continue;
+					if (((sec->floorstat&1) == 0) && (z >= sec->floorz-(3<<8)))
+						continue;
 				}
 
-				for(i=clipsectnum-1;i>=0;i--) if (clipsectorlist[i] == k) break;
-				if (i < 0) clipsectorlist[clipsectnum++] = k;
+				for(int i = clipsectnum - 1; i >= 0; --i) {
+					if (clipsectorlist[i] == k)
+						break;
+				}
+
+				if (i < 0)
+					clipsectorlist[clipsectnum++] = k;
 
 				if ((x1 < xmin+MAXCLIPDIST) && (x2 < xmin+MAXCLIPDIST)) continue;
 				if ((x1 > xmax-MAXCLIPDIST) && (x2 > xmax-MAXCLIPDIST)) continue;
@@ -11060,20 +11098,24 @@ void getzrange(int x, int y, int z, short sectnum,
 				if (daz2 < *florz) { *florz = daz2; *florhit = k+16384; }
 			}
 		}
+
 		clipsectcnt++;
 	} while (clipsectcnt < clipsectnum);
 
-	for(i=0;i<clipsectnum;i++)
+	for(short i{0}; i < clipsectnum; ++i)
 	{
-		for(j=headspritesect[clipsectorlist[i]];j>=0;j=nextspritesect[j])
+		for(short j = headspritesect[clipsectorlist[i]]; j >= 0; j = nextspritesect[j])
 		{
 			spr = &sprite[j];
 			cstat = spr->cstat;
+			
 			if (cstat&dasprclipmask)
 			{
-				x1 = spr->x; y1 = spr->y;
+				x1 = spr->x;
+				y1 = spr->y;
 
 				clipyou = 0;
+				int k{0};
 				switch(cstat&48)
 				{
 					case 0:
@@ -11251,11 +11293,6 @@ void flushperms()
 void rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade,
 	unsigned char dapalnum, unsigned char dastat, int cx1, int cy1, int cx2, int cy2)
 {
-	int i;
-	int gap{ -1 };
-	permfifotype* per;
-	permfifotype* per2;
-
 	if ((cx1 > cx2) || (cy1 > cy2)) {
 		return;
 	}
@@ -11288,7 +11325,8 @@ void rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dash
 	{
 		if (((permhead+1)&(MAXPERMS-1)) == permtail)
 		{
-			for(i=permtail;i!=permhead;i=((i+1)&(MAXPERMS-1)))
+			int gap{-1};
+			for(int i{permtail}; i != permhead; i = ((i + 1) & (MAXPERMS - 1)))
 			{
 				if ((permfifo[i].pagesleft&127) == 0)
 					{ if (gap < 0) gap = i; }
@@ -11302,25 +11340,34 @@ void rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dash
 					if (gap==i) gap = -1;
 				}
 			}
-			if (gap >= 0) permhead = gap;
-			else permtail = ((permtail+1)&(MAXPERMS-1));
+			if (gap >= 0)
+				permhead = gap;
+			else
+				permtail = ((permtail + 1) & (MAXPERMS - 1));
 		}
 
-		per = &permfifo[permhead];
-		per->sx = sx; per->sy = sy; per->z = z; per->a = a;
+		auto* per = &permfifo[permhead];
+		per->sx = sx;
+		per->sy = sy;
+		per->z = z;
+		per->a = a;
 		per->picnum = picnum;
-		per->dashade = dashade; per->dapalnum = dapalnum;
+		per->dashade = dashade;
+		per->dapalnum = dapalnum;
 		per->dastat = dastat;
 		per->pagesleft = numpages+((beforedrawrooms&1)<<7);
-		per->cx1 = cx1; per->cy1 = cy1; per->cx2 = cx2; per->cy2 = cy2;
+		per->cx1 = cx1;
+		per->cy1 = cy1;
+		per->cx2 = cx2;
+		per->cy2 = cy2;
 		per->uniqid = guniqhudid;	//JF extension
 
 			//Would be better to optimize out true bounding boxes
-		if (dastat&64)  //If non-masking write, checking for overlapping cases
+		if (dastat & 64)  //If non-masking write, checking for overlapping cases
 		{
-			for(i=permtail;i!=permhead;i=((i+1)&(MAXPERMS-1)))
+			for(int i{permtail}; i != permhead; i = ((i + 1) & (MAXPERMS - 1)))
 			{
-				per2 = &permfifo[i];
+				auto* per2 = &permfifo[i];
 				if ((per2->pagesleft&127) == 0) continue;
 				if (per2->sx != per->sx) continue;
 				if (per2->sy != per->sy) continue;
@@ -11334,10 +11381,11 @@ void rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dash
 				if (per2->cy2 > per->cy2) continue;
 				per2->pagesleft = 0;
 			}
-			if (per->a == 0)
-				for(i=permtail;i!=permhead;i=((i+1)&(MAXPERMS-1)))
+
+			if (per->a == 0) {
+				for(int i{permtail}; i != permhead; i = ((i + 1) & (MAXPERMS - 1)))
 				{
-					per2 = &permfifo[i];
+					auto* per2 = &permfifo[i];
 					if ((per2->pagesleft&127) == 0) continue;
 					if (per2->z != per->z) continue;
 					if (per2->a != 0) continue;
@@ -11351,6 +11399,7 @@ void rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dash
 					if (per2->sy+(tilesizy[per2->picnum]*per2->z) > per->sy+(tilesizy[per->picnum]*per->z)) continue;
 					per2->pagesleft = 0;
 				}
+			}
 		}
 
 		permhead = ((permhead+1)&(MAXPERMS-1));
@@ -11363,12 +11412,6 @@ void rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dash
 //
 int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char g, signed char b, unsigned char dastat)
 {
-	int i;
-	int j;
-	int palscale;
-	unsigned char* ptr;
-	unsigned char* ptr2;
-
 	if (palookup[palnum] == nullptr)
 	{
 			//Allocate palookup buffer
@@ -11388,12 +11431,16 @@ int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char
 
 	if ((r|g|b) == 0)
 	{
-		for(i=0;i<256;i++)
+		for(int i{0}; i < 256; ++i)
 		{
-			ptr = (unsigned char *)((intptr_t)palookup[0]+remapbuf[i]);
-			ptr2 = (unsigned char *)((intptr_t)palookup[palnum]+i);
-			for(j=0;j<numpalookups;j++)
-				{ *ptr2 = *ptr; ptr += 256; ptr2 += 256; }
+			auto* ptr = (unsigned char *)((intptr_t)palookup[0]+remapbuf[i]);
+			auto* ptr2 = (unsigned char *)((intptr_t)palookup[palnum] + i);
+
+			for(int j{0}; j < numpalookups; ++j) {
+				*ptr2 = *ptr;
+				ptr += 256;
+				ptr2 += 256;
+			}
 		}
 #if USE_POLYMOST && USE_OPENGL
 		palookupfog[palnum].r = 0;
@@ -11403,13 +11450,13 @@ int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char
 	}
 	else
 	{
-		ptr2 = palookup[palnum];
-		for(i=0;i<numpalookups;i++)
+		auto* ptr2 = palookup[palnum];
+		for(int i{0}; i < numpalookups; ++i)
 		{
-			palscale = divscalen<16>(i,numpalookups);
-			for(j=0;j<256;j++)
+			int palscale = divscalen<16>(i, numpalookups);
+			for(int j{0}; j < 256; ++j)
 			{
-				ptr = &palette[remapbuf[j]*3];
+				auto* ptr = &palette[remapbuf[j]*3];
 				*ptr2++ = getclosestcol((int)ptr[0]+mulscalen<16>(r-ptr[0],palscale),
 							(int)ptr[1]+mulscalen<16>(g-ptr[1],palscale),
 							(int)ptr[2]+mulscalen<16>(b-ptr[2],palscale));
@@ -11656,10 +11703,7 @@ unsigned char getpixel(int x, int y)
 //
 void setviewtotile(short tilenume, int xsiz, int ysiz)
 {
-	int i;
-	int j;
-
-		//DRAWROOMS TO TILE BACKUP&SET CODE
+	//DRAWROOMS TO TILE BACKUP&SET CODE
 	tilesizx[tilenume] = xsiz;
 	tilesizy[tilenume] = ysiz;
 	bakxsiz[setviewcnt] = xsiz;
@@ -11675,7 +11719,8 @@ void setviewtotile(short tilenume, int xsiz, int ysiz)
 		bakrendmode = rendmode;
 		baktile = tilenume;
 	}
-	rendmode = 0;//2;
+
+	rendmode = 0; //2;
 #endif
 	copybufbyte(&startumost[windowx1],&bakumost[windowx1],(windowx2-windowx1+1)*sizeof(bakumost[0]));
 	copybufbyte(&startdmost[windowx1],&bakdmost[windowx1],(windowx2-windowx1+1)*sizeof(bakdmost[0]));
@@ -11684,7 +11729,12 @@ void setviewtotile(short tilenume, int xsiz, int ysiz)
 	offscreenrendering = 1;
 	setview(0,0,ysiz-1,xsiz-1);
 	setaspect(65536,65536);
-	j = 0; for(i=0;i<=xsiz;i++) { ylookup[i] = j, j += ysiz; }
+	int j{0};
+	for(int i{0}; i <= xsiz; ++i) {
+		ylookup[i] = j;
+		j += ysiz;
+	}
+	
 	setvlinebpl(ysiz);
 }
 
@@ -11695,22 +11745,19 @@ void setviewtotile(short tilenume, int xsiz, int ysiz)
 extern char modechange;
 void setviewback()
 {
-	int i;
-	int j;
-	int k;
-
 	if (setviewcnt <= 0) {
 		return;
 	}
 
-	setviewcnt--;
+	--setviewcnt;
 
-	offscreenrendering = (setviewcnt>0);
+	// FIXME: Change to bool
+	offscreenrendering = (setviewcnt > 0);
 #if USE_POLYMOST
 	if (setviewcnt == 0) {
 		rendmode = bakrendmode;
 #if USE_OPENGL
-		invalidatetile(baktile,-1,-1);
+		invalidatetile(baktile, -1, -1);
 #endif
 	}
 #endif
@@ -11719,14 +11766,23 @@ void setviewback()
 			  bakwindowx2[setviewcnt],bakwindowy2[setviewcnt]);
 	copybufbyte(&bakumost[windowx1],&startumost[windowx1],(windowx2-windowx1+1)*sizeof(startumost[0]));
 	copybufbyte(&bakdmost[windowx1],&startdmost[windowx1],(windowx2-windowx1+1)*sizeof(startdmost[0]));
+
 	frameplace = bakframeplace[setviewcnt];
+
+	int k{0};
 	if (setviewcnt == 0)
 		k = bakxsiz[0];
 	else
 		k = std::max(bakxsiz[setviewcnt - 1], bakxsiz[setviewcnt]);
-	j = 0; for(i=0;i<=k;i++) ylookup[i] = j, j += bytesperline;
+
+	int j{0};
+	for(int i{0}; i <= k; ++i) {
+		ylookup[i] = j;
+		j += bytesperline;
+	}
+
 	setvlinebpl(bytesperline);
-	modechange=1;
+	modechange = 1;
 }
 
 
@@ -11735,31 +11791,26 @@ void setviewback()
 //
 void squarerotatetile(short tilenume)
 {
-	int i;
-	int j;
-	int k;
-	unsigned char* ptr1;
-	unsigned char* ptr2;
-
 	const int xsiz = tilesizx[tilenume];
 	const int ysiz = tilesizy[tilenume];
 
 		//supports square tiles only for rotation part
 	if (xsiz == ysiz)
 	{
-		k = (xsiz<<1);
-		for(i=xsiz-1;i>=0;i--)
+		const int k = (xsiz << 1);
+		
+		for(int i = xsiz - 1; i >= 0; --i)
 		{
-			ptr1 = (unsigned char *)(waloff[tilenume] + i * (xsiz + 1));
-			ptr2 = ptr1;
+			auto* ptr1 = (unsigned char *)(waloff[tilenume] + i * (xsiz + 1));
+			auto* ptr2 = ptr1;
 
-			if ((i&1) != 0) {
+			if ((i & 1) != 0) {
 				ptr1--;
 				ptr2 -= xsiz;
 				swapchar(ptr1, ptr2);
 			}
 
-			for(j=(i>>1)-1;j>=0;j--) {
+			for(int j = (i >> 1) - 1; j >= 0; --j) {
 				ptr1 -= 2;
 				ptr2 -= k;
 				swapchar2(ptr1,ptr2,xsiz);
@@ -12036,36 +12087,42 @@ int loopnumofsector(short sectnum, short wallnum)
 //
 void setfirstwall(short sectnum, short newfirstwall)
 {
-	int i;
-	int j;
-	int k;
-	int numwallsofloop;
-	int dagoalloop;
-
 	const int startwall = sector[sectnum].wallptr;
 	const int danumwalls = sector[sectnum].wallnum;
 	const int endwall = startwall + danumwalls;
-	if ((newfirstwall < startwall) || (newfirstwall >= startwall+danumwalls)) return;
-	for(i=0;i<danumwalls;i++)
-		std::memcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
+	
+	if ((newfirstwall < startwall) || (newfirstwall >= startwall+danumwalls))
+		return;
+	
+	for(int i{0}; i < danumwalls; ++i) {
+		std::memcpy(&wall[i+numwalls], &wall[i + startwall], sizeof(walltype));
+	}
 
-	numwallsofloop = 0;
-	i = newfirstwall;
+	int numwallsofloop{0};
+
+	int infw = newfirstwall;
+	
 	do
 	{
 		numwallsofloop++;
-		i = wall[i].point2;
-	} while (i != newfirstwall);
+		infw = wall[infw].point2;
+	} while (infw != newfirstwall);
 
 		//Put correct loop at beginning
-	dagoalloop = loopnumofsector(sectnum,newfirstwall);
+	int dagoalloop = loopnumofsector(sectnum, newfirstwall);
 	if (dagoalloop > 0)
 	{
-		j = 0;
-		while (loopnumofsector(sectnum,j+startwall) != dagoalloop) j++;
-		for(i=0;i<danumwalls;i++)
+		int j{0};
+
+		while (loopnumofsector(sectnum, j + startwall) != dagoalloop) {
+			++j;
+		}
+		
+		for(int i{0}; i < danumwalls; ++i)
 		{
-			k = i+j; if (k >= danumwalls) k -= danumwalls;
+			int k = i + j;
+			if (k >= danumwalls)
+				k -= danumwalls;
 			std::memcpy(&wall[startwall+i],&wall[numwalls+k],sizeof(walltype));
 
 			wall[startwall+i].point2 += danumwalls-startwall-j;
@@ -12073,26 +12130,37 @@ void setfirstwall(short sectnum, short newfirstwall)
 				wall[startwall+i].point2 -= danumwalls;
 			wall[startwall+i].point2 += startwall;
 		}
-		newfirstwall += danumwalls-j;
-		if (newfirstwall >= startwall+danumwalls) newfirstwall -= danumwalls;
+
+		newfirstwall += danumwalls - j;
+		if (newfirstwall >= startwall+danumwalls)
+			newfirstwall -= danumwalls;
 	}
 
-	for(i=0;i<numwallsofloop;i++)
+	for(int i{0}; i < numwallsofloop; ++i) {
 		std::memcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
-	for(i=0;i<numwallsofloop;i++)
+	}
+
+	for(int i{0}; i < numwallsofloop; ++i)
 	{
-		k = i+newfirstwall-startwall;
-		if (k >= numwallsofloop) k -= numwallsofloop;
+		int k = i + newfirstwall - startwall;
+
+		if (k >= numwallsofloop)
+			k -= numwallsofloop;
+
 		std::memcpy(&wall[startwall+i],&wall[numwalls+k],sizeof(walltype));
 
 		wall[startwall+i].point2 += numwallsofloop-newfirstwall;
+		
 		if (wall[startwall+i].point2 >= numwallsofloop)
 			wall[startwall+i].point2 -= numwallsofloop;
+		
 		wall[startwall+i].point2 += startwall;
 	}
 
-	for(i=startwall;i<endwall;i++)
-		if (wall[i].nextwall >= 0) wall[wall[i].nextwall].nextwall = i;
+	for(int i{startwall}; i < endwall; ++i) {
+		if (wall[i].nextwall >= 0)
+			wall[wall[i].nextwall].nextwall = i;
+	}
 }
 
 
