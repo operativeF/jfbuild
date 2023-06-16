@@ -650,7 +650,7 @@ void buildprintf(std::string_view form, Args&&... args)
 	const auto tmpstr = fmt::vformat(form, fmt::make_format_args(args...));
 
 	initputs(tmpstr.c_str());
-	OSD_Puts(tmpstr.c_str());
+	OSD_Puts(tmpstr);
 }
 
 void buildputs(std::string_view str);

@@ -954,18 +954,19 @@ void OSD_Printf(const char *fmt, ...)
 //   and write it to the log file
 //
 
-void OSD_Puts(const char *str)
+void OSD_Puts(std::string_view strv)
 {
 	if (!osdinited)
 		return;
 
-	for (const auto* chp = str; *chp; chp++) {
-		if (*chp == '\r') osdpos=0;
-		else if (*chp == '\n') {
-			osdpos=0;
+	for (auto chp : strv) {
+		if (chp == '\r')
+			osdpos = 0;
+		else if (chp == '\n') {
+			osdpos = 0;
 			linefeed();
 		} else {
-			osdtext[osdpos++] = *chp;
+			osdtext[osdpos++] = chp;
 			if (osdpos == osdcols) {
 				osdpos = 0;
 				linefeed();

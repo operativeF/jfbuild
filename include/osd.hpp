@@ -63,7 +63,7 @@ void OSD_Draw();
 void OSD_Printf(const char *fmt, ...);
 
 // just like puts
-void OSD_Puts(const char *str);
+void OSD_Puts(std::string_view strv);
 
 // executes buffered commands
 void OSD_DispatchQueued();

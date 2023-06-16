@@ -7,7 +7,7 @@ struct scriptfile {
     char *ltextptr;     // pointer to start of the last token fetched (use this for line numbers)
     char *textptr;
     char *eof;
-    char *filename;
+    std::string filename;
     int linenum;
     int *lineoffs;
 };
@@ -23,8 +23,8 @@ int scriptfile_getsymbol(scriptfile *sf, int *num);
 int scriptfile_getlinum(scriptfile *sf, char *ptr);
 int scriptfile_getbraces(scriptfile *sf, char **braceend);
 
-scriptfile *scriptfile_fromfile(const char *fn);
-scriptfile *scriptfile_fromstring(const char *string);
+scriptfile *scriptfile_fromfile(const std::string& fn);
+scriptfile *scriptfile_fromstring(const std::string& str);
 void scriptfile_close(scriptfile *sf);
 int scriptfile_eof(scriptfile *sf);
 

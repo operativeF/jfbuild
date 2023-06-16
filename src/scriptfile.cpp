@@ -47,7 +47,7 @@ int scriptfile_getstring(scriptfile *sf, char **retst)
 	(*retst) = scriptfile_gettoken(sf);
 	if (*retst == nullptr)
 	{
-		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
+		buildprintf("Error on line {}:{}: unexpected eof\n", sf->filename, scriptfile_getlinum(sf,sf->textptr));
 		return(-2);
 	}
 	return(0);
@@ -58,7 +58,7 @@ static int scriptfile_getnumber_radix(scriptfile *sf, int *num, int radix)
 	skipoverws(sf);
 	if (sf->textptr >= sf->eof)
 	{
-		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
+		buildprintf("Error on line {}:{}: unexpected eof\n", sf->filename, scriptfile_getlinum(sf,sf->textptr));
 		return -1;
 	}
 
@@ -397,9 +397,9 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 	sf->eof = &sf->textbuf[nflen-1];
 }
 
-scriptfile *scriptfile_fromfile(const char *fn)
+scriptfile *scriptfile_fromfile(const std::string& fn)
 {
-	const int fp = kopen4load(fn, 0);
+	const int fp = kopen4load(fn.c_str(), 0);
 
 	if (fp < 0)
 		return nullptr;
@@ -427,17 +427,17 @@ scriptfile *scriptfile_fromfile(const char *fn)
 	kclose(fp);
 
 	scriptfile_preparse(sf, tx, flen);
-	sf->filename = strdup(fn);
+	sf->filename = fn;
 
 	return sf;
 }
 
-scriptfile *scriptfile_fromstring(const char *string)
+scriptfile* scriptfile_fromstring(const std::string& str)
 {
-	if (!string)
+	if (str.empty())
 		return nullptr;
 
-	auto flen = std::strlen(string);
+	auto flen = str.length();
 
 	auto* tx = (char *) std::malloc(flen + 2);
 	
@@ -452,12 +452,12 @@ scriptfile *scriptfile_fromstring(const char *string)
 		return nullptr;
 	}
 
-	std::memcpy(tx, string, flen);
+	std::memcpy(tx, &str[0], flen);
 	tx[flen] = 0;
 	tx[flen + 1] = 0;
 
 	scriptfile_preparse(sf, tx, flen);
-	sf->filename = nullptr;
+	sf->filename.clear();
 
 	return sf;
 }
@@ -472,12 +472,8 @@ void scriptfile_close(scriptfile *sf)
 
 	if (sf->textbuf)
 		std::free(sf->textbuf);
-	
-	if (sf->filename)
-		std::free(sf->filename);
 
 	sf->textbuf = nullptr;
-	sf->filename = nullptr;
 	
 	std::free(sf);
 }

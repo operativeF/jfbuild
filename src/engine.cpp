@@ -12340,7 +12340,7 @@ void buildputs(std::string_view str)
 	const std::string tmpstr{str.begin(), str.end()};
 
 	initputs(tmpstr.c_str());  // the startup window
-    OSD_Puts(tmpstr.c_str());  // the onscreen-display
+    OSD_Puts(tmpstr);  // the onscreen-display
 }
 
 void buildsetlogfile(const char *fn)
