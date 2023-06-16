@@ -5604,9 +5604,9 @@ static void dosetaspect()
 			radarang2[i] = (short)((static_cast<int>(radarang[k]) + j) >> 6);
 		}
 
-		for(int i{1}; i < 65536; ++i) {
-			distrecip[i] = divscalen<20>(xdimen, i);
-		}
+		std::ranges::generate(std::ranges::next(distrecip.begin(), 1), distrecip.end(), [i = 1]() mutable {
+			return divscalen<20>(xdimen, (i++));
+		});
 
 		nytooclose = xdimen * 2100;
 		nytoofar = 65536 * 16384 - 1048576;
@@ -6276,16 +6276,11 @@ bool initengine()
 		return ((1 << 24) - 1) / n++;
 	});
 
-	for(i=0;i<MAXVOXELS;i++)
-		for(j=0;j<MAXVOXMIPS;j++)
-		{
-			// voxoff[i][j] = 0L; // NOTE: Initialized at decl now.
-			voxlock[i][j] = 200;
-		}
+	std::ranges::fill(&voxlock[0][0], &voxlock[0][0] + sizeof(voxlock) / sizeof(voxlock[0][0]), 200);
 	
 	std::ranges::fill(tiletovox, -1);
 
-	clearbuf(&voxscale[0],sizeof(voxscale)>>2,65536L);
+	std::ranges::fill(voxscale, 65536L);
 
 	searchit = 0;
 	searchstat = -1;

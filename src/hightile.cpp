@@ -71,9 +71,8 @@ void hicinit()
 				   .f = 0x00});
 
 	if (hicfirstinit) {
-		for (i=MAXTILES-1;i>=0;i--) {
-			for (hicreplctyp* hr = hicreplc[i]; hr; ) {
-				// TODO: Assumes hr != nullptr
+		for (auto* hr : hicreplc) {
+			for (; hr != nullptr;) {
 				next = hr->next;
 
 				if (hr->skybox) {
