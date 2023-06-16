@@ -139,7 +139,7 @@ void PTM_InitIdent(PTMIdent *id, const PTHead *pth)
 			// hightile + skybox + picnum ought to cover it
 		    id->picnum = pth->picnum;
 		} else {
-		    std::strncpy(id->filename, pth->repldef->filename, BMAX_PATH);
+			pth->repldef->filename.copy(id->filename, BMAX_PATH);
 		}
 	} else {
 		id->type = PTMIDENT_ART;

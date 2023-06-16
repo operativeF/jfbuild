@@ -42,30 +42,6 @@
 #define _CRT_DECLARE_NONSTDC_NAMES 0
 #endif
 
-#ifdef __cplusplus
-# include <cerrno>
-# include <climits>
-# include <cstdarg>
-# include <cstdio>
-# include <cstring>
-# include <cstdlib>
-# include <ctime>
-#else
-# include <errno.h>
-# include <limits.h>
-# include <stdarg.h>
-# include <stddef.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <string.h>
-# include <time.h>
-# ifndef _MSC_VER
-#  include <strings.h>
-# endif
-#endif
-
-#include <stdint.h>     // cstdint in C++11
-#include <inttypes.h>   // cinttypes in C++11
 #include <fcntl.h>
 #include <ctype.h>
 #include <sys/types.h>
@@ -81,6 +57,17 @@
 #ifdef EFENCE
 # include <efence.h>
 #endif
+
+# include <cerrno>
+# include <cinttypes>   // cinttypes in C++11
+# include <climits>
+# include <cstdarg>
+# include <cstdint>     // cstdint in C++11
+# include <cstdio>
+# include <cstring>
+# include <cstdlib>
+# include <ctime>
+# include <string>
 
 #if defined(_MSC_VER)
 # ifdef _WIN64
@@ -284,9 +271,9 @@ char *strupr(char *);
 #endif
 
 int Bvasprintf(char **ret, const char *format, va_list ap);
-char *Bgethomedir();
+std::string Bgethomedir();
 char *Bgetappdir();
-char *Bgetsupportdir(int global);
+std::string Bgetsupportdir(int global);
 size_t Bgetsysmemsize();
 int Bcorrectfilename(char *filename, int removefn);
 int Bcanonicalisefilename(char *filename, int removefn);

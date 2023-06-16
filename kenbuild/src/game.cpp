@@ -431,7 +431,7 @@ int app_main(int argc, char const * const argv[])
 #endif
 
     {
-        char *supportdir = Bgetsupportdir(1);
+        std::string supportdir = Bgetsupportdir(1);
         char *appdir = Bgetappdir();
         char dirpath[BMAX_PATH+1];
 
@@ -442,11 +442,10 @@ int app_main(int argc, char const * const argv[])
         }
 
         // the global support files directory
-        if (supportdir) {
+        if (!supportdir.empty()) {
 			// FIXME: Defaults to '/'; should be '\' on windows
 			fmt::format_to(&dirpath[0], "{}/KenBuild", supportdir);
             addsearchpath(dirpath);
-            std::free(supportdir);
         }
     }
 
@@ -459,11 +458,11 @@ int app_main(int argc, char const * const argv[])
             addsearchpath(cwd);
         }
     } else {
-        char *supportdir;
         char dirpath[BMAX_PATH];
         int asperr;
+        std::string supportdir = Bgetsupportdir(0); 
 
-        if ((supportdir = Bgetsupportdir(0))) {
+        if (!supportdir.empty()) {
 #if defined(_WIN32) || defined(__APPLE__)
             constexpr std::string_view dirname = "KenBuild";
 #else
@@ -482,7 +481,6 @@ int app_main(int argc, char const * const argv[])
             if (asperr == 0 && chdir(dirpath) < 0) {
                 buildprintf("warning: could not change directory to {}\n", dirpath);
             }
-            std::free(supportdir);
         }
     }
 

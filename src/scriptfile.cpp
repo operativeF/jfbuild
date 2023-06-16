@@ -397,7 +397,7 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 	sf->eof = &sf->textbuf[nflen-1];
 }
 
-scriptfile *scriptfile_fromfile(const std::string& fn)
+std::unique_ptr<scriptfile> scriptfile_fromfile(const std::string& fn)
 {
 	const int fp = kopen4load(fn.c_str(), 0);
 
@@ -412,7 +412,7 @@ scriptfile *scriptfile_fromfile(const std::string& fn)
 		return nullptr;
 	}
 
-	auto* sf = (scriptfile*) std::malloc(sizeof(scriptfile));
+	auto sf = std::make_unique<scriptfile>();
 
 	if (!sf) {
 		kclose(fp);
@@ -426,7 +426,7 @@ scriptfile *scriptfile_fromfile(const std::string& fn)
 
 	kclose(fp);
 
-	scriptfile_preparse(sf, tx, flen);
+	scriptfile_preparse(sf.get(), tx, flen);
 	sf->filename = fn;
 
 	return sf;
@@ -462,7 +462,7 @@ scriptfile* scriptfile_fromstring(const std::string& str)
 	return sf;
 }
 
-void scriptfile_close(scriptfile *sf)
+void scriptfile_close(scriptfile* sf)
 {
 	if (!sf)
 		return;
@@ -474,8 +474,6 @@ void scriptfile_close(scriptfile *sf)
 		std::free(sf->textbuf);
 
 	sf->textbuf = nullptr;
-	
-	std::free(sf);
 }
 
 int scriptfile_eof(scriptfile *sf)

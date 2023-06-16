@@ -238,15 +238,13 @@ static int defsparser(scriptfile *script)
 				{
 					std::string fn;
 					if (!scriptfile_getstring(script, fn)) {
-						scriptfile *included;
-
-						included = scriptfile_fromfile(fn);
+						auto included = scriptfile_fromfile(fn);
 						if (!included) {
 							buildprintf("Warning: Failed including {} on line {}:{}\n",
 									fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
 						} else {
-							defsparser(included);
-							scriptfile_close(included);
+							defsparser(included.get());
+							scriptfile_close(included.get());
 						}
 					}
 					break;
@@ -1089,15 +1087,15 @@ static int defsparser(scriptfile *script)
 
 int loaddefinitionsfile(const char *fn)
 {
-	scriptfile* script = scriptfile_fromfile(fn);
+	auto script = scriptfile_fromfile(fn);
 	
 	if (!script) {
 		return -1;
 	}
 
-	defsparser(script);
+	defsparser(script.get());
 
-	scriptfile_close(script);
+	scriptfile_close(script.get());
 	scriptfile_clearsymbols();
 
 	return 0;

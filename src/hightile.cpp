@@ -79,9 +79,6 @@ void hicinit()
 					std::free(hr->skybox);
 				}
 
-				if (hr->filename)
-					std::free(hr->filename);
-
 				std::free(hr);
 
 				hr = next;
@@ -120,7 +117,7 @@ void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned ch
 // hicsetsubsttex(picnum,pal,filen,alphacut)
 //   Specifies a replacement graphic file for an ART tile.
 //
-int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, unsigned char flags)
+int hicsetsubsttex(int picnum, int palnum, const std::string& filen, float alphacut, unsigned char flags)
 {
 	hicreplctyp* hrn;
 
@@ -149,12 +146,9 @@ int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, un
 		hrn = hr;
 
 	// store into hicreplc the details for this replacement
-	if (hrn->filename)
-		std::free(hrn->filename);
+	hrn->filename = filen;
 
-	hrn->filename = strdup(filen);
-
-	if (!hrn->filename) {
+	if (hrn->filename.empty()) {
 		if (hrn->skybox)
 			return -1;	// don't free the base structure if there's a skybox defined
 		
@@ -263,9 +257,6 @@ int hicclearsubst(int picnum, int palnum)
 
 	if (!hr)
 		return 0;
-
-	if (hr->filename)
-		std::free(hr->filename);
 
 	if (hr->skybox) {
 		std::free(hr->skybox);

@@ -616,7 +616,7 @@ inline int polymosttexfullbright{256};	// set to the first index of the fullbrig
 // effect bitset: 1 = greyscale, 2 = invert
 void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect);
 // flags bitset: 1 = don't compress
-int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, unsigned char flags);
+int hicsetsubsttex(int picnum, int palnum, const std::string& filen, float alphacut, unsigned char flags);
 int hicsetskybox(int picnum, int palnum, std::span<const std::string> faces);
 int hicclearsubst(int picnum, int palnum);
 

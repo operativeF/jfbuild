@@ -29,7 +29,7 @@ struct hicskybox_t {
 struct hicreplctyp {
 	hicreplctyp* next;
 	unsigned char palnum, ignore, flags, filler;
-	char *filename;
+	std::string filename;
 	float alphacut;
 	struct hicskybox_t *skybox;
 };

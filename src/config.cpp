@@ -171,7 +171,7 @@ static const auto configspec = std::to_array<configspec_t>({
 // FIXME: Use a variant instead of switch-type resolver.
 int loadsetup(const std::string& fn)
 {
-	scriptfile* cfg = scriptfile_fromfile(fn);
+	auto cfg = scriptfile_fromfile(fn);
 	
 	if (!cfg) {
 		return -1;
@@ -185,7 +185,7 @@ int loadsetup(const std::string& fn)
 	option[5] = 0;
 
 	while (1) {
-		char* token = scriptfile_gettoken(cfg);
+		char* token = scriptfile_gettoken(cfg.get());
 
 		if (!token) {
 			break;	//EOF
@@ -196,39 +196,39 @@ int loadsetup(const std::string& fn)
 		for (item = 0; configspec[item].name; item++) {
 			if (!Bstrcasecmp(token, configspec[item].name)) {
 				// Seek past any = symbol.
-				token = scriptfile_peektoken(cfg);
+				token = scriptfile_peektoken(cfg.get());
 				if (!Bstrcasecmp("=", token)) {
-					scriptfile_gettoken(cfg);
+					scriptfile_gettoken(cfg.get());
 				}
 
 				switch (configspec[item].type) {
 					case type_bool: {
 						bool value{false};
-						if (scriptfile_getbool(cfg, &value)) break;
+						if (scriptfile_getbool(cfg.get(), &value)) break;
 						*(bool*)configspec[item].store = value;
 						break;
 					}
 					case type_int: {
 						int value = 0;
-						if (scriptfile_getnumber(cfg, &value)) break;
+						if (scriptfile_getnumber(cfg.get(), &value)) break;
 						*(int*)configspec[item].store = value;
 						break;
 					}
 					case type_hex: {
 						int value = 0;
-						if (scriptfile_gethex(cfg, &value)) break;
+						if (scriptfile_gethex(cfg.get(), &value)) break;
 						*(int*)configspec[item].store = value;
 						break;
 					}
 					case type_fixed16: {
 						double value = 0.0;
-						if (scriptfile_getdouble(cfg, &value)) break;
+						if (scriptfile_getdouble(cfg.get(), &value)) break;
 						*(int*)configspec[item].store = (int)(value*65536.0);
 						break;
 					}
 					case type_double: {
 						double value = 0.0;
-						if (scriptfile_getdouble(cfg, &value)) break;
+						if (scriptfile_getdouble(cfg.get(), &value)) break;
 						*(double*)configspec[item].store = value;
 						break;
 					}
@@ -242,7 +242,7 @@ int loadsetup(const std::string& fn)
 		}
 
 		if (!configspec[item].name) {
-			buildprintf("loadsetup: error on line {}\n", scriptfile_getlinum(cfg, cfg->ltextptr));
+			buildprintf("loadsetup: error on line {}\n", scriptfile_getlinum(cfg.get(), cfg->ltextptr));
 			continue;
 		}
 	}
@@ -260,7 +260,7 @@ int loadsetup(const std::string& fn)
 	}
 	OSD_CaptureKey(keys[19]);
 
-	scriptfile_close(cfg);
+	scriptfile_close(cfg.get());
 	scriptfile_clearsymbols();
 
 	return 0;

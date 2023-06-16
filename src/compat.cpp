@@ -40,6 +40,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <iterator>
 
 #if !defined(_WIN32)
 char *strlwr(char *s)
@@ -87,28 +88,29 @@ int Bvasprintf(char **ret, const char *format, va_list ap)
  * The caller must free the string when done with it.
  * @return nullptr if it could not be determined
  */
-char *Bgethomedir()
+std::string Bgethomedir()
 {
-    char *dir = nullptr;
-
 #ifdef _WIN32
 	TCHAR appdata[MAX_PATH];
 
 	if (SUCCEEDED(::SHGetFolderPathA(nullptr, CSIDL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, appdata))) {
-		dir = strdup(appdata);
+		std::string dir;
+		std::ranges::copy(appdata, std::back_inserter(dir));
+
+		return dir;
     }
 
+	return {};
+
 #elif defined __APPLE__
-    dir = osx_gethomedir();
+    return osx_gethomedir();
     
 #else
 	char *e = getenv("HOME");
 	if (e) {
-        dir = strdup(e);
+        return strdup(e);
     }
 #endif
-
-	return dir;
 }
 
 /**
@@ -181,20 +183,16 @@ char *Bgetappdir()
  * The caller must free the string when done with it.
  * @return nullptr if it could not be determined
  */
-char *Bgetsupportdir(int global)
-{
-    char *dir = nullptr;
-    
+std::string Bgetsupportdir(int global)
+{    
 #ifdef __APPLE__
-    dir = osx_getsupportdir(global);
-
+    return osx_getsupportdir(global);
 #else
     if (!global) {
-        dir = Bgethomedir();
+        return Bgethomedir();
     }
 #endif
-    
-	return dir;
+	return {};
 }
 
 int Bcorrectfilename(char *filename, int removefn)

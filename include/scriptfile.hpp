@@ -1,6 +1,8 @@
 #ifndef __scriptfile_h__
 #define __scriptfile_h__
 
+#include <memory>
+
 struct scriptfile {
     char *textbuf;
     unsigned int textlength;
@@ -23,7 +25,7 @@ int scriptfile_getsymbol(scriptfile *sf, int *num);
 int scriptfile_getlinum(scriptfile *sf, char *ptr);
 int scriptfile_getbraces(scriptfile *sf, char **braceend);
 
-scriptfile *scriptfile_fromfile(const std::string& fn);
+std::unique_ptr<scriptfile> scriptfile_fromfile(const std::string& fn);
 scriptfile *scriptfile_fromstring(const std::string& str);
 void scriptfile_close(scriptfile *sf);
 int scriptfile_eof(scriptfile *sf);
