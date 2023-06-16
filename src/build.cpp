@@ -5766,95 +5766,91 @@ void getpoint(int searchxe, int searchye, int *x, int *y)
 
 int getlinehighlight(int xplc, int yplc)
 {
-	int i;
-	int dst;
-	int dist;
-	int closest;
-	int x1;
-	int y1;
-	int x2;
-	int y2;
-	int nx;
-	int ny;
-
 	if (numwalls == 0)
 		return(-1);
-	dist = 0x7fffffff;
-	closest = numwalls-1;
-	for(i=0;i<numwalls;i++)
+	int dist{0x7fffffff};
+	int closest = numwalls - 1;
+	
+	for(int i{0}; i < numwalls; ++i)
 	{
-		getclosestpointonwall(xplc,yplc,i,&nx,&ny);
-		dst = std::abs(xplc-nx) + std::abs(yplc-ny);
-		if (dst <= dist)
-			dist = dst, closest = i;
+		int nx{0};
+		int ny{0};
+
+		getclosestpointonwall(xplc, yplc, i, &nx, &ny);
+		const int dst = std::abs(xplc - nx) + std::abs(yplc - ny);
+
+		if (dst <= dist) {
+			dist = dst;
+			closest = i;
+		}
 	}
 
 	if (wall[closest].nextwall >= 0)
 	{    //if red line, allow highlighting of both sides
-		x1 = wall[closest].x;
-		y1 = wall[closest].y;
-		x2 = wall[wall[closest].point2].x;
-		y2 = wall[wall[closest].point2].y;
-		if (dmulscalen<32>(xplc-x1,y2-y1,-(x2-x1),yplc-y1) >= 0)
+		const int x1 = wall[closest].x;
+		const int y1 = wall[closest].y;
+		const int x2 = wall[wall[closest].point2].x;
+		const int y2 = wall[wall[closest].point2].y;
+
+		if (dmulscalen<32>(xplc - x1, y2 - y1, -(x2 - x1), yplc - y1) >= 0)
 			closest = wall[closest].nextwall;
 	}
 
-	return(closest);
+	return closest;
 }
 
 int getpointhighlight(int xplc, int yplc)
 {
-	int i;
-	int dst;
-	int dist;
-	int closest;
-
 	if (numwalls == 0)
 		return(-1);
 
-	dist = 0;
+	int dist{0};
 	if (grid > 0)
 		dist = 1024;
 
-	closest = -1;
-	for(i=0;i<numwalls;i++)
+	int closest{-1};
+	
+	for(int i{0}; i < numwalls; ++i)
 	{
-		dst = std::abs(xplc-wall[i].x) + std::abs(yplc-wall[i].y);
-		if (dst <= dist)
-			dist = dst, closest = i;
+		int dst = std::abs(xplc-wall[i].x) + std::abs(yplc-wall[i].y);
+		if (dst <= dist) {
+			dist = dst;
+			closest = i;
+		}
 	}
-	for(i=0;i<MAXSPRITES;i++)
+
+	for(int i{0}; i < MAXSPRITES; ++i) {
 		if (sprite[i].statnum < MAXSTATUS)
 		{
-			dst = std::abs(xplc-sprite[i].x) + std::abs(yplc-sprite[i].y);
-			if (dst <= dist)
-				dist = dst, closest = i+16384;
+			int dst = std::abs(xplc-sprite[i].x) + std::abs(yplc-sprite[i].y);
+			
+			if (dst <= dist) {
+				dist = dst;
+				closest = i + 16384;
+			}
 		}
-	return(closest);
+	}
+
+	return closest;
 }
 
 void adjustmark(int *xplc, int *yplc, short danumwalls)
 {
-	int i;
-	int dst;
-	int dist;
-	int dax;
-	int day;
-	int pointlockdist;
-
 	if (danumwalls < 0)
 		danumwalls = numwalls;
 
-	pointlockdist = 0;
+	int pointlockdist{0};
 	if ((grid > 0) && (gridlock > 0))
 		pointlockdist = (128>>grid);
 
-	dist = pointlockdist;
-	dax = *xplc;
-	day = *yplc;
-	for(i=0;i<danumwalls;i++)
+	int dist = pointlockdist;
+	int dax = *xplc;
+	int day = *yplc;
+	
+	for(int i{0}; i < danumwalls; ++i)
 	{
-		dst = std::abs((*xplc)-wall[i].x) + std::abs((*yplc)-wall[i].y);
+		int dst = std::abs((*xplc)-wall[i].x) + std::abs((*yplc)-wall[i].y);
+		
 		if (dst < dist)
 		{
 			dist = dst;
@@ -5862,6 +5858,7 @@ void adjustmark(int *xplc, int *yplc, short danumwalls)
 			day = wall[i].y;
 		}
 	}
+
 	if (dist == pointlockdist)
 		if ((gridlock > 0) && (grid > 0))
 		{
@@ -5875,21 +5872,17 @@ void adjustmark(int *xplc, int *yplc, short danumwalls)
 
 bool checkautoinsert(int dax, int day, short danumwalls)
 {
-	int i;
-	int x1;
-	int y1;
-	int x2;
-	int y2;
-
 	if (danumwalls < 0)
 		danumwalls = numwalls;
-	for(i=0;i<danumwalls;i++)       // Check if a point should be inserted
-	{
-		x1 = wall[i].x;
-		y1 = wall[i].y;
-		x2 = wall[wall[i].point2].x;
-		y2 = wall[wall[i].point2].y;
 
+	for(int i{0}; i < danumwalls; ++i)       // Check if a point should be inserted
+	{
+		const int x1 = wall[i].x;
+		const int y1 = wall[i].y;
+		const int x2 = wall[wall[i].point2].x;
+		const int y2 = wall[wall[i].point2].y;
+
+		// FIXME: Fastest way to check this?
 		if ((x1 != dax) || (y1 != day))
 			if ((x2 != dax) || (y2 != day))
 				if (((x1 <= dax) && (dax <= x2)) || ((x2 <= dax) && (dax <= x1)))
@@ -5937,14 +5930,11 @@ ClockDir_t clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
 
 void flipwalls(short numwalls, short newnumwalls)
 {
-	int i;
-	int j;
+	const int nume = newnumwalls - numwalls;
 
-	const int nume = newnumwalls-numwalls;
-
-	for(i=numwalls;i<numwalls+(nume>>1);i++)
+	for(int i{numwalls}; i < numwalls + (nume >> 1); ++i)
 	{
-		j = numwalls+newnumwalls-i-1;
+		const int j = numwalls + newnumwalls - i - 1;
 		std::swap(wall[i].x, wall[j].x);
 		std::swap(wall[i].y, wall[j].y);
 	}
@@ -5952,15 +5942,14 @@ void flipwalls(short numwalls, short newnumwalls)
 
 void insertpoint(short linehighlight, int dax, int day)
 {
-	int i;
-	int k;
-
 	int j = linehighlight;
 	short sucksect = sectorofwall((short)j);
 
-	sector[sucksect].wallnum++;
-	for(i=sucksect+1;i<numsectors;i++)
-		sector[i].wallptr++;
+	++sector[sucksect].wallnum;
+
+	for(int i = sucksect + 1; i < numsectors; ++i) {
+		++sector[i].wallptr;
+	}
 
 	movewalls((int)j+1,+1L);
 	std::memcpy(&wall[j+1],&wall[j],sizeof(walltype));
@@ -5973,13 +5962,14 @@ void insertpoint(short linehighlight, int dax, int day)
 
 	if (wall[j].nextwall >= 0)
 	{
-		k = wall[j].nextwall;
+		const short k = wall[j].nextwall;
 
 		sucksect = sectorofwall((short)k);
 
 		sector[sucksect].wallnum++;
-		for(i=sucksect+1;i<numsectors;i++)
-			sector[i].wallptr++;
+		for(int i = sucksect + 1; i < numsectors; ++i) {
+			++sector[i].wallptr;
+		}
 
 		movewalls((int)k+1,+1L);
 		std::memcpy(&wall[k+1],&wall[k],sizeof(walltype));
@@ -6000,18 +5990,16 @@ void insertpoint(short linehighlight, int dax, int day)
 
 void deletepoint(short point)
 {
-	int i;
-	int j;
-	int k;
-
 	const int sucksect = sectorofwall(point);
 
-	sector[sucksect].wallnum--;
-	for(i=sucksect+1;i<numsectors;i++)
-		sector[i].wallptr--;
+	--sector[sucksect].wallnum;
 
-	j = lastwall(point);
-	k = wall[point].point2;
+	for(int i = sucksect + 1; i < numsectors; ++i) {
+		--sector[i].wallptr;
+	}
+
+	int j = lastwall(point);
+	int k = wall[point].point2;
 	wall[j].point2 = k;
 
 	if (wall[j].nextwall >= 0)
@@ -6019,29 +6007,31 @@ void deletepoint(short point)
 		wall[wall[j].nextwall].nextwall = -1;
 		wall[wall[j].nextwall].nextsector = -1;
 	}
+
 	if (wall[point].nextwall >= 0)
 	{
 		wall[wall[point].nextwall].nextwall = -1;
 		wall[wall[point].nextwall].nextsector = -1;
 	}
-	movewalls((int)point,-1L);
 
-	checksectorpointer((short)j,(short)sucksect);
+	movewalls((int)point, -1L);
+
+	checksectorpointer((short)j, (short)sucksect);
 }
 
 void deletesector(short sucksect)
 {
-	int i;
-
-	while (headspritesect[sucksect] >= 0)
+	while (headspritesect[sucksect] >= 0) {
 		deletesprite(headspritesect[sucksect]);
+	}
+
 	updatenumsprites();
 
 	const int startwall = sector[sucksect].wallptr;
 	const int endwall = startwall + sector[sucksect].wallnum - 1;
 	int j = sector[sucksect].wallnum;
 
-	for(i=sucksect;i<numsectors-1;i++)
+	for(int i{sucksect}; i < numsectors - 1; ++i)
 	{
 		int k = headspritesect[i + 1];
 		
@@ -6059,16 +6049,21 @@ void deletesector(short sucksect)
 	numsectors--;
 
 	j = endwall-startwall+1;
-	for (i=startwall;i<=endwall;i++)
+	
+	for (int i{startwall}; i <= endwall; ++i) {
 		if (wall[i].nextwall != -1)
 		{
 			wall[wall[i].nextwall].nextwall = -1;
 			wall[wall[i].nextwall].nextsector = -1;
 		}
-	movewalls(startwall,-j);
-	for(i=0;i<numwalls;i++)
+	}
+
+	movewalls(startwall, -j);
+	
+	for(int i{0}; i < numwalls; ++i) {
 		if (wall[i].nextwall >= startwall)
 			wall[i].nextsector--;
+	}
 }
 
 void fixspritesectors()
@@ -6106,23 +6101,26 @@ void fixspritesectors()
 
 void movewalls(int start, int offs)
 {
-	int i;
-
 	if (offs < 0)  //Delete
 	{
-		for(i=start;i<numwalls+offs;i++)
-			std::memcpy(&wall[i],&wall[i-offs],sizeof(walltype));
+		for(int i{start}; i < numwalls + offs; ++i)
+			std::memcpy(&wall[i], &wall[i - offs], sizeof(walltype));
 	}
 	else if (offs > 0)  //Insert
 	{
-		for(i=numwalls+offs-1;i>=start+offs;i--)
+		for(int i = numwalls + offs - 1; i >= start + offs; --i)
 			std::memcpy(&wall[i],&wall[i-offs],sizeof(walltype));
 	}
+	
 	numwalls += offs;
-	for(i=0;i<numwalls;i++)
+
+	for(int i{0}; i < numwalls; ++i)
 	{
-		if (wall[i].nextwall >= start) wall[i].nextwall += offs;
-		if (wall[i].point2 >= start) wall[i].point2 += offs;
+		if (wall[i].nextwall >= start)
+			wall[i].nextwall += offs;
+
+		if (wall[i].point2 >= start)
+			wall[i].point2 += offs;
 	}
 }
 
@@ -6185,8 +6183,6 @@ void clearmidstatbar16()
 
 short loopinside(int x, int y, short startwall)
 {
-	int templong;
-
 	short direc = static_cast<int>(clockdir(startwall));
 	short i{startwall};
 
@@ -6233,27 +6229,25 @@ int numloopsofsector(short sectnum)
 short getnumber16(char *namestart, short num, int maxnumber, char sign)
 {
 	char buffer[80];
-	char ch;
-	int n;
-	int danum;
-	int oldnum;
 
-	danum = (int)num;
-	oldnum = danum;
+	int danum = static_cast<int>(num);
+	int oldnum = danum;
 	bflushchars();
+
 	while (keystatus[0x1] == 0)
 	{
 		if (handleevents()) {
 			if (quitevent) quitevent = 0;
 		}
 
-		ch = bgetchar();
+		auto ch = bgetchar();
 
 		fmt::format_to(buffer, "{}{}_ ", namestart, danum);
 		printmessage16(buffer);
 		showframe();
 
 		if (ch >= '0' && ch <= '9') {
+			int n{0};
 			if (sign && danum<0)
 				n = (danum*10)-(ch-'0');
 			else
@@ -6269,21 +6263,20 @@ short getnumber16(char *namestart, short num, int maxnumber, char sign)
 			danum = -danum;
 		}
 	}
+	
 	clearkeys();
+
 	return((short)oldnum);
 }
 
 short getnumber256(char *namestart, short num, int maxnumber, char sign)
 {
 	char buffer[80];
-	char ch;
-	int n;
-	int danum;
-	int oldnum;
 
-	danum = (int)num;
-	oldnum = danum;
+	int danum = static_cast<int>(num);
+	int oldnum = danum;
 	bflushchars();
+
 	while (keystatus[0x1] == 0)
 	{
 		if (handleevents()) {
@@ -6294,25 +6287,30 @@ short getnumber256(char *namestart, short num, int maxnumber, char sign)
 		ExtAnalyzeSprites();
 		drawmasks();
 
-		ch = bgetchar();
+		auto ch = bgetchar();
 
 		fmt::format_to(buffer, "{}{}_ ", namestart, danum);
 		printmessage256(buffer);
 		showframe();
 
 		if (ch >= '0' && ch <= '9') {
+			int n{0};
 			if (sign && danum<0)
 				n = (danum*10)-(ch-'0');
 			else
 				n = (danum*10)+(ch-'0');
-			if (n < maxnumber) danum = n;
-		} else if (ch == 8 || ch == 127) {	// backspace
+			if (n < maxnumber)
+				danum = n;
+		}
+		else if (ch == 8 || ch == 127) {	// backspace
 			danum /= 10;
-		} else if (ch == 13) {
+		}
+		else if (ch == 13) {
 			oldnum = danum;
 			asksave = 1;
 			break;
-		} else if (ch == '-' && sign) {	// negate
+		}
+		else if (ch == '-' && sign) {	// negate
 			danum = -danum;
 		}
 	}
@@ -6356,7 +6354,7 @@ char *findfilename(char *path)
 {
 	char *filename;
 
-	filename = strrchr(path, '/');
+	filename = std::strrchr(path, '/');
 #ifdef _WIN32
 	filename = std::max(filename, std::strrchr(path, '\\')); // FIXME: Hmm..
 #endif
@@ -6365,6 +6363,7 @@ char *findfilename(char *path)
 	} else {
 		filename = path;
 	}
+
 	return filename;
 }
 
@@ -6530,17 +6529,6 @@ int menuselect(int newpathmode)
 
 void fillsector(short sectnum, unsigned char fillcolor)
 {
-	int x1;
-	int x2;
-	int y1;
-	int y2;
-	int sy;
-	int y;
-	int dax;
-	short z;
-	short zz;
-	short fillcnt;
-
 	const int lborder{ 0 };
 	const int rborder{ xdim };
 	constexpr int uborder{ 0 };
@@ -6553,13 +6541,13 @@ void fillsector(short sectnum, unsigned char fillcolor)
 	int miny = dborder - 1;
 	int maxy{ uborder };
 
-	const int startwall = sector[sectnum].wallptr;
-	const int endwall = startwall + sector[sectnum].wallnum - 1;
+	const short startwall = sector[sectnum].wallptr;
+	const short endwall = startwall + sector[sectnum].wallnum - 1;
 
-	for(z=startwall;z<=endwall;z++)
+	for(short z{startwall}; z <= endwall; ++z)
 	{
-		y1 = (((wall[z].y-posy)*zoom)>>14)+midydim16;
-		y2 = (((wall[wall[z].point2].y-posy)*zoom)>>14)+midydim16;
+		const short y1 = (((wall[z].y-posy)*zoom)>>14)+midydim16;
+		const short y2 = (((wall[wall[z].point2].y-posy)*zoom)>>14)+midydim16;
 
 		if (y1 < miny)
 			miny = y1;
@@ -6580,43 +6568,54 @@ void fillsector(short sectnum, unsigned char fillcolor)
 	if (maxy >= dborder)
 		maxy = dborder - 1;
 
-	for(sy=miny+((totalclock>>2)&3);sy<=maxy;sy+=3)	// JBF 20040116: numframes%3 -> (totalclock>>2)&3
+	for(int sy = miny + ((totalclock >> 2) & 3); sy <= maxy; sy += 3)	// JBF 20040116: numframes%3 -> (totalclock>>2)&3
 	{
-		y = posy+(((sy-midydim16)<<14)/zoom);
+		int y = posy+(((sy-midydim16)<<14)/zoom);
 
-		fillist[0] = lborder; fillcnt = 1;
-		for(z=startwall;z<=endwall;z++)
+		fillist[0] = lborder;
+		short fillcnt{1};
+
+		for(short z{startwall}; z <= endwall; ++z)
 		{
-			x1 = wall[z].x; x2 = wall[wall[z].point2].x;
-			y1 = wall[z].y; y2 = wall[wall[z].point2].y;
+			int x1 = wall[z].x;
+			int x2 = wall[wall[z].point2].x;
+			int y1 = wall[z].y;
+			int y2 = wall[wall[z].point2].y;
+			
 			if (y1 > y2)
 			{
 				std::swap(x1, x2);
 				std::swap(y1, y2);
 			}
-			if ((y1 <= y) && (y2 > y))
+
+			if ((y1 <= y) && (y2 > y)) {
 				//if (x1*(y-y2) + x2*(y1-y) <= 0)
-				{
-					dax = x1+scale(y-y1,x2-x1,y2-y1);
-					dax = (((dax-posx)*zoom)>>14)+halfxdim16;
-					if (dax >= lborder)
-						fillist[fillcnt++] = dax;
-				}
+				int dax = x1+scale(y-y1,x2-x1,y2-y1);
+				dax = (((dax-posx)*zoom)>>14)+halfxdim16;
+				if (dax >= lborder)
+					fillist[fillcnt++] = dax;
+			}
 		}
+
 		if (fillcnt > 0)
 		{
-			for(z=1;z<fillcnt;z++)
-				for (zz=0;zz<z;zz++)
+			for(short z{1}; z < fillcnt; ++z) {
+				for (int zz{0}; zz < z; ++zz) {
 					if (fillist[z] < fillist[zz])
 					{
 						std::swap(fillist[z], fillist[zz]);
 					}
+				}
+			}
 
-			for (z=(fillcnt&1);z<fillcnt-1;z+=2)
+			for (short z = fillcnt & 1; z < fillcnt - 1; z += 2)
 			{
-				if (fillist[z] > rborder) break;
+				if (fillist[z] > rborder)
+					break;
+
 				if (fillist[z+1] > rborder)
 					fillist[z+1] = rborder;
+
 				drawline16(fillist[z], sy, fillist[z + 1], sy, fillcolor);
 			}
 		}
@@ -6625,9 +6624,6 @@ void fillsector(short sectnum, unsigned char fillcolor)
 
 short whitelinescan(short dalinehighlight)
 {
-	int j;
-	int k;
-
 	const short sucksect = sectorofwall(dalinehighlight);
 
 	std::memcpy(&sector[numsectors],&sector[sucksect],sizeof(sectortype));
@@ -6640,11 +6636,11 @@ short whitelinescan(short dalinehighlight)
 
 	do
 	{
-		j = lastwall((short)i);
+		int j = lastwall((short)i);
 		if (wall[j].nextwall >= 0)
 		{
 			j = wall[j].point2;
-			for(k=0;k<numwalls;k++)
+			for(int k{0}; k < numwalls; ++k)
 			{
 				if (wall[wall[k].point2].x == wall[j].x)
 					if (wall[wall[k].point2].y == wall[j].y)
@@ -6685,13 +6681,8 @@ int loadnames()
 {
 	std::array<char, 1024> buffer;
 	char* p;
-	char* name;
-	char* number;
-	char* endptr;
-	int num;
 	int syms{ 0 };
 	int line{ 0 };
-	int a;
 
 	std::FILE* fp = fopenfrompath("NAMES.HPP", "r");
 
@@ -6708,7 +6699,7 @@ int loadnames()
 	buildprintf("Loading NAMES.H\n");
 
 	while (std::fgets(&buffer[0], 1024, fp)) {
-		a = (int)std::strlen(&buffer[0]);
+		int a = (int)std::strlen(&buffer[0]);
 		if (a >= 1) {
 			if (a > 1)
 				if (buffer[a-2] == '\r') buffer[a-2] = 0;
@@ -6734,7 +6725,7 @@ int loadnames()
 					continue;
 				}
 
-				name = p;
+				char* name = p;
 				while (*p != 32 && *p != 0) p++;
 				if (*p == 32) {
 					*(p++) = 0;
@@ -6744,12 +6735,13 @@ int loadnames()
 						continue;
 					}
 
-					number = p;
+					char* number = p;
 					while (*p != 0) p++;
 					if (*p != 0) *p = 0;
 
 					// add to list
-					num = (int)strtol(number, &endptr, 10);
+					char* endptr{nullptr};
+					const int num = (int)strtol(number, &endptr, 10);
 					if (*endptr != 0) {
 						p = endptr;
 						goto badline;
@@ -6836,8 +6828,8 @@ void drawline16(int x1, int y1, int x2, int y2, unsigned char col)
 	{
 		if (x2 < x1)
 		{
-			i = x1; x1 = x2; x2 = i;
-			i = y1; y1 = y2; y2 = i;
+			std::swap(x1, x2);
+			std::swap(y1, y2);
 		}
 		d = 0;
 		if (y2 > y1) pinc = bytesperline; else pinc = -bytesperline;
@@ -6964,8 +6956,11 @@ void drawcircle16(int x1, int y1, int r, unsigned char col)
 //
 void qsetmodeany(int daxdim, int daydim)
 {
-	if (daxdim < 640) daxdim = 640;
-	if (daydim < 480) daydim = 480;
+	if (daxdim < 640)
+		daxdim = 640;
+
+	if (daydim < 480)
+		daydim = 480;
 
 	if (qsetmode != ((daxdim<<16)|(daydim&0xffff))) {
 		if (setvideomode(daxdim, daydim, 8, fullscreen) < 0)
@@ -6986,7 +6981,7 @@ void qsetmodeany(int daxdim, int daydim)
 		clearbuf((void *)frameplace, (ydim16*bytesperline) >> 2, 0L);
 	}
 
-	qsetmode = ((daxdim<<16)|(daydim&0xffff));
+	qsetmode = ((daxdim << 16) | (daydim & 0xffff));
 }
 
 
@@ -7080,7 +7075,8 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 	intptr_t templong;
 	unsigned char col;
 
-	if (qsetmode == 200) return;
+	if (qsetmode == 200)
+		return;
 
 	if (editstatus == 0)
 	{
@@ -7088,7 +7084,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 		clear2dscreen();
 
 		faketimerhandler();
-		draw2dgrid(posxe,posye,ange,zoome,gride);
+		draw2dgrid(posxe, posye, ange, zoome, gride);
 	}
 
 	faketimerhandler();
@@ -7343,22 +7339,16 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 //
 void printext16(int xpos, int ypos, short col, short backcol, std::string_view name, char fontsize)
 {
-	int i;
-	int x;
-	int y;
-	const unsigned char *letptr;
-	unsigned char *ptr;
-
 	const auto* f = &textfonts[std::min(static_cast<int>(fontsize), 2)]; // FIXME: Dumb way to index here.
-	int stx = xpos;
+	int stx{xpos};
 
 	for(auto ch : name)
 	{
-		letptr = &f->font[((int)(unsigned char) ch) * f->cellh + f->cellyoff];
-		ptr = (unsigned char *)(bytesperline * (ytop16 + ypos + f->charysiz - 1) + stx + frameplace);
-		for(y = f->charysiz - 1; y >= 0; --y)
+		const auto* letptr = &f->font[((int)(unsigned char) ch) * f->cellh + f->cellyoff];
+		auto* ptr = (unsigned char *)(bytesperline * (ytop16 + ypos + f->charysiz - 1) + stx + frameplace);
+		for(int y = f->charysiz - 1; y >= 0; --y)
 		{
-			for(x=f->charxsiz-1;x>=0;x--)
+			for(int x = f->charxsiz - 1; x >= 0; --x)
 			{
 				if (letptr[y]&pow2char[7-x-f->cellxoff])
 					ptr[x] = (unsigned char)col;
@@ -7449,17 +7439,13 @@ void updatenumsprites()
 
 void copysector(short soursector, short destsector, short deststartwall, unsigned char copystat)
 {
-	short j;
-	short k;
-	short m;
-
 	short newnumwalls = deststartwall;  //erase existing sector fragments
 
 		//duplicate walls
 	const short startwall = sector[soursector].wallptr;
 	const short endwall = startwall + sector[soursector].wallnum;
 
-	for(j=startwall;j<endwall;j++)
+	for(short j{startwall}; j < endwall; ++j)
 	{
 		std::memcpy(&wall[newnumwalls], &wall[j], sizeof(walltype));
 		wall[newnumwalls].point2 += deststartwall - startwall;
@@ -7490,12 +7476,12 @@ void copysector(short soursector, short destsector, short deststartwall, unsigne
 		if (copystat == 1)
 		{
 				//duplicate sprites
-			j = headspritesect[soursector];
+			short j = headspritesect[soursector];
 			while (j >= 0)
 			{
-				k = nextspritesect[j];
+				short k = nextspritesect[j];
 
-				m = insertsprite(destsector,sprite[j].statnum);
+				short m = insertsprite(destsector,sprite[j].statnum);
 				std::memcpy(&sprite[m],&sprite[j],sizeof(spritetype));
 				sprite[m].sectnum = destsector;   //Don't let memcpy overwrite sector!
 

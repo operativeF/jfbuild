@@ -6607,22 +6607,17 @@ void drawtilebackground (int thex, int they, short tilenum,
 			  signed char shade, int cx1, int cy1,
 			  int cx2, int cy2, unsigned char dapalnum)
 {
-	int x;
-	int y;
-	int xsiz;
-	int ysiz;
-	int tx1;
-	int ty1;
-	int tx2;
-	int ty2;
-
 	(void)thex; (void)they;
 
-	xsiz = tilesizx[tilenum]; tx1 = cx1/xsiz; tx2 = cx2/xsiz;
-	ysiz = tilesizy[tilenum]; ty1 = cy1/ysiz; ty2 = cy2/ysiz;
+	const int xsiz = tilesizx[tilenum];
+	const int tx1 = cx1/xsiz;
+	const int tx2 = cx2/xsiz;
+	const int ysiz = tilesizy[tilenum];
+	const int ty1 = cy1/ysiz;
+	const int ty2 = cy2/ysiz;
 
-	for(x=tx1;x<=tx2;x++)
-		for(y=ty1;y<=ty2;y++)
+	for(int x{tx1}; x <= tx2; ++x)
+		for(int y{ty1}; y <= ty2; ++y)
 			rotatesprite(x*xsiz<<16,y*ysiz<<16,65536L,0,tilenum,shade,dapalnum,8+16+64+128,cx1,cy1,cx2,cy2);
 }
 
