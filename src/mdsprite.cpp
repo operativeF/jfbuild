@@ -471,9 +471,8 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 		// no texture loaded in the PTMHead yet
 		if ((err = PTM_LoadTextureFile(skinfile, *tex, PTH_CLAMPED, hictinting[pal].f))) {
 			if (polymosttexverbosity >= 1) {
-				const char * errstr = PTM_GetLoadTextureFileErrorString(err);
 				buildprintf("MDSprite: {} {}\n",
-						   skinfile, errstr);
+						   skinfile, PTM_GetLoadTextureFileErrorString(err));
 			}
 			return nullptr;
 		}

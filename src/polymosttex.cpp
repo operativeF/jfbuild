@@ -431,7 +431,7 @@ int PTM_LoadTextureFile(const std::string& filename, PTMHead* ptmh, int flags, i
  * @param err the error code
  * @return the error string
  */
-const char * PTM_GetLoadTextureFileErrorString(int err)
+std::string PTM_GetLoadTextureFileErrorString(int err)
 {
 	switch (err) {
 		case 0:
@@ -806,9 +806,8 @@ static int pt_load_hightile(PTHead * pth)
 
 		if ((err = PTM_LoadTextureFile(filename, pth->pic[texture], pth->flags, effects))) {
 			if (polymosttexverbosity >= 1) {
-				const char * errstr = PTM_GetLoadTextureFileErrorString(err);
 				buildprintf("PolymostTex: {} (pic {} pal {}) {}\n",
-						   filename, pth->picnum, pth->palnum, errstr);
+						   filename, pth->picnum, pth->palnum, PTM_GetLoadTextureFileErrorString(err));
 			}
 			continue;
 		}

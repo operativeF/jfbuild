@@ -188,6 +188,6 @@ int PTM_LoadTextureFile(const std::string& filename, PTMHead* ptmh, int flags, i
  *
  * Shared method for mdsprite.c to call.
  */
-const char * PTM_GetLoadTextureFileErrorString(int err);
+std::string PTM_GetLoadTextureFileErrorString(int err);
 
 #endif
