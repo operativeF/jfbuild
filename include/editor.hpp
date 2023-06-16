@@ -89,7 +89,7 @@ void clearmidstatbar16();
 void drawline16(int x1, int y1, int x2, int y2, unsigned char col);
 void drawcircle16(int x1, int y1, int r, unsigned char col);
 
-void printext16(int xpos, int ypos, short col, short backcol, const char *name, char fontsize);
+void printext16(int xpos, int ypos, short col, short backcol, std::string_view name, char fontsize);
 short getnumber256(char *namestart, short num, int maxnumber, char sign);
 short getnumber16(char *namestart, short num, int maxnumber, char sign);
 void printmessage256(const char* name);

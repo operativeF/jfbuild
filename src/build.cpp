@@ -18,6 +18,8 @@
 #include "winlayer.hpp"
 #endif
 
+#include <fmt/core.h>
+
 #include <algorithm>
 #include <array>
 #include <limits>
@@ -2625,7 +2627,7 @@ int gettile(int tilenum)
 
 				//drawtilescreen(topleft,tilenum);
 				std::sprintf(&snotbuf[0],"Goto tile: %d_ ",j);
-				printext256(0,0,whitecol,blackcol,snotbuf,0);
+				printext256(0,0,whitecol,blackcol, &snotbuf[0], 0);
 				showframe();
 
 				if (ch >= '0' && ch <= '9') {
@@ -2754,7 +2756,7 @@ void drawtilescreen(int pictopleft, int picbox)
 					dax = ((cnt%(xtiles<<gettilezoom))<<(6-gettilezoom));
 					day = ((cnt/(xtiles<<gettilezoom))<<(6-gettilezoom));
 					std::sprintf(&snotbuf[0], "%d", localartfreq[cnt+pictopleft]);
-					printext256(dax,day,whitecol,-1,snotbuf,1);
+					printext256(dax,day,whitecol,-1, &snotbuf[0], 1);
 				}
 			}
 		}
@@ -2772,11 +2774,11 @@ void drawtilescreen(int pictopleft, int picbox)
 
 	i = localartlookup[picbox];
 	std::sprintf(&snotbuf[0],"%d",i);
-	printext256(0L,ydim-8,whitecol,-1,snotbuf,0);
+	printext256(0L, ydim - 8, whitecol, -1, &snotbuf[0], 0);
 	printext256(xdim-((int)std::strlen(names[i])<<3),ydim-8,whitecol,-1,names[i],0);
 
 	std::sprintf(&snotbuf[0],"%dx%d",tilesizx[i],tilesizy[i]);
-	printext256(xdim>>2,ydim-8,whitecol,-1,snotbuf,0);
+	printext256(xdim >> 2, ydim - 8, whitecol, -1, &snotbuf[0], 0);
 }
 
 void overheadeditor()
@@ -3033,7 +3035,7 @@ void overheadeditor()
 					x2 = x1 + (sl<<2)+2;
 					y2 = y1 + 7;
 					if ((x1 >= 0) && (x2 < xdim) && (y1 >= 0) && (y2 < ydim16))
-						printext16(x1,y1,0,7,dabuffer,1);
+						printext16(x1, y1, 0, 7, dabuffer, 1);
 				}
 			}
 
@@ -7339,7 +7341,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 //
 // printext16
 //
-void printext16(int xpos, int ypos, short col, short backcol, const char *name, char fontsize)
+void printext16(int xpos, int ypos, short col, short backcol, std::string_view name, char fontsize)
 {
 	int i;
 	int x;
@@ -7350,9 +7352,9 @@ void printext16(int xpos, int ypos, short col, short backcol, const char *name, 
 	const auto* f = &textfonts[std::min(static_cast<int>(fontsize), 2)]; // FIXME: Dumb way to index here.
 	int stx = xpos;
 
-	for(int i{0}; name[i]; ++i)
+	for(auto ch : name)
 	{
-		letptr = &f->font[((int)(unsigned char) name[i]) * f->cellh + f->cellyoff];
+		letptr = &f->font[((int)(unsigned char) ch) * f->cellh + f->cellyoff];
 		ptr = (unsigned char *)(bytesperline * (ytop16 + ypos + f->charysiz - 1) + stx + frameplace);
 		for(y = f->charysiz - 1; y >= 0; --y)
 		{
@@ -7371,14 +7373,15 @@ void printext16(int xpos, int ypos, short col, short backcol, const char *name, 
 
 void printcoords16(int posxe, int posye, short ange)
 {
-	std::array<char, 80> snotbuf;
 	int maxsect{0};
 	int maxwall{0};
 	int maxspri{0};
 
 	setstatusbarviewport();
 
-	std::sprintf(&snotbuf[0],"x=%d y=%d ang=%d",posxe,posye,ange);
+	std::array<char, 80> snotbuf{};
+	fmt::format_to(&snotbuf[0], "x={} y={} ang={}", posxe, posye, ange);
+
 	int i{0};
 	while ((snotbuf[i] != 0) && (i < 30))
 		i++;
@@ -7412,12 +7415,12 @@ void printcoords16(int posxe, int posye, short ange)
 			break;
 	}
 
-	printext16(8, 128, 11, 6, &snotbuf[0],0);
+	printext16(8, 128, 11, 6, &snotbuf[0], 0);
 
-	std::sprintf(&snotbuf[0],"v%d %d/%d sect %d/%d wall %d/%d spri",
+	fmt::format_to(&snotbuf[0], "v{} {}/{} sect {}/{} wall {}/{} spri",
 					mapversion,
 					numsectors, maxsect,
-					numwalls, maxwall,
+					numwalls,   maxwall,
 					numsprites, maxspri);
 	i = 0;
 	while ((snotbuf[i] != 0) && (i < 46))
@@ -7429,7 +7432,7 @@ void printcoords16(int posxe, int posye, short ange)
 	}
 	snotbuf[46] = 0;
 
-	printext16(264,128, 14, 6, &snotbuf[0],0);
+	printext16(264, 128, 14, 6, &snotbuf[0], 0);
 
 	restoreviewport();
 }
@@ -7782,7 +7785,7 @@ void printmessage256(const char *name)
 	
 	snotbuf[38] = 0;
 
-	printext256(0L, 0L, whitecol, blackcol, snotbuf, 0);
+	printext256(0L, 0L, whitecol, blackcol, &snotbuf[0], 0);
 }
 
 	//Find closest point (*dax, *day) on wall (dawall) to (x, y)

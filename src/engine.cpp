@@ -12196,7 +12196,7 @@ void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 //
 // printext256
 //
-void printext256(int xpos, int ypos, short col, short backcol, std::span<const char> name, char fontsize)
+void printext256(int xpos, int ypos, short col, short backcol, std::string_view name, char fontsize)
 {
 #if USE_POLYMOST && USE_OPENGL
 	if (!polymost_printext256(xpos, ypos, col, backcol, name, fontsize))

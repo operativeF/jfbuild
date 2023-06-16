@@ -152,8 +152,8 @@ static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shad
 		// printext256 happens to work in 2D mode.
 	}
 
-	printext256(4 + (x * 8) + 1, 4 + (y * 14) + 1, shadow, -1, st, 2);
-	printext256(4 + (x * 8), 4 + (y * 14), colour, -1, st, 2);
+	printext256(4 + (x * 8) + 1, 4 + (y * 14) + 1, shadow, -1, &st[0], 2);
+	printext256(4 + (x * 8), 4 + (y * 14), colour, -1, &st[0], 2);
 }
 
 static void _internal_drawosdcursor(int x, int y, int type, int lastkeypress)

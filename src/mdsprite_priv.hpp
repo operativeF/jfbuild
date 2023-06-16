@@ -180,7 +180,7 @@ struct tile2model_t
 	int framenum;   // calculate the number from the name when declaring
 };
 
-extern std::array<tile2model_t, MAXTILES> tile2model;
+inline std::array<tile2model_t, MAXTILES> tile2model;
 
 struct hudtyp { float xadd, yadd, zadd; short angadd, flags; };
 extern hudtyp hudmem[2][MAXTILES];

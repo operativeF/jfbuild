@@ -28,8 +28,6 @@
 #define VOXBORDWIDTH 1 //use 0 to save memory, but has texture artifacts; 1 looks better...
 std::array<voxmodel*, MAXVOXELS> voxmodels;
 
-std::array<tile2model_t, MAXTILES> tile2model;
-
 	//Move this to appropriate place!
 hudtyp hudmem[2][MAXTILES]; //~320KB ... ok for now ... could replace with dynamic alloc
 
@@ -65,7 +63,7 @@ void freeallmodels ()
 	}
 
 	// TODO: Is this really necessary?
-	std::memset(&tile2model[0], -1, sizeof(tile2model));
+	std::ranges::fill(tile2model, tile2model_t{});
 
 	if (vertlist)
 	{
@@ -227,7 +225,8 @@ int md_defineframe (int modelid, const char *framename, int tilenume, int skinnu
 	m = (md2model *)models[modelid];
 	if (m->mdnum == 1) {
 		tile2model[tilenume].modelid = modelid;
-		tile2model[tilenume].framenum = tile2model[tilenume].skinnum = 0;
+		tile2model[tilenume].framenum = 0;
+		tile2model[tilenume].skinnum = 0;
 		return 0;
 	}
 
