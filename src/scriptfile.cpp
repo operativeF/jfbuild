@@ -42,10 +42,10 @@ char *scriptfile_peektoken(const scriptfile *sf)
 	return dupe.textptr;
 }
 
-int scriptfile_getstring(scriptfile *sf, char **retst)
+int scriptfile_getstring(scriptfile *sf, std::string& retst)
 {
-	(*retst) = scriptfile_gettoken(sf);
-	if (*retst == nullptr)
+	retst = scriptfile_gettoken(sf);
+	if (retst.empty())
 	{
 		buildprintf("Error on line {}:{}: unexpected eof\n", sf->filename, scriptfile_getlinum(sf,sf->textptr));
 		return(-2);

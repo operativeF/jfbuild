@@ -80,7 +80,7 @@ extern void ExtEditSpriteData(short spritenum);
 
 inline constexpr auto STATUS2DSIZ{144};
 
-int loadsetup(const char *fn);	// from config.c
+int loadsetup(const std::string& fn);	// from config.c
 int writesetup(const std::string& fn);	// from config.c
 
 void editinput();

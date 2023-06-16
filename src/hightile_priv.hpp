@@ -23,7 +23,7 @@ enum {
 
 struct hicskybox_t {
 	long ignore;
-	char *face[6];
+	std::array<std::string, 6> face;
 };
 
 struct hicreplctyp {

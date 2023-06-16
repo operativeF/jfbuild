@@ -18,7 +18,7 @@ int scriptfile_getnumber(scriptfile *sf, int *num);
 int scriptfile_getbool(scriptfile* sf, bool* b);
 int scriptfile_gethex(scriptfile *sf, int *num);    // For reading specifically hex without requiring an 0x prefix
 int scriptfile_getdouble(scriptfile *sf, double *num);
-int scriptfile_getstring(scriptfile *sf, char **st);
+int scriptfile_getstring(scriptfile *sf, std::string& st);
 int scriptfile_getsymbol(scriptfile *sf, int *num);
 int scriptfile_getlinum(scriptfile *sf, char *ptr);
 int scriptfile_getbraces(scriptfile *sf, char **braceend);

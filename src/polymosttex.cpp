@@ -757,7 +757,7 @@ static bool pt_load_art(PTHead * pth)
  */
 static int pt_load_hightile(PTHead * pth)
 {
-	const char *filename{nullptr};
+	std::string filename;
 	int err{0};
 	int texture{0};
 	std::array<int, PTHPIC_SIZE> loaded = { 0, 0, 0, 0, 0, 0, };
@@ -797,9 +797,8 @@ static int pt_load_hightile(PTHead * pth)
 			}
 		}
 
-		if (!filename) {
+		if (filename.empty())
 			continue;
-		}
 
         PTM_InitIdent(&id, pth);
         id.layer = texture;

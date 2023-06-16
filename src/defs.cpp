@@ -236,8 +236,8 @@ static int defsparser(scriptfile *script)
 				return(0);
 			case TokenType::T_INCLUDE:
 				{
-					char *fn;
-					if (!scriptfile_getstring(script,&fn)) {
+					std::string fn;
+					if (!scriptfile_getstring(script, fn)) {
 						scriptfile *included;
 
 						included = scriptfile_fromfile(fn);
@@ -253,21 +253,21 @@ static int defsparser(scriptfile *script)
 				}
 			case TokenType::T_ECHO:
 				{
-				    char *str;
-				    if (scriptfile_getstring(script, &str)) break;
+				    std::string str;
+				    if (scriptfile_getstring(script, str)) break;
 				    buildputs(str);
 				    buildputs("\n");
 				}
 				break;
 			case TokenType::T_DEFINE:
 				{
-					char *name;
+					std::string name;
 					int number;
 
-					if (scriptfile_getstring(script,&name)) break;
+					if (scriptfile_getstring(script, name)) break;
 					if (scriptfile_getsymbol(script,&number)) break;
 
-					if (scriptfile_addsymbolvalue(name,number) < 0)
+					if (scriptfile_addsymbolvalue(name.c_str(), number) < 0)
 						buildprintf("Warning: Symbol {} was NOT redefined to {} on line {}:{}\n",
 								name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
 					break;
@@ -279,7 +279,7 @@ static int defsparser(scriptfile *script)
 					int tile;
 					int pal;
 					int fnoo;
-					char *fn;
+					std::string fn;
 
 					if (scriptfile_getsymbol(script, &tile)) break;
 					if (scriptfile_getsymbol(script, &pal))  break;
@@ -287,9 +287,9 @@ static int defsparser(scriptfile *script)
 					if (scriptfile_getnumber(script, &fnoo)) break; //y-center
 					if (scriptfile_getnumber(script, &fnoo)) break; //x-size
 					if (scriptfile_getnumber(script, &fnoo)) break; //y-size
-					if (scriptfile_getstring(script, &fn))  break;
+					if (scriptfile_getstring(script, fn))  break;
 #if USE_POLYMOST && USE_OPENGL
-					hicsetsubsttex(tile,pal,fn,-1.0,0);
+					hicsetsubsttex(tile,pal, fn.c_str(),-1.0,0);
 #endif
 				}
 				break;
@@ -298,15 +298,15 @@ static int defsparser(scriptfile *script)
 					int tile;
 					int pal;
 					int i;
-					char *fn[6];
+					std::array<std::string, 6> fn;
 
 					if (scriptfile_getsymbol(script, &tile)) break;
 					if (scriptfile_getsymbol(script, &pal)) break;
 					if (scriptfile_getsymbol(script, &i)) break; //future expansion
-					for (i=0;i<6;i++) if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
+					for (i=0;i<6;i++) if (scriptfile_getstring(script, fn[i])) break; //grab the 6 faces
 					if (i < 6) break;
 #if USE_POLYMOST && USE_OPENGL
-					hicsetskybox(tile,pal,fn);
+					hicsetskybox(tile, pal, fn);
 #endif
 				}
 				break;
@@ -330,16 +330,16 @@ static int defsparser(scriptfile *script)
 				break;
 			case TokenType::T_DEFINEMODEL:
 				{
-					char *modelfn;
+					std::string modelfn;
 					double scale;
 					int shadeoffs;
 
-					if (scriptfile_getstring(script,&modelfn)) break;
+					if (scriptfile_getstring(script, modelfn)) break;
 					if (scriptfile_getdouble(script,&scale)) break;
 					if (scriptfile_getnumber(script,&shadeoffs)) break;
 
 #if USE_POLYMOST && USE_OPENGL
-					lastmodelid = md_loadmodel(modelfn);
+					lastmodelid = md_loadmodel(modelfn.c_str());
 					if (lastmodelid < 0) {
 						buildprintf("Failure loading MD2/MD3 model \"{}\"\n", modelfn);
 						break;
@@ -353,12 +353,12 @@ static int defsparser(scriptfile *script)
 				break;
 			case TokenType::T_DEFINEMODELFRAME:
 				{
-					char *framename;
+					std::string framename;
 					int ftilenume;
 					int ltilenume;
 					int tilex;
 
-					if (scriptfile_getstring(script,&framename)) break;
+					if (scriptfile_getstring(script, framename)) break;
 					if (scriptfile_getnumber(script,&ftilenume)) break; //first tile number
 					if (scriptfile_getnumber(script,&ltilenume)) break; //last tile number (inclusive)
 					if (ltilenume < ftilenume) {
@@ -375,7 +375,7 @@ static int defsparser(scriptfile *script)
 #if USE_POLYMOST && USE_OPENGL
 					char happy = 1;
 					for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
-						switch (md_defineframe(lastmodelid, framename, tilex, std::max(0, modelskin))) {
+						switch (md_defineframe(lastmodelid, framename.c_str(), tilex, std::max(0, modelskin))) {
 							case 0: break;
 							case -1: happy = 0; break; // invalid model id!?
 							case -2: buildprintf("Invalid tile number on line {}:{}\n",
@@ -394,13 +394,13 @@ static int defsparser(scriptfile *script)
 				break;
 			case TokenType::T_DEFINEMODELANIM:
 				{
-					char* startframe;
-					char* endframe;
+					std::string startframe;
+					std::string endframe;
 					int flags;
 					double dfps;
 
-					if (scriptfile_getstring(script,&startframe)) break;
-					if (scriptfile_getstring(script,&endframe)) break;
+					if (scriptfile_getstring(script, startframe)) break;
+					if (scriptfile_getstring(script, endframe)) break;
 					if (scriptfile_getdouble(script,&dfps)) break; //animation frame rate
 					if (scriptfile_getnumber(script,&flags)) break;
 
@@ -409,7 +409,7 @@ static int defsparser(scriptfile *script)
 						break;
 					}
 #if USE_POLYMOST && USE_OPENGL
-					switch (md_defineanimation(lastmodelid, startframe, endframe, (int)(dfps*(65536.0*.001)), flags)) {
+					switch (md_defineanimation(lastmodelid, startframe.c_str(), endframe.c_str(), (int)(dfps*(65536.0*.001)), flags)) {
 						case 0: break;
 						case -1: break; // invalid model id!?
 						case -2: buildprintf("Invalid starting frame name on line {}:{}\n",
@@ -428,10 +428,10 @@ static int defsparser(scriptfile *script)
 			case TokenType::T_DEFINEMODELSKIN:
 				{
 					int palnum;
-					char *skinfn;
+					std::string skinfn;
 
 					if (scriptfile_getsymbol(script, &palnum)) break;
-					if (scriptfile_getstring(script, &skinfn)) break; //skin filename
+					if (scriptfile_getstring(script, skinfn)) break; //skin filename
 
 					// if we see a sequence of definemodelskin, then a sequence of definemodelframe,
 					// and then a definemodelskin, we need to increment the skin counter.
@@ -449,7 +449,7 @@ static int defsparser(scriptfile *script)
 					seenframe = 0;
 
 #if USE_POLYMOST && USE_OPENGL
-					switch (md_defineskin(lastmodelid, skinfn, palnum, std::max(0, modelskin), 0)) {
+					switch (md_defineskin(lastmodelid, skinfn.c_str(), palnum, std::max(0, modelskin), 0)) {
 						case 0: break;
 						case -1: break; // invalid model id!?
 						case -2: buildprintf("Invalid skin filename on line {}:{}\n",
@@ -472,9 +472,9 @@ static int defsparser(scriptfile *script)
 				break;
 			case TokenType::T_DEFINEVOXEL:
 				{
-					char *fn;
+					std::string fn;
 
-					if (scriptfile_getstring(script, &fn)) break; //voxel filename
+					if (scriptfile_getstring(script, fn)) break; //voxel filename
 
 					if (nextvoxid == MAXVOXELS) {
 						buildputs("Maximum number of voxels already defined.\n");
@@ -526,7 +526,7 @@ static int defsparser(scriptfile *script)
 			case TokenType::T_MODEL:
 				{
 					char* modelend;
-					char* modelfn;
+					std::string modelfn;
 					double scale{1.0};
 					double mzadd{0.0};
 					int shadeoffs{0};
@@ -535,10 +535,10 @@ static int defsparser(scriptfile *script)
 					lastmodelskin = 0;
 					seenframe = 0;
 
-					if (scriptfile_getstring(script, &modelfn)) break;
+					if (scriptfile_getstring(script, modelfn)) break;
 
 #if USE_POLYMOST && USE_OPENGL
-					lastmodelid = md_loadmodel(modelfn);
+					lastmodelid = md_loadmodel(modelfn.c_str());
 					if (lastmodelid < 0) {
 						buildprintf("Failure loading MD2/MD3 model \"{}\"\n", modelfn);
 						break;
@@ -555,7 +555,7 @@ static int defsparser(scriptfile *script)
 							{
 								char *frametokptr = script->ltextptr;
 								char *frameend;
-								char *framename = nullptr;
+								std::string framename;
 								char happy=1;
 								int ftilenume = -1;
 								int ltilenume = -1;
@@ -564,7 +564,7 @@ static int defsparser(scriptfile *script)
 								if (scriptfile_getbraces(script,&frameend)) break;
 								while (script->textptr < frameend) {
 									switch(getatoken(script, modelframetokens)) {
-										case TokenType::T_FRAME: scriptfile_getstring(script,&framename); break;
+										case TokenType::T_FRAME: scriptfile_getstring(script, framename); break;
 										case TokenType::T_TILE:  scriptfile_getsymbol(script,&ftilenume); ltilenume = ftilenume; break;
 										case TokenType::T_TILE0: scriptfile_getsymbol(script,&ftilenume); break; //first tile number
 										case TokenType::T_TILE1: scriptfile_getsymbol(script,&ltilenume); break; //last tile number (inclusive)
@@ -594,7 +594,7 @@ static int defsparser(scriptfile *script)
 								}
 #if USE_POLYMOST && USE_OPENGL
 								for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
-									switch (md_defineframe(lastmodelid, framename, tilex, std::max(0, modelskin))) {
+									switch (md_defineframe(lastmodelid, framename.c_str(), tilex, std::max(0, modelskin))) {
 										case 0: break;
 										case -1: happy = 0; break; // invalid model id!?
 										case -2: buildprintf("Invalid tile number on line {}:{}\n",
@@ -615,8 +615,8 @@ static int defsparser(scriptfile *script)
 							{
 								char *animtokptr = script->ltextptr;
 								char *animend;
-								char *startframe = nullptr;
-								char *endframe = nullptr;
+								std::string startframe;
+								std::string endframe;
 								char happy=1; // FIXME: char* == 1?
 								int flags{0};
 								double dfps{1.0};
@@ -624,18 +624,18 @@ static int defsparser(scriptfile *script)
 								if (scriptfile_getbraces(script,&animend)) break;
 								while (script->textptr < animend) {
 									switch(getatoken(script, modelanimtokens)) {
-										case TokenType::T_FRAME0: scriptfile_getstring(script,&startframe); break;
-										case TokenType::T_FRAME1: scriptfile_getstring(script,&endframe); break;
+										case TokenType::T_FRAME0: scriptfile_getstring(script, startframe); break;
+										case TokenType::T_FRAME1: scriptfile_getstring(script, endframe); break;
 										case TokenType::T_FPS: scriptfile_getdouble(script,&dfps); break; //animation frame rate
 										case TokenType::T_FLAGS: scriptfile_getsymbol(script,&flags); break;
 									}
 								}
 
-								if (!startframe) {
+								if (startframe.empty()) {
 									buildprintf("Error: missing 'start frame' for anim definition near line {}:{}\n", script->filename, scriptfile_getlinum(script, animtokptr));
 									happy = 0;
 								}
-								if (!endframe) {
+								if (endframe.empty()) {
 									buildprintf("Error: missing 'end frame' for anim definition near line {}:{}\n", script->filename, scriptfile_getlinum(script, animtokptr));
 									happy = 0;
 								}
@@ -646,7 +646,7 @@ static int defsparser(scriptfile *script)
 									break;
 								}
 #if USE_POLYMOST && USE_OPENGL
-								switch (md_defineanimation(lastmodelid, startframe, endframe, (int)(dfps*(65536.0*.001)), flags)) {
+								switch (md_defineanimation(lastmodelid, startframe.c_str(), endframe.c_str(), (int)(dfps*(65536.0*.001)), flags)) {
 									case 0: break;
 									case -1: break; // invalid model id!?
 									case -2: buildprintf("Invalid starting frame name on line {}:{}\n",
@@ -665,7 +665,7 @@ static int defsparser(scriptfile *script)
 							{
 								char *skintokptr = script->ltextptr;
 								char *skinend;
-								char *skinfn = nullptr;
+								std::string skinfn;
 								int palnum{0};
 								int surfnum{0};
 
@@ -673,12 +673,12 @@ static int defsparser(scriptfile *script)
 								while (script->textptr < skinend) {
 									switch(getatoken(script, modelskintokens)) {
 										case TokenType::T_PAL: scriptfile_getsymbol(script,&palnum); break;
-										case TokenType::T_FILE: scriptfile_getstring(script,&skinfn); break; //skin filename
+										case TokenType::T_FILE: scriptfile_getstring(script, skinfn); break; //skin filename
 										case TokenType::T_SURF: scriptfile_getnumber(script,&surfnum); break;
 									}
 								}
 
-								if (!skinfn) {
+								if (skinfn.empty()) {
 										buildprintf("Error: missing 'skin filename' for skin definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,skintokptr));
 										break;
 								}
@@ -687,7 +687,7 @@ static int defsparser(scriptfile *script)
 								seenframe = 0;
 
 #if USE_POLYMOST && USE_OPENGL
-								switch (md_defineskin(lastmodelid, skinfn, palnum, std::max(0, modelskin), surfnum)) {
+								switch (md_defineskin(lastmodelid, skinfn.c_str(), palnum, std::max(0, modelskin), surfnum)) {
 									case 0: break;
 									case -1: break; // invalid model id!?
 									case -2: buildprintf("Invalid skin filename on line {}:{}\n",
@@ -786,13 +786,13 @@ static int defsparser(scriptfile *script)
 			case TokenType::T_VOXEL:
 				{
 					char *voxeltokptr = script->ltextptr;
-					char *fn;
+					std::string fn;
 					char *modelend;
 					int tile0 = MAXTILES;
 					int tile1 = -1;
 					int tilex = -1;
 
-					if (scriptfile_getstring(script,&fn)) break; //voxel filename
+					if (scriptfile_getstring(script, fn)) break; //voxel filename
 					if (nextvoxid == MAXVOXELS) { buildputs("Maximum number of voxels already defined.\n"); break; }
 					if (qloadkvx(nextvoxid, fn)) { buildprintf("Failure loading voxel file \"{}\"\n",fn); break; }
 					lastvoxid = nextvoxid++;
@@ -833,7 +833,7 @@ static int defsparser(scriptfile *script)
 			case TokenType::T_SKYBOX:
 				{
 					char *skyboxtokptr = script->ltextptr;
-					char *fn[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+					std::array<std::string, 6> fn{};
 					char *modelend;
 					char happy=1;
 					int i;
@@ -846,12 +846,12 @@ static int defsparser(scriptfile *script)
 							//case TokenType::T_ERROR: buildprintf("Error on line {}:{} in skybox tokens\n",script->filename,linenum); break;
 							case TokenType::T_TILE:  scriptfile_getsymbol(script,&tile ); break;
 							case TokenType::T_PAL:   scriptfile_getsymbol(script,&pal  ); break;
-							case TokenType::T_FRONT: scriptfile_getstring(script,&fn[0]); break;
-							case TokenType::T_RIGHT: scriptfile_getstring(script,&fn[1]); break;
-							case TokenType::T_BACK:  scriptfile_getstring(script,&fn[2]); break;
-							case TokenType::T_LEFT:  scriptfile_getstring(script,&fn[3]); break;
-							case TokenType::T_TOP:   scriptfile_getstring(script,&fn[4]); break;
-							case TokenType::T_BOTTOM:scriptfile_getstring(script,&fn[5]); break;
+							case TokenType::T_FRONT: scriptfile_getstring(script, fn[0]); break;
+							case TokenType::T_RIGHT: scriptfile_getstring(script, fn[1]); break;
+							case TokenType::T_BACK:  scriptfile_getstring(script, fn[2]); break;
+							case TokenType::T_LEFT:  scriptfile_getstring(script, fn[3]); break;
+							case TokenType::T_TOP:   scriptfile_getstring(script, fn[4]); break;
+							case TokenType::T_BOTTOM:scriptfile_getstring(script, fn[5]); break;
 						}
 					}
 
@@ -859,8 +859,8 @@ static int defsparser(scriptfile *script)
 						buildprintf("Error: missing 'tile number' for skybox definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,skyboxtokptr));
 						happy=0;
 					}
-					for (i=0;i<6;i++) {
-						if (!fn[i]) {
+					for (const auto& name : fn) {
+						if (name.empty()) {
 							buildprintf("Error: missing '{} filename' for skybox definition near line {}:{}\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr));
 							happy = 0;
 						}
@@ -869,7 +869,7 @@ static int defsparser(scriptfile *script)
 					if (!happy) break;
 
 #if USE_POLYMOST && USE_OPENGL
-					hicsetskybox(tile,pal,fn);
+					hicsetskybox(tile, pal, fn);
 #endif
 				}
 				break;
@@ -918,7 +918,7 @@ static int defsparser(scriptfile *script)
 								char *paltokptr = script->ltextptr;
 								char *palend;
 								int pal=-1;
-								char *fn = nullptr;
+								std::string fn;
 								double alphacut = -1.0;
 								char flags = 0;
 
@@ -926,7 +926,7 @@ static int defsparser(scriptfile *script)
 								if (scriptfile_getbraces(script,&palend)) break;
 								while (script->textptr < palend) {
 									switch (getatoken(script, texturetokens_pal)) {
-										case TokenType::T_FILE:     scriptfile_getstring(script,&fn); break;
+										case TokenType::T_FILE:     scriptfile_getstring(script, fn); break;
 										case TokenType::T_ALPHACUT: scriptfile_getdouble(script,&alphacut); break;
 										case TokenType::T_NOCOMPRESS: flags |= 1; break;
 										default: break;
@@ -939,13 +939,13 @@ static int defsparser(scriptfile *script)
 												"line {}:{}\n", script->filename, scriptfile_getlinum(script,paltokptr));
 									break;
 								}
-								if (!fn) {
+								if (fn.empty()) {
 									buildprintf("Error: missing 'file name' for texture definition near line {}:{}\n",
 												script->filename, scriptfile_getlinum(script,paltokptr));
 									break;
 								}
 #if USE_POLYMOST && USE_OPENGL
-								hicsetsubsttex(tile,pal,fn,alphacut,flags);
+								hicsetsubsttex(tile, pal, fn.c_str(), alphacut, flags);
 #endif
 							} break;
 

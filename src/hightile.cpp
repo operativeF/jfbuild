@@ -76,12 +76,6 @@ void hicinit()
 				next = hr->next;
 
 				if (hr->skybox) {
-					for (j=5;j>=0;j--) {
-						if (hr->skybox->face[j]) {
-							std::free(hr->skybox->face[j]);
-						}
-					}
-					
 					std::free(hr->skybox);
 				}
 
@@ -188,7 +182,7 @@ int hicsetsubsttex(int picnum, int palnum, const char *filen, float alphacut, un
 // hicsetskybox(picnum,pal,faces[6])
 //   Specifies a graphic files making up a skybox.
 //
-int hicsetskybox(int picnum, int palnum, const char* const faces[6])
+int hicsetskybox(int picnum, int palnum, std::span<const std::string> faces)
 {
 	hicreplctyp* hrn;
 	int j;
@@ -198,10 +192,6 @@ int hicsetskybox(int picnum, int palnum, const char* const faces[6])
 
 	if ((unsigned int)palnum >= (unsigned int)MAXPALOOKUPS)
 		return -1;
-
-	for (j=5;j>=0;j--)
-		if (!faces[j])
-			return -1;
 
 	if (!hicfirstinit)
 		hicinit();
@@ -231,28 +221,12 @@ int hicsetskybox(int picnum, int palnum, const char* const faces[6])
 			return -1;
 		}
 	} else {
-		for (j=5;j>=0;j--) {
-			if (hrn->skybox->face[j])
-				std::free(hrn->skybox->face[j]);
-		}
+		std::ranges::fill(hrn->skybox->face, "");
 	}
 
 	// store each face's filename
-	for (j=0;j<6;j++) {
-		hrn->skybox->face[j] = strdup(faces[j]);
-		if (!hrn->skybox->face[j]) {
-			for (--j; j>=0; --j)	// free any previous faces
-				std::free(hrn->skybox->face[j]);
-			
-			std::free(hrn->skybox);
-			hrn->skybox = nullptr;
-			
-			if (hr == nullptr)
-				std::free(hrn);
+	std::ranges::copy(faces.begin(), faces.end(), hrn->skybox->face.data());
 
-			return -1;
-		}
-	}
 	hrn->skybox->ignore = 0;
 	if (hr == nullptr) {
 		hrn->next = hicreplc[picnum];
@@ -294,10 +268,6 @@ int hicclearsubst(int picnum, int palnum)
 		std::free(hr->filename);
 
 	if (hr->skybox) {
-		for (int i{5}; i >= 0; --i)
-			if (hr->skybox->face[i])
-				std::free(hr->skybox->face[i]);
-
 		std::free(hr->skybox);
 	}
 

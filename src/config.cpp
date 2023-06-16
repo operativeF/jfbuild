@@ -169,7 +169,7 @@ static const auto configspec = std::to_array<configspec_t>({
 });
 
 // FIXME: Use a variant instead of switch-type resolver.
-int loadsetup(const char *fn)
+int loadsetup(const std::string& fn)
 {
 	scriptfile* cfg = scriptfile_fromfile(fn);
 	

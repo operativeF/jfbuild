@@ -191,13 +191,12 @@ static struct {
 	{ nullptr, 0, nullptr, nullptr }
 };
 
-int loadsetup(const char *fn)
+int loadsetup(const std::string& fn)
 {
-	scriptfile *cfg;
 	char *token;
 	int item;
 
-	cfg = scriptfile_fromfile(fn);
+	auto* cfg = scriptfile_fromfile(fn);
 	if (!cfg) {
 		return -1;
 	}

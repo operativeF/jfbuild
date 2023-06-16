@@ -25,7 +25,7 @@ constexpr auto MOVEFIFOSIZ{256};
 constexpr auto EYEHEIGHT = 32 << 8;   //Normally (32<<8), (51<<8) to make mirrors happy
 
 // declared in config.c
-int loadsetup(const char *);
+int loadsetup(const std::string&);
 int writesetup(const std::string&);
 
 
