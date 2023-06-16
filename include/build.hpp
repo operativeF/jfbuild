@@ -72,7 +72,7 @@ inline int ydim2d{480};
 inline int xdimgame{640};
 inline int cachesize{0};
 inline int artsize{0};
-inline short editstatus{0};
+inline bool editstatus{false};
 inline short searchit{0};
 inline int searchx{-1};
 inline int searchy{-1};

@@ -314,7 +314,7 @@ int app_main(int argc, char const * const argv[])
 	win_allowbackgroundidle(1);
 #endif
 
-	editstatus = 1;
+	editstatus = true;
 	boardfilename[0] = 0;
 	for (i=1; i<argc; i++) {
 		if (argv[i][0] == '-') {
@@ -7078,7 +7078,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 	if (qsetmode == 200)
 		return;
 
-	if (editstatus == 0)
+	if (!editstatus)
 	{
 		faketimerhandler();
 		clear2dscreen();
@@ -7090,7 +7090,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 	faketimerhandler();
 	for(i=numwalls-1,wal=&wall[i];i>=0;i--,wal--)
 	{
-		if (editstatus == 0)
+		if (!editstatus)
 		{
 			if ((show2dwall[i>>3]&pow2char[i&7]) == 0) continue;
 			j = wal->nextwall;
@@ -7137,7 +7137,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 		}
 		drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp2,midydim16+yp2,col);
 
-		if ((zoome >= 256) && (editstatus == 1))
+		if ((zoome >= 256) && editstatus)
 			if (((halfxdim16+xp1) >= 2) && ((halfxdim16+xp1) <= xdim-3))
 				if (((midydim16+yp1) >= 2) && ((midydim16+yp1) <= ydim16-3))
 				{
@@ -7145,7 +7145,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 					if (i == pointhighlight) {
 						if (totalclock & 8) col += (2<<2);
 					}
-					else if ((highlightcnt > 0) && (editstatus == 1))
+					else if ((highlightcnt > 0) && editstatus)
 					{
 						if (show2dwall[i>>3]&pow2char[i&7])
 							if (totalclock & 8) col += (2<<2);
@@ -7175,19 +7175,19 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 	}
 	faketimerhandler();
 
-	if ((zoome >= 256) || (editstatus == 0))
+	if ((zoome >= 256) || !editstatus)
 		for(i=0;i<numsectors;i++)
 			for(j=headspritesect[i];j>=0;j=nextspritesect[j])
-				if ((editstatus == 1) || (show2dsprite[j>>3]&pow2char[j&7]))
+				if (editstatus || (show2dsprite[j>>3]&pow2char[j&7]))
 				{
 					col = 3;
 					if ((sprite[j].cstat&1) > 0) col = 5;
-					if (editstatus == 1)
+					if (editstatus)
 					{
 						if (j+16384 == pointhighlight) {
 							if (totalclock & 8) col += (2<<2);
 						}
-						else if ((highlightcnt > 0) && (editstatus == 1))
+						else if ((highlightcnt > 0) && editstatus)
 						{
 							if (show2dsprite[j>>3]&pow2char[j&7])
 								if (totalclock & 8) col += (2<<2);

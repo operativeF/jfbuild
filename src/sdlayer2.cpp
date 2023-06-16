@@ -1281,7 +1281,7 @@ int handleevents()
 				// For Mac keyboards that removed the Help key, which shared a scancode
 				// with PC Insert, pretend Cmd+Delete is insert when in the editor.
 				if (ev.key.keysym.sym == SDLK_DELETE && ev.key.keysym.mod == KMOD_RGUI) {
-					extern short editstatus;
+					extern bool editstatus;
 					if (editstatus) {
 						ev.key.keysym.sym = SDLK_INSERT;
 						ev.key.keysym.scancode = SDL_SCANCODE_INSERT;

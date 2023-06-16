@@ -10426,7 +10426,7 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 
 			clipyou = 0;
 			if ((wal->nextsector < 0) || (wal->cstat&dawalclipmask)) clipyou = 1;
-			else if (editstatus == 0)
+			else if (!editstatus)
 			{
 				if (!rintersect(*x,*y,0,gx,gy,0,x1,y1,x2,y2,&dax,&day,&daz)) {
 					dax = *x;
@@ -11096,7 +11096,7 @@ void getzrange(int x, int y, int z, short sectnum,
 
 				sec = &sector[k];
 				
-				if (editstatus == 0)
+				if (!editstatus)
 				{
 					if (((sec->ceilingstat&1) == 0) && (z <= sec->ceilingz+(3<<8)))
 						continue;

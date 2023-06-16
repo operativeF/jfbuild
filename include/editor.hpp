@@ -25,7 +25,7 @@ extern short cursectnum;
 extern short ceilingheinum;
 extern short floorheinum;
 extern int zlock;
-extern short editstatus;
+extern bool editstatus;
 extern short searchit;
 
 extern short temppicnum;
