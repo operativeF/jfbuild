@@ -408,11 +408,11 @@ void gltexapplyprops ()
 	PTIter iter = PTIterNew();
 	PTHead * pth; // FIXME: Move to while loop?
 	while ((pth = PTIterNext(iter)) != nullptr) {
-		for (int i{0}; i < PTHPIC_SIZE; i++) {
-			if (pth->pic[i] == nullptr || pth->pic[i]->glpic == 0) {
+		for (const auto& aPic : pth->pic) {
+			if (aPic == nullptr || aPic->glpic == 0) {
 				continue;
 			}
-			glfunc.glBindTexture(GL_TEXTURE_2D,pth->pic[i]->glpic);
+			glfunc.glBindTexture(GL_TEXTURE_2D, aPic->glpic);
 			glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, glfiltermodes[gltexfiltermode].mag);
 			glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, glfiltermodes[gltexfiltermode].min);
 #ifdef GL_EXT_texture_filter_anisotropic
@@ -448,10 +448,10 @@ void gltexapplyprops ()
 			}
 
 			for (sk=m->skinmap;sk;sk=sk->next)
-				for (int j{0}; j < (HICEFFECTMASK + 1); ++j)
+				for (const auto& aTex : sk->tex)
 				{
-					if (!sk->tex[j] || !sk->tex[j]->glpic) continue;
-					glfunc.glBindTexture(GL_TEXTURE_2D,sk->tex[j]->glpic);
+					if (!aTex || !aTex->glpic) continue;
+					glfunc.glBindTexture(GL_TEXTURE_2D, aTex->glpic);
 					glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
 					glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
 #ifdef GL_EXT_texture_filter_anisotropic
@@ -5263,8 +5263,9 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 	if (parm->numparms != 1) {
 		buildprintf("Current texturing mode is {}\n", glfiltermodes[gltexfiltermode].name);
 		buildprintf("  Vaild modes are:\n");
-		for (int m{0}; m < numglfiltermodes; ++m)
-			buildprintf("     {} - {}\n",m,glfiltermodes[m].name);
+		std::ranges::for_each(glfiltermodes, [mode_cnt = 0](const auto& aModeName) mutable {
+			buildprintf("     {} - {}\n", (mode_cnt++), aModeName);
+		}, &glfiltermode::name);			
 
 		return OSDCMD_OK;
 	}

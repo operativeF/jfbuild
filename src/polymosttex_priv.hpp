@@ -55,8 +55,8 @@ enum {
 
 /** PolymostTex texture header */
 struct PTHead {
-	PTMHead* pic[PTHPIC_SIZE];	// when (flags & PTH_SKYBOX), each is a face of the cube
-					// when !(flags & PTH_SKYBOX), see PTHPIC_* constants
+	std::array<PTMHead*, PTHPIC_SIZE> pic; // when (flags & PTH_SKYBOX), each is a face of the cube
+					                       // when !(flags & PTH_SKYBOX), see PTHPIC_* constants
 	int picnum;
 	int palnum;
 	unsigned short flags;

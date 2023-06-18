@@ -8,12 +8,14 @@
 #ifndef MDSPRITE_PRIV_H
 #define MDSPRITE_PRIV_H
 
+#include <array>
+
 struct mdskinmap_t
 {
 	unsigned char palette, filler[3]; // Build palette number
 	int skinnum, surfnum;   // Skin identifier, surface number
 	char *fn;   // Skin filename
-	PTMHead *tex[HICEFFECTMASK+1];
+	std::array<PTMHead*, HICEFFECTMASK + 1> tex;
 	mdskinmap_t* next;
 };
 
