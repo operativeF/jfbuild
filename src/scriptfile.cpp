@@ -9,6 +9,8 @@
 #include "scriptfile.hpp"
 #include "cache1d.hpp"
 
+#include <algorithm>
+#include <charconv>
 #include <cmath>
 
 constexpr bool is_whitespace(auto ch) {
@@ -66,13 +68,23 @@ static int scriptfile_getnumber_radix(scriptfile *sf, int *num, int radix)
 		sf->textptr++; //hack to treat octal numbers like decimal
 	
 	sf->ltextptr = sf->textptr;
-	(*num) = (int)strtol((const char *)sf->textptr,&sf->textptr,radix);
-	if (!is_whitespace(*sf->textptr) && *sf->textptr) {
+
+	if(radix == 0) {
+		radix = 10;
+	}
+
+	std::string_view txtv{(sf->textptr)};
+
+	auto [ptr, ec] = std::from_chars(txtv.data(), txtv.data() + txtv.size(), *num, radix);
+	sf->textptr = sf->textptr + txtv.size();
+	
+	if (!is_whitespace(*sf->textptr) && *sf->textptr || (ec != std::errc{})) {
 		char *p = sf->textptr;
 		skipovertoken(sf);
-		buildprintf("Error on line {}:{}: expecting int, got \"{}\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
+		buildprintf("Error on line {}:{}: expecting int, got \"{}\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr), txtv);
 		return -2;
 	}
+
 	return 0;
 }
 
@@ -201,17 +213,18 @@ int scriptfile_getsymbol(scriptfile *sf, int *num)
 	if (!t)
 		return -1;
 
-	char* e{nullptr};
-	const int v = (int) std::strtol(t, &e, 10);
+	std::string_view tok{t};
+	int val{0};
+	auto [ptr, ec] = std::from_chars(tok.data(), tok.data() + tok.size(), val);
 
-	if (*e) {
+	if (ec != std::errc{}) {
 		// looks like a string, so find it in the symbol table
 		if (scriptfile_getsymbolvalue(t, num)) return 0;
 		buildprintf("Error on line {}:{}: expecting symbol, got \"{}\"\n",sf->filename, scriptfile_getlinum(sf,sf->ltextptr),t);
 		return -2;   // not found
 	}
 
-	*num = v;
+	*num = val;
 
 	return 0;
 }
