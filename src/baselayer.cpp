@@ -19,6 +19,7 @@
 struct glbuild_info glinfo;
 #endif //USE_OPENGL
 
+#include <charconv>
 #include <limits>
 #include <string_view>
 
@@ -161,12 +162,14 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 		"polygonal OpenGL"
 	};
 
-	if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+	if (parm->numparms != 1)
+		return OSDCMD_SHOWHELP;
 
-	char* p{nullptr};
-	const int m = (int) std::strtol(parm->parms[0], &p, 10);
+	std::string_view parmv{parm->parms[0]};
+	int m{0};
+	auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), m);
 
-	if (m < 0 || m > 3 || *p)
+	if (m < 0 || m > 3 || (ec != std::errc{}))
 		return OSDCMD_SHOWHELP;
 
 	setrendermode(m);
@@ -214,13 +217,27 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "novoxmips")) {
-		if (showval) { buildprintf("novoxmips is {}\n", novoxmips); }
-		else { novoxmips = std::atoi(parm->parms[0]) != 0; }
+		if (showval) {
+			buildprintf("novoxmips is {}\n", novoxmips);
+		}
+		else {
+			std::string_view parmv{parm->parms[0]};
+			int tmpval{0};
+			std::from_chars(parmv.data(), parmv.data() + parmv.size(), tmpval);
+			// TODO: Use return values here?
+			novoxmips = tmpval != 0;
+		}
 		return OSDCMD_OK;
 	}
 	else if (!Bstrcasecmp(parm->name, "usevoxels")) {
 		if (showval) { buildprintf("usevoxels is {}\n", usevoxels); }
-		else { usevoxels = std::atoi(parm->parms[0]) != 0; }
+		else {
+			std::string_view parmv{parm->parms[0]};
+			int tmpval{0};
+			std::from_chars(parmv.data(), parmv.data() + parmv.size(), tmpval);
+			// TODO: Use return values here?
+			usevoxels = tmpval != 0;
+		}
 		return OSDCMD_OK;
 	}
 	return OSDCMD_SHOWHELP;

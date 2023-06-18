@@ -8,6 +8,8 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
+#include <string_view>
 
 extern int getclosestcol(int r, int g, int b);	// engine.c
 extern int qsetmode;	// engine.c
@@ -215,8 +217,9 @@ static int osdcmd_osdvars(const osdfuncparm_t *parm)
 			OSD_Printf("osdrows is %d\n", osdrows); return OSDCMD_OK;
 		}
 		else {
-			osdrows = std::atoi(parm->parms[0]);
-			
+			std::string_view parmv{parm->parms[0]};
+			/*auto [ptr, ec] = */ std::from_chars(parmv.data(), parmv.data() + parmv.size(), osdrows);
+			// TODO: What to do with ec here?
 			if (osdrows < 1)
 				osdrows = 1;
 			else if (osdrows > osdmaxrows)

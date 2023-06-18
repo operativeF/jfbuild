@@ -85,9 +85,11 @@ Low priority:
 # include "mdsprite_priv.hpp"
 #endif
 
+#include <charconv>
 #include <cmath>
 #include <numeric>
 #include <span>
+#include <string_view>
 #include <vector>
 
 int rendmode{0};
@@ -5332,9 +5334,15 @@ static int osdcmd_forcetexcacherebuild(const osdfuncparm_t *parm)
 static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 {
 	const bool showval = parm->numparms < 1;
-	int val{ 0 };
+	int val{0};
 
-	if (!showval) val = std::atoi(parm->parms[0]);
+	if(!showval) {
+		std::string_view parmv{parm->parms[0]};
+		auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), val);
+
+		// TODO: What to do with ec here?
+	}
+
 #if USE_OPENGL
 	if (!Bstrcasecmp(parm->name, "usemodels")) {
 		if (showval) { buildprintf("usemodels is {}\n", usemodels); }

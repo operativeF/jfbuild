@@ -34,11 +34,13 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <cmath>
 #include <cstdarg>
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
+#include <string_view>
 
 static char *argvbuf = nullptr;
 
@@ -517,9 +519,11 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 		return OSDCMD_SHOWHELP;
 	}
 
-	const int freq = std::atoi(parm->parms[0]);
+	std::string_view parmv{parm->parms[0]};
+	int freq{0};
+	auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), freq);
 
-	if (freq < 0) {
+	if (freq < 0 || (ec != std::errc{})) {
 		return OSDCMD_SHOWHELP;
 	}
 
@@ -547,9 +551,11 @@ static int set_glswapinterval(const osdfuncparm_t *parm)
 		return OSDCMD_SHOWHELP;
 	}
 
-	const int interval = std::atoi(parm->parms[0]);
+	std::string_view parmv{parm->parms[0]};
+	int interval{0};
+	auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), interval);
 
-	if (interval < -1 || interval > 2) {
+	if (interval < -1 || interval > 2 || (ec != std::errc{})) {
 		return OSDCMD_SHOWHELP;
 	}
 

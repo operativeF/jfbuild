@@ -22,8 +22,10 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <limits>
 #include <numeric>
+#include <string_view>
 
 constexpr auto TIMERINTSPERSECOND{120};
 
@@ -217,20 +219,31 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 
 	if (parm->numparms == 4) {
 		// fs, res, bpp switch
-		newfullscreen = (std::atoi(parm->parms[3]) != 0);
+		int tmpval{0};
+		std::string_view parmv{parm->parms[3]};
+		std::from_chars(parmv.data(), parmv.data() + parmv.size(), tmpval);
+		// TODO: Use return result here?
+		newfullscreen = (tmpval != 0);
 	}
 	if (parm->numparms >= 3) {
 		// res & bpp switch
-		newbpp = std::atoi(parm->parms[2]);
+		std::string_view parmv{parm->parms[2]};
+		std::from_chars(parmv.data(), parmv.data() + parmv.size(), newbpp);
+		// FIXME: Use return result here?
 	}
 	if (parm->numparms >= 2) {
 		// res switch
-		newy = std::atoi(parm->parms[1]);
-		newx = std::atoi(parm->parms[0]);
+		std::string_view parmy{parm->parms[1]};
+		std::string_view parmx{parm->parms[0]};
+		std::from_chars(parmy.data(), parmy.data() + parmy.size(), newy);
+		std::from_chars(parmx.data(), parmx.data() + parmx.size(), newx);
+		// TODO: Use return results here?
 	}
 	if (parm->numparms == 1) {
 		// bpp switch
-		newbpp = std::atoi(parm->parms[0]);
+		std::string_view parmv{parm->parms[0]};
+		std::from_chars(parmv.data(), parmv.data() + parmv.size(), newbpp);
+		// TODO: Use return results here?
 	}
 
 	if (setgamemode(newfullscreen, newx, newy, newbpp)) {
@@ -251,9 +264,12 @@ static int osdcmd_mapversion(const osdfuncparm_t *parm)
 		buildprintf("mapversion is {}\n", mapversion);
 		return OSDCMD_OK;
 	}
-	const int newversion = std::atoi(parm->parms[0]);
+	
+	std::string_view parmv{parm->parms[0]};
+	int newversion{0};
+	auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), newversion);
 
-	if (newversion < 5 || newversion > 8) {
+	if (newversion < 5 || newversion > 8 || (ec != std::errc{})) {
 		return OSDCMD_SHOWHELP;
 	}
 
@@ -270,9 +286,11 @@ static int osdcmd_showspriteextents(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 	
-	const int newval = std::atoi(parm->parms[0]);
+	std::string_view parmv{parm->parms[0]};
+	int newval{0};
+	auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), newval);
 
-	if (newval < 0 || newval > 2) {
+	if (newval < 0 || newval > 2 || (ec != std::errc{})) {
 		return OSDCMD_SHOWHELP;
 	}
 
