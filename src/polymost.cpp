@@ -5272,9 +5272,11 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 
-	int m = (int)std::strtol(parm->parms[0], (char **)&p, 10);
+	std::string_view parmv{parm->parms[0]};
+	int m{0};
+	auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), m);
 	
-	if (p == parm->parms[0]) {
+	if (ec != std::errc()) {
 		// string
 		for (m = 0; m < numglfiltermodes; m++) {
 			if (!Bstrcasecmp(parm->parms[0], glfiltermodes[m].name)) break;
@@ -5305,8 +5307,11 @@ static int osdcmd_gltextureanisotropy(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 
-	const char *p;
-	int l = (int) std::strtol(parm->parms[0], (char **)&p, 10);
+	std::string_view parmv{parm->parms[0]};
+	int l{0};
+	std::from_chars(parmv.data(), parmv.data() + parmv.size(), l);
+
+	// FIXME: What to do with return result?
 
 	if (l < 0 || l > glinfo.maxanisotropy)
 		l = 0;
