@@ -93,7 +93,7 @@ static std::array<short, MAXXDIM> radarang2;
 static std::array<unsigned short, 4096> sqrtable;
 static std::array<unsigned short, 4096 + 256> shlookup;
 
-int reciptable[2048];
+std::array<int, 2048> reciptable;
 int fpuasm;
 
 static std::array<char, 128> kensmessage;

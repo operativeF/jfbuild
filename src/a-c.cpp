@@ -26,7 +26,6 @@ extern int fpuasm;
 extern int globalx3;
 extern int globaly3;
 extern intptr_t asm3;
-extern void *reciptable;
 
 static int bpl;
 static int transmode{0};

@@ -11,7 +11,7 @@
 #include <cstring>
 #include <utility>
 
-static char capturename[20] = "capt0000.xxx";
+static std::array<char, 20> capturename{ "capt0000.xxx" };
 static short capturecount{0};
 
 std::FILE *screencapture_openfile(const char *ext)
@@ -24,7 +24,7 @@ std::FILE *screencapture_openfile(const char *ext)
 			return nullptr;
 		}
 
-		seq = strrchr(capturename, '.'); if (!seq) return nullptr;
+		seq = std::strrchr(&capturename[0], '.'); if (!seq) return nullptr;
 		seq -= 4;
 		seq[0] = ((capturecount/1000)%10)+48;
 		seq[1] = ((capturecount/100)%10)+48;
@@ -34,11 +34,11 @@ std::FILE *screencapture_openfile(const char *ext)
 		seq[6] = ext[1];
 		seq[7] = ext[2];
 
-		if ((fil = std::fopen(capturename, "rb")) == nullptr) break;
+		if ((fil = std::fopen(&capturename[0], "rb")) == nullptr) break;
 		std::fclose(fil);
 		capturecount++;
 	} while (1);
-	fil = std::fopen(capturename, "wb");
+	fil = std::fopen(&capturename[0], "wb");
 	if (fil) capturecount++;
 	return fil;
 }
@@ -450,7 +450,7 @@ int screencapture(const char* filename, char mode)
 	int ret;
 
 	if (filename) {
-		std::strcpy(capturename, filename);
+		std::strcpy(&capturename[0], filename);
 	}
 
 	if (qsetmode == 200 && (mode & 2) && !captureatnextpage) {
@@ -465,7 +465,7 @@ int screencapture(const char* filename, char mode)
 	}
 
 	if (ret == 0) {
-		buildprintf("Saved screenshot to {}\n", capturename);
+		buildprintf("Saved screenshot to {}\n", &capturename[0]);
 	}
 
 	return ret;
