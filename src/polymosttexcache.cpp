@@ -275,7 +275,7 @@ void PTCacheUnloadIndex()
  * @param offset the starting offset
  * @return a PTCacheTile entry fully completed
  */
-static PTCacheTile * ptcache_load(off_t offset)
+static std::unique_ptr<PTCacheTile> ptcache_load(off_t offset)
 {
 	int32_t tsizx;
 	int32_t tsizy;
@@ -287,7 +287,7 @@ static PTCacheTile * ptcache_load(off_t offset)
 	int32_t i;
 	int32_t length;
 
-	PTCacheTile* tdef{ nullptr };
+	std::unique_ptr<PTCacheTile> tdef;
 
 	if (cachereplace) {
 		// cache is in a broken state, so don't try loading
@@ -357,12 +357,12 @@ fail:
 	buildprintf("PolymostTexCache: corrupt texture cache detected, cache will be replaced\n");
 	PTCacheUnloadIndex();
 	std::fclose(fh);
-	
-	if (tdef) {
-		PTCacheFreeTile(tdef);
+
+	if(tdef) {
+		PTCacheFreeTile(tdef.get());
 	}
 
-	return nullptr;
+	return {};
 }
 
 /**
@@ -372,7 +372,7 @@ fail:
  * @param flags the flags bits
  * @return a PTCacheTile entry fully completed
  */
-PTCacheTile* PTCacheLoadTile(const char * filename, int effects, int flags)
+std::unique_ptr<PTCacheTile> PTCacheLoadTile(const char * filename, int effects, int flags)
 {
 	if (cachedisabled) {
 		return nullptr;
@@ -384,7 +384,7 @@ PTCacheTile* PTCacheLoadTile(const char * filename, int effects, int flags)
 		return nullptr;
 	}
 
-	PTCacheTile* tdef = ptcache_load(pci->offset);
+	std::unique_ptr<PTCacheTile> tdef = ptcache_load(pci->offset);
 
 	if (tdef) {
 		tdef->filename = strdup(filename);
@@ -425,8 +425,6 @@ void PTCacheFreeTile(PTCacheTile * tdef)
 			std::free(tdef->mipmap[i].data);
 		}
 	}
-
-	std::free(tdef);
 }
 
 /**
@@ -435,13 +433,9 @@ void PTCacheFreeTile(PTCacheTile * tdef)
  * @param nummipmaps allocate mipmap entries for nummipmaps items
  * @return a PTCacheTile entry
  */
-
-// FIXME: What if tdef allocation fails?
-PTCacheTile * PTCacheAllocNewTile(int nummipmaps)
+std::unique_ptr<PTCacheTile> PTCacheAllocNewTile(int nummipmaps)
 {
-	const int size = sizeof(PTCacheTile) + (nummipmaps - 1) * sizeof(PTCacheTileMip);
-	auto* tdef = (PTCacheTile *) std::malloc(size);
-	std::memset(tdef, 0, size);
+	auto tdef = std::make_unique<PTCacheTile>();
 
 	tdef->nummipmaps = nummipmaps;
 

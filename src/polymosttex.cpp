@@ -195,7 +195,7 @@ PTMHead* PTM_GetHead(const PTMIdent *id)
  */
 static int ptm_loadcachedtexturefile(const char* filename, PTMHead* ptmh, int flags, int effects)
 {
-	PTCacheTile* tdef = PTCacheLoadTile(filename, effects, flags & (PTH_CLAMPED));
+	auto tdef = PTCacheLoadTile(filename, effects, flags & (PTH_CLAMPED));
 
 	if (!tdef) {
 		return -1;
@@ -230,7 +230,7 @@ incompatible:
 						   compress ? compressfourcc[compress] : "?",
 						   tdef->format);
 			}
-			PTCacheFreeTile(tdef);
+			PTCacheFreeTile(tdef.get());
 			return -1;
 	}
 
@@ -272,7 +272,7 @@ incompatible:
 								   (const GLvoid *) tdef->mipmap[i + mipmap].data);
 	}
 
-	PTCacheFreeTile(tdef);
+	PTCacheFreeTile(tdef.get());
 
 	return 0;
 }
@@ -389,7 +389,7 @@ int PTM_LoadTextureFile(const std::string& filename, PTMHead* ptmh, int flags, i
 	ptmh->sizx  = tex.sizx;
 	ptmh->sizy  = tex.sizy;
 
-	PTCacheTile* tdef{nullptr};
+	std::unique_ptr<PTCacheTile> tdef;
 
 	if (writetocache) {
 		int nmips = 0;
@@ -405,16 +405,15 @@ int PTM_LoadTextureFile(const std::string& filename, PTMHead* ptmh, int flags, i
 		tdef->flags = (flags | ptmh->flags) & (PTH_CLAMPED | PTH_HASALPHA);
 	}
 
-	ptm_uploadtexture(ptmh, flags, &tex, tdef);
+	ptm_uploadtexture(ptmh, flags, &tex, tdef.get());
 
 	if (writetocache) {
 		if (polymosttexverbosity >= 2) {
 			buildprintf("PolymostTex: writing {} (effects {}, flags {}) to cache\n",
 					   tdef->filename, tdef->effects, tdef->flags);
 		}
-		PTCacheWriteTile(tdef);
-		PTCacheFreeTile(tdef);
-		tdef = nullptr;
+		PTCacheWriteTile(tdef.get());
+		PTCacheFreeTile(tdef.get());
 	}
 
 

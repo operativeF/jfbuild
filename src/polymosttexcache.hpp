@@ -8,6 +8,8 @@
 #ifndef POLYMOSTTEXCACHE_H
 #define POLYMOSTTEXCACHE_H
 
+#include <memory>
+
 struct PTCacheTileMip_typ {
 	int sizx;
 	int sizy;
@@ -44,7 +46,7 @@ void PTCacheUnloadIndex();
  * @param flags the flags bits
  * @return a PTCacheTile entry fully completed
  */
-PTCacheTile * PTCacheLoadTile(const char * filename, int effects, int flags);
+std::unique_ptr<PTCacheTile> PTCacheLoadTile(const char * filename, int effects, int flags);
 
 /**
  * Checks to see if a tile exists in the cache.
@@ -67,7 +69,7 @@ void PTCacheFreeTile(PTCacheTile * tdef);
  * @param nummipmaps allocate mipmap entries for nummipmaps items
  * @return a PTCacheTile entry
  */
-PTCacheTile * PTCacheAllocNewTile(int nummipmaps);
+std::unique_ptr<PTCacheTile> PTCacheAllocNewTile(int nummipmaps);
 
 /**
  * Stores a PTCacheTile into the cache.
