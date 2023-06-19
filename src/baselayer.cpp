@@ -164,7 +164,7 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 	if (parm->numparms != 1)
 		return OSDCMD_SHOWHELP;
 
-	std::string_view parmv{parm->parms[0]};
+	const std::string_view parmv{parm->parms[0]};
 	int m{0};
 	auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), m);
 
@@ -220,7 +220,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 			buildprintf("novoxmips is {}\n", novoxmips);
 		}
 		else {
-			std::string_view parmv{parm->parms[0]};
+			const std::string_view parmv{parm->parms[0]};
 			int tmpval{0};
 			std::from_chars(parmv.data(), parmv.data() + parmv.size(), tmpval);
 			// TODO: Use return values here?
@@ -231,7 +231,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 	else if (!Bstrcasecmp(parm->name, "usevoxels")) {
 		if (showval) { buildprintf("usevoxels is {}\n", usevoxels); }
 		else {
-			std::string_view parmv{parm->parms[0]};
+			const std::string_view parmv{parm->parms[0]};
 			int tmpval{0};
 			std::from_chars(parmv.data(), parmv.data() + parmv.size(), tmpval);
 			// TODO: Use return values here?

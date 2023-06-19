@@ -79,7 +79,7 @@ static int scriptfile_getnumber_radix(scriptfile *sf, int *num, int radix)
 	sf->textptr = sf->textptr + txtv.size();
 	
 	if (!is_whitespace(*sf->textptr) && *sf->textptr || (ec != std::errc{})) {
-		char *p = sf->textptr;
+		const char *p = sf->textptr;
 		skipovertoken(sf);
 		buildprintf("Error on line {}:{}: expecting int, got \"{}\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr), txtv);
 		return -2;
@@ -213,7 +213,7 @@ int scriptfile_getsymbol(scriptfile *sf, int *num)
 	if (!t)
 		return -1;
 
-	std::string_view tok{t};
+	const std::string_view tok{t};
 	int val{0};
 	auto [ptr, ec] = std::from_chars(tok.data(), tok.data() + tok.size(), val);
 

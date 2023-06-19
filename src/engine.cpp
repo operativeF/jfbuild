@@ -11035,7 +11035,7 @@ void getzrange(int x, int y, int z, short sectnum,
 	}
 
 		//Extra walldist for sprites on sector lines
-	int i = walldist + MAXCLIPDIST + 1;
+	const int i = walldist + MAXCLIPDIST + 1;
 	const int xmin = x - i;
 	const int ymin = y - i;
 	const int xmax = x + i;
@@ -11487,7 +11487,7 @@ int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char
 		auto* ptr2 = palookup[palnum];
 		for(int i{0}; i < numpalookups; ++i)
 		{
-			int palscale = divscalen<16>(i, numpalookups);
+			const int palscale = divscalen<16>(i, numpalookups);
 			for(int j{0}; j < 256; ++j)
 			{
 				auto* ptr = &palette[remapbuf[j]*3];
@@ -12143,7 +12143,7 @@ void setfirstwall(short sectnum, short newfirstwall)
 	} while (infw != newfirstwall);
 
 		//Put correct loop at beginning
-	int dagoalloop = loopnumofsector(sectnum, newfirstwall);
+	const int dagoalloop = loopnumofsector(sectnum, newfirstwall);
 	if (dagoalloop > 0)
 	{
 		int j{0};

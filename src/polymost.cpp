@@ -671,7 +671,7 @@ static void polymost_loadshaders()
 
 	// A fully transparent texture for the case when a glow texture is not needed.
 	if (!nulltexture) {
-		std::array<const char, 4> pix = {0, 0, 0, 0};
+		const std::array<const char, 4> pix = {0, 0, 0, 0};
 		glfunc.glGenTextures(1, &nulltexture);
 		glfunc.glBindTexture(GL_TEXTURE_2D, nulltexture);
 		glfunc.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,1,1,0,GL_RGBA,GL_UNSIGNED_BYTE,(GLvoid*)&pix);
@@ -5277,7 +5277,7 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 
-	std::string_view parmv{parm->parms[0]};
+	const std::string_view parmv{parm->parms[0]};
 	int m{0};
 	auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), m);
 	
@@ -5312,7 +5312,7 @@ static int osdcmd_gltextureanisotropy(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 
-	std::string_view parmv{parm->parms[0]};
+	const std::string_view parmv{parm->parms[0]};
 	int l{0};
 	std::from_chars(parmv.data(), parmv.data() + parmv.size(), l);
 
@@ -5347,7 +5347,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 	int val{0};
 
 	if(!showval) {
-		std::string_view parmv{parm->parms[0]};
+		const std::string_view parmv{parm->parms[0]};
 		auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), val);
 
 		// TODO: What to do with ec here?

@@ -234,8 +234,8 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 	}
 	if (parm->numparms >= 2) {
 		// res switch
-		std::string_view parmy{parm->parms[1]};
-		std::string_view parmx{parm->parms[0]};
+		const std::string_view parmy{parm->parms[1]};
+		const std::string_view parmx{parm->parms[0]};
 		std::from_chars(parmy.data(), parmy.data() + parmy.size(), newy);
 		std::from_chars(parmx.data(), parmx.data() + parmx.size(), newx);
 		// TODO: Use return results here?
@@ -266,7 +266,7 @@ static int osdcmd_mapversion(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 	
-	std::string_view parmv{parm->parms[0]};
+	const std::string_view parmv{parm->parms[0]};
 	int newversion{0};
 	auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), newversion);
 
@@ -6017,7 +6017,7 @@ void deletepoint(short point)
 		--sector[i].wallptr;
 	}
 
-	int j = lastwall(point);
+	const int j = lastwall(point);
 	int k = wall[point].point2;
 	wall[j].point2 = k;
 
@@ -6589,7 +6589,7 @@ void fillsector(short sectnum, unsigned char fillcolor)
 
 	for(int sy = miny + ((totalclock >> 2) & 3); sy <= maxy; sy += 3)	// JBF 20040116: numframes%3 -> (totalclock>>2)&3
 	{
-		int y = posy+(((sy-midydim16)<<14)/zoom);
+		const int y = posy+(((sy-midydim16)<<14)/zoom);
 
 		fillist[0] = lborder;
 		short fillcnt{1};
