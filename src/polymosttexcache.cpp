@@ -45,7 +45,7 @@
  */
 
 struct PTCacheIndex_typ {
-	char * filename;
+	std::string filename;
 	int effects;
 	int flags;
 	unsigned offset;
@@ -61,21 +61,20 @@ static constexpr int CACHEVER{ 0 };
 static constexpr std::array<int8_t, 16> indexsig = { 'P','o','l','y','m','o','s','t','T','e','x','I','n','d','x',CACHEVER };
 static constexpr std::array<int8_t, 16> storagesig = { 'P','o','l','y','m','o','s','t','T','e','x','S','t','o','r',CACHEVER };
 
-static const char* CACHEINDEXFILE = "texture.cacheindex";
-static const char* CACHESTORAGEFILE = "texture.cache";
+static constexpr char CACHEINDEXFILE[]   = "texture.cacheindex";
+static constexpr char CACHESTORAGEFILE[] = "texture.cache";
 
 static bool cachedisabled{false};
 static bool cachereplace{false};
 
-static unsigned int gethashhead(const char * filename)
+static unsigned int gethashhead(const std::string& filename)
 {
 	// implements the djb2 hash, constrained to the hash table size
 	// http://www.cse.yorku.ca/~oz/hash.html
 	unsigned long hash = 5381;
-	int c;
 
-    while (c = (unsigned char)*filename++) {
-		hash = ((hash << 5) + hash) ^ c; /* hash * 33 ^ c */
+	for(auto ch : filename) {
+		hash = ((hash << 5) + hash) ^ static_cast<int>(ch);
 	}
 
     return hash & (PTCACHEHASHSIZ-1);
@@ -88,15 +87,14 @@ static unsigned int gethashhead(const char * filename)
  * @param flags
  * @param offset
  */
-static void ptcache_addhash(const char * filename, int effects, int flags, unsigned offset)
+static void ptcache_addhash(const std::string& filename, int effects, int flags, unsigned offset)
 {
 	const unsigned int hash = gethashhead(filename);
 
 	// to reduce memory fragmentation we tack the filename onto the end of the block
-	PTCacheIndex* pci = (PTCacheIndex *) std::malloc(sizeof(PTCacheIndex) + std::strlen(filename) + 1);
+	PTCacheIndex* pci = (PTCacheIndex *) std::malloc(sizeof(PTCacheIndex));
 
-	pci->filename = (char *) pci + sizeof(PTCacheIndex);
-	std::strcpy(pci->filename, filename);
+	pci->filename = filename;
 	pci->effects = effects;
 	pci->flags   = flags & (PTH_CLAMPED);
 	pci->offset  = offset;
@@ -112,7 +110,7 @@ static void ptcache_addhash(const char * filename, int effects, int flags, unsig
  * @param flags
  * @return the PTCacheIndex item, or null
  */
-static PTCacheIndex* ptcache_findhash(const char * filename, int effects, int flags)
+static PTCacheIndex* ptcache_findhash(const std::string& filename, int effects, int flags)
 {
 	PTCacheIndex* pci = cachehead[ gethashhead(filename) ];
 
@@ -125,7 +123,7 @@ static PTCacheIndex* ptcache_findhash(const char * filename, int effects, int fl
 	while (pci) {
 		if (effects == pci->effects &&
 		    flags == pci->flags &&
-		    std::strcmp(pci->filename, filename) == 0) {
+		    (pci->filename == filename)) {
 			return pci;
 		}
 		pci = pci->next;
@@ -372,7 +370,7 @@ fail:
  * @param flags the flags bits
  * @return a PTCacheTile entry fully completed
  */
-std::unique_ptr<PTCacheTile> PTCacheLoadTile(const char * filename, int effects, int flags)
+std::unique_ptr<PTCacheTile> PTCacheLoadTile(const std::string& filename, int effects, int flags)
 {
 	if (cachedisabled) {
 		return nullptr;
@@ -387,7 +385,7 @@ std::unique_ptr<PTCacheTile> PTCacheLoadTile(const char * filename, int effects,
 	std::unique_ptr<PTCacheTile> tdef = ptcache_load(pci->offset);
 
 	if (tdef) {
-		tdef->filename = strdup(filename);
+		tdef->filename = filename;
 		tdef->effects  = effects;
 	}
 
@@ -401,7 +399,7 @@ std::unique_ptr<PTCacheTile> PTCacheLoadTile(const char * filename, int effects,
  * @param flags the flags bits
  * @return !nullptr if it exists
  */
-bool PTCacheHasTile(const char * filename, int effects, int flags)
+bool PTCacheHasTile(const std::string& filename, int effects, int flags)
 {
 	if (cachedisabled) {
 		return false;
@@ -416,10 +414,6 @@ bool PTCacheHasTile(const char * filename, int effects, int flags)
  */
 void PTCacheFreeTile(PTCacheTile * tdef)
 {
-	if (tdef->filename) {
-		std::free(tdef->filename);
-	}
-
 	for (int i{0}; i < tdef->nummipmaps; ++i) {
 		if (tdef->mipmap[i].data) {
 			std::free(tdef->mipmap[i].data);
@@ -550,7 +544,8 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 		int32_t mtime;
 		uint32_t offs;
 
-		std::strncpy(filename, tdef->filename, sizeof(filename));
+		tdef->filename.copy(filename, sizeof(filename));
+
 		filename[sizeof(filename)-1] = 0;
 		effects = B_LITTLE32(tdef->effects);
 		flags   = tdef->flags & (PTH_CLAMPED);	// we don't want the informational flags in the index

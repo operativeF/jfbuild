@@ -19,7 +19,7 @@ struct PTCacheTileMip_typ {
 typedef struct PTCacheTileMip_typ PTCacheTileMip;
 
 struct PTCacheTile_typ {
-	char * filename;
+	std::string filename;
 	int effects;
 	int flags;
 	int format;	// OpenGL format code
@@ -46,7 +46,7 @@ void PTCacheUnloadIndex();
  * @param flags the flags bits
  * @return a PTCacheTile entry fully completed
  */
-std::unique_ptr<PTCacheTile> PTCacheLoadTile(const char * filename, int effects, int flags);
+std::unique_ptr<PTCacheTile> PTCacheLoadTile(const std::string& filename, int effects, int flags);
 
 /**
  * Checks to see if a tile exists in the cache.
@@ -55,7 +55,7 @@ std::unique_ptr<PTCacheTile> PTCacheLoadTile(const char * filename, int effects,
  * @param flags the flags bits
  * @return !0 if it exists
  */
-bool PTCacheHasTile(const char * filename, int effects, int flags);
+bool PTCacheHasTile(const std::string& filename, int effects, int flags);
 
 /**
  * Disposes of the resources allocated for a PTCacheTile

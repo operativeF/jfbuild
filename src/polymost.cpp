@@ -578,12 +578,12 @@ static GLint polymost_get_uniform(GLuint program, const GLchar *name)
 	return uniformloc;
 }
 
-static GLuint polymost_load_shader(GLuint shadertype, const char *defaultsrc, const char *filename)
+static GLuint polymost_load_shader(GLuint shadertype, const std::string& defaultsrc, const std::string& filename)
 {
 	std::string shadersrc{defaultsrc};
 
 #ifdef SHADERDEV
-	std::FILE* shaderfh = std::fopen(filename, "rb");
+	std::FILE* shaderfh = std::fopen(filename.c_str(), "rb");
 	
 	if (shaderfh) {
 		std::fseek(shaderfh, 0, SEEK_END);
