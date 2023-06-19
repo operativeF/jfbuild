@@ -102,6 +102,7 @@ target_link_libraries(build_engine
   PUBLIC
     unofficial::libsquish::squish
     ${WINDOWS_LINK_LIBRARIES}
+    fmt::fmt
     $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
 )

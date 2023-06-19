@@ -47,19 +47,6 @@ void initsingleplayers()
 	connectpoint2[0] = -1;
 }
 
-void sendlogon()
-{
-}
-
-void sendlogoff()
-{
-}
-
-int getoutputcirclesize()
-{
-	return 0;
-}
-
 void setsocket(int newsocket)
 {
 }

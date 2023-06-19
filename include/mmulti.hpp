@@ -24,9 +24,6 @@ int initmultiplayerscycle();
 
 void setpackettimeout(int datimeoutcount, int daresendagaincount);
 void uninitmultiplayers();
-void sendlogon();
-void sendlogoff();
-int getoutputcirclesize();
 void setsocket(int newsocket);
 void sendpacket(int other, const unsigned char *bufptr, int messleng);
 int getpacket(int *other, unsigned char *bufptr);

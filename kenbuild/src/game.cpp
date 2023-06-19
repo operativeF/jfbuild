@@ -588,7 +588,6 @@ int app_main(int argc, char const * const argv[])
         while (initmultiplayerscycle()) {
             handleevents();
             if (quitevent) {
-                sendlogoff();         //Signing off
                 musicoff();
                 uninitmultiplayers();
                 uninitengine();
@@ -658,8 +657,6 @@ int app_main(int argc, char const * const argv[])
 
 		drawtilebackground(0L,0L,BACKGROUND,8,x1,y1,x2,y2,0);
 
-		sendlogon();
-
 		if (option[4] < 5) waitplayers = 2; else waitplayers = option[4]-3;
 		while (numplayers < waitplayers)
 		{
@@ -680,7 +677,6 @@ int app_main(int argc, char const * const argv[])
 
 			if (keystatus[1])
 			{
-				sendlogoff();         //Signing off
 				musicoff();
 				uninitmultiplayers();
 				uninitengine();
@@ -789,7 +785,6 @@ int app_main(int argc, char const * const argv[])
 		drawscreen(screenpeek,i);
 	}
 
-	sendlogoff();         //Signing off
 	musicoff();
 	uninitmultiplayers();
 	uninitengine();
@@ -4966,7 +4961,6 @@ void setup3dscreen()
 	if (i < 0)
 	{
 		std::printf("Error setting video mode.\n");
-		sendlogoff();
 		musicoff();
 		uninitmultiplayers();
 		uninitengine();
@@ -5814,7 +5808,6 @@ void faketimerhandler()
 	ototalclock += (TIMERINTSPERSECOND/MOVESPERSECOND);
 
 	getpackets();
-	if (getoutputcirclesize() >= 16) return;
 	getinput();
 
 	/*
@@ -6445,7 +6438,6 @@ void waitforeverybody ()
 
 
 		if (quitevent || keystatus[1]) {
-			sendlogoff();         //Signing off
 			musicoff();
 			uninitmultiplayers();
 			uninitengine();
