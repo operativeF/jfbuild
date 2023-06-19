@@ -9,6 +9,7 @@
 #define HIGHTILE_PRIV_H
 
 #include <array>
+#include <memory>
 
 enum {
 	HICEFFECT_NONE = 0,
@@ -31,7 +32,7 @@ struct hicreplctyp {
 	unsigned char palnum, ignore, flags, filler;
 	std::string filename;
 	float alphacut;
-	struct hicskybox_t *skybox;
+	std::unique_ptr<hicskybox_t> skybox;
 };
 
 inline std::array<palette_t, MAXPALOOKUPS> hictinting{};

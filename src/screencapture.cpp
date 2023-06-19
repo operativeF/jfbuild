@@ -72,21 +72,20 @@ int screencapture_writeframe(std::FILE *fil, char mode, void *v,
 			yend = -1;
 			yinc = -1;
 		}
-		buf = static_cast<unsigned char*>(std::malloc(xdim * ydim * 3));
-		if (buf) {
-			glfunc.glReadPixels(0,0,xdim,ydim,GL_RGB,GL_UNSIGNED_BYTE,buf);
-			if (bgr) {
-				for (j=(xdim*ydim-1)*3; j>=0; j-=3) {
-					std::swap(buf[j + 0], buf[j + 2]);
-				}
+		std::vector<unsigned char> buf;
+		buf.resize(xdim * ydim * 3);
+		glfunc.glReadPixels(0, 0, xdim, ydim, GL_RGB,GL_UNSIGNED_BYTE, &buf[0]);
+		if (bgr) {
+			for (j=(xdim * ydim-1) * 3; j >= 0; j -= 3) {
+				std::swap(buf[j + 0], buf[j + 2]);
 			}
-			for (y = ystart; y != yend; y += yinc) {
-				ptr = buf + y*xdim*3;
-				writeline(ptr, xdim, 3, fil, v);
-			}
-			std::free(buf);
 		}
-		return(0);
+		for (y = ystart; y != yend; y += yinc) {
+			ptr = &buf[0] + y * xdim * 3;
+			writeline(ptr, xdim, 3, fil, v);
+		}
+
+		return 0;
 	}
 #endif
 
@@ -102,16 +101,16 @@ int screencapture_writeframe(std::FILE *fil, char mode, void *v,
 	}
 
 	if (inverseit && qsetmode != 200) {
-		buf = static_cast<unsigned char*>(std::malloc(bytesperline));
-		if (buf) {
-			for (y = ystart; y != yend; y += yinc) {
-				copybuf(ptr + y*bytesperline, buf, xdim >> 2);
-				for (j=(bytesperline>>2)-1; j>=0; j--) ((int *)buf)[j] ^= 0x0f0f0f0fL;
-				writeline(buf, xdim, 1, fil, v);
-			}
-			std::free(buf);
+		std::vector<unsigned char> buf;
+		buf.resize(bytesperline);
+		for (y = ystart; y != yend; y += yinc) {
+			copybuf(ptr + y * bytesperline, &buf[0], xdim >> 2);
+			for (j=(bytesperline>>2)-1; j>=0; j--)
+				((int *)&buf[0])[j] ^= 0x0f0f0f0fL;
+			writeline(&buf[0], xdim, 1, fil, v);
 		}
-	} else {
+	}
+	else {
 		for (y = ystart; y != yend; y += yinc) {
 			writeline(ptr + y*bytesperline, xdim, 1, fil, v);
 		}

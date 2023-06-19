@@ -64,7 +64,7 @@ extern int gammabrightness;
 static HGLRC hGLRC{nullptr};
 static HANDLE hGLDLL;
 static glbuild8bit gl8bit;
-static unsigned char *frame{nullptr};
+static std::vector<unsigned char> frame;
 
 static HWND hGLWindow{nullptr};
 static HWND dummyhGLwindow{nullptr};
@@ -1233,10 +1233,7 @@ static int getgammaramp(WORD gt[3][256]);
 static void shutdownvideo()
 {
 #if USE_OPENGL
-	if (frame) {
-		std::free(frame);
-		frame = nullptr;
-	}
+	frame.clear();
 	glbuild_delete_8bit_shader(&gl8bit);
 	UninitOpenGL();
 #endif
@@ -1469,7 +1466,7 @@ void showframe()
 #if USE_OPENGL
 	if (!glunavailable) {
 		if (bpp == 8) {
-			glbuild_update_8bit_frame(&gl8bit, frame, xres, yres, bytesperline);
+			glbuild_update_8bit_frame(&gl8bit, &frame[0], xres, yres, bytesperline);
 			glbuild_draw_8bit_frame(&gl8bit);
 		}
 
@@ -2172,14 +2169,9 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refre
 				return -1;
 			}
 
-			frame = (unsigned char *) std::malloc(bytesperline * height);
-			if (!frame) {
-				shutdownvideo();
-				buildputs("Unable to allocate framebuffer\n");
-				return FALSE;
-			}
+			frame.resize(bytesperline * height);
 
-			frameplace = (intptr_t)frame;
+			frameplace = (intptr_t)&frame[0];
 		}
 #endif
 

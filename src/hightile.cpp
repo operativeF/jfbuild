@@ -75,10 +75,6 @@ void hicinit()
 			for (; hr != nullptr;) {
 				next = hr->next;
 
-				if (hr->skybox) {
-					std::free(hr->skybox);
-				}
-
 				std::free(hr);
 
 				hr = next;
@@ -207,7 +203,7 @@ int hicsetskybox(int picnum, int palnum, std::span<const std::string> faces)
 		hrn = hr;
 
 	if (!hrn->skybox) {
-		hrn->skybox = (struct hicskybox_t *)std::calloc(1,sizeof(struct hicskybox_t));
+		hrn->skybox = std::make_unique<hicskybox_t>();
 		if (!hrn->skybox) {
 			if (hr == nullptr)
 				std::free(hrn);	// not yet a link in the chain
@@ -257,10 +253,6 @@ int hicclearsubst(int picnum, int palnum)
 
 	if (!hr)
 		return 0;
-
-	if (hr->skybox) {
-		std::free(hr->skybox);
-	}
 
 	if (hrn)
 		hrn->next = hr->next;
