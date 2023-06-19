@@ -26,6 +26,7 @@
 #include <limits>
 #include <numeric>
 #include <string_view>
+#include <utility>
 
 constexpr auto TIMERINTSPERSECOND{120};
 
@@ -186,7 +187,7 @@ static int osdcmd_restartvid(const osdfuncparm_t *parm)
 {
 	extern int qsetmode;
 
-	(void)parm;
+	std::ignore = parm;
 
 	if (qsetmode != 200) {
 		return OSDCMD_OK;
@@ -7024,7 +7025,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
 	int yp2;
 	int tempy;
 
-	(void)ange;
+	std::ignore = ange;
 
 	if (gride > 0)
 	{

@@ -43,6 +43,7 @@ credits.
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <utility>
 
 #if defined(__BIG_ENDIAN__)
 # define BIGENDIAN 1
@@ -380,9 +381,9 @@ static inline int bitrev (int b, int c)
 	return(j);
 }
 
-static inline int testflag (int c) { (void)c; return(0); }
+static inline int testflag (int c) { std::ignore = c; return(0); }
 
-static inline void cpuid (int a, const int *s) { (void)a; (void)s; }
+static inline void cpuid (int a, const int *s) { std::ignore = a; std::ignore = s; }
 
 #endif
 
@@ -2110,7 +2111,7 @@ static int kgifrend (const char *kfilebuf, int kfilelength,
 	const unsigned char *ptr;
 	const unsigned char *cptr=nullptr;
 
-	(void)kfilelength;
+	std::ignore = kfilelength;
 
 	coltype = 3; bitdepth = 8; //For PNGOUT
 
@@ -2265,7 +2266,8 @@ static int kcelrend (const char *buf, int fleng,
 	int ysiz;
 	const unsigned char *cptr;
 
-	(void)fleng; (void)daglobxoffs;
+	std::ignore = fleng;
+	std::ignore = daglobxoffs;
 
 	if (((unsigned char)buf[0] != 0x19) || ((unsigned char)buf[1] != 0x91) ||
 		 ((unsigned char)buf[10] != 8) || ((unsigned char)buf[11] != 0)) return(-1);
@@ -2436,7 +2438,7 @@ static int kbmprend (const char *buf, int fleng,
 	const unsigned char *cptr;
 	const unsigned char *ubuf = (const unsigned char *)buf;
 
-	(void)fleng;
+	std::ignore = fleng;
 
 	headsiz = *(int *)&buf[14];
 	if (headsiz == LSWAPIB(12)) //OS/2 1.x (old format)
@@ -2670,7 +2672,7 @@ static int kddsrend (const char *buf, int leng,
 	unsigned char *uptr;
 	unsigned char *wptr;
 
-	(void)leng;
+	std::ignore = leng;
 
 	xsiz = LSWAPIB(*(int *)&buf[16]);
 	ysiz = LSWAPIB(*(int *)&buf[12]);

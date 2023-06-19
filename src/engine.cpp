@@ -43,8 +43,9 @@
 #include <numbers>
 #include <numeric>
 #include <span>
+#include <utility>
 
-void loadvoxel(int voxindex) { (void)voxindex; }
+void loadvoxel(int voxindex) { std::ignore = voxindex; }
 
 #define kloadvoxel loadvoxel
 
@@ -1247,7 +1248,7 @@ static void prepwall(int z, const walltype *wal)
 //
 int animateoffs(short tilenum, short fakevar)
 {
-	(void)fakevar;
+	std::ignore = fakevar;
 
 	const int i = (totalclocklock >> ((picanm[tilenum] >> 24) & 15));
 
@@ -2200,7 +2201,11 @@ static void wallscan(int x1, int x2, std::span<const short> uwal, std::span<cons
 	}
 
 #else	// USING_A_C
-	(void)i; (void)u4; (void)d4; (void)z; (void)bad;
+	std::ignore = i;
+	std::ignore = u4;
+	std::ignore = d4;
+	std::ignore = z;
+	std::ignore = bad;
 
 	for(x=x1;x<=x2;x++)
 	{
@@ -2662,7 +2667,8 @@ static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int 
 	std::span<short> topptr;
 	std::span<short> botptr;
 
-	(void)dax1; (void)dax2;
+	std::ignore = dax1;
+	std::ignore = dax2;
 
 	sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
 
@@ -3236,7 +3242,7 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	unsigned char oand16;
 	unsigned char oand32;
 
-	(void)dazsiz;
+	std::ignore = dazsiz;
 
 	int cosang = sintable[(globalang+512)&2047];
 	int sinang = sintable[globalang&2047];
@@ -11853,9 +11859,9 @@ void squarerotatetile(short tilenume)
 //
 void preparemirror(int dax, int day, int daz, short daang, int dahoriz, short dawall, short dasector, int *tposx, int *tposy, short *tang)
 {
-	(void)daz;
-	(void)dahoriz;
-	(void)dasector;
+	std::ignore = daz;
+	std::ignore = dahoriz;
+	std::ignore = dasector;
 
 	const int x = wall[dawall].x;
 	const int dx = wall[wall[dawall].point2].x - x;

@@ -12,6 +12,8 @@
 
 #include "compat.hpp"
 
+#include <utility>
+
 int krecip(int num);	// from engine.c
 
 constexpr auto BITSOFPRECISION{3};
@@ -210,7 +212,7 @@ void msethlineshift(int logx, int logy) {
 
 void mhline(void *bufplc, unsigned int bx, int cntup16, int junk, unsigned int by, void *p)
 {
-	(void)junk;
+	std::ignore = junk;
 
 	gbuf = static_cast<unsigned char *>(bufplc);
 	gpal = (unsigned char *)asm3; // FIXME: Correct cast?
@@ -237,7 +239,7 @@ void tsethlineshift(int logx, int logy) {
 
 void thline(void *bufplc, unsigned int bx, int cntup16, int junk, unsigned int by, void *p)
 {
-	(void)junk;
+	std::ignore = junk;
 
 	gbuf = static_cast<unsigned char *>(bufplc);
 	gpal = (unsigned char *)asm3; // FIXME: Correct cast?
@@ -396,7 +398,7 @@ void drawslab (int dx, int v, int dy, int vi, void *vptr, void *p)
 
 void stretchhline (void *p0, int u, int cnt, int uinc, void *rptr, void *p)
 {
-	(void)p0;
+	std::ignore = p0;
 
 	auto rpptr = static_cast<const unsigned char *>(rptr);
 	auto pp = static_cast<unsigned char *>(p);

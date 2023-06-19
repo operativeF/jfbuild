@@ -90,6 +90,7 @@ Low priority:
 #include <numeric>
 #include <span>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 int rendmode{0};
@@ -2513,7 +2514,10 @@ static void polymost_drawalls (int bunch)
 				constexpr int skywalx[4] = { -512,512,512,-512 };
 				constexpr int skywaly[4] = { -512,-512,512,512 };
 
-				(void)_nx0; (void)_ny0; (void)_nx1; (void)_ny1;
+				std::ignore = _nx0;
+				std::ignore = _ny0;
+				std::ignore = _nx1;
+				std::ignore = _ny1;
 				domostmethod = METH_CLAMPED;
 
 				for(i=0;i<4;i++)
@@ -2870,7 +2874,10 @@ static void polymost_drawalls (int bunch)
 				constexpr int skywalx[4] = { -512,  512, 512, -512 };
 				constexpr int skywaly[4] = { -512, -512, 512,  512 };
 
-				(void)_nx0; (void)_ny0; (void)_nx1; (void)_ny1;
+				std::ignore = _nx0;
+				std::ignore = _ny0;
+				std::ignore = _nx1;
+				std::ignore = _ny1;
 				domostmethod = METH_CLAMPED;
 
 				for(i=0;i<4;i++)
@@ -5252,7 +5259,7 @@ static int osdcmd_debugtexturehash(const osdfuncparm_t *parm)
 #ifdef SHADERDEV
 static int osdcmd_debugreloadshaders(const osdfuncparm_t *parm)
 {
-	(void)parm;
+	std::ignore = parm;
 	polymost_loadshaders();
 	return OSDCMD_OK;
 }
@@ -5326,7 +5333,7 @@ static int osdcmd_gltextureanisotropy(const osdfuncparm_t *parm)
 
 static int osdcmd_forcetexcacherebuild(const osdfuncparm_t *parm)
 {
-	(void)parm;
+	std::ignore = parm;
 	PTCacheForceRebuild();
 	buildprintf("Compressed texture cache invalidated. Use 'restartvid' to reinitialise it.\n");
 	return OSDCMD_OK;
