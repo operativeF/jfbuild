@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <utility>
 
 struct glbuild_funcs glfunc;
 
@@ -818,7 +819,7 @@ void glbuild_update_8bit_frame(const glbuild8bit *state, const GLvoid *frame, in
 	constexpr GLenum extfmt{ GL_RED };
 #endif
 
-	(void)resx;
+	std::ignore = resx;
 
 	glfunc.glActiveTexture(GL_TEXTURE0);
 	glfunc.glBindTexture(GL_TEXTURE_2D, state->frametex);
@@ -827,7 +828,7 @@ void glbuild_update_8bit_frame(const glbuild8bit *state, const GLvoid *frame, in
 
 void glbuild_draw_8bit_frame(const glbuild8bit *state)
 {
-	(void)state;
+	std::ignore = state;
 
 #if (USE_OPENGL == USE_GLES2)
 	glfunc.glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);

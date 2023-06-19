@@ -9,6 +9,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <utility>
 
 static char capturename[20] = "capt0000.xxx";
 static short capturecount{0};
@@ -121,7 +122,7 @@ int screencapture_writeframe(std::FILE *fil, char mode, void *v,
 
 void screencapture_writetgaline(unsigned char *buf, int bytes, int elements, std::FILE *fp, void *v)
 {
-	(void)v;
+	std::ignore = v;
 	std::fwrite(buf, bytes, elements, fp);
 }
 
@@ -232,7 +233,7 @@ void writepcxline(unsigned char *buf, int bytes, int step, std::FILE* fp)
 
 void screencapture_writepcxline(unsigned char *buf, int bytes, int elements, std::FILE *fp, void *v)
 {
-	(void)v;
+	std::ignore = v;
 
 	if (elements == 3) {
 		writepcxline(buf,     bytes, 3, fp);

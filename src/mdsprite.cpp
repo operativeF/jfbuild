@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <array>
 #include <memory>
+#include <utility>
 
 #if defined(_M_IX86) || defined(_M_AMD64) || defined(__i386) || defined(__x86_64)
 #define SHIFTMOD32(a) (a)
@@ -1516,10 +1517,10 @@ static void setrect (int x0, int y0, int dx, int dy)
 
 static void cntquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
 {
-	(void)x1;
-	(void)y1;
-	(void)z1;
-	(void)face;
+	std::ignore = x1;
+	std::ignore = y1;
+	std::ignore = z1;
+	std::ignore = face;
 
 	int x = std::abs(x2 - x0);
 	int y = std::abs(y2 - y0);

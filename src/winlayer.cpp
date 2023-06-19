@@ -41,6 +41,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string_view>
+#include <utility>
 
 static char *argvbuf = nullptr;
 
@@ -1512,7 +1513,9 @@ void showframe()
 // FIXME: Parameters are unused
 int setpalette(int start, int num, const unsigned char* dapal)
 {
-	(void)start; (void)num; (void)dapal;
+	std::ignore = start;
+	std::ignore = num;
+	std::ignore = dapal;
 
 #if USE_OPENGL
 	if (!glunavailable && bpp == 8) {

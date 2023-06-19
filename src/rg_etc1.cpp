@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <utility>
 
 #ifdef _MSC_VER
 #pragma warning (disable: 4201) //  nonstandard extension used : nameless struct/union
@@ -1913,7 +1914,7 @@ done:
    static uint etc1_decode_value(uint diff, uint inten, uint selector, uint packed_c)
    {
       const uint limit = diff ? 32 : 16;
-      (void)limit;   //JonoF
+      std::ignore = limit;   //JonoF
       RG_ETC1_ASSERT((diff < 2) && (inten < 8) && (selector < 4) && (packed_c < limit));
       
       int c{ 0 };

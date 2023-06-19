@@ -10,6 +10,7 @@
 #include <array>
 #include <charconv>
 #include <string_view>
+#include <utility>
 
 extern int getclosestcol(int r, int g, int b);	// engine.c
 extern int qsetmode;	// engine.c
@@ -113,7 +114,7 @@ static void findwhite()
 static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
 	const char st[2] = {ch, 0};
-	(void)shade;
+	std::ignore = shade;
 
 	int colour;
 	int shadow;
@@ -136,7 +137,7 @@ static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shad
 	int colour;
 	int shadow;
 
-	(void)shade;
+	std::ignore = shade;
 
 	if (len>1023)
 		len = 1023;
@@ -193,7 +194,7 @@ static int _internal_getrowheight(int w)
 
 static void _internal_clearbackground(int cols, int rows)
 {
-	(void)cols; (void)rows;
+	std::ignore = cols; std::ignore = rows;
 }
 
 static int _internal_gettime()
@@ -203,7 +204,7 @@ static int _internal_gettime()
 
 static void _internal_onshowosd(int shown)
 {
-	(void)shown;
+	std::ignore = shown;
 }
 
 ////////////////////////////
@@ -233,7 +234,7 @@ static int osdcmd_osdvars(const osdfuncparm_t *parm)
 
 static int osdcmd_listsymbols(const osdfuncparm_t *parm)
 {
-	(void)parm;
+	std::ignore = parm;
 
 	OSD_Printf("Symbol listing:\n");
 	for (symbol_t* i{symbols}; i != nullptr; i = i->next)
