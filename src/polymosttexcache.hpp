@@ -20,11 +20,12 @@ typedef struct PTCacheTileMip_typ PTCacheTileMip;
 
 struct PTCacheTile_typ {
 	std::string filename;
-	int effects;
-	int flags;
-	int format;	// OpenGL format code
-	int tsizx, tsizy;
-	int nummipmaps;
+	int effects{0};
+	int flags{0};
+	int format{0};	// OpenGL format code
+	int tsizx{0};
+	int tsizy{0};
+	int nummipmaps{0};
 	PTCacheTileMip mipmap[1];
 };
 typedef struct PTCacheTile_typ PTCacheTile;
