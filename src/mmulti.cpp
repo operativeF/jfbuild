@@ -567,13 +567,6 @@ static const char *presentaddress(struct sockaddr const *a) {
 	return str;
 }
 
-//---------------------------------- Obsolete variables&functions ----------------------------------
-void setpackettimeout (int datimeoutcount, int daresendagaincount) { (void)datimeoutcount; (void)daresendagaincount; }
-void genericmultifunction (int other, const unsigned char *bufptr, int messleng, int command) { (void)other; (void)bufptr; (void)messleng; (void)command; }
-int getoutputcirclesize () { return(0); }
-void setsocket (int newsocket) { (void)newsocket; }
-void sendlogon () {}
-void sendlogoff () {}
 //--------------------------------------------------------------------------------------------------
 
 static int crctab16[256];
