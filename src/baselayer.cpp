@@ -19,6 +19,7 @@
 struct glbuild_info glinfo;
 #endif //USE_OPENGL
 
+#include <algorithm>
 #include <charconv>
 #include <limits>
 #include <string_view>
@@ -47,10 +48,8 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 
 	// fix up the passed resolution values to be multiples of 8
 	// and at least 320x200 or at most MAXXDIMxMAXYDIM
-	if (*x < 320) *x = 320;
-	if (*y < 200) *y = 200;
-	if (*x > MAXXDIM) *x = MAXXDIM;
-	if (*y > MAXYDIM) *y = MAXYDIM;
+	*x = std::clamp(*x, 320, MAXXDIM);
+	*y = std::clamp(*y, 200, MAXYDIM);
 	*x &= 0xfffffff8L;
 
 	for (int i{0}; const auto& vmode : validmode) {
