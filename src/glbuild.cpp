@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -568,11 +569,10 @@ GLuint glbuild_compile_shader(GLuint type, const GLchar *source)
 		GLint loglen{0};
 		glfunc.glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &loglen);
 
-		std::string logtext;
-		logtext.resize(loglen);
+		auto logtext = std::make_unique<GLchar[]>(loglen);
 
-		glfunc.glGetShaderInfoLog(shader, loglen, &loglen, &logtext[0]);
-		buildprintf("GL shader compile error: {}\n", logtext);
+		glfunc.glGetShaderInfoLog(shader, loglen, &loglen, logtext.get());
+		buildprintf("GL shader compile error: {}\n", logtext.get());
 
 		glfunc.glDeleteShader(shader);
 
@@ -605,12 +605,13 @@ GLuint glbuild_link_program(int shadercount, const GLuint *shaders)
 
 		glfunc.glGetProgramiv(program, GL_INFO_LOG_LENGTH, &loglen);
 
-		std::string logtext;
-		logtext.resize(loglen);
-		glfunc.glGetProgramInfoLog(program, loglen, &loglen, &logtext[0]);
-		buildprintf("glbuild_link_program: link error: {}\n", logtext);
+		auto logtext = std::make_unique<GLchar>(loglen);
+
+		glfunc.glGetProgramInfoLog(program, loglen, &loglen, logtext.get());
+		buildprintf("glbuild_link_program: link error: {}\n", logtext.get());
 
 		glfunc.glDeleteProgram(program);
+		
 		return 0;
 	}
 
