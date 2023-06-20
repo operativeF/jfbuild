@@ -506,7 +506,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, 
 
 static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 {
-	if (parm->numparms == 0) {
+	if (parm->parms.size() == 0) {
 		if (maxrefreshfreq == 0) {
 			buildputs("maxrefreshfreq = No maximum\n");
 		}
@@ -517,7 +517,7 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 
-	if (parm->numparms != 1) {
+	if (parm->parms.size() != 1) {
 		return OSDCMD_SHOWHELP;
 	}
 
@@ -543,13 +543,13 @@ static int set_glswapinterval(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 
-	if (parm->numparms == 0) {
+	if (parm->parms.size() == 0) {
 		if (glswapinterval == -1) buildprintf("glswapinterval is {} (adaptive vsync)\n", glswapinterval);
 		else buildprintf("glswapinterval is {}\n", glswapinterval);
 		return OSDCMD_OK;
 	}
 
-	if (parm->numparms != 1) {
+	if (parm->parms.size() != 1) {
 		return OSDCMD_SHOWHELP;
 	}
 

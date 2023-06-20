@@ -162,7 +162,7 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 		"polygonal OpenGL"
 	};
 
-	if (parm->numparms != 1)
+	if (parm->parms.size() != 1)
 		return OSDCMD_SHOWHELP;
 
 	const std::string_view parmv{parm->parms[0]};
@@ -184,7 +184,7 @@ static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 {
 	int pal, cols[3], eff;
 
-	if (parm->numparms != 5) return OSDCMD_SHOWHELP;
+	if (parm->parms.size() != 5) return OSDCMD_SHOWHELP;
 
 	pal = atoi(parm->parms[0]);
 	cols[0] = atoi(parm->parms[1]);
@@ -200,14 +200,14 @@ static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 
 static int osdcmd_vars(const osdfuncparm_t *parm)
 {
-	const bool showval = parm->numparms < 1;
+	const bool showval = parm->parms.size() < 1;
 
 	if (IsSameAsNoCase(parm->name, "screencaptureformat")) {
 		constexpr std::array<const char*, 3> fmts = { "TGA", "PCX", "PNG" };
 		if (!showval) {
 			int i;
 			for (i=0; i<3; i++)
-				if (IsSameAsNoCase(parm->parms[0], fmts[i]) || std::atoi(parm->parms[0]) == i) {
+				if (IsSameAsNoCase(parm->parms[0], fmts[i]) || std::atoi(parm->parms[0].data()) == i) {
 					captureformat = i;
 					break;
 				}

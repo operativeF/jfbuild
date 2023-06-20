@@ -212,7 +212,7 @@ static void _internal_onshowosd(int shown)
 
 static int osdcmd_osdvars(const osdfuncparm_t *parm)
 {
-	const int showval = (parm->numparms < 1);
+	const int showval = (parm->parms.size() < 1);
 
 	if (IsSameAsNoCase(parm->name, "osdrows")) {
 		if (showval) {
@@ -246,10 +246,10 @@ static int osdcmd_listsymbols(const osdfuncparm_t *parm)
 
 static int osdcmd_help(const osdfuncparm_t *parm)
 {
-	if (parm->numparms != 1)
+	if (parm->parms.size() != 1)
 		return OSDCMD_SHOWHELP;
 
-	const symbol_t* symb = findexactsymbol(parm->parms[0]);
+	const symbol_t* symb = findexactsymbol(parm->parms[0].data());
 	
 	if (!symb) {
 		OSD_Printf("Help Error: \"%s\" is not a defined variable or function\n", parm->parms[0]);
@@ -262,7 +262,7 @@ static int osdcmd_help(const osdfuncparm_t *parm)
 
 static int osdcmd_clear(const osdfuncparm_t *parm)
 {
-	if (parm->numparms != 0)
+	if (parm->parms.size() != 0)
 		return OSDCMD_SHOWHELP;
 
 	std::ranges::fill(osdtext, 0);
@@ -276,10 +276,10 @@ static int osdcmd_clear(const osdfuncparm_t *parm)
 
 static int osdcmd_echo(const osdfuncparm_t *parm)
 {
-	if (parm->numparms == 0)
+	if (parm->parms.size() == 0)
 		return OSDCMD_SHOWHELP;
 
-	for (int i{0}; i < parm->numparms; ++i) {
+	for (int i{0}; i < parm->parms.size(); ++i) {
 		if (i)
 			OSD_Puts(" ");
 		OSD_Puts(parm->parms[i]);
@@ -1079,8 +1079,6 @@ static char *strtoken(char *s, char **ptrptr, int *restart)
 	return start;
 }
 
-static constexpr auto MAXPARMS{512};
-
 int OSD_Dispatch(const char *cmd)
 {
 	char* state = Bstrdup(cmd);
@@ -1090,11 +1088,9 @@ int OSD_Dispatch(const char *cmd)
 		return -1;
 
 	int  restart{0};
-	std::array<char*, MAXPARMS> parms;
+	std::vector<std::string> parms;
 	char* wtp{nullptr};
 	do {
-		int numparms{0};
-		std::ranges::fill(parms, nullptr);
 		char* wp = strtoken(state, &wtp, &restart);
 		if (!wp) {
 			state = wtp;
@@ -1113,10 +1109,10 @@ int OSD_Dispatch(const char *cmd)
 		ofp.name = wp;
 		while (wtp && !restart) {
 			wp = strtoken(nullptr, &wtp, &restart);
-			if (wp && numparms < MAXPARMS) parms[numparms++] = wp;
+			if (wp)
+				parms.push_back(wp);
 		}
-		ofp.numparms = numparms;
-		ofp.parms    = (const char **) &parms[0];
+		ofp.parms    = parms;
 		ofp.raw      = cmd;
 		switch (symb->func(&ofp)) {
 			case OSDCMD_OK: break;

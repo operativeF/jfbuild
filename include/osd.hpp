@@ -5,11 +5,12 @@
 #ifndef __osd_h__
 #define __osd_h__
 
+#include <string>
+#include <vector>
 
 struct osdfuncparm_t {
-	int numparms;
 	const char *name;
-	const char **parms;
+	std::vector<std::string> parms;
 	const char *raw;
 };
 

@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 
 constexpr auto TIMERINTSPERSECOND{140}; //280
 constexpr auto MOVESPERSECOND{40};
@@ -343,25 +344,28 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 	int newx = xdim;
 	int newy = ydim;
 	int newbpp = bpp;
+	int tmpscr{0};
 	int newfullscreen = fullscreen;
 
-	if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
+	if (parm->parms.size() < 1 || parm->parms.size() > 4) return OSDCMD_SHOWHELP;
 
-	switch (parm->numparms) {
+	switch (parm->parms.size()) {
 		case 1:   // bpp switch
-			newbpp = atoi(parm->parms[0]);
+			std::from_chars(parm->parms[0].data(), parm->parms[0].data() + parm->parms[0].size(), newbpp);
 			break;
 		case 2: // res switch
-			newx = atoi(parm->parms[0]);
-			newy = atoi(parm->parms[1]);
+			std::from_chars(parm->parms[0].data(), parm->parms[0].data() + parm->parms[0].size(), newx);
+			std::from_chars(parm->parms[1].data(), parm->parms[1].data() + parm->parms[1].size(), newy);
 			break;
 		case 3:   // res & bpp switch
 		case 4:
-			newx = atoi(parm->parms[0]);
-			newy = atoi(parm->parms[1]);
-			newbpp = atoi(parm->parms[2]);
-			if (parm->numparms == 4)
-				newfullscreen = (atoi(parm->parms[3]) != 0);
+		    std::from_chars(parm->parms[0].data(), parm->parms[0].data() + parm->parms[0].size(), newx);
+		    std::from_chars(parm->parms[1].data(), parm->parms[1].data() + parm->parms[1].size(), newy);
+		    std::from_chars(parm->parms[2].data(), parm->parms[2].data() + parm->parms[2].size(), newbpp);
+
+			if (parm->parms.size() == 4)
+				std::from_chars(parm->parms[3].data(), parm->parms[3].data() + parm->parms[3].size(), tmpscr);
+				newfullscreen = (tmpscr != 0);
 			break;
 	}
 
@@ -376,9 +380,9 @@ static int osdcmd_map(const osdfuncparm_t *parm) {
     char *dot;
     char namebuf[BMAX_PATH+1];
 
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    if (parm->parms.size() != 1) return OSDCMD_SHOWHELP;
 
-    strncpy(namebuf, parm->parms[0], BMAX_PATH);
+    strncpy(namebuf, parm->parms[0].c_str(), BMAX_PATH);
     namebuf[BMAX_PATH] = 0;
     dot = strrchr(namebuf, '.');
     if ((!dot || IsSameAsNoCase(dot, ".map")) && std::strlen(namebuf) <= BMAX_PATH-4) {

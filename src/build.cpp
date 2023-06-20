@@ -214,11 +214,11 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 
-	if (parm->numparms < 1 || parm->numparms > 4) {
+	if (parm->parms.size() < 1 || parm->parms.size() > 4) {
 		return OSDCMD_SHOWHELP;
 	}
 
-	if (parm->numparms == 4) {
+	if (parm->parms.size() == 4) {
 		// fs, res, bpp switch
 		int tmpval{0};
 		std::string_view parmv{parm->parms[3]};
@@ -226,13 +226,13 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 		// TODO: Use return result here?
 		newfullscreen = (tmpval != 0);
 	}
-	if (parm->numparms >= 3) {
+	if (parm->parms.size() >= 3) {
 		// res & bpp switch
 		std::string_view parmv{parm->parms[2]};
 		std::from_chars(parmv.data(), parmv.data() + parmv.size(), newbpp);
 		// FIXME: Use return result here?
 	}
-	if (parm->numparms >= 2) {
+	if (parm->parms.size() >= 2) {
 		// res switch
 		const std::string_view parmy{parm->parms[1]};
 		const std::string_view parmx{parm->parms[0]};
@@ -240,7 +240,7 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 		std::from_chars(parmx.data(), parmx.data() + parmx.size(), newx);
 		// TODO: Use return results here?
 	}
-	if (parm->numparms == 1) {
+	if (parm->parms.size() == 1) {
 		// bpp switch
 		std::string_view parmv{parm->parms[0]};
 		std::from_chars(parmv.data(), parmv.data() + parmv.size(), newbpp);
@@ -261,7 +261,7 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 
 static int osdcmd_mapversion(const osdfuncparm_t *parm)
 {
-	if (parm->numparms < 1) {
+	if (parm->parms.size() < 1) {
 		buildprintf("mapversion is {}\n", mapversion);
 		return OSDCMD_OK;
 	}
@@ -282,7 +282,7 @@ static int osdcmd_mapversion(const osdfuncparm_t *parm)
 
 static int osdcmd_showspriteextents(const osdfuncparm_t *parm)
 {
-	if (parm->numparms != 1) {
+	if (parm->parms.size() != 1) {
 		buildprintf("showspriteextents is {}\n", showspriteextents);
 		return OSDCMD_OK;
 	}

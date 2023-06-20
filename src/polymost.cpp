@@ -5269,7 +5269,7 @@ static int osdcmd_debugreloadshaders(const osdfuncparm_t *parm)
 
 static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 {
-	if (parm->numparms != 1) {
+	if (parm->parms.size() != 1) {
 		buildprintf("Current texturing mode is {}\n", glfiltermodes[gltexfiltermode].name);
 		buildprintf("  Vaild modes are:\n");
 		std::ranges::for_each(glfiltermodes, [mode_cnt = 0](const auto& aModeName) mutable {
@@ -5307,7 +5307,7 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 
 static int osdcmd_gltextureanisotropy(const osdfuncparm_t *parm)
 {
-	if (parm->numparms != 1) {
+	if (parm->parms.size() != 1) {
 		buildprintf("Current texture anisotropy is {}\n", glanisotropy);
 		buildprintf("  Maximum is {}\n", glinfo.maxanisotropy);
 
@@ -5345,7 +5345,7 @@ static int osdcmd_forcetexcacherebuild(const osdfuncparm_t *parm)
 
 static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 {
-	const bool showval = parm->numparms < 1;
+	const bool showval = parm->parms.size() < 1;
 	int val{0};
 
 	if(!showval) {

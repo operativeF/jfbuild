@@ -1542,11 +1542,11 @@ static int set_glswapinterval(const osdfuncparm_t *parm)
 		buildputs("glswapinterval is not adjustable\n");
 		return OSDCMD_OK;
 	}
-	if (parm->numparms == 0) {
+	if (parm->parms.size() == 0) {
 		buildprintf("glswapinterval is %d\n", glswapinterval);
 		return OSDCMD_OK;
 	}
-	if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+	if (parm->parms.size() != 1) return OSDCMD_SHOWHELP;
 
 	interval = atoi(parm->parms[0]);
 	if (interval < -1 || interval > 2) return OSDCMD_SHOWHELP;

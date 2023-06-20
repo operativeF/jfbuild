@@ -848,7 +848,7 @@ void glbuild_draw_8bit_frame(const glbuild8bit *state)
 #if defined(DEBUGGINGAIDS)
 static int osdcmd_vars(const osdfuncparm_t *parm)
 {
-	int showval = (parm->numparms < 1);
+	int showval = (parm->parms.size() < 1);
 
 	if (IsSameAsNoCase(parm->name, "gldebuglogseverity")) {
 		const char *levels[] = {"none", "notification", "low", "medium", "high"};
@@ -945,10 +945,10 @@ static void dumpglexts()
 
 static int osdcmd_glinfo(const osdfuncparm_t *parm)
 {
-	if (parm->numparms == 0) {
+	if (parm->parms.size() == 0) {
 		dumpglinfo();
 		buildputs("Use \"glinfo exts\" to list extensions.\n");
-	} else if (strcmp(parm->parms[0], "exts") == 0) {
+	} else if (strcmp(parm->parms[0].c_str(), "exts") == 0) {
 		dumpglexts();
 	}
 	return OSDCMD_OK;
