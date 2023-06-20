@@ -59,8 +59,6 @@ hicreplctyp* hicfindsubst(int picnum, int palnum, int skybox)
  */
 void hicinit()
 {
-	int i;
-	int j;
 	hicreplctyp *next;
 
 	// all tints should be 100%
