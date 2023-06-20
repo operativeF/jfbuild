@@ -850,7 +850,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 {
 	int showval = (parm->numparms < 1);
 
-	if (!Bstrcasecmp(parm->name, "gldebuglogseverity")) {
+	if (IsSameAsNoCase(parm->name, "gldebuglogseverity")) {
 		const char *levels[] = {"none", "notification", "low", "medium", "high"};
 		if (showval) { buildprintf("gldebuglogseverity is {} ({})\n", levels[gldebuglogseverity], gldebuglogseverity); }
 		else {

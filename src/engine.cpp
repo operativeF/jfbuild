@@ -15,6 +15,7 @@
 #include "osd.hpp"
 #include "crc32.hpp"
 #include "screencapture.hpp"
+#include "string_utils.hpp"
 #include "textfonts.hpp"
 #include "version.hpp"
 
@@ -8336,7 +8337,7 @@ int loadmaphack(const std::string& filename)
 		int i{0};
 
 		for (; legaltokens[i].text; ++i)
-			if (!Bstrcasecmp(tok, legaltokens[i].text))
+			if (IsSameAsNoCase(tok, legaltokens[i].text))
 				break;
 
 		char* cmdtokptr = script->ltextptr;

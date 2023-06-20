@@ -5,6 +5,7 @@
 #include "build.hpp"
 #include "osd.hpp"
 #include "baselayer.hpp"
+#include "string_utils.hpp"
 
 #include <algorithm>
 #include <array>
@@ -213,7 +214,7 @@ static int osdcmd_osdvars(const osdfuncparm_t *parm)
 {
 	const int showval = (parm->numparms < 1);
 
-	if (!Bstrcasecmp(parm->name, "osdrows")) {
+	if (IsSameAsNoCase(parm->name, "osdrows")) {
 		if (showval) {
 			OSD_Printf("osdrows is %d\n", osdrows); return OSDCMD_OK;
 		}
@@ -1215,14 +1216,14 @@ static symbol_t *addnewsymbol(const char *name)
 	if (!symbols) {
 		symbols = newsymb;
 	} else {
-		if (Bstrcasecmp(name, symbols->name) <= 0) {
+		if (CmpNoCase(name, symbols->name) <= 0) {
 			t = symbols;
 			symbols = newsymb;
 			symbols->next = t;
 		} else {
 			s = symbols;
 			while (s->next) {
-				if (Bstrcasecmp(s->next->name, name) > 0) break;
+				if (CmpNoCase(s->next->name, name) > 0) break;
 				s=s->next;
 			}
 			t = s->next;
@@ -1260,8 +1261,10 @@ static symbol_t *findexactsymbol(const char *name)
 
 	startingat = symbols;
 
-	for (; startingat; startingat=startingat->next)
-		if (!Bstrcasecmp(name, startingat->name)) return startingat;
+	for (; startingat; startingat=startingat->next) {
+		if (IsSameAsNoCase(name, startingat->name))
+			return startingat;
+	}
 
 	return nullptr;
 }

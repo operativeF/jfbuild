@@ -9,6 +9,8 @@
 #include "baselayer.hpp"
 #include "scriptfile.hpp"
 
+#include "string_utils.hpp"
+
 #include <algorithm>
 #include <array>
 #include <span>
@@ -204,7 +206,7 @@ static TokenType getatoken(scriptfile *sf, std::span<const tokenlist> tl)
 	}
 
 	for(const auto& token : tl) {
-		if (!Bstrcasecmp(tok, &token.text[0]))
+		if (IsSameAsNoCase(tok, token.text))
 			return token.tokenid;
 	}
 

@@ -12,6 +12,7 @@
 #include "osd.hpp"
 #include "mmulti.hpp"
 #include "kdmsound.hpp"
+#include "string_utils.hpp"
 
 #include "baselayer.hpp"
 
@@ -380,7 +381,7 @@ static int osdcmd_map(const osdfuncparm_t *parm) {
     strncpy(namebuf, parm->parms[0], BMAX_PATH);
     namebuf[BMAX_PATH] = 0;
     dot = strrchr(namebuf, '.');
-    if ((!dot || Bstrcasecmp(dot, ".map")) && std::strlen(namebuf) <= BMAX_PATH-4) {
+    if ((!dot || IsSameAsNoCase(dot, ".map")) && std::strlen(namebuf) <= BMAX_PATH-4) {
         std::strcat(namebuf, ".map");
     }
 
@@ -499,15 +500,15 @@ int app_main(int argc, char const * const argv[])
 #else
 		if (argv[i][0] == '-') {
 #endif
-			if (!Bstrcasecmp("net",&argv[i][1])) {
+			if (IsSameAsNoCase("net", &argv[i][1])) {
 				netparm = ++i;
 				for (; i<argc; i++)
 					if (!strcmp(argv[i], "--")) break;
 				endnetparm = i;
 			}
 #ifdef HAVE_STARTWIN
-			else if (!Bstrcasecmp(&argv[i][1], "setup")) cmdsetup = 1;
-			else if (!Bstrcasecmp(&argv[i][1], "nosetup")) cmdsetup = -1;
+			else if (IsSameAsNoCase(&argv[i][1], "setup")) cmdsetup = 1;
+			else if (IsSameAsNoCase(&argv[i][1], "nosetup")) cmdsetup = -1;
 #endif
 		}
 		else {

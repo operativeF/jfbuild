@@ -5,6 +5,7 @@
 #include "editor.hpp"
 #include "osd.hpp"
 #include "scriptfile.hpp"
+#include "string_utils.hpp"
 
 #ifdef RENDERTYPEWIN
 #include "winlayer.hpp"
@@ -194,10 +195,10 @@ int loadsetup(const std::string& fn)
 		int item;
 
 		for (item = 0; configspec[item].name; item++) {
-			if (!Bstrcasecmp(token, configspec[item].name)) {
+			if (IsSameAsNoCase(token, configspec[item].name)) {
 				// Seek past any = symbol.
 				token = scriptfile_peektoken(cfg.get());
-				if (!Bstrcasecmp("=", token)) {
+				if (IsSameAsNoCase(token, "=")) {
 					scriptfile_gettoken(cfg.get());
 				}
 

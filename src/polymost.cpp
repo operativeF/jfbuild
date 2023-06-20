@@ -77,6 +77,8 @@ Low priority:
 #include "engine_priv.hpp"
 #include "polymost_priv.hpp"
 #include "polymost_fs_vs_aux.hpp"
+#include "string_utils.hpp"
+
 #if USE_OPENGL
 # include "glbuild_fs_vs.hpp"
 # include "hightile_priv.hpp"
@@ -5284,7 +5286,7 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 	if (ec != std::errc()) {
 		// string
 		for (m = 0; m < numglfiltermodes; m++) {
-			if (!Bstrcasecmp(parm->parms[0], glfiltermodes[m].name)) break;
+			if (IsSameAsNoCase(parm->parms[0], glfiltermodes[m].name)) break;
 		}
 		if (m == numglfiltermodes) m = gltexfiltermode;   // no change
 	}
@@ -5354,22 +5356,22 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 	}
 
 #if USE_OPENGL
-	if (!Bstrcasecmp(parm->name, "usemodels")) {
+	if (IsSameAsNoCase(parm->name, "usemodels")) {
 		if (showval) { buildprintf("usemodels is {}\n", usemodels); }
 		else usemodels = (val != 0);
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "usehightile")) {
+	else if (IsSameAsNoCase(parm->name, "usehightile")) {
 		if (showval) { buildprintf("usehightile is {}\n", usehightile); }
 		else usehightile = (val != 0);
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "glusetexcompr")) {
+	else if (IsSameAsNoCase(parm->name, "glusetexcompr")) {
 		if (showval) { buildprintf("glusetexcompr is {}\n", glusetexcompr); }
 		else glusetexcompr = (val != 0);
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "gltexcomprquality")) {
+	else if (IsSameAsNoCase(parm->name, "gltexcomprquality")) {
 		if (showval) { buildprintf("gltexcomprquality is {}\n", gltexcomprquality); }
 		else {
 			if (val < 0 || val > 2) val = 0;
@@ -5377,37 +5379,37 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 		}
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "glredbluemode")) {
+	else if (IsSameAsNoCase(parm->name, "glredbluemode")) {
 		if (showval) { buildprintf("glredbluemode is {}\n", glredbluemode); }
 		else glredbluemode = (val != 0);
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "gltexturemaxsize")) {
+	else if (IsSameAsNoCase(parm->name, "gltexturemaxsize")) {
 		if (showval) { buildprintf("gltexturemaxsize is {}\n", gltexmaxsize); }
 		else gltexmaxsize = val;
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "gltexturemiplevel")) {
+	else if (IsSameAsNoCase(parm->name, "gltexturemiplevel")) {
 		if (showval) { buildprintf("gltexturemiplevel is {}\n", gltexmiplevel); }
 		else gltexmiplevel = val;
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "usegoodalpha")) {
+	else if (IsSameAsNoCase(parm->name, "usegoodalpha")) {
 		if (showval) { buildprintf("usegoodalpha is {}\n", usegoodalpha); }
 		else usegoodalpha = (val != 0);
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "glpolygonmode")) {
+	else if (IsSameAsNoCase(parm->name, "glpolygonmode")) {
 		if (showval) { buildprintf("glpolygonmode is {}\n", glpolygonmode); }
 		else glpolygonmode = val;
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "glusetexcache")) {
+	else if (IsSameAsNoCase(parm->name, "glusetexcache")) {
 		if (showval) { buildprintf("glusetexcache is {}\n", glusetexcache); }
 		else glusetexcache = (val != 0);
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "glmultisample")) {
+	else if (IsSameAsNoCase(parm->name, "glmultisample")) {
 		if (showval) {
 			if (!glmultisample) buildprintf("glmultisample is {} (off)\n", glmultisample);
 			else buildprintf("glmultisample is {} ({}x)\n", glmultisample, 1<<glmultisample);
@@ -5415,17 +5417,17 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 		else glmultisample = std::min(2, std::max(0, val));
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "glnvmultisamplehint")) {
+	else if (IsSameAsNoCase(parm->name, "glnvmultisamplehint")) {
 		if (showval) { buildprintf("glnvmultisamplehint is {}\n", glnvmultisamplehint); }
 		else glnvmultisamplehint = (val != 0);
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "glsampleshading")) {
+	else if (IsSameAsNoCase(parm->name, "glsampleshading")) {
 		if (showval) { buildprintf("glsampleshading is {}\n", glsampleshading); }
 		else glsampleshading = (val != 0);
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "polymosttexverbosity")) {
+	else if (IsSameAsNoCase(parm->name, "polymosttexverbosity")) {
 		if (showval) { buildprintf("polymosttexverbosity is {}\n", polymosttexverbosity); }
 		else {
 			if (val < 0 || val > 2) val = 1;
@@ -5435,7 +5437,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 	}
 #endif //USE_OPENGL
 #ifdef DEBUGGINGAIDS
-	if (!Bstrcasecmp(parm->name, "debugshowcallcounts")) {
+	if (IsSameAsNoCase(parm->name, "debugshowcallcounts")) {
 		if (showval) { buildprintf("debugshowcallcounts is {}\n", polymostshowcallcounts); }
 		else polymostshowcallcounts = (val != 0);
 		return OSDCMD_OK;

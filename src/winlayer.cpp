@@ -29,6 +29,7 @@
 #include "pragmas.hpp"
 #include "a.hpp"
 #include "osd.hpp"
+#include "string_utils.hpp"
 
 #include <fmt/core.h>
 
@@ -461,7 +462,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, 
 	char *argp;
 
 	if ((argp = std::getenv("BUILD_LOGSTDOUT")) != nullptr) {
-		if (!Bstrcasecmp(argp, "TRUE")) {
+		if (IsSameAsNoCase(argp, "TRUE")) {
 			std::FILE* fp = std::freopen("stdout.txt", "w", stdout);
 
 			if (!fp) {

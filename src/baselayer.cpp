@@ -9,6 +9,7 @@
 #include "osd.hpp"
 #include "baselayer.hpp"
 #include "baselayer_priv.hpp"
+#include "string_utils.hpp"
 
 #ifdef RENDERTYPEWIN
 #include "winlayer.hpp"
@@ -201,12 +202,12 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 {
 	const bool showval = parm->numparms < 1;
 
-	if (!Bstrcasecmp(parm->name, "screencaptureformat")) {
+	if (IsSameAsNoCase(parm->name, "screencaptureformat")) {
 		constexpr std::array<const char*, 3> fmts = { "TGA", "PCX", "PNG" };
 		if (!showval) {
 			int i;
 			for (i=0; i<3; i++)
-				if (!Bstrcasecmp(parm->parms[0], fmts[i]) || std::atoi(parm->parms[0]) == i) {
+				if (IsSameAsNoCase(parm->parms[0], fmts[i]) || std::atoi(parm->parms[0]) == i) {
 					captureformat = i;
 					break;
 				}
@@ -215,7 +216,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 		buildprintf("screencaptureformat is {}\n", fmts[captureformat]);
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "novoxmips")) {
+	else if (IsSameAsNoCase(parm->name, "novoxmips")) {
 		if (showval) {
 			buildprintf("novoxmips is {}\n", novoxmips);
 		}
@@ -228,7 +229,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 		}
 		return OSDCMD_OK;
 	}
-	else if (!Bstrcasecmp(parm->name, "usevoxels")) {
+	else if (IsSameAsNoCase(parm->name, "usevoxels")) {
 		if (showval) { buildprintf("usevoxels is {}\n", usevoxels); }
 		else {
 			const std::string_view parmv{parm->parms[0]};

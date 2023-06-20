@@ -10,6 +10,7 @@
 #include "build.hpp"
 #include "cache1d.hpp"
 #include "pragmas.hpp"
+#include "string_utils.hpp"
 
 #include <algorithm>
 #include <array>
@@ -877,7 +878,7 @@ static int klistaddentry(CACHE1D_FIND_REC **rec, const std::string& name, int ty
 			else
 				insensitive = 0;
 #endif
-			if (insensitive) v = Bstrcasecmp(name.c_str(), attach->name);
+			if (insensitive) v = CmpNoCase(name, attach->name);
 			else v = std::strcmp(name.c_str(), attach->name);
 			
 			// sorted list
