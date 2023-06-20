@@ -14,7 +14,7 @@ inline int _buildargc{0};
 inline const char **_buildargv{nullptr};
 
 inline char quitevent{0};
-inline char appactive{1};
+inline bool appactive{true};
 
 enum {
     STARTWIN_CANCEL = 0,

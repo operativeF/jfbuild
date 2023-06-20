@@ -65,7 +65,7 @@ static int nytoofar;
 static std::array<unsigned int, 65536> distrecip;
 
 static int* lookups{nullptr};
-int beforedrawrooms{1};
+bool beforedrawrooms{true};
 
 static int oxdimen{-1};
 static int oviewingrange{-1};
@@ -3302,7 +3302,9 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	}
 	if (k >= MAXVOXMIPS) i = MAXVOXMIPS-1;
 
-	if (novoxmips) i = 0;
+	if (novoxmips)
+		i = 0;
+
 	davoxptr = (unsigned char *)voxoff[daindex][i];
 	if (!davoxptr && i > 0) { davoxptr = (unsigned char *)voxoff[daindex][0]; i = 0; }
 	if (!davoxptr) return;
@@ -3573,7 +3575,7 @@ static void drawsprite(int snum)
 	if ((cstat & 48) == 48) {
 		vtilenum = tilenum;	// if the game wants voxels, it gets voxels
 	}
-	else if ((cstat&48)!=48 && (usevoxels) && (tiletovox[tilenum] != -1)
+	else if ((cstat&48)!=48 && usevoxels && (tiletovox[tilenum] != -1)
 #if USE_POLYMOST && USE_OPENGL
 		 && (!(spriteext[tspr->owner].flags&SPREXT_NOTMD))
 #endif
@@ -6334,9 +6336,10 @@ int preinitengine()
 
 	if (std::getenv("BUILD_NOP6")) {
 		buildprintf("Disabling P6 optimizations.\n");
-		dommxoverlay = 0;
+		dommxoverlay = false;
 	}
-	if (dommxoverlay) mmxoverlay();
+	if (dommxoverlay)
+		mmxoverlay();
 #endif
 
 	getvalidmodes();
@@ -6542,7 +6545,7 @@ void drawrooms(int daposx, int daposy, int daposz,
 	if (smostwallcnt > MAXWALLSB) debugprintf("damage report: smostwallcnt {} exceeded {}\n", smostwallcnt, MAXWALLSB);
 #endif
 
-	beforedrawrooms = 0;
+	beforedrawrooms = false;
 
 	globalposx = daposx; globalposy = daposy; globalposz = daposz;
 	globalang = (daang&2047);
@@ -6928,7 +6931,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 	int npoints;
 	int daslope;
 
-	beforedrawrooms = 0;
+	beforedrawrooms = false;
 
 	clearbuf(&gotsector[0],(int)((numsectors+31)>>5),0L);
 
@@ -8970,7 +8973,7 @@ void nextpage()
 		omdtims = mdtims;
 #endif
 
-	beforedrawrooms = 1;
+	beforedrawrooms = true;
 	numframes++;
 }
 
@@ -11458,7 +11461,7 @@ void rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dash
 		return;
 	}
 
-	if (((dastat&128) == 0) || (numpages < 2) || (beforedrawrooms != 0)) {
+	if (((dastat&128) == 0) || (numpages < 2) || beforedrawrooms) {
 		dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,guniqhudid);
 	}
 
@@ -11504,7 +11507,7 @@ void rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dash
 		per->dashade = dashade;
 		per->dapalnum = dapalnum;
 		per->dastat = dastat;
-		per->pagesleft = numpages+((beforedrawrooms&1)<<7);
+		per->pagesleft = numpages + ((beforedrawrooms ? 1 : 0) << 7);
 		per->cx1 = cx1;
 		per->cy1 = cy1;
 		per->cx2 = cx2;

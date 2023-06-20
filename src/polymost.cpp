@@ -1191,7 +1191,9 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 		struct polymostdrawpolycall draw;
 		std::array<polymostvboitem, MINVBOINDEXES> vboitem;
 
-		if (usehightile) ptflags |= PTH_HIGHTILE;
+		if (usehightile)
+			ptflags |= PTH_HIGHTILE;
+		
 		if (method & METH_CLAMPED) ptflags |= PTH_CLAMPED;
 		if (drawingskybox) ptflags |= PTH_SKYBOX;
 
@@ -5172,7 +5174,9 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
 	//buildprintf("precached {} {} type {}\n", dapicnum, dapalnum, datype);
 	unsigned short flags = (datype & 1) ? PTH_CLAMPED : 0;
 
-	if (usehightile) flags |= PTH_HIGHTILE;
+	if (usehightile)
+		flags |= PTH_HIGHTILE;
+	
 	PTMarkPrime(dapicnum, dapalnum, flags);
 
 	if (datype == 0) return;
@@ -5357,13 +5361,21 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 
 #if USE_OPENGL
 	if (IsSameAsNoCase(parm->name, "usemodels")) {
-		if (showval) { buildprintf("usemodels is {}\n", usemodels); }
-		else usemodels = (val != 0);
+		if (showval) {
+			buildprintf("usemodels is {}\n", usemodels);
+		}
+		else
+			usemodels = (val != 0);
+
 		return OSDCMD_OK;
 	}
 	else if (IsSameAsNoCase(parm->name, "usehightile")) {
-		if (showval) { buildprintf("usehightile is {}\n", usehightile); }
-		else usehightile = (val != 0);
+		if (showval) {
+			buildprintf("usehightile is {}\n", usehightile);
+		}
+		else
+			usehightile = (val != 0);
+		
 		return OSDCMD_OK;
 	}
 	else if (IsSameAsNoCase(parm->name, "glusetexcompr")) {

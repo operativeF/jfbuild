@@ -93,7 +93,7 @@ extern short linehighlight;
 extern short highlightcnt;
 short grid{3};
 short gridlock{1};
-short showtags{1};
+bool showtags{true};
 short showspriteextents{0};
 int zoom{768};
 int gettilezoom{1};
@@ -3023,7 +3023,7 @@ void overheadeditor()
 
 		draw2dscreen(posx,posy,ang,zoom,grid);
 
-		if ((showtags == 1) && (zoom >= 768))
+		if (showtags && (zoom >= 768))
 		{
 			for(i=0;i<numsectors;i++)
 			{
@@ -3499,8 +3499,8 @@ void overheadeditor()
 			keystatus[0x14] = 0;
 			if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //Ctrl-T
 			{
-				showtags ^= 1;
-				if (showtags == 0)
+				showtags = !showtags;
+				if (!showtags)
 					printmessage16("Show tags OFF");
 				else
 					printmessage16("Show tags ON");

@@ -135,7 +135,7 @@ static double parsedouble(char *ptr, char **end)
 	else if (*p == '+')
 		p++;
 
-	int beforedecimal{1};
+	bool beforedecimal{true};
 	int expo{0};
 	int exposgn{0};
 
@@ -156,7 +156,7 @@ static double parsedouble(char *ptr, char **end)
 		}
 		else if (*p == '.') {
 			if (beforedecimal)
-				beforedecimal = 0;
+				beforedecimal = false;
 			else
 				break;
 		}

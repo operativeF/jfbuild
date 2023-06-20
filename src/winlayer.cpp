@@ -2336,7 +2336,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 			break;
 
 		case WM_ACTIVATEAPP:
-			appactive = wParam;
+			appactive = static_cast<bool>(wParam);
 			if (backgroundidle)
 				::SetPriorityClass( ::GetCurrentProcess(),
 					appactive ? NORMAL_PRIORITY_CLASS : IDLE_PRIORITY_CLASS );
@@ -2348,8 +2348,10 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 			break;
 
 		case WM_SIZE:
-			if (wParam == SIZE_MAXHIDE || wParam == SIZE_MINIMIZED) appactive = 0;
-			else appactive = 1;
+			if (wParam == SIZE_MAXHIDE || wParam == SIZE_MINIMIZED)
+				appactive = false;
+			else
+				appactive = true;
 //			AcquireInputDevices(appactive);
 			break;
 

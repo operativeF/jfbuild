@@ -362,16 +362,16 @@ inline std::array<palette_t, 256> curpalettefaded{}; // the current palette, adj
 inline palette_t palfadergb{0, 0, 0, 0};
 inline unsigned char palfadedelta{0};
 
-inline int dommxoverlay{1};
-inline int novoxmips{0};
+inline bool dommxoverlay{true};
+inline bool novoxmips{false};
 
 inline std::array<int, MAXTILES> tiletovox{};
-inline int usevoxels{1};
+inline bool usevoxels{true};
 inline std::array<int, MAXVOXELS> voxscale{};
 
 #if USE_POLYMOST && USE_OPENGL
-inline int usemodels{1};
-inline int usehightile{1};
+inline bool usemodels{true};
+inline bool usehightile{true};
 #endif
 
 inline std::string engineerrstr{};
