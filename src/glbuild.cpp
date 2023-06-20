@@ -15,6 +15,7 @@
 #include <cstring>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 
 struct glbuild_funcs glfunc;
@@ -26,44 +27,44 @@ static int osdcmd_vars(const osdfuncparm_t *);
 
 static int osdcmd_glinfo(const osdfuncparm_t *);
 
-static void enumerate_configure(const char *ext) {
-	if (!std::strcmp(ext, "GL_EXT_texture_filter_anisotropic")) {
+static void enumerate_configure(std::string_view ext) {
+	if (ext == "GL_EXT_texture_filter_anisotropic") {
 			// supports anisotropy. get the maximum anisotropy level
 #ifdef GL_EXT_texture_filter_anisotropic
 		glfunc.glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
 #endif
-	} else if (!std::strcmp(ext, "GL_EXT_texture_edge_clamp") ||
-			!std::strcmp(ext, "GL_SGIS_texture_edge_clamp")) {
+	} else if (ext == "GL_EXT_texture_edge_clamp" ||
+			   ext == "GL_SGIS_texture_edge_clamp") {
 			// supports GL_CLAMP_TO_EDGE
 		glinfo.clamptoedge = 1;
-	} else if (!std::strcmp(ext, "GL_EXT_bgra") ||
-			!std::strcmp(ext, "GL_EXT_texture_format_BGRA8888")) {
+	} else if (ext == "GL_EXT_bgra" ||
+			   ext == "GL_EXT_texture_format_BGRA8888") {
 			// support bgra textures
 		glinfo.bgra = 1;
-	} else if (!std::strcmp(ext, "GL_EXT_texture_compression_s3tc")) {
+	} else if (ext == "GL_EXT_texture_compression_s3tc") {
 			// support DXT1 and DXT5 texture compression
 		glinfo.texcomprdxt1 = 1;
 		glinfo.texcomprdxt5 = 1;
-	} else if (!std::strcmp(ext, "GL_EXT_texture_compression_dxt1")) {
+	} else if (ext == "GL_EXT_texture_compression_dxt1") {
 			// support DXT1 texture compression
 		glinfo.texcomprdxt1 = 1;
-	} else if (!std::strcmp(ext, "GL_OES_compressed_ETC1_RGB8_texture")) {
+	} else if (ext == "GL_OES_compressed_ETC1_RGB8_texture") {
 			// support ETC1 texture compression
 		glinfo.texcompretc1 = 1;
-	} else if (!std::strcmp(ext, "GL_ARB_texture_non_power_of_two") ||
-			!std::strcmp(ext, "GL_OES_texture_npot")) {
+	} else if (ext == "GL_ARB_texture_non_power_of_two" ||
+			   ext == "GL_OES_texture_npot") {
 			// support non-power-of-two texture sizes
 		glinfo.texnpot = 1;
-	} else if (!std::strcmp(ext, "GL_ARB_multisample")) {
+	} else if (ext == "GL_ARB_multisample") {
 			// supports multisampling
 		glinfo.multisample = 1;
-	} else if (!std::strcmp(ext, "GL_NV_multisample_filter_hint")) {
+	} else if (ext == "GL_NV_multisample_filter_hint") {
 			// supports nvidia's multisample hint extension
 		glinfo.nvmultisamplehint = 1;
-	} else if (!std::strcmp(ext, "GL_ARB_sample_shading")) {
+	} else if (ext =="GL_ARB_sample_shading") {
 			// supports sample shading extension
 		glinfo.sampleshading = 1;
-	} else if (!strcmp(ext, "GL_ARB_shading_language_100")) {
+	} else if (ext == "GL_ARB_shading_language_100") {
 
 		// Clear the error queue, then query the version string.
 		while (glfunc.glGetError() != GL_NO_ERROR) { }
@@ -78,17 +79,17 @@ static void enumerate_configure(const char *ext) {
 			sscanf(ver, "%d.%d", &glinfo.glslmajver, &glinfo.glslminver);
 		}
 #ifdef GL_KHR_debug
-	} else if (!strcmp(ext, "GL_KHR_debug") && glinfo.debugext < 2) {
+	} else if (ext == "GL_KHR_debug" && glinfo.debugext < 2) {
 		glinfo.debugext = 2;
 #endif
 #ifdef GL_ARB_debug_output
-	} else if (!strcmp(ext, "GL_ARB_debug_output") && glinfo.debugext < 1) {
+	} else if (ext == "GL_ARB_debug_output" && glinfo.debugext < 1) {
 		glinfo.debugext = 1;
 #endif
 	}
 }
 
-static void glbuild_enumerate_exts(void (*callback)(const char *)) {
+static void glbuild_enumerate_exts(void (*callback)(std::string_view)) {
 	char *workstr = nullptr;
 	char *workptr = nullptr;
 	char *nextptr = nullptr;
@@ -925,7 +926,7 @@ static void dumpglinfo()
 #endif
 }
 
-static void indentedputs(const char *ext) {
+static void indentedputs(std::string_view ext) {
 	buildputs(" ");
 	buildputs(ext);
 }
