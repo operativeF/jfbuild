@@ -11,6 +11,7 @@
 #include "osd.hpp"
 #include "cache1d.hpp"
 #include "editor.hpp"
+#include "string_utils.hpp"
 #include "version.hpp"
 
 #include "baselayer.hpp"
@@ -5567,7 +5568,7 @@ void overheadeditor()
 
 					// Find the end of the filename and cut off any .map extension.
 					curs = strrchr(filename, 0);
-					if (curs - filename >= 4 && strcasecmp(curs - 4, ".map") == 0) { curs -= 4; *curs = 0; }
+					if (curs - filename >= 4 && IsSameAsNoCase(curs - 4, ".map")) { curs -= 4; *curs = 0; }
 
 					bflushchars();
 					while (bad == 0)

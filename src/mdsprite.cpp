@@ -14,6 +14,7 @@
 #include "hightile_priv.hpp"
 #include "polymosttex_priv.hpp"
 #include "mdsprite_priv.hpp"
+#include "string_utils.hpp"
 
 #include <algorithm>
 #include <array>
@@ -196,7 +197,7 @@ static int framename2index (mdmodel *vm, const char *nam)
 			for(i=0;i<m->numframes;i++)
 			{
 				fr = (md2frame_t *)&m->frames[i*m->framebytes];
-				if (!std::strcmp(fr->name, nam)) break;
+				if (IsSameAsNoCase(fr->name, nam)) break;
 			}
 			}
 			break;
@@ -204,7 +205,7 @@ static int framename2index (mdmodel *vm, const char *nam)
 			{
 			const auto* m = (md3model *)vm;
 			for(i=0;i<m->numframes;i++)
-				if (!std::strcmp(m->head.frames[i].nam,nam)) break;
+				if (IsSameAsNoCase(m->head.frames[i].nam, nam)) break;
 			}
 			break;
 	}
@@ -2080,15 +2081,15 @@ voxmodel* voxload (const char *filnam)
 	bool is8bit{};
     int ret{};
 
-    if (!strcasecmp(dot,".vox")) {
+    if (IsSameAsNoCase(dot, ".vox")) {
 		ret = loadvox(filnam);
 		is8bit = true;
 	}
-	else if (!strcasecmp(dot,".kvx")) {
+	else if (IsSameAsNoCase(dot, ".kvx")) {
 		ret = loadkvx(filnam);
 		is8bit = true;
 	}
-	else if (!strcasecmp(dot,".kv6")) {
+	else if (IsSameAsNoCase(dot, ".kv6")) {
 		ret = loadkv6(filnam);
 		is8bit = false;
 	}

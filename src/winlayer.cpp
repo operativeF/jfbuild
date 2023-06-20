@@ -1759,24 +1759,24 @@ static void EnumWGLExts(HDC hdc)
 	debugprintf("WGL extensions supported:\n");
 	workstr = workptr = strdup(extstr);
 	while ((ext = Bstrtoken(workptr, " ", &nextptr, 1)) != nullptr) {
-		if (!strcmp(ext, "WGL_ARB_pixel_format")) {
+		if (IsSameAsNoCase(ext, "WGL_ARB_pixel_format")) {
 			wglfunc.wglChoosePixelFormatARB = static_cast<wglChoosePixelFmtARB_t>(getglprocaddress("wglChoosePixelFormatARB", 1));
 			ack = !wglfunc.wglChoosePixelFormatARB ? '!' : '+';
-		} else if (!strcmp(ext, "WGL_ARB_create_context")) {
+		} else if (IsSameAsNoCase(ext, "WGL_ARB_create_context")) {
 			wglfunc.wglCreateContextAttribsARB = static_cast<wglCreateCtxAttribsARB_t>(getglprocaddress("wglCreateContextAttribsARB", 1));
 			ack = !wglfunc.wglCreateContextAttribsARB ? '!' : '+';
-		} else if (!strcmp(ext, "WGL_ARB_create_context_profile")) {
+		} else if (IsSameAsNoCase(ext, "WGL_ARB_create_context_profile")) {
 			wglfunc.have_ARB_create_context_profile = 1;
 			ack = '+';
-		} else if (!strcmp(ext, "WGL_EXT_multisample") || !strcmp(ext, "WGL_ARB_multisample")) {
+		} else if (IsSameAsNoCase(ext, "WGL_EXT_multisample") || IsSameAsNoCase(ext, "WGL_ARB_multisample")) {
 			wglfunc.have_EXT_multisample = 1;
 			ack = '+';
-		} else if (!strcmp(ext, "WGL_EXT_swap_control")) {
+		} else if (IsSameAsNoCase(ext, "WGL_EXT_swap_control")) {
 			wglfunc.have_EXT_swap_control = 1;
 			wglfunc.wglSwapIntervalEXT = static_cast<wglSwapIntervalExt_t>(getglprocaddress("wglSwapIntervalEXT", 1));
 			wglfunc.wglGetSwapIntervalEXT = static_cast<wglGetSwapIntervalExt_t>(getglprocaddress("wglGetSwapIntervalEXT", 1));
 			ack = (!wglfunc.wglSwapIntervalEXT || !wglfunc.wglGetSwapIntervalEXT) ? '!' : '+';
-		} else if (!strcmp(ext, "WGL_EXT_swap_control_tear")) {
+		} else if (IsSameAsNoCase(ext, "WGL_EXT_swap_control_tear")) {
 			wglfunc.have_EXT_swap_control_tear = 1;
 			ack = '+';
 		} else {

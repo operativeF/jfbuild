@@ -948,7 +948,7 @@ static int osdcmd_glinfo(const osdfuncparm_t *parm)
 	if (parm->parms.size() == 0) {
 		dumpglinfo();
 		buildputs("Use \"glinfo exts\" to list extensions.\n");
-	} else if (strcmp(parm->parms[0].c_str(), "exts") == 0) {
+	} else if (parm->parms[0] == "exts") {
 		dumpglexts();
 	}
 	return OSDCMD_OK;

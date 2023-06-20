@@ -198,7 +198,6 @@ struct Bdirent* Breaddir(BDIR *dir);
 int Bclosedir(BDIR *dir);
 
 #if defined(__WATCOMC__)
-# define strcasecmp stricmp
 # define strncasecmp strnicmp
 #endif
 
@@ -223,7 +222,6 @@ int Bclosedir(BDIR *dir);
 # define open      _open
 # define read      _read
 # define stat      _stat
-# define strcasecmp _stricmp
 # define strdup    _strdup
 # define strlwr    _strlwr
 # define strupr    _strupr
