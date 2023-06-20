@@ -385,7 +385,7 @@ static int osdcmd_map(const osdfuncparm_t *parm) {
     strncpy(namebuf, parm->parms[0].c_str(), BMAX_PATH);
     namebuf[BMAX_PATH] = 0;
     dot = strrchr(namebuf, '.');
-    if ((!dot || IsSameAsNoCase(dot, ".map")) && std::strlen(namebuf) <= BMAX_PATH-4) {
+    if ((!dot || !IsSameAsNoCase(dot, ".map")) && std::strlen(namebuf) <= BMAX_PATH-4) {
         std::strcat(namebuf, ".map");
     }
 
