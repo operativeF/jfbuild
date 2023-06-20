@@ -9,9 +9,9 @@
 #include <vector>
 
 struct osdfuncparm_t {
-	const char *name;
+	std::string name;
 	std::vector<std::string> parms;
-	const char *raw;
+	std::string raw;
 };
 
 #define OSDCMD_OK	0
