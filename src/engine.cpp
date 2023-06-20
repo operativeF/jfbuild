@@ -2347,8 +2347,6 @@ static void transmaskvline2(int x)
 //
 static void transmaskwallscan(int x1, int x2)
 {
-	int x;
-
 	setgotpic(globalpicnum);
 	if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) return;
 
@@ -2356,7 +2354,7 @@ static void transmaskwallscan(int x1, int x2)
 
 	setuptvlineasm(globalshiftval);
 
-	x = x1;
+	int x{x1};
 	while ((startumost[x+windowx1] > startdmost[x+windowx1]) && (x <= x2)) x++;
 #ifndef USING_A_C
 	if ((x <= x2) && (x&1)) transmaskvline(x), x++;
@@ -2372,30 +2370,29 @@ static void transmaskwallscan(int x1, int x2)
 //
 static void ceilspritehline(int x2, int y)
 {
-	int x1;
-	int v;
-	int bx;
-	int by;
-
 	//x = x1 + (x2-x1)t + (y1-y2)u  ~  x = 160v
 	//y = y1 + (y2-y1)t + (x2-x1)u  ~  y = (scrx-160)v
 	//z = z1 = z2                   ~  z = posz + (scry-horiz)v
 
-	x1 = lastx[y]; if (x2 < x1) return;
+	const int x1 = lastx[y];
+	
+	if (x2 < x1)
+		return;
 
-	v = mulscalen<20>(globalzd,horizlookup[y-globalhoriz+horizycent]);
-	bx = mulscalen<14>(globalx2*x1+globalx1,v) + globalxpanning;
-	by = mulscalen<14>(globaly2*x1+globaly1,v) + globalypanning;
+	const int v = mulscalen<20>(globalzd, horizlookup[y - globalhoriz + horizycent]);
+	const int bx = mulscalen<14>(globalx2 * x1 + globalx1, v) + globalxpanning;
+	const int by = mulscalen<14>(globaly2 * x1 + globaly1, v) + globalypanning;
+
 	asm1 = mulscalen<14>(globalx2,v);
 	asm2 = mulscalen<14>(globaly2,v);
 
-	asm3 = (intptr_t)palookup[globalpal] + (getpalookup((int)mulscalen<28>(std::abs(v),globvis),globalshade)<<8);
+	asm3 = (intptr_t)palookup[globalpal] + (getpalookup((int)mulscalen<28>(std::abs(v), globvis), globalshade) << 8);
 
 	if ((globalorientation&2) == 0)
-		mhline((void *)globalbufplc,bx,(x2-x1)<<16,0L,by,(void *)(ylookup[y]+x1+frameoffset));
+		mhline((void *)globalbufplc, bx, (x2 - x1) << 16, 0L, by, (void *)(ylookup[y] + x1 + frameoffset));
 	else
 	{
-		thline((void *)globalbufplc,bx,(x2-x1)<<16,0L,by,(void *)(ylookup[y]+x1+frameoffset));
+		thline((void *)globalbufplc, bx, (x2 - x1) << 16, 0L, by, (void *)(ylookup[y] + x1 + frameoffset));
 	}
 }
 
@@ -2460,33 +2457,10 @@ static void ceilspritescan(int x1, int x2)
 constexpr auto BITSOFPRECISION{3};  //Don't forget to change this in A.ASM also!
 static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 {
-	int i;
-	int j;
-	int l;
-	int x;
-	int y;
-	int dx;
-	int dy;
-	int wx;
-	int wy;
-	int y1;
-	int y2;
-	int daz;
-	int daslope;
-	int dasqr;
-	int shoffs;
-	int shinc;
-	int m1;
-	int m2;
-	intptr_t *mptr1;
-	intptr_t *mptr2;
-	intptr_t *nptr1;
-	intptr_t *nptr2;
-	walltype *wal;
-	sectortype *sec;
+	auto* sec = &sector[sectnum];
 
-	sec = &sector[sectnum];
-
+	int daslope{0};
+	int daz{0};
 	if (dastat == 0)
 	{
 		if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy))
@@ -2516,12 +2490,13 @@ static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 	if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) return;
 	if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
-	wal = &wall[sec->wallptr];
-	wx = wall[wal->point2].x - wal->x;
-	wy = wall[wal->point2].y - wal->y;
-	dasqr = krecipasm(nsqrtasm(wx*wx+wy*wy));
-	i = mulscalen<21>(daslope,dasqr);
-	wx *= i; wy *= i;
+	auto* wal = &wall[sec->wallptr];
+	int wx = wall[wal->point2].x - wal->x;
+	int wy = wall[wal->point2].y - wal->y;
+	const int dasqr = krecipasm(nsqrtasm(wx*wx+wy*wy));
+	int i = mulscalen<21>(daslope, dasqr);
+	wx *= i;
+	wy *= i;
 
 	globalx = -mulscalen<19>(singlobalang,xdimenrecip);
 	globaly = mulscalen<19>(cosglobalang,xdimenrecip);
@@ -2536,12 +2511,14 @@ static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 
 	if (globalorientation&64)  //Relative alignment
 	{
-		dx = mulscalen<14>(wall[wal->point2].x-wal->x,dasqr);
-		dy = mulscalen<14>(wall[wal->point2].y-wal->y,dasqr);
+		const int dx = mulscalen<14>(wall[wal->point2].x-wal->x, dasqr);
+		const int dy = mulscalen<14>(wall[wal->point2].y-wal->y, dasqr);
 
 		i = nsqrtasm(daslope*daslope+16777216);
 
-		x = globalx; y = globaly;
+		int x{globalx};
+		int y{globaly};
+
 		globalx = dmulscalen<16>(x,dx,y,dy);
 		globaly = mulscalen<12>(dmulscalen<16>(-y,dx,x,dy),i);
 
@@ -2553,93 +2530,141 @@ static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		globalx2 = dmulscalen<16>(x,dx,y,dy);
 		globaly2 = mulscalen<12>(dmulscalen<16>(-y,dx,x,dy),i);
 	}
+
 	if (globalorientation&0x4)
 	{
 		i = globalx; globalx = -globaly; globaly = -i;
 		i = globalx1; globalx1 = globaly1; globaly1 = i;
 		i = globalx2; globalx2 = -globaly2; globaly2 = -i;
 	}
-	if (globalorientation&0x10) { globalx1 = -globalx1, globalx2 = -globalx2, globalx = -globalx; }
-	if (globalorientation&0x20) { globaly1 = -globaly1, globaly2 = -globaly2, globaly = -globaly; }
+
+	if (globalorientation & 0x10) {
+		globalx1 = -globalx1;
+		globalx2 = -globalx2;
+		globalx = -globalx;
+	}
+
+	if (globalorientation & 0x20) {
+		globaly1 = -globaly1;
+		globaly2 = -globaly2;
+		globaly = -globaly;
+	}
 
 	daz = dmulscalen<9>(wx,globalposy-wal->y,-wy,globalposx-wal->x) + ((daz-globalposz)<<8);
 	globalx2 = mulscalen<20>(globalx2,daz); globalx = mulscalen<28>(globalx,daz);
 	globaly2 = mulscalen<20>(globaly2,-daz); globaly = mulscalen<28>(globaly,-daz);
 
-	i = 8-(picsiz[globalpicnum]&15); j = 8-(picsiz[globalpicnum]>>4);
-	if (globalorientation&8) { i++; j++; }
-	globalx1 <<= (i+12); globalx2 <<= i; globalx <<= i;
-	globaly1 <<= (j+12); globaly2 <<= j; globaly <<= j;
+	i = 8 - (picsiz[globalpicnum] & 15);
+	int j = 8 - (picsiz[globalpicnum] >> 4);
+	
+	if (globalorientation & 8) {
+		++i;
+		++j;
+	}
+
+	globalx1 <<= (i + 12);
+	globalx2 <<= i;
+	globalx <<= i;
+	globaly1 <<= (j + 12);
+	globaly2 <<= j;
+	globaly <<= j;
 
 	if (dastat == 0)
 	{
-		globalx1 += (((int)sec->ceilingxpanning)<<24);
-		globaly1 += (((int)sec->ceilingypanning)<<24);
+		globalx1 += (((int)sec->ceilingxpanning) << 24);
+		globaly1 += (((int)sec->ceilingypanning) << 24);
 	}
 	else
 	{
-		globalx1 += (((int)sec->floorxpanning)<<24);
-		globaly1 += (((int)sec->floorypanning)<<24);
+		globalx1 += (((int)sec->floorxpanning) << 24);
+		globaly1 += (((int)sec->floorypanning) << 24);
 	}
 
 	asm1 = -(globalzd>>(16-BITSOFPRECISION));
 
 	globvis = globalvisibility;
-	if (sec->visibility != 0) globvis = mulscalen<4>(globvis,(int)((unsigned char)(sec->visibility+16)));
+
+	if (sec->visibility != 0)
+		globvis = mulscalen<4>(globvis,(int)((unsigned char)(sec->visibility+16)));
+
 	globvis = mulscalen<13>(globvis,daz);
 	globvis = mulscalen<16>(globvis,xdimscale);
 
 	setupslopevlin(((int)(picsiz[globalpicnum]&15))+(((int)(picsiz[globalpicnum]>>4))<<8),(void *)waloff[globalpicnum],-ylookup[1]);
 
-	l = (globalzd>>16);
+	const int l = (globalzd >> 16);
 
 	assert(SLOPALOOKUPSIZ - 4 - ydimen > 0);
 
-	shinc = mulscalen<16>(globalz,xdimenscale);
-	if (shinc > 0) shoffs = (4<<15); else shoffs = ((SLOPALOOKUPSIZ-4-ydimen)<<15);
-	if (dastat == 0) y1 = umost[dax1]; else y1 = std::max(umost[dax1], dplc[dax1]);
-	m1 = mulscalen<16>(y1,globalzd) + (globalzx>>6);
+	const int shinc = mulscalen<16>(globalz, xdimenscale);
+	int shoffs{0};
+	if (shinc > 0)
+		shoffs = (4 << 15);
+	else
+		shoffs = ((SLOPALOOKUPSIZ-4-ydimen)<<15);
+
+	int y1{0};
+
+	if (dastat == 0)
+		y1 = umost[dax1];
+	else
+		y1 = std::max(umost[dax1], dplc[dax1]);
+	
+	int m1 = mulscalen<16>(y1,globalzd) + (globalzx>>6);
 		//Avoid visibility overflow by crossing horizon
-	if (globalzd > 0) m1 += (globalzd>>16); else m1 -= (globalzd>>16);
-	m2 = m1+l;
-	mptr1 = &slopalookup[y1+(shoffs>>15)]; mptr2 = mptr1+1;
+	if (globalzd > 0)
+		m1 += (globalzd >> 16);
+	else
+		m1 -= (globalzd >> 16);
 
-	assert(y1+(shoffs>>15) >= 0);
-	assert(y1+(shoffs>>15) <= SLOPALOOKUPSIZ-2);
+	int m2 = m1 + l;
+	intptr_t* mptr1 = &slopalookup[y1 + (shoffs >> 15)];
+	intptr_t* mptr2 = mptr1 + 1;
 
-	for(x=dax1;x<=dax2;x++)
+	assert(y1 + (shoffs >> 15) >= 0);
+	assert(y1 + (shoffs >> 15) <= SLOPALOOKUPSIZ-2);
+
+	for(int x{dax1}; x <= dax2; ++x)
 	{
+		int y2{0};
+
 		if (dastat == 0) {
 			y1 = umost[x];
 			y2 = std::min(dmost[x], uplc[x]) - 1;
 		}
-		else { y1 = std::max(umost[x], dplc[x]); y2 = dmost[x]-1; }
+		else {
+			y1 = std::max(umost[x], dplc[x]);
+			y2 = dmost[x]-1;
+		}
+		
 		if (y1 <= y2)
 		{
-			assert(y1+(shoffs>>15) >= 0);
-			assert(y1+(shoffs>>15) <= SLOPALOOKUPSIZ-1);
-			assert(y2+(shoffs>>15) >= 0);
-			assert(y2+(shoffs>>15) <= SLOPALOOKUPSIZ-1);
+			assert(y1 + (shoffs >> 15) >= 0);
+			assert(y1 + (shoffs >> 15) <= SLOPALOOKUPSIZ - 1);
+			assert(y2 + (shoffs >> 15) >= 0);
+			assert(y2 + (shoffs >> 15) <= SLOPALOOKUPSIZ - 1);
 
-			nptr1 = &slopalookup[y1+(shoffs>>15)];
-			nptr2 = &slopalookup[y2+(shoffs>>15)];
+			intptr_t* nptr1 = &slopalookup[y1 + (shoffs >> 15)];
+			intptr_t* nptr2 = &slopalookup[y2 + (shoffs >> 15)];
+			
 			while (nptr1 <= mptr1)
 			{
 				*mptr1-- = (intptr_t)palookup[globalpal] + (getpalookup((int)mulscalen<24>(krecipasm(m1),globvis),globalshade)<<8);
 				m1 -= l;
 			}
+			
 			while (nptr2 >= mptr2)
 			{
 				*mptr2++ = (intptr_t)palookup[globalpal] + (getpalookup((int)mulscalen<24>(krecipasm(m2),globvis),globalshade)<<8);
 				m2 += l;
 			}
 
-			globalx3 = (globalx2>>10);
-			globaly3 = (globaly2>>10);
-			asm3 = mulscalen<16>(y2,globalzd) + (globalzx>>6);
-			slopevlin((void *)(ylookup[y2]+x+frameoffset),krecipasm((int)asm3>>3),nptr2,y2-y1+1,globalx1,globaly1);
+			globalx3 = (globalx2 >> 10);
+			globaly3 = (globaly2 >> 10);
+			asm3 = mulscalen<16>(y2, globalzd) + (globalzx >> 6);
+			slopevlin((void *)(ylookup[y2] + x + frameoffset), krecipasm((int)asm3 >> 3), nptr2, y2 - y1 + 1, globalx1, globaly1);
 
-			if ((x&15) == 0) faketimerhandler();
+			if ((x & 15) == 0) faketimerhandler();
 		}
 		globalx2 += globalx;
 		globaly2 += globaly;
@@ -2654,31 +2679,24 @@ static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 //
 static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int bunch)
 {
-	sectortype *sec;
-	int j;
-	int k;
-	int l;
-	int m;
-	int n;
-	int x;
-	int z;
-	int wallnum;
-	int nextsectnum;
-	int globalhorizbak;
-	std::span<short> topptr;
-	std::span<short> botptr;
-
 	std::ignore = dax1;
 	std::ignore = dax2;
 
-	sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
+	sectnum = thesector[bunchfirst[bunch]];
+	auto* sec = &sector[sectnum];
 
-	globalhorizbak = globalhoriz;
+	const int globalhorizbak{globalhoriz};
+
 	if (parallaxyscale != 65536)
-		globalhoriz = mulscalen<16>(globalhoriz-(ydimen>>1),parallaxyscale) + (ydimen>>1);
+		globalhoriz = mulscalen<16>(globalhoriz - (ydimen >> 1), parallaxyscale) + (ydimen >> 1);
+
 	globvis = globalpisibility;
 	//globalorientation = 0L;
-	if (sec->visibility != 0) globvis = mulscalen<4>(globvis,(int)((unsigned char)(sec->visibility+16)));
+	if (sec->visibility != 0)
+		globvis = mulscalen<4>(globvis, (int)((unsigned char)(sec->visibility + 16)));
+
+	std::span<short> topptr{};
+	std::span<short> botptr{};
 
 	if (dastat == 0)
 	{
@@ -2701,25 +2719,37 @@ static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int 
 		botptr = dmost;
 	}
 
-	if (palookup[globalpal] == nullptr) globalpal = 0;
-	if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-	if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,(short)sectnum);
-	globalshiftval = (picsiz[globalpicnum]>>4);
-	if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
-	globalshiftval = 32-globalshiftval;
-	globalzd = (((tilesizy[globalpicnum]>>1)+parallaxyoffs)<<globalshiftval)+(globalypanning<<24);
-	globalyscale = (8<<(globalshiftval-19));
+	if (palookup[globalpal] == nullptr)
+		globalpal = 0;
+
+	if ((unsigned)globalpicnum >= (unsigned)MAXTILES)
+		globalpicnum = 0;
+
+	if (picanm[globalpicnum] & 192)
+		globalpicnum += animateoffs(globalpicnum, (short)sectnum);
+
+	globalshiftval = (picsiz[globalpicnum] >> 4);
+
+	if (pow2long[globalshiftval] != tilesizy[globalpicnum])
+		++globalshiftval;
+
+	globalshiftval = 32 - globalshiftval;
+	globalzd = (((tilesizy[globalpicnum] >> 1) + parallaxyoffs) << globalshiftval) + (globalypanning << 24);
+	globalyscale = (8 << (globalshiftval - 19));
 	//if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
 
-	k = 11 - (picsiz[globalpicnum]&15) - pskybits;
-	x = -1;
-
-	for(z=bunchfirst[bunch];z>=0;z=p2[z])
+	const int k = 11 - (picsiz[globalpicnum] & 15) - pskybits;
+	int x{-1};
+	for(int z = bunchfirst[bunch]; z >= 0; z = p2[z])
 	{
-		wallnum = thewall[z]; nextsectnum = wall[wallnum].nextsector;
+		const int wallnum = thewall[z];
+		const int nextsectnum = wall[wallnum].nextsector;
 
-		if (dastat == 0) j = sector[nextsectnum].ceilingstat;
-						else j = sector[nextsectnum].floorstat;
+		int j{0};
+		if (dastat == 0)
+			j = sector[nextsectnum].ceilingstat;
+		else
+			j = sector[nextsectnum].floorstat;
 
 		if ((nextsectnum < 0) || (wall[wallnum].cstat&32) || ((j&1) == 0))
 		{
@@ -2727,47 +2757,52 @@ static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int 
 
 			if (parallaxtype == 0)
 			{
-				n = mulscalen<16>(xdimenrecip,viewingrange);
-				for(j=xb1[z];j<=xb2[z];j++)
-					lplc[j] = (((mulscalen<23>(j-halfxdimen,n)+globalang)&2047)>>k);
+				const int n = mulscalen<16>(xdimenrecip,viewingrange);
+				for(int h = xb1[z]; h <= xb2[z]; ++h) {
+					lplc[h] = (((mulscalen<23>(h - halfxdimen, n) + globalang) & 2047) >> k);
+				}
 			}
 			else
 			{
-				for(j=xb1[z];j<=xb2[z];j++)
-					lplc[j] = (((static_cast<int>(radarang2[j]) + globalang)&2047)>>k);
+				for(int h = xb1[z]; h <= xb2[z]; ++h) {
+					lplc[h] = (((static_cast<int>(radarang2[h]) + globalang) & 2047) >> k);
+				}
 			}
+
 			if (parallaxtype == 2)
 			{
-				n = mulscalen<16>(xdimscale,viewingrange);
-				for(j=xb1[z];j<=xb2[z];j++)
-					swplc[j] = mulscalen<14>(sintable[(static_cast<int>(radarang2[j]) + 512) & 2047] ,n);
+				const int n = mulscalen<16>(xdimscale,viewingrange);
+				for(int h = xb1[z]; h <= xb2[z]; ++h) {
+					swplc[h] = mulscalen<14>(sintable[(static_cast<int>(radarang2[h]) + 512) & 2047] ,n);
+				}
 			}
 			else
 				clearbuf(&swplc[xb1[z]],xb2[z]-xb1[z]+1,mulscalen<16>(xdimscale,viewingrange));
 		}
 		else if (x >= 0)
 		{
-			l = globalpicnum; m = (picsiz[globalpicnum]&15);
-			globalpicnum = l+pskyoff[lplc[x]>>m];
+			const int l{globalpicnum};
+			const int m = (picsiz[globalpicnum] & 15);
+			globalpicnum = l+pskyoff[lplc[x] >> m];
 
-			if (((lplc[x]^lplc[xb1[z]-1])>>m) == 0)
+			if (((lplc[x]^lplc[xb1[z]-1]) >> m) == 0)
 				wallscan(x, xb1[z] - 1, topptr, botptr, swplc, lplc);
 			else
 			{
-				j = x;
+				int j{x};
 				while (x < xb1[z])
 				{
-					n = l+pskyoff[lplc[x]>>m];
+					const int n = l+pskyoff[lplc[x] >> m];
 					if (n != globalpicnum)
 					{
-						wallscan(j,x-1,topptr,botptr,swplc,lplc);
+						wallscan(j, x - 1, topptr, botptr, swplc, lplc);
 						j = x;
 						globalpicnum = n;
 					}
 					x++;
 				}
 				if (j < x)
-					wallscan(j,x-1,topptr,botptr,swplc,lplc);
+					wallscan(j, x - 1, topptr, botptr, swplc, lplc);
 			}
 
 			globalpicnum = l;
@@ -2777,30 +2812,34 @@ static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int 
 
 	if (x >= 0)
 	{
-		l = globalpicnum; m = (picsiz[globalpicnum]&15);
-		globalpicnum = l+pskyoff[lplc[x]>>m];
+		const int l = globalpicnum;
+		const int m = (picsiz[globalpicnum] & 15);
+		globalpicnum = l + pskyoff[lplc[x] >> m];
 
-		if (((lplc[x]^lplc[xb2[bunchlast[bunch]]])>>m) == 0)
+		if (((lplc[x]^lplc[xb2[bunchlast[bunch]]]) >> m) == 0)
 			wallscan(x,xb2[bunchlast[bunch]],topptr,botptr,swplc,lplc);
 		else
 		{
-			j = x;
+			int j{x};
 			while (x <= xb2[bunchlast[bunch]])
 			{
-				n = l+pskyoff[lplc[x]>>m];
+				const int n = l + pskyoff[lplc[x] >> m];
 				if (n != globalpicnum)
 				{
 					wallscan(j,x-1,topptr,botptr,swplc,lplc);
 					j = x;
 					globalpicnum = n;
 				}
-				x++;
+
+				++x;
 			}
+
 			if (j <= x)
-				wallscan(j,x,topptr,botptr,swplc,lplc);
+				wallscan(j, x, topptr, botptr, swplc, lplc);
 		}
 		globalpicnum = l;
 	}
+
 	globalhoriz = globalhorizbak;
 }
 
@@ -5033,29 +5072,14 @@ static int clippoly4(int cx1, int cy1, int cx2, int cy2)
 static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade,
 	unsigned char dapalnum, unsigned char dastat, int cx1, int cy1, int cx2, int cy2, int uniqid)
 {
-	int dax1;
-	int oy;
-	int bx;
-	int by;
 	int x;
 	int y;
 	int x1;
 	int y1;
 	int x2;
 	int y2;
-	int gx1;
-	int gy1;
-	int iv;
 	intptr_t i;
 	intptr_t p;
-	intptr_t bufplc;
-	intptr_t palookupoffs;
-	int yplc;
-	int yinc;
-	int lx;
-	int rx;
-	int xv2;
-	int yv2;
 
 	//============================================================================= //POLYMOST BEGINS
 #if USE_POLYMOST
@@ -5128,6 +5152,10 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 
 	int xv = mulscalen<14>(cosang,z);
 	int yv = mulscalen<14>(sinang,z);
+	
+	int xv2{0};
+	int yv2{0};
+
 	if (((dastat & 2) != 0) || ((dastat & 8) == 0)) //Don't aspect unscaled perms
 	{
 		xv2 = mulscalen<16>(xv, xyaspect);
@@ -5168,15 +5196,15 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 	if ((nrx1[0]>i) && (nrx1[1]>i) && (nrx1[2]>i) && (nrx1[3]>i))
 		return;
 
-	gx1 = nrx1[0];
-	gy1 = nry1[0];   //back up these before clipping
+	const int gx1 = nrx1[0];
+	const int gy1 = nry1[0];   //back up these before clipping
 	
 	int npoints{0};
 	if ((npoints = clippoly4(cx1<<16,cy1<<16,(cx2+1)<<16,(cy2+1)<<16)) < 3)
 		return;
 
-	lx = nrx1[0];
-	rx = nrx1[0];
+	int lx = nrx1[0];
+	int rx = nrx1[0];
 
 	for(int nextv{0}, v = npoints - 1; v >= 0; --v)
 	{
@@ -5195,16 +5223,16 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 		{
 			y1 = nry1[v];
 			y2 = nry1[nextv];
-			yinc = divscalen<16>(y2 - y1, x2 - x1);
+			const int yinc = divscalen<16>(y2 - y1, x2 - x1);
 
 			if (dax2 > dax1)
 			{
-				yplc = y1 + mulscalen<16>((dax1<<16)+65535-x1,yinc);
+				const int yplc = y1 + mulscalen<16>((dax1<<16)+65535-x1,yinc);
 				qinterpolatedown16short(&uplc[dax1],dax2-dax1,yplc,yinc);
 			}
 			else
 			{
-				yplc = y2 + mulscalen<16>((dax2<<16)+65535-x2,yinc);
+				const int yplc = y2 + mulscalen<16>((dax2<<16)+65535-x2,yinc);
 				qinterpolatedown16short(&dplc[dax2],dax1-dax2,yplc,yinc);
 			}
 		}
@@ -5214,13 +5242,13 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 
 	if (waloff[picnum] == 0) loadtile(picnum);
 	setgotpic(picnum);
-	bufplc = waloff[picnum];
+	intptr_t bufplc = waloff[picnum];
 
-	palookupoffs = (intptr_t)palookup[dapalnum] + (getpalookup(0L,(int)dashade)<<8);
+	auto palookupoffs = (intptr_t) palookup[dapalnum] + (getpalookup(0L, (int)dashade) << 8);
 
-	iv = divscalen<32>(1L,z);
-	xv = mulscalen<14>(sinang,iv);
-	yv = mulscalen<14>(cosang,iv);
+	const int iv = divscalen<32>(1L,z);
+	xv = mulscalen<14>(sinang, iv);
+	yv = mulscalen<14>(cosang, iv);
 	if (((dastat&2) != 0) || ((dastat&8) == 0)) //Don't aspect unscaled perms
 	{
 		yv2 = mulscalen<16>(-xv,yxaspect);
@@ -5234,14 +5262,28 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 
 	x1 = (lx>>16); x2 = (rx>>16);
 
-	oy = 0;
-	x = (x1<<16)-1-gx1; y = (oy<<16)+65535-gy1;
-	bx = dmulscalen<16>(x,xv2,y,xv);
-	by = dmulscalen<16>(x,yv2,y,yv);
-	if (dastat&4) { yv = -yv; yv2 = -yv2; by = (ysiz<<16)-1-by; }
+	int oy{0};
+	x = (x1 << 16) - 1 - gx1;
+	y = (oy << 16) + 65535 - gy1;
+	int bx = dmulscalen<16>(x,xv2,y,xv);
+	int by = dmulscalen<16>(x,yv2,y,yv);
+	
+	if (dastat&4) {
+		yv = -yv;
+		yv2 = -yv2;
+		by = (ysiz << 16) - 1 - by;
+	}
 
 #ifndef USING_A_C
-	int ny1, ny2, xx, xend, qlinemode=0, y1ve[4], y2ve[4], u4, d4;
+	int ny1;
+	int ny2;
+	int xx;
+	int xend;
+	int qlinemode{0};
+	int y1ve[4];
+	int y2ve[4];
+	int u4;
+	int d4;
 	char bad;
 
 	if ((dastat&1) == 0)
@@ -5262,36 +5304,44 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 				{
 					bx += xv2;
 
-					y1 = uplc[x+xx]; y2 = dplc[x+xx];
-					if ((dastat&8) == 0)
+					y1 = uplc[x + xx];
+					y2 = dplc[x + xx];
+
+					if ((dastat & 8) == 0)
 					{
-						if (startumost[x+xx] > y1) y1 = startumost[x+xx];
-						if (startdmost[x+xx] < y2) y2 = startdmost[x+xx];
+						if (startumost[x + xx] > y1)
+							y1 = startumost[x + xx];
+						
+						if (startdmost[x + xx] < y2)
+							y2 = startdmost[x + xx];
 					}
-					if (y2 <= y1) continue;
 
-					by += yv*(y1-oy); oy = y1;
+					if (y2 <= y1)
+						continue;
 
-					bufplce[xx] = (bx>>16)*ysiz+bufplc;
+					by += yv * (y1 - oy);
+					oy = y1;
+
+					bufplce[xx] = (bx >> 16) * ysiz + bufplc;
 					vplce[xx] = by;
 					y1ve[xx] = y1;
-					y2ve[xx] = y2-1;
+					y2ve[xx] = y2 - 1;
 					bad &= ~pow2char[xx];
 				}
 
-				p = x+frameplace;
+				p = x + frameplace;
 
 				u4 = std::max(std::max(y1ve[0], y1ve[1]), std::max(y1ve[2], y1ve[3]));
 				d4 = std::min(std::min(y2ve[0], y2ve[1]), std::min(y2ve[2], y2ve[3]));
 
-				if (dastat&64)
+				if (dastat & 64)
 				{
 					if ((bad != 0) || (u4 >= d4))
 					{
-						if (!(bad&1)) prevlineasm1(vince[0],(void *)palookupoffse[0],y2ve[0]-y1ve[0],vplce[0],(void *)bufplce[0],(void *)(ylookup[y1ve[0]]+p+0));
-						if (!(bad&2)) prevlineasm1(vince[1],(void *)palookupoffse[1],y2ve[1]-y1ve[1],vplce[1],(void *)bufplce[1],(void *)(ylookup[y1ve[1]]+p+1));
-						if (!(bad&4)) prevlineasm1(vince[2],(void *)palookupoffse[2],y2ve[2]-y1ve[2],vplce[2],(void *)bufplce[2],(void *)(ylookup[y1ve[2]]+p+2));
-						if (!(bad&8)) prevlineasm1(vince[3],(void *)palookupoffse[3],y2ve[3]-y1ve[3],vplce[3],(void *)bufplce[3],(void *)(ylookup[y1ve[3]]+p+3));
+						if (!(bad & 1)) prevlineasm1(vince[0],(void *)palookupoffse[0],y2ve[0]-y1ve[0],vplce[0],(void *)bufplce[0],(void *)(ylookup[y1ve[0]]+p+0));
+						if (!(bad & 2)) prevlineasm1(vince[1],(void *)palookupoffse[1],y2ve[1]-y1ve[1],vplce[1],(void *)bufplce[1],(void *)(ylookup[y1ve[1]]+p+1));
+						if (!(bad & 4)) prevlineasm1(vince[2],(void *)palookupoffse[2],y2ve[2]-y1ve[2],vplce[2],(void *)bufplce[2],(void *)(ylookup[y1ve[2]]+p+2));
+						if (!(bad & 8)) prevlineasm1(vince[3],(void *)palookupoffse[3],y2ve[3]-y1ve[3],vplce[3],(void *)bufplce[3],(void *)(ylookup[y1ve[3]]+p+3));
 						continue;
 					}
 
@@ -5300,9 +5350,10 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 					if (u4 > y1ve[2]) vplce[2] = prevlineasm1(vince[2],(void *)palookupoffse[2],u4-y1ve[2]-1,vplce[2],(void *)bufplce[2],(void *)(ylookup[y1ve[2]]+p+2));
 					if (u4 > y1ve[3]) vplce[3] = prevlineasm1(vince[3],(void *)palookupoffse[3],u4-y1ve[3]-1,vplce[3],(void *)bufplce[3],(void *)(ylookup[y1ve[3]]+p+3));
 
-					if (d4 >= u4) vlineasm4(d4-u4+1,(void *)(ylookup[u4]+p));
+					if (d4 >= u4)
+						vlineasm4(d4 - u4 + 1, (void *)(ylookup[u4] + p));
 
-					i = p+ylookup[d4+1];
+					i = p + ylookup[d4 + 1];
 					if (y2ve[0] > d4) prevlineasm1(vince[0],(void *)palookupoffse[0],y2ve[0]-d4-1,vplce[0],(void *)bufplce[0],(void *)(i+0));
 					if (y2ve[1] > d4) prevlineasm1(vince[1],(void *)palookupoffse[1],y2ve[1]-d4-1,vplce[1],(void *)bufplce[1],(void *)(i+1));
 					if (y2ve[2] > d4) prevlineasm1(vince[2],(void *)palookupoffse[2],y2ve[2]-d4-1,vplce[2],(void *)bufplce[2],(void *)(i+2));
@@ -5324,9 +5375,10 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 					if (u4 > y1ve[2]) vplce[2] = mvlineasm1(vince[2],(void *)palookupoffse[2],u4-y1ve[2]-1,vplce[2],(void *)bufplce[2],(void *)(ylookup[y1ve[2]]+p+2));
 					if (u4 > y1ve[3]) vplce[3] = mvlineasm1(vince[3],(void *)palookupoffse[3],u4-y1ve[3]-1,vplce[3],(void *)bufplce[3],(void *)(ylookup[y1ve[3]]+p+3));
 
-					if (d4 >= u4) mvlineasm4(d4-u4+1,(void *)(ylookup[u4]+p));
+					if (d4 >= u4)
+						mvlineasm4(d4 - u4 + 1, (void *)(ylookup[u4] + p));
 
-					i = p+ylookup[d4+1];
+					i = p + ylookup[d4 + 1];
 					if (y2ve[0] > d4) mvlineasm1(vince[0],(void *)palookupoffse[0],y2ve[0]-d4-1,vplce[0],(void *)bufplce[0],(void *)(i+0));
 					if (y2ve[1] > d4) mvlineasm1(vince[1],(void *)palookupoffse[1],y2ve[1]-d4-1,vplce[1],(void *)bufplce[1],(void *)(i+1));
 					if (y2ve[2] > d4) mvlineasm1(vince[2],(void *)palookupoffse[2],y2ve[2]-d4-1,vplce[2],(void *)bufplce[2],(void *)(i+2));
@@ -5338,9 +5390,9 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 		}
 		else
 		{
-			if (dastat&64)
+			if (dastat & 64)
 			{
-				if ((xv2&0x0000ffff) == 0)
+				if ((xv2 & 0x0000ffff) == 0)
 				{
 					qlinemode = 1;
 					setupqrhlineasm4(0L,yv2<<16,(xv2>>16)*ysiz+(yv2>>16),(void *)palookupoffs,0L,0L);
@@ -5355,11 +5407,17 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 				setuprmhlineasm4(xv2<<16,yv2<<16,(xv2>>16)*ysiz+(yv2>>16),(void *)palookupoffs,ysiz,0L);
 
 			y1 = uplc[x1];
-			if (((dastat&8) == 0) && (startumost[x1] > y1)) y1 = startumost[x1];
+
+			if (((dastat&8) == 0) && (startumost[x1] > y1))
+				y1 = startumost[x1];
+
 			y2 = y1;
+
 			for(x=x1;x<x2;x++)
 			{
-				ny1 = uplc[x]-1; ny2 = dplc[x];
+				ny1 = uplc[x] - 1;
+				ny2 = dplc[x];
+				
 				if ((dastat&8) == 0)
 				{
 					if (startumost[x]-1 > ny1) ny1 = startumost[x]-1;
@@ -5372,44 +5430,76 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 					{
 						while (y1 < y2-1)
 						{
-							y1++; if ((y1&31) == 0) faketimerhandler();
+							y1++;
+							if ((y1 & 31) == 0)
+								faketimerhandler();
 
 								//x,y1
-							bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1;
-							if (dastat&64) {
-								if (qlinemode) qrhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,0L    ,by<<16,(void *)(ylookup[y1]+x+frameplace));
-								else rhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x+frameplace));
-							} else rmhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x+frameplace));
+							bx += xv * (y1 - oy);
+							by += yv * (y1 - oy);
+							oy = y1;
+
+							if (dastat & 64) {
+								if (qlinemode)
+									qrhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,0L    ,by<<16,(void *)(ylookup[y1]+x+frameplace));
+								else
+									rhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x+frameplace));
+							}
+							else
+								rmhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x+frameplace));
 						}
+
 						y1 = ny1;
 					}
 					else
 					{
 						while (y1 < ny1)
 						{
-							y1++; if ((y1&31) == 0) faketimerhandler();
+							++y1;
+							
+							if ((y1 & 31) == 0)
+								faketimerhandler();
 
 								//x,y1
-							bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1;
-							if (dastat&64) {
-								if (qlinemode) qrhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,0L    ,by<<16,(void *)(ylookup[y1]+x+frameplace));
-								else rhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x+frameplace));
-							} else rmhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x+frameplace));
+							bx += xv * (y1 - oy);
+							by += yv * (y1 - oy);
+							oy = y1;
+							
+							if (dastat & 64) {
+								if (qlinemode)
+									qrhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,0L    ,by<<16,(void *)(ylookup[y1]+x+frameplace));
+								else
+									rhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x+frameplace));
+							}
+							else
+								rmhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x+frameplace));
 						}
-						while (y1 > ny1) lastx[y1--] = x;
+						
+						while (y1 > ny1) {
+							lastx[y1--] = x;
+						}
 					}
+
 					while (y2 > ny2)
 					{
-						y2--; if ((y2&31) == 0) faketimerhandler();
+						y2--;
+						
+						if ((y2&31) == 0)
+							faketimerhandler();
 
 							//x,y2
-						bx += xv*(y2-oy); by += yv*(y2-oy); oy = y2;
+						bx += xv * (y2 - oy);
+						by += yv * (y2 - oy);
+						oy = y2;
 						if (dastat&64) {
 							if (qlinemode) qrhlineasm4(x-lastx[y2],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,0L    ,by<<16,(void *)(ylookup[y2]+x+frameplace));
 							else rhlineasm4(x-lastx[y2],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y2]+x+frameplace));
 						} else rmhlineasm4(x-lastx[y2],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y2]+x+frameplace));
 					}
-					while (y2 < ny2) lastx[y2++] = x;
+
+					while (y2 < ny2) {
+						lastx[y2++] = x;
+					}
 				}
 				else
 				{
@@ -5429,15 +5519,24 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 					if (((dastat&8) == 0) && (startumost[x+1] > y1)) y1 = startumost[x+1];
 					y2 = y1;
 				}
-				bx += xv2; by += yv2;
+
+				bx += xv2;
+				by += yv2;
 			}
-			while (y1 < y2-1)
+
+			while (y1 < y2 - 1)
 			{
-				y1++; if ((y1&31) == 0) faketimerhandler();
+				++y1;
+				
+				if ((y1 & 31) == 0)
+					faketimerhandler();
 
 					//x2,y1
-				bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1;
-				if (dastat&64) {
+				bx += xv * (y1 - oy);
+				by += yv * (y1 - oy);
+				oy = y1;
+
+				if (dastat & 64) {
 					if (qlinemode) qrhlineasm4(x2-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,0L,by<<16,(void *)(ylookup[y1]+x2+frameplace));
 					else rhlineasm4(x2-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x2+frameplace));
 				} else rmhlineasm4(x2-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x2+frameplace));
@@ -5462,15 +5561,21 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 		{
 			bx += xv2; by += yv2;
 
-			y1 = uplc[x]; y2 = dplc[x];
-			if ((dastat&8) == 0)
+			y1 = uplc[x];
+			y2 = dplc[x];
+			if ((dastat & 8) == 0)
 			{
-				if (startumost[x] > y1) y1 = startumost[x];
-				if (startdmost[x] < y2) y2 = startdmost[x];
-			}
-			if (y2 <= y1) continue;
+				if (startumost[x] > y1)
+					y1 = startumost[x];
 
-			switch(y1-oy)
+				if (startdmost[x] < y2)
+					y2 = startdmost[x];
+			}
+
+			if (y2 <= y1)
+				continue;
+
+			switch(y1 - oy)
 			{
 				case -1: bx -= xv; by -= yv; oy = y1; break;
 				case 0: break;
@@ -5491,6 +5596,7 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 			{
 				tspritevline(0L,by<<16,y2-y1+1,bx<<16,(void *)((bx>>16)*ysiz+(by>>16)+bufplc),(void *)p);
 			}
+			
 			faketimerhandler();
 		}
 	}
@@ -5672,14 +5778,7 @@ static bool loadtables()
 //
 static void initfastcolorlookup(int rscale, int gscale, int bscale)
 {
-	int i;
-	int x;
-	int y;
-	int z;
-
-	int j{0};
-
-	for(i = 64; i >= 0; i--)
+	for(int i{64}, j{0}; i >= 0; i--)
 	{
 		//j = (i-64)*(i-64);
 		rdist[i] = rdist[128 - i] = j * rscale;
@@ -5694,9 +5793,10 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 	std::ranges::fill(colhead, 0);
 
 	unsigned char* pal1 = &palette[768-3];
-	for(i=255;i>=0;i--,pal1-=3)
+	for(int i{255}; i >= 0; --i, pal1 -= 3)
 	{
-		j = (pal1[0]>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(pal1[1]>>3)*FASTPALGRIDSIZ+(pal1[2]>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
+		const int j = (pal1[0]>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(pal1[1]>>3)*FASTPALGRIDSIZ+(pal1[2]>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
+		
 		if (colhere[j >> 3] & pow2char[j & 7])
 			colnext[i] = colhead[j];
 		else
@@ -5706,14 +5806,16 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 		colhere[j >> 3] |= pow2char[j & 7];
 	}
 
-	i = 0;
-	for(x=-FASTPALGRIDSIZ*FASTPALGRIDSIZ;x<=FASTPALGRIDSIZ*FASTPALGRIDSIZ;x+=FASTPALGRIDSIZ*FASTPALGRIDSIZ)
-		for(y=-FASTPALGRIDSIZ;y<=FASTPALGRIDSIZ;y+=FASTPALGRIDSIZ)
-			for(z=-1;z<=1;z++)
-				colscan[i++] = x+y+z;
-	i = colscan[13];
-	colscan[13] = colscan[26];
-	colscan[26] = i;
+	int i{0};
+	for(int x = -FASTPALGRIDSIZ * FASTPALGRIDSIZ; x <= FASTPALGRIDSIZ * FASTPALGRIDSIZ; x += FASTPALGRIDSIZ * FASTPALGRIDSIZ) {
+		for(int y =- FASTPALGRIDSIZ; y <= FASTPALGRIDSIZ; y += FASTPALGRIDSIZ) {
+			for(int z{-1}; z <= 1; ++z) {
+				colscan[i++] = x + y + z;
+			}
+		}
+	}
+
+	std::swap(colscan[13], colscan[26]);
 }
 
 
@@ -5723,7 +5825,8 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 static bool loadpalette()
 {
 	int fil{-1};
-	off_t flen;
+
+	off_t flen{0};
 
 	if ((fil = kopen4load("palette.dat",0)) < 0)
 		goto badpalette;
@@ -5790,8 +5893,6 @@ badpalette:
 //
 int getclosestcol(int r, int g, int b)
 {
-	unsigned char *pal1;
-
 	const int j = (r>>3) * FASTPALGRIDSIZ * FASTPALGRIDSIZ +
 	              (g>>3) * FASTPALGRIDSIZ +
 				  (b>>3) + FASTPALGRIDSIZ * FASTPALGRIDSIZ + FASTPALGRIDSIZ + 1;
@@ -5814,7 +5915,7 @@ int getclosestcol(int r, int g, int b)
 		
 		do
 		{
-			pal1 = &palette[i * 3];
+			auto* pal1 = &palette[i * 3];
 			int dist = gdist[pal1[1] + g];
 			if (dist < mindist)
 			{
@@ -5837,7 +5938,7 @@ int getclosestcol(int r, int g, int b)
 		return retcol;
 
 	mindist = 0x7fffffff;
-	pal1 = &palette[768-3];
+	auto* pal1 = &palette[768-3];
 	
 	for(int i{255}; i >= 0; --i, pal1 -= 3)
 	{
@@ -9080,16 +9181,6 @@ intptr_t allocatepermanenttile(short tilenume, int xsiz, int ysiz)
 void copytilepiece(int tilenume1, int sx1, int sy1, int xsiz, int ysiz,
 		  int tilenume2, int sx2, int sy2)
 {
-	unsigned char *ptr1;
-	unsigned char* ptr2;
-	unsigned char dat;
-	int i;
-	int j;
-	int x1;
-	int y1;
-	int x2;
-	int y2;
-
 	const int xsiz1 = tilesizx[tilenume1];
 	const int ysiz1 = tilesizy[tilenume1];
 	const int xsiz2 = tilesizx[tilenume2];
@@ -9105,27 +9196,37 @@ void copytilepiece(int tilenume1, int sx1, int sy1, int xsiz, int ysiz,
 			loadtile(tilenume2);
 		}
 
-		x1 = sx1;
+		int x1{sx1};
 
-		for(i=0;i<xsiz;i++)
+		for(int i{0}; i < xsiz; ++i)
 		{
-			y1 = sy1;
-			for(j=0;j<ysiz;j++)
+			int y1{sy1};
+			
+			for(int j{0}; j < ysiz; ++j)
 			{
-				x2 = sx2+i;
-				y2 = sy2+j;
+				const int x2 = sx2 + i;
+				const int y2 = sy2 + j;
+
 				if ((x2 >= 0) && (y2 >= 0) && (x2 < xsiz2) && (y2 < ysiz2))
 				{
-					ptr1 = (unsigned char *)(waloff[tilenume1] + x1*ysiz1 + y1);
-					ptr2 = (unsigned char *)(waloff[tilenume2] + x2*ysiz2 + y2);
-					dat = *ptr1;
+					auto* ptr1 = (unsigned char *)(waloff[tilenume1] + x1 * ysiz1 + y1);
+					auto* ptr2 = (unsigned char *)(waloff[tilenume2] + x2 * ysiz2 + y2);
+					const auto dat = *ptr1;
+					
 					if (dat != 255)
 						*ptr2 = *ptr1;
 				}
 
-				y1++; if (y1 >= ysiz1) y1 = 0;
+				y1++;
+				
+				if (y1 >= ysiz1)
+					y1 = 0;
 			}
-			x1++; if (x1 >= xsiz1) x1 = 0;
+			
+			++x1;
+			
+			if (x1 >= xsiz1)
+				x1 = 0;
 		}
 	}
 }
@@ -9601,27 +9702,6 @@ int nextsectorneighborz(short sectnum, int thez, short topbottom, short directio
 //
 bool cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short sect2)
 {
-	sectortype* sec;
-	walltype* wal;
-	walltype* wal2;
-	int i;
-	int cnt;
-	int nexts;
-	int x;
-	int y;
-	int z;
-	int cz;
-	int fz;
-	int dasectnum;
-	int dacnt;
-	int danum;
-	int x31;
-	int y31;
-	int x34;
-	int y34;
-	int bot;
-	int t;
-
 	if ((x1 == x2) && (y1 == y2)) {
 		return sect1 == sect2;
 	}
@@ -9630,41 +9710,75 @@ bool cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short s
 	const int y21 = y2 - y1;
 	const int z21 = z2 - z1;
 
-	clipsectorlist[0] = sect1; danum = 1;
-	for(dacnt=0;dacnt<danum;dacnt++)
+	clipsectorlist[0] = sect1;
+	int danum{1};
+
+	for(int dacnt{0}; dacnt < danum; ++dacnt)
 	{
-		dasectnum = clipsectorlist[dacnt];
-		sec = &sector[dasectnum];
+		const int dasectnum = clipsectorlist[dacnt];
+		const auto* sec = &sector[dasectnum];
 
-		for(cnt=sec->wallnum,wal=&wall[sec->wallptr];cnt>0;cnt--,wal++)
+		int cnt = sec->wallnum;
+
+		for(auto* wal = &wall[sec->wallptr]; cnt > 0; --cnt, ++wal)
 		{
-			wal2 = &wall[wal->point2];
-			x31 = wal->x-x1; x34 = wal->x-wal2->x;
-			y31 = wal->y-y1; y34 = wal->y-wal2->y;
+			auto* wal2 = &wall[wal->point2];
+			const int x31 = wal->x-x1;
+			const int x34 = wal->x-wal2->x;
+			const int y31 = wal->y-y1;
+			const int y34 = wal->y-wal2->y;
 
-			bot = y21*x34-x21*y34; if (bot <= 0) continue;
-			t = y21*x31-x21*y31; if ((unsigned)t >= (unsigned)bot) continue;
-			t = y31*x34-x31*y34; if ((unsigned)t >= (unsigned)bot) continue;
+			const int bot = y21 * x34 - x21 * y34;
+			
+			if (bot <= 0)
+				continue;
 
-			nexts = wal->nextsector;
-			if ((nexts < 0) || (wal->cstat&32)) return(0);
+			int t = y21 * x31 - x21 * y31;
+			
+			if ((unsigned)t >= (unsigned)bot)
+				continue;
+			
+			t = y31 * x34 - x31 * y34;
+
+			if ((unsigned)t >= (unsigned)bot)
+				continue;
+
+			const int nexts = wal->nextsector;
+			
+			if ((nexts < 0) || (wal->cstat & 32))
+				return 0;
 
 			t = divscalen<24>(t,bot);
-			x = x1 + mulscalen<24>(x21,t);
-			y = y1 + mulscalen<24>(y21,t);
-			z = z1 + mulscalen<24>(z21,t);
+			const int x = x1 + mulscalen<24>(x21, t);
+			const int y = y1 + mulscalen<24>(y21, t);
+			const int z = z1 + mulscalen<24>(z21, t);
 
-			getzsofslope((short)dasectnum,x,y,&cz,&fz);
-			if ((z <= cz) || (z >= fz)) return false;
-			getzsofslope((short)nexts,x,y,&cz,&fz);
-			if ((z <= cz) || (z >= fz)) return false;
+			int cz{0};
+			int fz{0};
 
-			for(i=danum-1;i>=0;i--) if (clipsectorlist[i] == nexts) break;
-			if (i < 0) clipsectorlist[danum++] = nexts;
+			getzsofslope((short)dasectnum, x, y, &cz, &fz);
+
+			if ((z <= cz) || (z >= fz))
+				return false;
+			
+			getzsofslope((short)nexts, x, y, &cz, &fz);
+			
+			if ((z <= cz) || (z >= fz))
+				return false;
+
+			int i{0};
+
+			for(i=danum-1;i>=0;i--) {
+				if (clipsectorlist[i] == nexts)
+					break;
+			}
+
+			if (i < 0)
+				clipsectorlist[danum++] = nexts;
 		}
 	}
 
-	for (i = danum - 1; i >= 0; i--) {
+	for (int i = danum - 1; i >= 0; i--) {
 		if (clipsectorlist[i] == sect2) {
 			return true;
 		}
