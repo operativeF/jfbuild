@@ -24,7 +24,7 @@
 
 // Modifying type string utilities.
 
-constexpr std::size_t ReplaceAll(std::string& instr, std::string_view candidate, std::string_view replacement)
+inline constexpr std::size_t ReplaceAll(std::string& instr, std::string_view candidate, std::string_view replacement)
 {
     std::size_t count{ 0 };
 
@@ -43,7 +43,7 @@ constexpr std::size_t ReplaceAll(std::string& instr, std::string_view candidate,
 
 // Trims all space leading and following, but not in the middle.
 template<typename R>
-constexpr void TrimAllSpace(R& str)
+inline constexpr void TrimAllSpace(R& str)
 {
     auto it1 = std::ranges::find_if_not(str, isWhitespace);
 
@@ -55,7 +55,7 @@ constexpr void TrimAllSpace(R& str)
 }
 
 template<typename R>
-constexpr void TrimLeadingSpace(R& str)
+inline constexpr void TrimLeadingSpace(R& str)
 {
     auto it = std::ranges::find_if_not(str, isWhitespace);
 
@@ -63,7 +63,7 @@ constexpr void TrimLeadingSpace(R& str)
 }
 
 template<typename R>
-constexpr void TrimTrailingSpace(R& str)
+inline constexpr void TrimTrailingSpace(R& str)
 {
     auto it = std::ranges::find_if_not(std::ranges::reverse_view(str), isWhitespace);
 
@@ -71,18 +71,18 @@ constexpr void TrimTrailingSpace(R& str)
 }
 
 template<typename R>
-constexpr void ToUpper(R& str)
+inline constexpr void ToUpper(R& str)
 {
     std::ranges::transform(str, str.begin(), [](auto c) noexcept { return ToUpperCh(c); });
 }
 
 template<typename R>
-constexpr void ToLower(R& str)
+inline constexpr void ToLower(R& str)
 {
     std::ranges::transform(str, str.begin(), [](auto c) noexcept { return ToLowerCh(c); });
 }
 
-constexpr void EraseSubstr(std::string& str, std::string_view subToErase)
+inline constexpr void EraseSubstr(std::string& str, std::string_view subToErase)
 {
     std::size_t pos{std::string::npos};
 
@@ -96,7 +96,7 @@ constexpr void EraseSubstr(std::string& str, std::string_view subToErase)
 // TODO: Not valid for unicode strings. (ToUpperCh function).
 // Need to detect underlying char type for return type deduction.
 template<typename R>
-constexpr std::string ToUpperCopy(R&& str)
+inline constexpr std::string ToUpperCopy(R&& str)
 {
     auto tview = std::ranges::views::transform(str, [](auto c) noexcept { return ToUpperCh(c); });
 
@@ -104,14 +104,14 @@ constexpr std::string ToUpperCopy(R&& str)
 }
 
 template<typename R>
-constexpr std::string ToLowerCopy(R&& str)
+inline constexpr std::string ToLowerCopy(R&& str)
 {
     auto tview = std::ranges::views::transform(str, [](auto c) noexcept { return ToLowerCh(c); });
 
     return {tview.begin(), tview.end()};
 }
 
-constexpr std::vector<std::string> StrSplit(std::string_view strView, char delim)
+inline constexpr std::vector<std::string> StrSplit(std::string_view strView, char delim)
 {
     std::vector<std::string> output;
 
@@ -134,7 +134,7 @@ constexpr std::vector<std::string> StrSplit(std::string_view strView, char delim
 }
 
 // TODO: could be improved, but is sufficient for string conversion.
-constexpr std::vector<std::string> StrSplitEscape(std::string_view strView, char delim, char escape)
+inline constexpr std::vector<std::string> StrSplitEscape(std::string_view strView, char delim, char escape)
 {
     std::vector<std::string> output;
 
@@ -179,7 +179,7 @@ constexpr std::vector<std::string> StrSplitEscape(std::string_view strView, char
 }
 
 // Join a '\0' delimited array of chars into a vector of strings.
-std::vector<std::string> JoinChArray(std::span<const char> chSpan)
+inline std::vector<std::string> JoinChArray(std::span<const char> chSpan)
 {
     std::vector<std::string> vec;
 
@@ -210,7 +210,7 @@ std::vector<std::string> JoinChArray(std::span<const char> chSpan)
 
 // Like JoinStrings, except there is an
 // escape character inserted before a delimiter that is found in a string.
-std::string JoinStringsEsc(std::span<const std::string> strSpan, char delim, std::string_view esc)
+inline std::string JoinStringsEsc(std::span<const std::string> strSpan, char delim, std::string_view esc)
 {
     std::string str;
 
@@ -237,7 +237,7 @@ std::string JoinStringsEsc(std::span<const std::string> strSpan, char delim, std
     return str;
 }
 
-int CmpNoCase(std::string_view strViewA, std::string_view strViewB)
+inline int CmpNoCase(std::string_view strViewA, std::string_view strViewB)
 {
     const auto nA = strViewA.size();
     const auto nB = strViewB.size();
@@ -251,18 +251,18 @@ int CmpNoCase(std::string_view strViewA, std::string_view strViewB)
     return strA.compare(strB);
 }
 
-constexpr bool IsSameAsCase(std::string_view strViewA, std::string_view strViewB) noexcept
+inline constexpr bool IsSameAsCase(std::string_view strViewA, std::string_view strViewB) noexcept
 {
     return strViewA == strViewB;
 }
 
-bool IsSameAsNoCase(std::string_view strViewA, std::string_view strViewB)
+inline bool IsSameAsNoCase(std::string_view strViewA, std::string_view strViewB)
 {
     return CmpNoCase(strViewA, strViewB) == 0;
 }
 
 template<typename R>
-[[nodiscard]] constexpr std::string StripLeadingSpace(R&& str)
+[[nodiscard]] inline constexpr std::string StripLeadingSpace(R&& str)
 {
     auto it1 = std::ranges::find_if_not(str, isWhitespace);
 
@@ -270,7 +270,7 @@ template<typename R>
 }
 
 template<typename R>
-[[nodiscard]] constexpr std::string StripTrailingSpace(R&& str)
+[[nodiscard]] inline constexpr std::string StripTrailingSpace(R&& str)
 {
     auto it2 = std::ranges::find_if_not(std::ranges::reverse_view(str), isWhitespace);
 
@@ -278,7 +278,7 @@ template<typename R>
 }
 
 template<typename R>
-[[nodiscard]] constexpr std::string StripAllSpace(R&& str)
+[[nodiscard]] inline constexpr std::string StripAllSpace(R&& str)
 {
     auto it1 = std::ranges::find_if_not(str, isWhitespace);
     auto it2 = std::ranges::find_if_not(std::ranges::reverse_view(str), isWhitespace);
@@ -286,7 +286,7 @@ template<typename R>
     return {it1, it2.base()};
 }
 
-bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
+inline bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
 {
     if(bCase)
     {
@@ -298,7 +298,7 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     }
 }
 
-[[nodiscard]] constexpr std::string BeforeFirst(std::string_view strView, std::string_view strFirst, size_t pos = 0)
+[[nodiscard]] inline constexpr std::string BeforeFirst(std::string_view strView, std::string_view strFirst, size_t pos = 0)
 {
     const auto n = strView.find(strFirst, pos);
 
@@ -308,7 +308,7 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     return std::string(strView);
 }
 
-[[nodiscard]] constexpr std::string BeforeFirst(std::string_view strView, const char ch, size_t pos = 0)
+[[nodiscard]] inline constexpr std::string BeforeFirst(std::string_view strView, const char ch, size_t pos = 0)
 {
     const auto n = strView.find(ch, pos);
 
@@ -318,12 +318,12 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     return std::string(strView);
 }
 
-[[nodiscard]] constexpr std::string BeforeFirst(std::string_view strView, const char* const chs, size_t pos = 0)
+[[nodiscard]] inline constexpr std::string BeforeFirst(std::string_view strView, const char* const chs, size_t pos = 0)
 {
     return BeforeFirst(strView, std::string_view(chs), pos);
 }
 
-[[nodiscard]] constexpr std::string AfterFirst(std::string_view strView, std::string_view strAfter, size_t pos = 0)
+[[nodiscard]] inline constexpr std::string AfterFirst(std::string_view strView, std::string_view strAfter, size_t pos = 0)
 {
     const auto n = strView.find(strAfter, pos);
 
@@ -333,7 +333,7 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     return {};
 }
 
-[[nodiscard]] constexpr std::string AfterFirst(std::string_view strView, const char ch, size_t pos = 0)
+[[nodiscard]] inline constexpr std::string AfterFirst(std::string_view strView, const char ch, size_t pos = 0)
 {
     const auto n = strView.find(ch, pos);
 
@@ -343,12 +343,12 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     return {};
 }
 
-[[nodiscard]] constexpr std::string AfterFirst(std::string_view strView, const char* const chs, size_t pos = 0)
+[[nodiscard]] inline constexpr std::string AfterFirst(std::string_view strView, const char* const chs, size_t pos = 0)
 {
     return AfterFirst(strView, std::string_view(chs), pos);
 }
 
-[[nodiscard]] constexpr std::string BeforeLast(std::string_view strView, std::string_view strBefore, size_t pos = std::string_view::npos)
+[[nodiscard]] inline constexpr std::string BeforeLast(std::string_view strView, std::string_view strBefore, size_t pos = std::string_view::npos)
 {
     const auto n = strView.rfind(strBefore, pos);
 
@@ -358,7 +358,7 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     return {};
 }
 
-[[nodiscard]] constexpr std::string BeforeLast(std::string_view strView, const char ch, size_t pos = std::string_view::npos)
+[[nodiscard]] inline constexpr std::string BeforeLast(std::string_view strView, const char ch, size_t pos = std::string_view::npos)
 {
     const auto n = strView.rfind(ch, pos);
 
@@ -368,14 +368,14 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     return {};
 }
 
-[[nodiscard]] constexpr std::string BeforeLast(std::string_view strView, const char* const chs, size_t pos = std::string_view::npos)
+[[nodiscard]] inline constexpr std::string BeforeLast(std::string_view strView, const char* const chs, size_t pos = std::string_view::npos)
 {
     return BeforeLast(strView, std::string_view(chs), pos);
 }
 
 
 // TODO: Do we really want to return the whole input string if it fails to find anything?
-[[nodiscard]] constexpr std::string AfterLast(std::string_view strView, std::string_view strLast, size_t pos = std::string_view::npos)
+[[nodiscard]] inline constexpr std::string AfterLast(std::string_view strView, std::string_view strLast, size_t pos = std::string_view::npos)
 {
     const auto n = strView.rfind(strLast, pos);
 
@@ -385,7 +385,7 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     return std::string{strView};
 }
 
-[[nodiscard]] constexpr std::string AfterLast(std::string_view strView, const char ch, size_t pos = std::string_view::npos)
+[[nodiscard]] inline constexpr std::string AfterLast(std::string_view strView, const char ch, size_t pos = std::string_view::npos)
 {
     const auto n = strView.rfind(ch, pos);
 
@@ -395,12 +395,12 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     return std::string{strView};
 }
 
-[[nodiscard]] constexpr std::string AfterLast(std::string_view strView, const char* const chs, size_t pos = std::string_view::npos)
+[[nodiscard]] inline constexpr std::string AfterLast(std::string_view strView, const char* const chs, size_t pos = std::string_view::npos)
 {
     return AfterLast(strView, std::string_view{chs}, pos);
 }
 
-[[nodiscard]] constexpr bool EndsWith(std::string_view strView, std::string_view suffix, std::string& beforeSuffix)
+[[nodiscard]] inline constexpr bool EndsWith(std::string_view strView, std::string_view suffix, std::string& beforeSuffix)
 {
     auto pos = strView.find(suffix, strView.size() - suffix.size());
 
@@ -414,7 +414,7 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     return false;
 }
 
-[[nodiscard]] constexpr bool StartsWith(std::string_view strView, std::string_view prefix, std::string& afterStart)
+[[nodiscard]] inline constexpr bool StartsWith(std::string_view strView, std::string_view prefix, std::string& afterStart)
 {
     auto pos = strView.rfind(prefix, 0);
 
@@ -428,7 +428,7 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     return false;
 }
 
-[[nodiscard]] constexpr bool StartsWith(std::string_view strView, std::string_view prefix)
+[[nodiscard]] inline constexpr bool StartsWith(std::string_view strView, std::string_view prefix)
 {
     auto pos = strView.rfind(prefix, 0);
 
@@ -440,20 +440,20 @@ bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
     return false;
 }
 
-[[nodiscard]] constexpr bool Contains(std::string_view strView, std::string_view strToFind) noexcept
+[[nodiscard]] inline constexpr bool Contains(std::string_view strView, std::string_view strToFind) noexcept
 {
     return strView.find(strToFind, 0) != std::string_view::npos;
 }
 
 // FIXME: Replace template with span
 template<typename... Cs>
-[[nodiscard]] constexpr bool ContainsAnyOf(std::string_view strView, Cs&&... cs) noexcept
+[[nodiscard]] inline constexpr bool ContainsAnyOf(std::string_view strView, Cs&&... cs) noexcept
 {
     return (Contains(strView, cs) || ...);
 }
 
 // FIXME: Not valid for unicode strings
-[[nodiscard]] constexpr bool ContainsNoCase(std::string_view strView, std::string_view strToFind)
+[[nodiscard]] inline constexpr bool ContainsNoCase(std::string_view strView, std::string_view strToFind)
 {
     return std::ranges::search(strView, strToFind, {}, ToLowerCh, ToLowerCh).begin() != strView.end();
 }
@@ -485,7 +485,7 @@ template<typename... Cs>
 }
 
 template <class TPattern, class TStr>
-[[nodiscard]] constexpr std::vector<TStr> Match(const TPattern& pattern, const TStr& str) {
+[[nodiscard]] inline constexpr std::vector<TStr> Match(const TPattern& pattern, const TStr& str) {
   std::vector<TStr> groups{};
   auto pi = 0u;
   auto si = 0u;

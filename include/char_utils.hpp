@@ -11,9 +11,10 @@
 #ifndef __CHAR_UTILS_HPP__
 #define __CHAR_UTILS_HPP__
 
+#include <concepts>
 #include <cstddef>
 
-constexpr bool isAlphaUpper(char ch)
+inline constexpr bool isAlphaUpper(char ch)
 {
     return 'A' == ch ||
            'B' == ch ||
@@ -43,7 +44,7 @@ constexpr bool isAlphaUpper(char ch)
            'Z' == ch;
 }
 
-constexpr bool isAlphaLower(char ch)
+inline constexpr bool isAlphaLower(char ch)
 {
     return 'a' == ch ||
            'b' == ch ||
@@ -73,12 +74,12 @@ constexpr bool isAlphaLower(char ch)
            'z' == ch;
 }
 
-constexpr bool isAlpha(char ch)
+inline constexpr bool isAlpha(char ch)
 {
     return isAlphaUpper(ch) || isAlphaLower(ch);
 }
 
-constexpr bool isDigit(char ch)
+inline constexpr bool isDigit(char ch)
 {
     return '0' == ch ||
            '1' == ch ||
@@ -92,7 +93,7 @@ constexpr bool isDigit(char ch)
            '9' == ch;
 }
 
-constexpr bool isHexLetterUpper(char ch)
+inline constexpr bool isHexLetterUpper(char ch)
 {
     return 'A' == ch ||
            'B' == ch ||
@@ -102,7 +103,7 @@ constexpr bool isHexLetterUpper(char ch)
            'F' == ch;
 }
 
-constexpr bool isHexLetterLower(char ch)
+inline constexpr bool isHexLetterLower(char ch)
 {
     return 'a' == ch ||
            'b' == ch ||
@@ -112,17 +113,17 @@ constexpr bool isHexLetterLower(char ch)
            'f' == ch;
 }
 
-constexpr bool isHexLetter(char ch)
+inline constexpr bool isHexLetter(char ch)
 {
     return isHexLetterUpper(ch) || isHexLetterLower(ch);
 }
 
-constexpr bool isHex(char ch)
+inline constexpr bool isHex(char ch)
 {
     return isHexLetter(ch) || isDigit(ch);
 }
 
-constexpr bool isWhitespace(char ch)
+inline constexpr bool isWhitespace(char ch)
 {
     return ch == ' '  ||
            ch == '\f' ||
@@ -132,7 +133,7 @@ constexpr bool isWhitespace(char ch)
            ch == '\v';
 };
 
-constexpr bool isPunct(char ch)
+inline constexpr bool isPunct(char ch)
 {
     return '!'  == ch ||
            '"'  == ch ||
@@ -168,12 +169,12 @@ constexpr bool isPunct(char ch)
            '~'  == ch; 
 }
 
-constexpr bool isAlNum(char ch)
+inline constexpr bool isAlNum(char ch)
 {
     return isDigit(ch) || isAlpha(ch);
 }
 
-constexpr char ToUpperCh(char ch)
+inline constexpr char ToUpperCh(char ch)
 {
     switch(ch)
     {
@@ -207,7 +208,7 @@ constexpr char ToUpperCh(char ch)
     }
 }
 
-constexpr char ToLowerCh(char ch)
+inline constexpr char ToLowerCh(char ch)
 {
     switch(ch)
     {
@@ -249,7 +250,7 @@ concept Hexable = requires
              ('a' <= c && c <= 'f'));
 };
 
-constexpr std::byte HexCharToDec(std::byte C)
+inline constexpr std::byte HexCharToDec(std::byte C)
 {
     auto asChar = static_cast<char>(C);
 
