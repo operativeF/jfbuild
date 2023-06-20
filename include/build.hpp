@@ -329,7 +329,7 @@ inline std::array<intptr_t, MAXTILES> waloff{};
 	//And if you want draw2dscreen() to not show sprite #54 then you say:
 	//   spritenum = 54;
 	//   show2dsprite[spritenum>>3] &= ~(1<<(spritenum&7));
-	//Automapping defaults to 0 (do nothing).  If you set automapping to 1,
+	//Automapping defaults to false (do nothing).  If you set automapping to true,
 	//   then in 3D mode, the walls and sprites that you see will show up the
 	//   next time you flip to 2D mode.
 
@@ -340,7 +340,7 @@ inline constexpr auto SHOWN_TILES   = (MAXTILES + 7) >> 3;
 inline std::array<unsigned char, SHOWN_SECTORS> show2dsector;
 inline std::array<unsigned char, SHOWN_WALLS> show2dwall;
 inline std::array<unsigned char, SHOWN_SPRITES> show2dsprite;
-inline unsigned char automapping{0};
+inline bool automapping{false};
 
 inline std::array<unsigned char, SHOWN_TILES> gotpic;
 inline std::array<unsigned char, SHOWN_SECTORS> gotsector;

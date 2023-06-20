@@ -4435,7 +4435,7 @@ static void drawsprite(int snum)
 		drawvox(tspr->x,tspr->y,tspr->z,i,(int)tspr->xrepeat,(int)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
 	}
 
-	if (automapping == 1)
+	if (automapping)
 		show2dsprite[spritenum >> 3] |= pow2char[spritenum & 7];
 }
 
@@ -6298,7 +6298,7 @@ bool initengine()
 	std::ranges::fill(show2dsprite, 0);
 	std::ranges::fill(show2dwall, 0);
 
-	automapping = 0;
+	automapping = false;
 
 	pointhighlight = -1;
 	linehighlight = -1;

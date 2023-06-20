@@ -23,13 +23,16 @@ enum {
 };
 
 struct hicskybox_t {
-	long ignore{0};
+	bool ignore{false};
 	std::array<std::string, 6> face;
 };
 
 struct hicreplctyp {
 	hicreplctyp* next;
-	unsigned char palnum, ignore, flags, filler;
+	unsigned char palnum;
+	bool ignore{false};
+	unsigned char flags;
+	unsigned char filler;
 	std::string filename;
 	float alphacut;
 	std::unique_ptr<hicskybox_t> skybox;

@@ -611,7 +611,7 @@ getnumber16(char namestart[80], short num, int maxnumber)
 		{
 			oldnum = danum;
 			keystatus[0x1c] = 2;
-			asksave = 1;
+			asksave = true;
 		}
 	}
 	keystatus[0x1c] = 0;

@@ -84,7 +84,7 @@ std::array<unsigned char, 4096> tempbuf;
 
 char names[MAXTILES][25];
 
-short asksave{0};
+bool asksave{false};
 extern short searchwall;
 extern short searchstat;     //search output
 
@@ -855,7 +855,7 @@ void editinput()
 							sector[searchsector].visibility = 239;
 						k--;
 					}
-					asksave = 1;
+					asksave = true;
 				}
 			}
 			else
@@ -901,7 +901,7 @@ void editinput()
 						}
 					}
 				}
-				asksave = 1;
+				asksave = true;
 			}
 		}
 		if (keystatus[0x4e] > 0)  // +
@@ -941,7 +941,7 @@ void editinput()
 							sector[searchsector].visibility = 240;
 						k--;
 					}
-					asksave = 1;
+					asksave = true;
 				}
 			}
 			else
@@ -987,7 +987,7 @@ void editinput()
 						}
 					}
 				}
-				asksave = 1;
+				asksave = true;
 			}
 		}
 		if (keystatus[0xc9] > 0) // PGUP
@@ -1101,7 +1101,7 @@ void editinput()
 					}
 				}
 			}
-			asksave = 1;
+			asksave = true;
 			keystatus[0xc9] = 0;
 		}
 		if (keystatus[0xd1] > 0) // PGDN
@@ -1213,7 +1213,7 @@ void editinput()
 					}
 				}
 			}
-			asksave = 1;
+			asksave = true;
 			keystatus[0xd1] = 0;
 		}
 		if (keystatus[0x0f] > 0)  //TAB
@@ -1522,7 +1522,7 @@ void editinput()
 					fixrepeats(searchwall);
 				}
 			}
-			asksave = 1;
+			asksave = true;
 			keystatus[0x1c] = 0;
 		}
 		if (keystatus[0x2e] > 0)      //C
@@ -1568,7 +1568,7 @@ void editinput()
 				if (searchstat == 3)
 				{
 					sprite[searchwall].cstat ^= 128;
-					asksave = 1;
+					asksave = true;
 				}
 			}
 		}
@@ -1590,7 +1590,7 @@ void editinput()
 				if (wall[searchwall].nextwall >= 0)
 					 wall[wall[searchwall].nextwall].overpicnum = templong;
 			}
-			asksave = 1;
+			asksave = true;
 			keystatus[0x2f] = 0;
 		}
 
@@ -1640,7 +1640,7 @@ void editinput()
 				sector[searchsector].floorstat &= ~2;
 			else
 				sector[searchsector].floorstat |= 2;
-			asksave = 1;
+			asksave = true;
 		}
 		if (keystatus[0x1b])  // ]
 		{
@@ -1689,7 +1689,7 @@ void editinput()
 			else
 				sector[searchsector].floorstat |= 2;
 
-			asksave = 1;
+			asksave = true;
 		}
 
 		smooshyalign = keystatus[0x4c];
@@ -1722,7 +1722,7 @@ void editinput()
 					if (sprite[searchwall].xrepeat < 4)
 						sprite[searchwall].xrepeat = 4;
 				}
-				asksave = 1;
+				asksave = true;
 				repeatcountx = std::max(1, repeatcountx);
 			}
 			repeatcountx += (synctics>>1);
@@ -1758,7 +1758,7 @@ void editinput()
 					if (sprite[searchwall].yrepeat < 4)
 						sprite[searchwall].yrepeat = 4;
 				}
-				asksave = 1;
+				asksave = true;
 				repeatcounty = std::max(1, repeatcounty);
 			}
 			repeatcounty += (synctics>>1);
@@ -1920,7 +1920,7 @@ void editinput()
 				}
 			}
 			keystatus[0x35] = 0;
-			asksave = 1;
+			asksave = true;
 		}
 
 		if (keystatus[0x19] > 0)  // P (parallaxing sky)
@@ -1958,12 +1958,12 @@ void editinput()
 				if ((searchstat == 0) || (searchstat == 1) || (searchstat == 4))
 				{
 					sector[searchsector].ceilingstat ^= 1;
-					asksave = 1;
+					asksave = true;
 				}
 				else if (searchstat == 2)
 				{
 					sector[searchsector].floorstat ^= 1;
-					asksave = 1;
+					asksave = true;
 				}
 			}
 			keystatus[0x19] = 0;
@@ -1989,7 +1989,7 @@ void editinput()
 				sprite[searchwall].cstat ^= 1;
 				sprite[searchwall].cstat &= ~256;
 				sprite[searchwall].cstat |= ((sprite[searchwall].cstat&1)<<8);
-				asksave = 1;
+				asksave = true;
 			}
 			else
 			{
@@ -2000,7 +2000,7 @@ void editinput()
 					wall[wall[searchwall].nextwall].cstat &= ~(1+64);
 					wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&1);
 				}
-				asksave = 1;
+				asksave = true;
 			}
 			keystatus[0x30] = 0;
 		}
@@ -2017,7 +2017,7 @@ void editinput()
 					case 256: sector[searchsector].ceilingstat |= 384; break;
 					case 384: sector[searchsector].ceilingstat |= 0; break;
 				}
-				asksave = 1;
+				asksave = true;
 			}
 			if (searchstat == 2)
 			{
@@ -2030,7 +2030,7 @@ void editinput()
 					case 256: sector[searchsector].floorstat |= 384; break;
 					case 384: sector[searchsector].floorstat |= 0; break;
 				}
-				asksave = 1;
+				asksave = true;
 			}*/
 			if (searchstat == 3)
 			{
@@ -2040,7 +2040,7 @@ void editinput()
 					sprite[searchwall].cstat |= 512;
 				else
 					sprite[searchwall].cstat &= ~(2+512);
-				asksave = 1;
+				asksave = true;
 			}
 			if (searchstat == 4)
 			{
@@ -2056,7 +2056,7 @@ void editinput()
 					wall[wall[searchwall].nextwall].cstat &= ~(128+512);
 					wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&(128+512));
 				}
-				asksave = 1;
+				asksave = true;
 			}
 			keystatus[0x14] = 0;
 		}
@@ -2066,7 +2066,7 @@ void editinput()
 			if (searchstat != 3)
 			{
 				wall[searchwall].cstat ^= 32;
-				asksave = 1;
+				asksave = true;
 			}
 			else
 			{
@@ -2079,7 +2079,7 @@ void editinput()
 						if (posz > sprite[searchwall].z)
 							sprite[searchwall].cstat |= 8;
 				}
-				asksave = 1;
+				asksave = true;
 			}
 			keystatus[0x2] = 0;
 		}
@@ -2088,7 +2088,7 @@ void editinput()
 			if (searchstat != 3)
 			{
 				wall[searchwall].cstat ^= 2;
-				asksave = 1;
+				asksave = true;
 			}
 			keystatus[0x3] = 0;
 		}
@@ -2097,11 +2097,11 @@ void editinput()
 			if ((searchstat == 0) || (searchstat == 4))
 			{
 				wall[searchwall].cstat ^= 4;
-				asksave = 1;
+				asksave = true;
 			}
 			if (searchstat == 3)   // O (ornament onto wall) (2D)
 			{
-				asksave = 1;
+				asksave = true;
 				i = searchwall;
 
 				hitscan(sprite[i].x,sprite[i].y,sprite[i].z,sprite[i].sectnum,
@@ -2157,7 +2157,7 @@ void editinput()
 					}
 					wall[searchwall].cstat &= ~32;
 					if (templong == 0) wall[i].cstat &= ~32;
-					asksave = 1;
+					asksave = true;
 				}
 			}
 			keystatus[0x32] = 0;
@@ -2167,7 +2167,7 @@ void editinput()
 			if (searchstat == 3)
 			{
 				sprite[searchwall].cstat ^= 256;
-				asksave = 1;
+				asksave = true;
 			}
 			else
 			{
@@ -2177,7 +2177,7 @@ void editinput()
 					wall[wall[searchwall].nextwall].cstat &= ~64;
 					wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&64);
 				}
-				asksave = 1;
+				asksave = true;
 			}
 			keystatus[0x23] = 0;
 		}
@@ -2186,12 +2186,12 @@ void editinput()
 			if (searchstat == 1)
 			{
 				sector[searchsector].ceilingstat ^= 8;
-				asksave = 1;
+				asksave = true;
 			}
 			if (searchstat == 2)
 			{
 				sector[searchsector].floorstat ^= 8;
-				asksave = 1;
+				asksave = true;
 			}
 			keystatus[0x12] = 0;
 		}
@@ -2200,19 +2200,19 @@ void editinput()
 			if (searchstat == 1)
 			{
 				sector[searchsector].ceilingstat ^= 64;
-				asksave = 1;
+				asksave = true;
 			}
 			if (searchstat == 2)
 			{
 				sector[searchsector].floorstat ^= 64;
-				asksave = 1;
+				asksave = true;
 			}
 			if (searchstat == 3)
 			{
 				i = sprite[searchwall].cstat;
 				if ((i&48) < 32) i += 16; else i &= ~48;
 				sprite[searchwall].cstat = i;
-				asksave = 1;
+				asksave = true;
 			}
 			keystatus[0x13] = 0;
 		}
@@ -2224,7 +2224,7 @@ void editinput()
 				if (searchstat != 3)
 				{
 					setfirstwall(searchsector,searchwall);
-					asksave = 1;
+					asksave = true;
 				}
 			}
 			else
@@ -2243,7 +2243,7 @@ void editinput()
 					i = ((i&1)<<3)+((i&2)<<7);
 					wall[searchwall].cstat &= ~0x0108;
 					wall[searchwall].cstat |= i;
-					asksave = 1;
+					asksave = true;
 				}
 				if (searchstat == 1)         //8-way ceiling flipping (bits 2,4,5)
 				{
@@ -2263,7 +2263,7 @@ void editinput()
 					i = (i&0x4)+((i&3)<<4);
 					sector[searchsector].ceilingstat &= ~0x34;
 					sector[searchsector].ceilingstat |= i;
-					asksave = 1;
+					asksave = true;
 				}
 				if (searchstat == 2)         //8-way floor flipping (bits 2,4,5)
 				{
@@ -2283,7 +2283,7 @@ void editinput()
 					i = (i&0x4)+((i&3)<<4);
 					sector[searchsector].floorstat &= ~0x34;
 					sector[searchsector].floorstat |= i;
-					asksave = 1;
+					asksave = true;
 				}
 				if (searchstat == 3)
 				{
@@ -2307,7 +2307,7 @@ void editinput()
 						sprite[searchwall].cstat &= ~0xc;
 						sprite[searchwall].cstat |= i;
 					}
-					asksave = 1;
+					asksave = true;
 				}
 			}
 		}
@@ -2416,7 +2416,7 @@ void editinput()
 				}
 
 				updatenumsprites();
-				asksave = 1;
+				asksave = true;
 			}
 
 			keystatus[0x1f] = 0;
@@ -2427,7 +2427,7 @@ void editinput()
 			{
 				deletesprite(searchwall);
 				updatenumsprites();
-				asksave = 1;
+				asksave = true;
 			}
 			keystatus[0xd3] = 0;
 		}
@@ -3177,7 +3177,7 @@ void overheadeditor()
 				sprite[pointhighlight&16383].cstat ^= 1;
 				sprite[pointhighlight&16383].cstat &= ~256;
 				sprite[pointhighlight&16383].cstat |= ((sprite[pointhighlight&16383].cstat&1)<<8);
-				asksave = 1;
+				asksave = true;
 			}
 			else if (linehighlight >= 0)
 			{
@@ -3188,7 +3188,7 @@ void overheadeditor()
 					wall[wall[linehighlight].nextwall].cstat &= ~(1+64);
 					wall[wall[linehighlight].nextwall].cstat |= (wall[linehighlight].cstat&1);
 				}
-				asksave = 1;
+				asksave = true;
 			}
 			keystatus[0x30] = 0;
 		}
@@ -3201,7 +3201,7 @@ void overheadeditor()
 				if (linehighlight >= 0)
 				{
 					setfirstwall(sectorofwall(linehighlight),linehighlight);
-					asksave = 1;
+					asksave = true;
 					printmessage16("This wall now sector's first wall (sector[].wallptr)");
 				}
 			}
@@ -3212,7 +3212,7 @@ void overheadeditor()
 			keystatus[0x18] = 0;
 			if ((pointhighlight&0xc000) == 16384)
 			{
-				asksave = 1;
+				asksave = true;
 				i = (pointhighlight&16383);
 
 				hitscan(sprite[i].x,sprite[i].y,sprite[i].z,sprite[i].sectnum,
@@ -3313,7 +3313,7 @@ void overheadeditor()
 					}
 				}
 				if (k == 0) keystatus[0x33] = 0;
-				asksave = 1;
+				asksave = true;
 			}
 			else
 			{
@@ -3408,7 +3408,7 @@ void overheadeditor()
 					}
 				}
 				if (k == 0) keystatus[0x34] = 0;
-				asksave = 1;
+				asksave = true;
 			}
 			else
 			{
@@ -3436,7 +3436,7 @@ void overheadeditor()
 			startang = ang;
 			startsectnum = cursectnum;
 			keystatus[0x46] = 0;
-			asksave = 1;
+			asksave = true;
 		}
 
 		setstatusbarviewport();
@@ -3550,7 +3550,7 @@ void overheadeditor()
 				if ((pointhighlight&0xc000) == 16384)
 				{
 					sprite[pointhighlight&16383].cstat ^= 256;
-					asksave = 1;
+					asksave = true;
 				}
 				else if (linehighlight >= 0)
 				{
@@ -3560,7 +3560,7 @@ void overheadeditor()
 						wall[wall[linehighlight].nextwall].cstat &= ~64;
 						wall[wall[linehighlight].nextwall].cstat |= (wall[linehighlight].cstat&64);
 					}
-					asksave = 1;
+					asksave = true;
 				}
 			}
 			else if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT
@@ -3896,7 +3896,7 @@ void overheadeditor()
 					{
 						deletepoint((short)i);
 						printmessage16("Point deleted.");
-						asksave = 1;
+						asksave = true;
 					}
 			}
 			for(i=0;i<numwalls;i++)        //make new red lines?
@@ -3905,13 +3905,13 @@ void overheadeditor()
 				{
 					checksectorpointer((short)i,sectorofwall((short)i));
 					fixrepeats((short)i);
-					asksave = 1;
+					asksave = true;
 				}
 				else if ((wall[wall[i].point2].x == dax) && (wall[wall[i].point2].y == day))
 				{
 					checksectorpointer((short)i,sectorofwall((short)i));
 					fixrepeats((short)i);
-					asksave = 1;
+					asksave = true;
 				}
 			}
 
@@ -3985,7 +3985,7 @@ void overheadeditor()
 					//     checksectorpointer((short)j,highlightsector[i]);
 					//   }
 					//}
-					asksave = 1;
+					asksave = true;
 				}
 
 			}
@@ -4057,7 +4057,7 @@ void overheadeditor()
 										}
 						}
 					}
-					asksave = 1;
+					asksave = true;
 				}
 			}
 		}
@@ -4314,7 +4314,7 @@ void overheadeditor()
 
 				printmessage16("Sprite inserted.");
 				updatenumsprites();
-				asksave = 1;
+				asksave = true;
 			}
 
 			keystatus[0x1f] = 0;
@@ -4410,7 +4410,7 @@ void overheadeditor()
 				{
 					bad = 0;
 					keystatus[0x39] = 0;
-					asksave = 1;
+					asksave = true;
 					printmessage16("Circle points inserted.");
 					circlewall = -1;
 				}
@@ -4651,7 +4651,7 @@ void overheadeditor()
 					}
 					numwalls = newnumwalls;
 					newnumwalls = -1;
-					asksave = 1;
+					asksave = true;
 				}
 				if (split == 1)
 				{
@@ -5008,7 +5008,7 @@ void overheadeditor()
 						checksectorpointer((short)j,(short)i);
 				}
 				printmessage16("ALL POINTERS CHECKED!");
-				asksave = 1;
+				asksave = true;
 			}
 			else
 			{
@@ -5016,7 +5016,7 @@ void overheadeditor()
 				{
 					checksectorpointer(linehighlight,sectorofwall(linehighlight));
 					printmessage16("Highlighted line pointers checked.");
-					asksave = 1;
+					asksave = true;
 				}
 			}
 		}
@@ -5026,13 +5026,13 @@ void overheadeditor()
 			if (newnumwalls > numwalls)
 			{
 				newnumwalls--;
-				asksave = 1;
+				asksave = true;
 				keystatus[0x0e] = 0;
 			}
 			if (newnumwalls == numwalls)
 			{
 				newnumwalls = -1;
-				asksave = 1;
+				asksave = true;
 				keystatus[0x0e] = 0;
 			}
 		}
@@ -5070,7 +5070,7 @@ void overheadeditor()
 						printmessage16("Sector deleted.");
 					}
 					newnumwalls = -1;
-					asksave = 1;
+					asksave = true;
 					break;
 				}
 		}
@@ -5082,7 +5082,7 @@ void overheadeditor()
 				deletesprite(pointhighlight&16383);
 				printmessage16("Sprite deleted.");
 				updatenumsprites();
-				asksave = 1;
+				asksave = true;
 			}
 			keystatus[0xd3] = 0;
 		}
@@ -5120,7 +5120,7 @@ void overheadeditor()
 
 				updatenumsprites();
 				printmessage16("Sectors duplicated and stamped.");
-				asksave = 1;
+				asksave = true;
 			}
 			else if (highlightcnt >= 0)
 			{
@@ -5136,7 +5136,7 @@ void overheadeditor()
 					}
 				updatenumsprites();
 				printmessage16("Sprites duplicated and stamped.");
-				asksave = 1;
+				asksave = true;
 			}
 			else if (linehighlight >= 0)
 			{
@@ -5179,7 +5179,7 @@ void overheadeditor()
 				//      }
 				//}
 
-				asksave = 1;
+				asksave = true;
 			}
 			keystatus[0xd2] = 0;
 		}
@@ -5630,7 +5630,7 @@ void overheadeditor()
 							printmessage16("Board saved.");
 							std::strcpy(&boardfilename[0], &selectedboardfilename[0]);
 							pathsearchmode = PATHSEARCH_SYSTEM;
-							asksave = 0;
+							asksave = false;
 						} else {
 							printmessage16("Board NOT saved!");
 						}
@@ -5660,7 +5660,7 @@ void overheadeditor()
 					if (!bad) {
 						ExtSaveMap(filename);
 						printmessage16("Board saved.");
-						asksave = 0;
+						asksave = false;
 					} else {
 						printmessage16("Board NOT saved!");
 					}
@@ -6276,7 +6276,7 @@ short getnumber16(char *namestart, short num, int maxnumber, char sign)
 			danum /= 10;
 		} else if (ch == 13) {
 			oldnum = danum;
-			asksave = 1;
+			asksave = true;
 			break;
 		} else if (ch == '-' && sign) {	// negate
 			danum = -danum;
@@ -6326,7 +6326,7 @@ short getnumber256(char *namestart, short num, int maxnumber, char sign)
 		}
 		else if (ch == 13) {
 			oldnum = danum;
-			asksave = 1;
+			asksave = true;
 			break;
 		}
 		else if (ch == '-' && sign) {	// negate

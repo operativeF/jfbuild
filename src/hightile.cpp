@@ -153,7 +153,7 @@ int hicsetsubsttex(int picnum, int palnum, const std::string& filen, float alpha
 		return -1;
 	}
 
-	hrn->ignore = 0;
+	hrn->ignore = false;
 	hrn->alphacut = std::min(alphacut, 1.0F);
 	hrn->flags = flags;
 
@@ -217,7 +217,7 @@ int hicsetskybox(int picnum, int palnum, std::span<const std::string> faces)
 	// store each face's filename
 	std::ranges::copy(faces.begin(), faces.end(), hrn->skybox->face.data());
 
-	hrn->skybox->ignore = 0;
+	hrn->skybox->ignore = false;
 	if (hr == nullptr) {
 		hrn->next = hicreplc[picnum];
 		hicreplc[picnum] = hrn;

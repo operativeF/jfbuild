@@ -6475,7 +6475,7 @@ void searchmap(short startsector)
 	for(i=0;i<(MAXWALLS>>3);i++) show2dwall[i] = 0;
 	for(i=0;i<(MAXSPRITES>>3);i++) show2dsprite[i] = 0;
 
-	automapping = 0;
+	automapping = false;
 
 		//Search your area recursively & set all show2dsector/show2dwalls
 	tempshort[0] = startsector;
