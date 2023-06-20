@@ -8,6 +8,7 @@
 #include "build.hpp"
 #include "scriptfile.hpp"
 #include "cache1d.hpp"
+#include "string_utils.hpp"
 
 #include <algorithm>
 #include <charconv>
@@ -534,7 +535,7 @@ int scriptfile_getsymbolvalue(const char *name, int *val)
 		return 0;
 	
 	while (scanner - symbtab < (ptrdiff_t)symbtablength) {
-		if (!strcasecmp(name, scanner)) {
+		if (IsSameAsNoCase(name, scanner)) {
 			*val = *(int*)(scanner + std::strlen(scanner) + 1);
 			return 1;
 		}
@@ -553,7 +554,7 @@ int scriptfile_addsymbolvalue(const char *name, int val)
 	if (symbtab) {
 		char *scanner = symbtab;
 		while (scanner - symbtab < (ptrdiff_t)symbtablength) {
-			if (!strcasecmp(name, scanner)) {
+			if (IsSameAsNoCase(name, scanner)) {
 				*(int*)(scanner + std::strlen(scanner) + 1) = val;
 				return 1;
 			}

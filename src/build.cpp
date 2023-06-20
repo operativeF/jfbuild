@@ -11,6 +11,7 @@
 #include "osd.hpp"
 #include "cache1d.hpp"
 #include "editor.hpp"
+#include "string_utils.hpp"
 #include "version.hpp"
 
 #include "baselayer.hpp"
@@ -337,12 +338,12 @@ int app_main(int argc, char const * const argv[])
 	boardfilename[0] = 0;
 	for (i=1; i<argc; i++) {
 		if (argv[i][0] == '-') {
-			if (!strcmp(argv[i], "-g") || !strcmp(argv[i], "-grp")) {
+			if (IsSameAsNoCase(argv[i], "-g") || IsSameAsNoCase(argv[i], "-grp")) {
 				i++;
 				if (grpstoadd == 0) grps = (char const **)std::malloc(sizeof(char const *) * argc);
 				grps[grpstoadd++] = argv[i];
 			}
-			else if (!strcmp(argv[i], "-help") || !strcmp(argv[i], "--help") || !strcmp(argv[i], "-?")) {
+			else if (IsSameAsNoCase(argv[i], "-help") || IsSameAsNoCase(argv[i], "--help") || IsSameAsNoCase(argv[i], "-?")) {
 				const char* s =
 					"BUILD by Ken Silverman\n"
 					"Syntax: build [options] mapname\n"
@@ -361,7 +362,7 @@ int app_main(int argc, char const * const argv[])
 				return 0;
 			}
 #ifdef HAVE_STARTWIN
-			else if (!strcmp(argv[i], "-setup")) cmdsetup = 1;
+			else if (IsSameAsNoCase(argv[i], "-setup")) cmdsetup = 1;
 #endif
 			continue;
 		}
@@ -5567,7 +5568,7 @@ void overheadeditor()
 
 					// Find the end of the filename and cut off any .map extension.
 					curs = strrchr(filename, 0);
-					if (curs - filename >= 4 && strcasecmp(curs - 4, ".map") == 0) { curs -= 4; *curs = 0; }
+					if (curs - filename >= 4 && IsSameAsNoCase(curs - 4, ".map")) { curs -= 4; *curs = 0; }
 
 					bflushchars();
 					while (bad == 0)

@@ -507,7 +507,7 @@ int app_main(int argc, char const * const argv[])
 			if (IsSameAsNoCase("net", &argv[i][1])) {
 				netparm = ++i;
 				for (; i<argc; i++)
-					if (!strcmp(argv[i], "--")) break;
+					if (IsSameAsNoCase(argv[i], "--")) break;
 				endnetparm = i;
 			}
 #ifdef HAVE_STARTWIN
@@ -647,7 +647,7 @@ int app_main(int argc, char const * const argv[])
 	prepareboard(boardfilename);                   //Load board
 
 	initsb(option[1],option[2],digihz[option[7]>>4],((option[7]&4)>0)+1,((option[7]&2)>0)+1,60,option[7]&1);
-	if (std::strcmp(boardfilename,"klab.map") == 0)
+	if (IsSameAsNoCase(boardfilename, "klab.map"))
 	    loadsong("klabsong.kdm");
 	else
 		loadsong("neatsong.kdm");
