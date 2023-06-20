@@ -8424,7 +8424,7 @@ int loadmaphack(const std::string& filename)
 
 	int whichsprite = -1;
 
-	auto script = scriptfile_fromfile(filename.c_str());
+	auto script = scriptfile_fromfile(filename);
 	
 	if (!script) {
 		return -1;
@@ -12553,10 +12553,8 @@ void buildputs(std::string_view str)
     if (logfile)
 		fmt::print(logfile, "{}", str);
     
-	const std::string tmpstr{str.begin(), str.end()};
-
-	initputs(tmpstr.c_str());  // the startup window
-    OSD_Puts(tmpstr);  // the onscreen-display
+	initputs(str.data());  // the startup window
+    OSD_Puts(str.data());  // the onscreen-display
 }
 
 void buildsetlogfile(const char *fn)

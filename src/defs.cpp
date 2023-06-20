@@ -289,7 +289,7 @@ static int defsparser(scriptfile *script)
 					if (scriptfile_getnumber(script, &fnoo)) break; //y-size
 					if (scriptfile_getstring(script, fn))  break;
 #if USE_POLYMOST && USE_OPENGL
-					hicsetsubsttex(tile,pal, fn.c_str(),-1.0,0);
+					hicsetsubsttex(tile, pal, fn, -1.0, 0);
 #endif
 				}
 				break;
@@ -945,7 +945,7 @@ static int defsparser(scriptfile *script)
 									break;
 								}
 #if USE_POLYMOST && USE_OPENGL
-								hicsetsubsttex(tile, pal, fn.c_str(), alphacut, flags);
+								hicsetsubsttex(tile, pal, fn, alphacut, flags);
 #endif
 							} break;
 

@@ -294,7 +294,7 @@ int PTM_LoadTextureFile(const std::string& filename, PTMHead* ptmh, int flags, i
 	bool iscached{false};
 
 	if (!(flags & PTH_NOCOMPRESS) && glusetexcache && glusetexcompr) {
-		iscached = PTCacheHasTile(filename.c_str(), effects, (flags & PTH_CLAMPED));
+		iscached = PTCacheHasTile(filename, effects, (flags & PTH_CLAMPED));
 
 		// if the texture exists in the cache but the original file is newer,
 		// ignore what's in the cache and overwrite it
@@ -400,7 +400,7 @@ int PTM_LoadTextureFile(const std::string& filename, PTMHead* ptmh, int flags, i
 		nmips++;
 
 		tdef = PTCacheAllocNewTile(nmips);
-		tdef->filename = strdup(filename.c_str());
+		tdef->filename = filename;
 		tdef->effects = effects;
 		tdef->flags = (flags | ptmh->flags) & (PTH_CLAMPED | PTH_HASALPHA);
 	}
