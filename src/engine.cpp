@@ -12203,13 +12203,6 @@ void setfirstwall(short sectnum, short newfirstwall)
 //
 void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 {
-	int i;
-	int j;
-	int inc;
-	int daend;
-	int plc;
-	intptr_t p;
-
 	col = palookup[0][col];
 
 	const int dx = x2 - x1;
@@ -12227,6 +12220,7 @@ void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 		if (x2 < wx1) y2 += scale(wx1-x2,dy,dx), x2 = wx1;
 		if (x1 > wx2) y1 += scale(wx2-x1,dy,dx), x1 = wx2;
 	}
+
 	if (dy >= 0)
 	{
 		if ((y1 >= wy2) || (y2 < wy1)) return;
@@ -12257,15 +12251,15 @@ void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 			x2 += 4096;
 		}
 
-		inc = divscalen<12>(dy,dx);
-		plc = y1+mulscalen<12>((2047-x1)&4095,inc);
-		i = ((x1+2048)>>12); daend = ((x2+2048)>>12);
+		const int inc = divscalen<12>(dy, dx);
+		int plc = y1 + mulscalen<12>((2047 - x1) & 4095, inc);
+		const int daend = ((x2 + 2048) >> 12);
 
-		for(;i<daend;i++)
+		for(int i = ((x1 + 2048) >> 12); i < daend; ++i)
 		{
-			j = (plc>>12);
+			const int j = (plc >> 12);
 			if ((j >= startumost[i]) && (j < startdmost[i]))
-				drawpixel((void*)(frameplace+ylookup[j]+i),col);
+				drawpixel((void*)(frameplace + ylookup[j] + i), col);
 			plc += inc;
 		}
 	}
@@ -12279,17 +12273,19 @@ void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 			y2 += 4096;
 		}
 
-		inc = divscalen<12>(dx,dy);
-		plc = x1+mulscalen<12>((2047-y1)&4095,inc);
-		i = ((y1+2048)>>12); daend = ((y2+2048)>>12);
+		const int inc = divscalen<12>(dx, dy);
+		int plc = x1 + mulscalen<12>((2047 - y1) & 4095, inc);
+		int i = ((y1 + 2048) >> 12);
+		const int daend = ((y2 + 2048) >> 12);
 
-		p = ylookup[i]+frameplace;
-		for(;i<daend;i++)
+		intptr_t p = ylookup[i] + frameplace;
+		for(; i < daend; ++i)
 		{
-			j = (plc>>12);
+			const int j = (plc >> 12);
 			if ((i >= startumost[j]) && (i < startdmost[j]))
-				drawpixel((void*)(j+p),col);
-			plc += inc; p += ylookup[1];
+				drawpixel((void*)(j + p),col);
+			plc += inc;
+			p += ylookup[1];
 		}
 	}
 }
