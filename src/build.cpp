@@ -5832,7 +5832,7 @@ int getpointhighlight(int xplc, int yplc)
 	
 	for(int i{0}; i < numwalls; ++i)
 	{
-		int dst = std::abs(xplc-wall[i].x) + std::abs(yplc-wall[i].y);
+		const int dst = std::abs(xplc-wall[i].x) + std::abs(yplc-wall[i].y);
 		if (dst <= dist) {
 			dist = dst;
 			closest = i;
@@ -5842,7 +5842,7 @@ int getpointhighlight(int xplc, int yplc)
 	for(int i{0}; i < MAXSPRITES; ++i) {
 		if (sprite[i].statnum < MAXSTATUS)
 		{
-			int dst = std::abs(xplc-sprite[i].x) + std::abs(yplc-sprite[i].y);
+			const int dst = std::abs(xplc-sprite[i].x) + std::abs(yplc-sprite[i].y);
 			
 			if (dst <= dist) {
 				dist = dst;
@@ -5869,7 +5869,7 @@ void adjustmark(int *xplc, int *yplc, short danumwalls)
 	
 	for(int i{0}; i < danumwalls; ++i)
 	{
-		int dst = std::abs((*xplc)-wall[i].x) + std::abs((*yplc)-wall[i].y);
+		const int dst = std::abs((*xplc)-wall[i].x) + std::abs((*yplc)-wall[i].y);
 		
 		if (dst < dist)
 		{
@@ -6260,7 +6260,7 @@ short getnumber16(char *namestart, short num, int maxnumber, char sign)
 			if (quitevent) quitevent = 0;
 		}
 
-		auto ch = bgetchar();
+		const auto ch = bgetchar();
 
 		fmt::format_to(buffer, "{}{}_ ", namestart, danum);
 		printmessage16(buffer);
@@ -6307,7 +6307,7 @@ short getnumber256(char *namestart, short num, int maxnumber, char sign)
 		ExtAnalyzeSprites();
 		drawmasks();
 
-		auto ch = bgetchar();
+		const auto ch = bgetchar();
 
 		fmt::format_to(buffer, "{}{}_ ", namestart, danum);
 		printmessage256(buffer);
@@ -6719,7 +6719,7 @@ int loadnames()
 	buildprintf("Loading NAMES.H\n");
 
 	while (std::fgets(&buffer[0], 1024, fp)) {
-		int a = (int)std::strlen(&buffer[0]);
+		const int a = (int)std::strlen(&buffer[0]);
 		if (a >= 1) {
 			if (a > 1)
 				if (buffer[a-2] == '\r') buffer[a-2] = 0;
