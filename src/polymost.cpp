@@ -109,24 +109,8 @@ struct vsptyp {
 	int ftag;
 };
 
-constexpr auto VSPMAX{4096}; //<- careful!
-static std::array<vsptyp, VSPMAX> vsp;
-static int vcnt;
-static int gtag;
-
-static constexpr auto SCISDIST{1.0}; //1.0: Close plane clipping distance
-#define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
-static constexpr auto LINTERPSIZ{4}; //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
-#define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
-static constexpr auto FOGSCALE{0.0000384};
-
 double gxyaspect;
 double grhalfxdown10x;
-static double gyxscale;
-static double gviewxrange;
-static double ghalfx;
-static double grhalfxdown10;
-static double ghoriz;
 double gcosang;
 double gsinang;
 double gcosang2;
@@ -135,8 +119,29 @@ double gchang;
 double gshang;
 double gctang;
 double gstang;
-static double gvisibility;
 float gtang{0.0F};
+
+namespace {
+
+constexpr auto VSPMAX{4096}; //<- careful!
+std::array<vsptyp, VSPMAX> vsp;
+int vcnt;
+int gtag;
+
+constexpr auto SCISDIST{1.0}; //1.0: Close plane clipping distance
+#define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
+constexpr auto LINTERPSIZ{4}; //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
+#define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
+constexpr auto FOGSCALE{0.0000384};
+
+double gyxscale;
+double gviewxrange;
+double ghalfx;
+double grhalfxdown10;
+double ghoriz;
+double gvisibility;
+
+} // namespace
 
 //Screen-based texture mapping parameters
 double guo;
@@ -159,18 +164,24 @@ int* zbufoff{nullptr};
 #if USE_OPENGL
 int gfogpalnum{0};
 float gfogdensity{0.F};
-
-static int lastglredbluemode{0};
-static int redblueclearcnt{0};
-
-static int lastglpolygonmode{0};
 int glpolygonmode{0};     // 0:GL_FILL,1:GL_LINE,2:GL_POINT,3:clear+GL_FILL
 
-static GLuint texttexture{0};
-static GLuint nulltexture{0};
+GLfloat gdrawroomsprojmat[4][4];      // Proj. matrix for drawrooms() calls.
+GLfloat grotatespriteprojmat[4][4];   // Proj. matrix for rotatesprite() calls.
+GLfloat gorthoprojmat[4][4];          // Proj. matrix for 2D (aux) calls.
+
+namespace {
+
+int lastglredbluemode{0};
+int redblueclearcnt{0};
+
+int lastglpolygonmode{0};
+
+GLuint texttexture{0};
+GLuint nulltexture{0};
 
 #define SHADERDEV 1
-static struct {
+struct {
 	GLuint vao;					// Vertex array object.
 	GLuint program;             // GLSL program object.
 	GLuint elementbuffer;
@@ -186,7 +197,7 @@ static struct {
 	GLint uniform_fogdensity;   // Fog density  (float)
 } polymostglsl;
 
-static struct {
+struct {
 	GLuint vao;					// Vertex array object.
 	GLuint program;
 	GLuint elementbuffer;
@@ -203,23 +214,24 @@ static struct {
 		// 2 = draw solid colour.
 } polymostauxglsl;
 
-static GLuint elementindexbuffer{0};
-static GLuint elementindexbuffersize{0};
+GLuint elementindexbuffer{0};
+GLuint elementindexbuffersize{0};
 
-GLfloat gdrawroomsprojmat[4][4];      // Proj. matrix for drawrooms() calls.
-GLfloat grotatespriteprojmat[4][4];   // Proj. matrix for rotatesprite() calls.
-GLfloat gorthoprojmat[4][4];          // Proj. matrix for 2D (aux) calls.
+int polymost_preparetext();
 
-static int polymost_preparetext();
+} // namespace 
+
 #endif //USE_OPENGL
 
+namespace {
+
 #ifdef DEBUGGINGAIDS
-static int polymostshowcallcounts = 0;
+int polymostshowcallcounts = 0;
 struct polymostcallcounts polymostcallcounts;
 #endif
 
 #if defined(_MSC_VER) && defined(_M_IX86) && USE_ASM
-static inline void dtol (double d, int *a)
+inline void dtol (double d, int *a)
 {
 	_asm
 	{
@@ -236,7 +248,7 @@ static inline void dtol (double d, int *a)
 
 #elif defined(__GNUC__) && defined(__i386__) && USE_ASM
 
-static inline void dtol (double d, int *a)
+inline void dtol (double d, int *a)
 {
 	__asm__ __volatile__ (
 #if 0 //(__GNUC__ >= 3)
@@ -249,13 +261,13 @@ static inline void dtol (double d, int *a)
 
 #else
 
-static inline void dtol(double d, int *a)
+inline void dtol(double d, int *a)
 {
 	*a = static_cast<int>(d);
 }
 #endif
 
-static inline int imod(int a, int b)
+inline int imod(int a, int b)
 {
 	if (a >= 0) {
 		return a % b;
@@ -264,7 +276,7 @@ static inline int imod(int a, int b)
 	return ((a + 1) % b) + b - 1;
 }
 
-static void drawline2d (float x0, float y0, float x1, float y1, unsigned char col)
+void drawline2d (float x0, float y0, float x1, float y1, unsigned char col)
 {
 	float f;
 	int e;
@@ -333,9 +345,15 @@ static void drawline2d (float x0, float y0, float x1, float y1, unsigned char co
 	}
 }
 
+} // namespace
+
 #if USE_OPENGL
 
-static int drawingskybox{0};
+namespace {
+
+int drawingskybox{0};
+
+} // namespace
 
 bool polymost_texmayhavealpha (int dapicnum, int dapalnum)
 {
@@ -475,8 +493,12 @@ float gloy1;
 float glox2;
 float gloy2;
 
+namespace {
+
 	//Use this for both initialization and uninitialization of OpenGL.
-static int gltexcacnum{-1};
+int gltexcacnum{-1};
+
+} // namespace
 
 void polymost_glreset ()
 {
@@ -559,7 +581,9 @@ void polymost_glreset ()
 	}
 }
 
-static GLint polymost_get_attrib(GLuint program, const GLchar *name)
+namespace {
+
+GLint polymost_get_attrib(GLuint program, const GLchar *name)
 {
 	const GLint attribloc = glfunc.glGetAttribLocation(program, name);
 	
@@ -570,7 +594,7 @@ static GLint polymost_get_attrib(GLuint program, const GLchar *name)
 	return attribloc;
 }
 
-static GLint polymost_get_uniform(GLuint program, const GLchar *name)
+GLint polymost_get_uniform(GLuint program, const GLchar *name)
 {
 	const GLint uniformloc = glfunc.glGetUniformLocation(program, name);
 	
@@ -581,7 +605,7 @@ static GLint polymost_get_uniform(GLuint program, const GLchar *name)
 	return uniformloc;
 }
 
-static GLuint polymost_load_shader(GLuint shadertype, const std::string& defaultsrc, const std::string& filename)
+GLuint polymost_load_shader(GLuint shadertype, const std::string& defaultsrc, const std::string& filename)
 {
 	std::string shadersrc{defaultsrc};
 
@@ -609,7 +633,7 @@ static GLuint polymost_load_shader(GLuint shadertype, const std::string& default
 	return glbuild_compile_shader(shadertype, &shadersrc[0]);
 }
 
-static void checkindexbuffer(unsigned int size)
+void checkindexbuffer(unsigned int size)
 {
 	if (size <= elementindexbuffersize)
 		return;
@@ -625,7 +649,7 @@ static void checkindexbuffer(unsigned int size)
 	elementindexbuffersize = size;
 }
 
-static void polymost_loadshaders()
+void polymost_loadshaders()
 {
 	// General texture rendering shader.
 	if (polymostglsl.program) {
@@ -726,6 +750,8 @@ static void polymost_loadshaders()
 	glfunc.glGenBuffers(1, &elementindexbuffer);
 	checkindexbuffer(MINVBOINDEXES);
 }
+
+} // namespace
 
 // one-time initialisation of OpenGL for polymost
 void polymost_glinit()
@@ -901,7 +927,9 @@ void polymost_drawpoly_glcall(GLenum mode, struct polymostdrawpolycall const *dr
 #endif
 }
 
-static void polymost_drawaux_glcall(GLenum mode, struct polymostdrawauxcall const *draw)
+namespace {
+
+void polymost_drawaux_glcall(GLenum mode, struct polymostdrawauxcall const *draw)
 {
 #ifdef DEBUGGINGAIDS
 	polymostcallcounts.drawaux_glcall++;
@@ -957,7 +985,7 @@ static void polymost_drawaux_glcall(GLenum mode, struct polymostdrawauxcall cons
 #endif
 }
 
-static void polymost_palfade()
+void polymost_palfade()
 {
 	struct polymostdrawauxcall draw;
 	std::array<polymostvboitem, 4> vboitem;
@@ -998,6 +1026,8 @@ static void polymost_palfade()
 
 	polymost_drawaux_glcall(GL_TRIANGLE_FAN, &draw);
 }
+
+} // namespace
 
 #endif //USE_OPENGL
 
@@ -1778,13 +1808,15 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 	}
 }
 
+namespace {
+
 	/*Init viewport boundary (must be 4 point convex loop):
 	//      (px[0],py[0]).----.(px[1],py[1])
 	//                  /      \
 	//                /          \
 	// (px[3],py[3]).--------------.(px[2],py[2])
 	*/
-static void initmosts (const double *px, const double *py, int n)
+void initmosts (const double *px, const double *py, int n)
 {
 	int i;
 	int j;
@@ -1865,7 +1897,7 @@ static void initmosts (const double *px, const double *py, int n)
 	vsp[VSPMAX-1].n = vcnt; vsp[vcnt].p = VSPMAX-1;
 }
 
-static void vsdel(int i) {
+void vsdel(int i) {
 	//Delete i
 	const int pi = vsp[i].p;
 	const int ni = vsp[i].n;
@@ -1879,7 +1911,7 @@ static void vsdel(int i) {
 	vsp[VSPMAX - 1].n = i;
 }
 
-static int vsinsaft (int i)
+int vsinsaft (int i)
 {
 	//i = next element from empty list
 	const int r = vsp[VSPMAX-1].n;
@@ -1897,7 +1929,7 @@ static int vsinsaft (int i)
 	return r;
 }
 
-static int testvisiblemost (float x0, float x1)
+int testvisiblemost (float x0, float x1)
 {
 	int newi;
 
@@ -1912,7 +1944,7 @@ static int testvisiblemost (float x0, float x1)
 	return 0;
 }
 
-static void domost (float x0, float y0, float x1, float y1, int polymethod)
+void domost (float x0, float y0, float x1, float y1, int polymethod)
 {
 	std::array<double, 4> dpx;
 	std::array<double, 4> dpy;
@@ -2193,9 +2225,9 @@ static void domost (float x0, float y0, float x1, float y1, int polymethod)
 	}
 }
 
-static void polymost_scansector (int sectnum);
+void polymost_scansector (int sectnum);
 
-static void polymost_drawalls (int bunch)
+void polymost_drawalls (int bunch)
 {
 	sectortype* nextsec;
 	walltype* wal;
@@ -3192,7 +3224,7 @@ static void polymost_drawalls (int bunch)
 	}
 }
 
-static int polymost_bunchfront (int b1, int b2)
+int polymost_bunchfront (int b1, int b2)
 {
 	const int b1f = bunchfirst[b1];
 	const double x1b1 = dxb1[b1f];
@@ -3224,7 +3256,7 @@ static int polymost_bunchfront (int b1, int b2)
 	return wallfront(i, b2f);
 }
 
-static void polymost_scansector (int sectnum)
+void polymost_scansector (int sectnum)
 {
 	double d;
 	double xp1;
@@ -3333,6 +3365,8 @@ static void polymost_scansector (int sectnum)
 		}
 	} while (sectorbordercnt > 0);
 }
+
+} // namespace
 
 void polymost_drawrooms ()
 {
@@ -4507,8 +4541,10 @@ void polymost_dorotatesprite (int sx, int sy, int z, short a, short picnum,
 
 #if USE_OPENGL
 
-static float trapextx[2];
-static void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1,
+namespace {
+
+float trapextx[2];
+void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1,
 	struct polymostdrawpolycall *draw)
 {
 	std::array<float, 4> px;
@@ -4561,7 +4597,7 @@ static void drawtrap (float x0, float x1, float y0, float x2, float x3, float y1
 	draw->elementvbo = nullptr;
 }
 
-static void tessectrap (const float *px, const float *py, std::span<const int> point2, int numpoints,
+void tessectrap (const float *px, const float *py, std::span<const int> point2, int numpoints,
 	struct polymostdrawpolycall *draw)
 {
 	float x0;
@@ -4719,6 +4755,8 @@ static void tessectrap (const float *px, const float *py, std::span<const int> p
 		}
 	}
 }
+
+} // namespace
 
 void polymost_fillpolygon (int npoints)
 {
@@ -5102,7 +5140,9 @@ int polymost_plotpixel(int x, int y, unsigned char col)
 	return 0;
 }
 
-static int polymost_preparetext()
+namespace {
+
+int polymost_preparetext()
 {
 	if (texttexture) {
 		return 0;
@@ -5151,6 +5191,8 @@ static int polymost_preparetext()
 
 	return 0;
 }
+
+} // namespace
 
 void polymost_precache_begin()
 {
@@ -5201,9 +5243,11 @@ int polymost_precache_run(int* done, int* total)
 	return PTDoPrime(done, total);
 }
 
+namespace {
+
 #ifdef DEBUGGINGAIDS
 // because I'm lazy
-static int osdcmd_debugdumptexturedefs(const osdfuncparm_t *parm)
+int osdcmd_debugdumptexturedefs(const osdfuncparm_t *parm)
 {
 	hicreplctyp *hr;
 	int i;
@@ -5229,7 +5273,9 @@ static int osdcmd_debugdumptexturedefs(const osdfuncparm_t *parm)
 	return OSDCMD_OK;	// no replacement found
 }
 
-static int osdcmd_debugtexturehash(const osdfuncparm_t *parm)
+namespace {
+
+int osdcmd_debugtexturehash(const osdfuncparm_t *parm)
 {
 	PTIter iter;
 	PTHead * pth;
@@ -5260,10 +5306,13 @@ static int osdcmd_debugtexturehash(const osdfuncparm_t *parm)
 
 	return OSDCMD_OK;	// no replacement found
 }
+
+} // namespace
+
 #endif
 
 #ifdef SHADERDEV
-static int osdcmd_debugreloadshaders(const osdfuncparm_t *parm)
+int osdcmd_debugreloadshaders(const osdfuncparm_t *parm)
 {
 	std::ignore = parm;
 	polymost_loadshaders();
@@ -5271,7 +5320,7 @@ static int osdcmd_debugreloadshaders(const osdfuncparm_t *parm)
 }
 #endif
 
-static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
+int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 {
 	if (parm->parms.size() != 1) {
 		buildprintf("Current texturing mode is {}\n", glfiltermodes[gltexfiltermode].name);
@@ -5309,7 +5358,7 @@ static int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 
-static int osdcmd_gltextureanisotropy(const osdfuncparm_t *parm)
+int osdcmd_gltextureanisotropy(const osdfuncparm_t *parm)
 {
 	if (parm->parms.size() != 1) {
 		buildprintf("Current texture anisotropy is {}\n", glanisotropy);
@@ -5337,7 +5386,7 @@ static int osdcmd_gltextureanisotropy(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 
-static int osdcmd_forcetexcacherebuild(const osdfuncparm_t *parm)
+int osdcmd_forcetexcacherebuild(const osdfuncparm_t *parm)
 {
 	std::ignore = parm;
 	PTCacheForceRebuild();
@@ -5345,9 +5394,13 @@ static int osdcmd_forcetexcacherebuild(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 
+} // namespace
+
 #endif //USE_OPENGL
 
-static int osdcmd_polymostvars(const osdfuncparm_t *parm)
+namespace {
+
+int osdcmd_polymostvars(const osdfuncparm_t *parm)
 {
 	const bool showval = parm->parms.size() < 1;
 	int val{0};
@@ -5457,6 +5510,8 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 #endif
 	return OSDCMD_SHOWHELP;
 }
+
+} // namespace
 
 void polymost_initosdfuncs()
 {

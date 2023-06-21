@@ -19,6 +19,8 @@
 #include <cstdlib>
 #include <cstring>
 
+namespace {
+
 /** a texture hash entry */
 struct PTHash {
 	PTHash* next;
@@ -37,19 +39,6 @@ struct PTMHash {
     PTMIdent id;
 };
 
-/** an iterator for walking the hash */
-struct PTIter_typ {
-	int i;
-	PTHash *pth;
-
-	// criteria for doing selective matching
-	int match;
-	int picnum;
-	int palnum;
-	unsigned short flagsmask;
-	unsigned short flags;
-};
-
 /** a convenient structure for passing around texture data that is being baked */
 struct PTTexture {
 	coltype * pic;
@@ -59,40 +48,40 @@ struct PTTexture {
 	int hasalpha;
 };
 
-static int primecnt   = 0;	// expected number of textures to load during priming
-static int primedone  = 0;	// running total of how many textures have been primed
-static int primepos   = 0;	// the position in pthashhead where we are up to in priming
+int primecnt   = 0;	// expected number of textures to load during priming
+int primedone  = 0;	// running total of how many textures have been primed
+int primepos   = 0;	// the position in pthashhead where we are up to in priming
 
 constexpr auto PTHASHHEADSIZ{4096};
-static PTHash * pthashhead[PTHASHHEADSIZ];	// will be initialised 0 by .bss segment
+PTHash * pthashhead[PTHASHHEADSIZ];	// will be initialised 0 by .bss segment
 
 constexpr auto PTMHASHHEADSIZ{4096};
-static PTMHash * ptmhashhead[PTMHASHHEADSIZ];	// will be initialised 0 by .bss segment
+PTMHash * ptmhashhead[PTMHASHHEADSIZ];	// will be initialised 0 by .bss segment
 
-static constexpr std::array<std::string_view, 4> compressfourcc = {
+constexpr std::array<std::string_view, 4> compressfourcc = {
 	"NONE",
 	"DXT1",
 	"DXT5",
 	"ETC1",
 };
 
-static void ptm_fixtransparency(PTTexture * tex, int clamped);
-static void ptm_applyeffects(PTTexture * tex, int effects);
-static void ptm_mipscale(PTTexture * tex);
-static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * tex, PTCacheTile * tdef);
+void ptm_fixtransparency(PTTexture * tex, int clamped);
+void ptm_applyeffects(PTTexture * tex, int effects);
+void ptm_mipscale(PTTexture * tex);
+void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * tex, PTCacheTile * tdef);
 
 
-static inline int pt_gethashhead(const int picnum)
+inline int pt_gethashhead(const int picnum)
 {
 	return picnum & (PTHASHHEADSIZ - 1);
 }
 
-static inline int ptm_gethashhead(const unsigned int idcrc)
+inline int ptm_gethashhead(const unsigned int idcrc)
 {
 	return idcrc & (PTMHASHHEADSIZ - 1);
 }
 
-static void detect_texture_size()
+void detect_texture_size()
 {
 	if (gltexmaxsize <= 0) {
 		GLint siz = glinfo.maxtexsize;
@@ -107,6 +96,20 @@ static void detect_texture_size()
 	}
 }
 
+} // namespace
+
+/** an iterator for walking the hash */
+struct PTIter_typ {
+	int i;
+	PTHash *pth;
+
+	// criteria for doing selective matching
+	int match;
+	int picnum;
+	int palnum;
+	unsigned short flagsmask;
+	unsigned short flags;
+};
 
 /**
  * Calculates a texture id from the information in a PTHead structure
@@ -184,6 +187,7 @@ PTMHead* PTM_GetHead(const PTMIdent *id)
 	return &ptmh->head;
 }
 
+namespace {
 
 /**
  * Loads a texture file into OpenGL from the PolymostTex cache
@@ -193,7 +197,7 @@ PTMHead* PTM_GetHead(const PTMIdent *id)
  * @param effects HICEFFECT_* effects
  * @return 0 on success, <0 on error
  */
-static int ptm_loadcachedtexturefile(const char* filename, PTMHead* ptmh, int flags, int effects)
+int ptm_loadcachedtexturefile(const char* filename, PTMHead* ptmh, int flags, int effects)
 {
 	auto tdef = PTCacheLoadTile(filename, effects, flags & (PTH_CLAMPED));
 
@@ -277,6 +281,7 @@ incompatible:
 	return 0;
 }
 
+} // namespace
 
 /**
  * Loads a texture file into OpenGL
@@ -450,6 +455,7 @@ std::string PTM_GetLoadTextureFileErrorString(int err)
 	}
 }
 
+namespace {
 
 /**
  * Finds the pthash entry for a tile, possibly creating it if one doesn't exist
@@ -459,7 +465,7 @@ std::string PTM_GetLoadTextureFileErrorString(int err)
  * @param create !0 = create if none found
  * @return the PTHash item, or null if none was found
  */
-static PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int create)
+PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int create)
 {
 	const int i = pt_gethashhead(picnum);
 
@@ -541,7 +547,7 @@ static PTHash * pt_findhash(int picnum, int palnum, unsigned short flags, int cr
  * Unloads a texture from memory
  * @param pth pointer to the pthash of the loaded texture
  */
-static void pt_unload(PTHash * pth)
+void pt_unload(PTHash * pth)
 {
 	for (int i{PTHPIC_SIZE - 1}; i >= 0; i--) {
 		if (pth->head.pic[i] && pth->head.pic[i]->glpic) {
@@ -551,16 +557,16 @@ static void pt_unload(PTHash * pth)
 	}
 }
 
-static bool pt_load_art(PTHead* pth);
-static int pt_load_hightile(PTHead * pth);
-static void pt_load_applyparameters(const PTHead * pth);
+bool pt_load_art(PTHead* pth);
+int pt_load_hightile(PTHead * pth);
+void pt_load_applyparameters(const PTHead * pth);
 
 /**
  * Loads a texture into memory from disk
  * @param pth pointer to the pthash of the texture to load
  * @return !0 on success
  */
-static int pt_load(PTHash * pth)
+int pt_load(PTHash * pth)
 {
 	if (pth->head.pic[PTHPIC_BASE] &&
 		pth->head.pic[PTHPIC_BASE]->glpic != 0 &&
@@ -600,7 +606,7 @@ static int pt_load(PTHash * pth)
  * @param pth the header to populate
  * @return !0 on success
  */
-static bool pt_load_art(PTHead * pth)
+bool pt_load_art(PTHead * pth)
 {
 	PTTexture tex;
 	PTTexture fbtex;
@@ -754,7 +760,7 @@ static bool pt_load_art(PTHead * pth)
  * @return !0 on success. Success is defined as all faces of a skybox being loaded,
  *   or at least the base texture of a regular replacement.
  */
-static int pt_load_hightile(PTHead * pth)
+int pt_load_hightile(PTHead * pth)
 {
 	std::string filename;
 	int err{0};
@@ -839,7 +845,7 @@ static int pt_load_hightile(PTHead * pth)
  * Applies the global texture filter parameters to the given texture
  * @param pth the cache header
  */
-static void pt_load_applyparameters(const PTHead * pth)
+void pt_load_applyparameters(const PTHead * pth)
 {
 	for (int i{0}; i < PTHPIC_SIZE; ++i) {
 		if (pth->pic[i] == nullptr || pth->pic[i]->glpic == 0) {
@@ -882,7 +888,7 @@ static void pt_load_applyparameters(const PTHead * pth)
  * @param tex the texture to process
  * @param clamped whether the texture is to be used clamped
  */
-static void ptm_fixtransparency(PTTexture * tex, int clamped)
+void ptm_fixtransparency(PTTexture * tex, int clamped)
 {
 	coltype *wpptr;
 	int j;
@@ -975,7 +981,7 @@ static void ptm_fixtransparency(PTTexture * tex, int clamped)
  * @param tex the texture
  * @param effects the effects
  */
-static void ptm_applyeffects(PTTexture * tex, int effects)
+void ptm_applyeffects(PTTexture * tex, int effects)
 {
 	int alph{255};
 	int x;
@@ -1028,7 +1034,7 @@ static void ptm_applyeffects(PTTexture * tex, int effects)
  * Scales down the texture by half in-place
  * @param tex the texture
  */
-static void ptm_mipscale(PTTexture * tex)
+void ptm_mipscale(PTTexture * tex)
 {
 	const GLsizei newx = std::max(1, (tex->sizx >> 1));
 	const GLsizei newy = std::max(1, (tex->sizy >> 1));
@@ -1114,7 +1120,7 @@ static void ptm_mipscale(PTTexture * tex)
  * @param tex the texture to upload
  * @param tdef the polymosttexcache definition to receive compressed mipmaps, or null
  */
-static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * tex, PTCacheTile * tdef)
+void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * tex, PTCacheTile * tdef)
 {
 	GLint mipmap;
 	GLint intexfmt;
@@ -1292,6 +1298,7 @@ static void ptm_uploadtexture(PTMHead * ptm, unsigned short flags, PTTexture * t
 	}
 }
 
+} // namespace
 
 /**
  * Prepare for priming by sweeping through the textures and marking them as all unused
@@ -1451,11 +1458,9 @@ PTHead* PT_GetHead(int picnum, int palnum, unsigned short flags, int peek)
 	return &pth->head;
 }
 
+namespace {
 
-
-
-
-static inline int ptiter_matches(PTIter iter)
+inline int ptiter_matches(PTIter iter)
 {
 	if (iter->match == 0) {
 		return 1;	// matching every item
@@ -1472,7 +1477,7 @@ static inline int ptiter_matches(PTIter iter)
 	return 1;
 }
 
-static void ptiter_seekforward(PTIter iter)
+void ptiter_seekforward(PTIter iter)
 {
 	while (1) {
 		if (iter->pth && ptiter_matches(iter)) {
@@ -1498,6 +1503,8 @@ static void ptiter_seekforward(PTIter iter)
 		}
 	}
 }
+
+} // namespace
 
 /**
  * Creates a new iterator for walking the header hash looking for particular

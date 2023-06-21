@@ -16,6 +16,10 @@
 #include <span>
 #include <string_view>
 
+extern int nextvoxid;
+
+namespace {
+
 enum class TokenType {
 	T_EOF,
 	T_ERROR,
@@ -71,7 +75,7 @@ struct tokenlist {
 	TokenType tokenid;
 };
 
-static constexpr auto basetokens = std::to_array<tokenlist>({
+constexpr auto basetokens = std::to_array<tokenlist>({
 	{ "include",         TokenType::T_INCLUDE          },
 	{ "#include",        TokenType::T_INCLUDE          },
 	{ "define",          TokenType::T_DEFINE           },
@@ -108,7 +112,7 @@ static constexpr auto basetokens = std::to_array<tokenlist>({
 	{ "setuptilerange",    TokenType::T_SETUPTILERANGE    },
 });
 
-static constexpr auto modeltokens = std::to_array<tokenlist>({
+constexpr auto modeltokens = std::to_array<tokenlist>({
 	{ "scale",  TokenType::T_SCALE  },
 	{ "shade",  TokenType::T_SHADE  },
 	{ "zadd",   TokenType::T_ZADD   },
@@ -118,7 +122,7 @@ static constexpr auto modeltokens = std::to_array<tokenlist>({
 	{ "hud",    TokenType::T_HUD    },
 });
 
-static constexpr auto modelframetokens = std::to_array<tokenlist>({
+constexpr auto modelframetokens = std::to_array<tokenlist>({
 	{ "frame",  TokenType::T_FRAME   },
 	{ "name",   TokenType::T_FRAME   },
 	{ "tile",   TokenType::T_TILE   },
@@ -126,21 +130,21 @@ static constexpr auto modelframetokens = std::to_array<tokenlist>({
 	{ "tile1",  TokenType::T_TILE1  },
 });
 
-static constexpr auto modelanimtokens = std::to_array<tokenlist>({
+constexpr auto modelanimtokens = std::to_array<tokenlist>({
 	{ "frame0", TokenType::T_FRAME0 },
 	{ "frame1", TokenType::T_FRAME1 },
 	{ "fps",    TokenType::T_FPS    },
 	{ "flags",  TokenType::T_FLAGS  },
 });
 
-static constexpr auto modelskintokens = std::to_array<tokenlist>({
+constexpr auto modelskintokens = std::to_array<tokenlist>({
 	{ "pal",     TokenType::T_PAL    },
 	{ "file",    TokenType::T_FILE   },
 	{ "surf",    TokenType::T_SURF   },
 	{ "surface", TokenType::T_SURF   },
 });
 
-static constexpr auto modelhudtokens = std::to_array<tokenlist>({
+constexpr auto modelhudtokens = std::to_array<tokenlist>({
 	{ "tile",    TokenType::T_TILE   },
 	{ "tile0",   TokenType::T_TILE0  },
 	{ "tile1",   TokenType::T_TILE1  },
@@ -154,14 +158,14 @@ static constexpr auto modelhudtokens = std::to_array<tokenlist>({
 	{ "nodepth", TokenType::T_NODEPTH},
 });
 
-static constexpr auto voxeltokens = std::to_array<tokenlist>({
+constexpr auto voxeltokens = std::to_array<tokenlist>({
 	{ "tile",   TokenType::T_TILE   },
 	{ "tile0",  TokenType::T_TILE0  },
 	{ "tile1",  TokenType::T_TILE1  },
 	{ "scale",  TokenType::T_SCALE  },
 });
 
-static constexpr auto skyboxtokens = std::to_array<tokenlist>({
+constexpr auto skyboxtokens = std::to_array<tokenlist>({
 	{ "tile"   , TokenType::T_TILE   },
 	{ "pal"    , TokenType::T_PAL    },
 	{ "ft"     , TokenType::T_FRONT  },{ "front"  , TokenType::T_FRONT  },{ "forward", TokenType::T_FRONT  },
@@ -172,7 +176,7 @@ static constexpr auto skyboxtokens = std::to_array<tokenlist>({
 	{ "dn"     , TokenType::T_BOTTOM },{ "bottom" , TokenType::T_BOTTOM },{ "floor"  , TokenType::T_BOTTOM },{ "down"   , TokenType::T_BOTTOM }
 });
 
-static constexpr auto tinttokens = std::to_array<tokenlist>({
+constexpr auto tinttokens = std::to_array<tokenlist>({
 	{ "pal",   TokenType::T_PAL },
 	{ "red",   TokenType::T_RED   },{ "r", TokenType::T_RED },
 	{ "green", TokenType::T_GREEN },{ "g", TokenType::T_GREEN },
@@ -180,12 +184,12 @@ static constexpr auto tinttokens = std::to_array<tokenlist>({
 	{ "flags", TokenType::T_FLAGS }
 });
 
-static constexpr auto texturetokens = std::to_array<tokenlist>({
+constexpr auto texturetokens = std::to_array<tokenlist>({
 	{ "pal",   TokenType::T_PAL  },
 	{ "glow",  TokenType::T_GLOW },    // EDuke32 extension
 });
 
-static constexpr auto texturetokens_pal = std::to_array<tokenlist>({
+constexpr auto texturetokens_pal = std::to_array<tokenlist>({
 	{ "file",       TokenType::T_FILE },
 	{ "name",       TokenType::T_FILE },
 	{ "alphacut",   TokenType::T_ALPHACUT },
@@ -193,7 +197,7 @@ static constexpr auto texturetokens_pal = std::to_array<tokenlist>({
 });
 
 
-static TokenType getatoken(scriptfile *sf, std::span<const tokenlist> tl)
+TokenType getatoken(scriptfile *sf, std::span<const tokenlist> tl)
 {
 	if (!sf) {
 		return TokenType::T_ERROR;
@@ -213,19 +217,18 @@ static TokenType getatoken(scriptfile *sf, std::span<const tokenlist> tl)
 	return TokenType::T_ERROR;
 }
 
-static int lastmodelid{-1};
-static int lastvoxid{-1};
-static int modelskin{-1};
-static int lastmodelskin{-1};
-static int seenframe{0};
-extern int nextvoxid;
+int lastmodelid{-1};
+int lastvoxid{-1};
+int modelskin{-1};
+int lastmodelskin{-1};
+int seenframe{0};
 
-static constexpr auto skyfaces = std::to_array<std::string_view>({
+constexpr auto skyfaces = std::to_array<std::string_view>({
 	"front face", "right face", "back face",
 	"left face", "top face", "bottom face"
 });
 
-static int defsparser(scriptfile *script)
+int defsparser(scriptfile *script)
 {
 	while (1) {
 		const auto tokn = getatoken(script, basetokens);
@@ -1086,6 +1089,7 @@ static int defsparser(scriptfile *script)
 	return 0;
 }
 
+} // namespace
 
 int loaddefinitionsfile(const char *fn)
 {

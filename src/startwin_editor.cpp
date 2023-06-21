@@ -23,15 +23,16 @@
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1
 
+namespace {
 
-static HWND startupdlg{nullptr};
-static std::array<HWND, 2> pages = { nullptr, nullptr};
-static int mode = TAB_CONFIG;
-static struct startwin_settings *settings;
-static BOOL quiteventonclose = FALSE;
-static int retval = -1;
+HWND startupdlg{nullptr};
+std::array<HWND, 2> pages = { nullptr, nullptr};
+int mode = TAB_CONFIG;
+struct startwin_settings *settings;
+BOOL quiteventonclose = FALSE;
+int retval = -1;
 
-static void populate_video_modes(BOOL firstTime)
+void populate_video_modes(BOOL firstTime)
 {
     int i, j, mode2d = -1, mode3d = -1;
     int xdim{0};
@@ -113,12 +114,12 @@ static void populate_video_modes(BOOL firstTime)
     }
 }
 
-static void set_settings(struct startwin_settings *thesettings)
+void set_settings(struct startwin_settings *thesettings)
 {
     settings = thesettings;
 }
 
-static void set_page(int n)
+void set_page(int n)
 {
     HWND tab = GetDlgItem(startupdlg, IDC_STARTWIN_TABCTL);
     int cur = (int)SendMessage(tab, TCM_GETCURSEL,0,0);
@@ -131,7 +132,7 @@ static void set_page(int n)
     SendMessage(startupdlg, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(startupdlg, IDC_STARTWIN_TABCTL), TRUE);
 }
 
-static void setup_config_mode()
+void setup_config_mode()
 {
     set_page(TAB_CONFIG);
 
@@ -149,7 +150,7 @@ static void setup_config_mode()
     EnableWindow(GetDlgItem(startupdlg, IDOK), TRUE);
 }
 
-static void setup_messages_mode(BOOL allowcancel)
+void setup_messages_mode(BOOL allowcancel)
 {
     set_page(TAB_MESSAGES);
 
@@ -163,18 +164,18 @@ static void setup_messages_mode(BOOL allowcancel)
     EnableWindow(GetDlgItem(startupdlg, IDOK), FALSE);
 }
 
-static void fullscreen_clicked()
+void fullscreen_clicked()
 {
     populate_video_modes(FALSE);
 }
 
-static void cancelbutton_clicked()
+void cancelbutton_clicked()
 {
     retval = STARTWIN_CANCEL;
     quitevent = quitevent || quiteventonclose;
 }
 
-static void startbutton_clicked()
+void startbutton_clicked()
 {
     HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDC_VMODE3D);
     int i = ComboBox_GetCurSel(hwnd);
@@ -205,7 +206,7 @@ static void startbutton_clicked()
     retval = STARTWIN_RUN;
 }
 
-static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     (void)lParam;
 
@@ -228,7 +229,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
     return FALSE;
 }
 
-static INT_PTR CALLBACK MessagesPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK MessagesPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     (void)wParam;
 
@@ -241,7 +242,7 @@ static INT_PTR CALLBACK MessagesPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam,
     return FALSE;
 }
 
-static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
         case WM_INITDIALOG: {
@@ -336,6 +337,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
     return FALSE;
 }
 
+} // namespace
 
 int startwin_open()
 {

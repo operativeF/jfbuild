@@ -11,8 +11,12 @@
 #include <cstring>
 #include <utility>
 
-static std::array<char, 20> capturename{ "capt0000.xxx" };
-static short capturecount{0};
+namespace {
+
+std::array<char, 20> capturename{ "capt0000.xxx" };
+short capturecount{0};
+
+} // namespace
 
 std::FILE *screencapture_openfile(const char *ext)
 {

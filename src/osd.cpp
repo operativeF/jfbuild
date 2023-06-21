@@ -16,6 +16,8 @@
 extern int getclosestcol(int r, int g, int b);	// engine.c
 extern int qsetmode;	// engine.c
 
+namespace {
+
 struct symbol_t {
 	const char *name;
 	symbol_t *next;
@@ -24,85 +26,85 @@ struct symbol_t {
 	int (*func)(const osdfuncparm_t *);
 };
 
-static symbol_t *symbols = nullptr;
-static symbol_t *addnewsymbol(const char *name);
-static symbol_t *findsymbol(const char *name, symbol_t *startingat);
-static symbol_t *findexactsymbol(const char *name);
+symbol_t *symbols = nullptr;
+symbol_t *addnewsymbol(const char *name);
+symbol_t *findsymbol(const char *name, symbol_t *startingat);
+symbol_t *findexactsymbol(const char *name);
 
 // Map of palette value to colour index for drawing: black, white, light grey, light blue.
-static std::array<int, 4> palmap256 = { -1, -1, -1, -1 };
-static constexpr std::array<int, 4> palmap16 = { 0, 15, 7, 9 };
+std::array<int, 4> palmap256 = { -1, -1, -1, -1 };
+constexpr std::array<int, 4> palmap16 = { 0, 15, 7, 9 };
 
-static void _internal_drawosdchar(int, int, char, int, int);
-static void _internal_drawosdstr(int, int, const char*, int, int, int);
-static void _internal_drawosdcursor(int,int,int,int);
-static int _internal_getcolumnwidth(int);
-static int _internal_getrowheight(int);
-static void _internal_clearbackground(int,int);
-static int _internal_gettime();
-static void _internal_onshowosd(int);
+void _internal_drawosdchar(int, int, char, int, int);
+void _internal_drawosdstr(int, int, const char*, int, int, int);
+void _internal_drawosdcursor(int,int,int,int);
+int _internal_getcolumnwidth(int);
+int _internal_getrowheight(int);
+void _internal_clearbackground(int,int);
+int _internal_gettime();
+void _internal_onshowosd(int);
 
 constexpr auto TEXTSIZE{16384};
 
 // history display
-static char osdtext[TEXTSIZE];
-static int  osdpos=0;			// position next character will be written at
-static int  osdlines=1;			// # lines of text in the buffer
-static int  osdrows=20;			// # lines of the buffer that are visible
-static int  osdcols=60;			// width of onscreen display in text columns
-static int  osdmaxrows=20;		// maximum number of lines which can fit on the screen
-static int  osdmaxlines = TEXTSIZE / 60;	// maximum lines which can fit in the buffer
-static bool osdvisible{false};		// onscreen display visible?
-static int  osdhead=0; 			// topmost visible line number
-static bool osdinited{false};		// text buffer initialised?
-static int  osdkey=0x45;		// numlock shows the osd
-static int  keytime=0;
+char osdtext[TEXTSIZE];
+int  osdpos=0;			// position next character will be written at
+int  osdlines=1;			// # lines of text in the buffer
+int  osdrows=20;			// # lines of the buffer that are visible
+int  osdcols=60;			// width of onscreen display in text columns
+int  osdmaxrows=20;		// maximum number of lines which can fit on the screen
+int  osdmaxlines = TEXTSIZE / 60;	// maximum lines which can fit in the buffer
+bool osdvisible{false};		// onscreen display visible?
+int  osdhead=0; 			// topmost visible line number
+bool osdinited{false};		// text buffer initialised?
+int  osdkey=0x45;		// numlock shows the osd
+int  keytime=0;
 
 // command prompt editing
 constexpr auto EDITLENGTH{511};
-static int  osdovertype=0;		// insert (0) or overtype (1)
-static char osdeditbuf[EDITLENGTH+1];	// editing buffer
-static char osdedittmp[EDITLENGTH+1];	// editing buffer temporary workspace
-static int  osdeditlen=0;		// length of characters in edit buffer
-static int  osdeditcursor=0;		// position of cursor in edit buffer
-static int  osdeditshift=0;		// shift state
-static int  osdeditcontrol=0;		// control state
-static int  osdeditalt=0;		// alt state
-static int  osdeditcaps=0;		// capslock
-static int  osdeditwinstart=0;
-static int  osdeditwinend=60-1-3;
+int  osdovertype=0;		// insert (0) or overtype (1)
+char osdeditbuf[EDITLENGTH+1];	// editing buffer
+char osdedittmp[EDITLENGTH+1];	// editing buffer temporary workspace
+int  osdeditlen=0;		// length of characters in edit buffer
+int  osdeditcursor=0;		// position of cursor in edit buffer
+int  osdeditshift=0;		// shift state
+int  osdeditcontrol=0;		// control state
+int  osdeditalt=0;		// alt state
+int  osdeditcaps=0;		// capslock
+int  osdeditwinstart=0;
+int  osdeditwinend=60-1-3;
 #define editlinewidth (osdcols-1-3) // FIXME: Taking a static variable at preprocess time... :|
 
 // command processing
 constexpr auto HISTORYDEPTH{16};
-static int  osdhistorypos=-1;		// position we are at in the history buffer
-static char osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];	// history strings
-static int  osdhistorysize=0;		// number of entries in history
-static symbol_t *lastmatch = nullptr;
+int  osdhistorypos=-1;		// position we are at in the history buffer
+char osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];	// history strings
+int  osdhistorysize=0;		// number of entries in history
+symbol_t *lastmatch = nullptr;
 
 // execution buffer
 // the execution buffer works from the command history
-static int  osdexeccount=0;		// number of lines from the head of the history buffer to execute
+int  osdexeccount=0;		// number of lines from the head of the history buffer to execute
 
 // presentation parameters
-static int  osdpromptshade=0;
-static int  osdpromptpal=3;	// blue
-static int  osdeditshade=0;
-static int  osdeditpal=1;	// white
-static int  osdtextshade=0;
-static int  osdtextpal=2;	// light grey
+int  osdpromptshade=0;
+int  osdpromptpal=3;	// blue
+int  osdeditshade=0;
+int  osdeditpal=1;	// white
+int  osdtextshade=0;
+int  osdtextpal=2;	// light grey
 
 // application callbacks
-static void (*drawosdchar)(int, int, char, int, int) = _internal_drawosdchar;
-static void (*drawosdstr)(int, int, const char*, int, int, int) = _internal_drawosdstr;
-static void (*drawosdcursor)(int, int, int, int) = _internal_drawosdcursor;
-static int (*getcolumnwidth)(int) = _internal_getcolumnwidth;
-static int (*getrowheight)(int) = _internal_getrowheight;
-static void (*clearbackground)(int,int) = _internal_clearbackground;
-static int (*gettime)() = _internal_gettime;
-static void (*onshowosd)(int) = _internal_onshowosd;
+void (*drawosdchar)(int, int, char, int, int) = _internal_drawosdchar;
+void (*drawosdstr)(int, int, const char*, int, int, int) = _internal_drawosdstr;
+void (*drawosdcursor)(int, int, int, int) = _internal_drawosdcursor;
+int (*getcolumnwidth)(int) = _internal_getcolumnwidth;
+int (*getrowheight)(int) = _internal_getrowheight;
+void (*clearbackground)(int,int) = _internal_clearbackground;
+int (*gettime)() = _internal_gettime;
+void (*onshowosd)(int) = _internal_onshowosd;
 
-static void findwhite()
+void findwhite()
 {
 	if (qsetmode == 200) {
 		palmap256[0] = getclosestcol(0, 0, 0);    // black
@@ -112,7 +114,7 @@ static void findwhite()
 	}
 }
 
-static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
+void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
 	const char st[2] = {ch, 0};
 	std::ignore = shade;
@@ -132,7 +134,7 @@ static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 	printext256(4 + (x * 8), 4 + (y * 14), colour, -1, st, 2);
 }
 
-static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shade, int pal)
+void _internal_drawosdstr(int x, int y, const char *ch, int len, int shade, int pal)
 {
 	std::array<char, 1024> st;
 	int colour;
@@ -160,7 +162,7 @@ static void _internal_drawosdstr(int x, int y, const char *ch, int len, int shad
 	printext256(4 + (x * 8), 4 + (y * 14), colour, -1, &st[0], 2);
 }
 
-static void _internal_drawosdcursor(int x, int y, int type, int lastkeypress)
+void _internal_drawosdcursor(int x, int y, int type, int lastkeypress)
 {
 	char st[2] = { '\x16', 0 };  // solid lower third of character cell
 	int colour;
@@ -183,34 +185,34 @@ static void _internal_drawosdcursor(int x, int y, int type, int lastkeypress)
 	printext256(4 + (x * 8), 4 + (y * 14) + yoff, colour, -1, st, 2);
 }
 
-static int _internal_getcolumnwidth(int w)
+int _internal_getcolumnwidth(int w)
 {
 	return w / 8 - 1;
 }
 
-static int _internal_getrowheight(int w)
+int _internal_getrowheight(int w)
 {
 	return w / 14;
 }
 
-static void _internal_clearbackground(int cols, int rows)
+void _internal_clearbackground(int cols, int rows)
 {
 	std::ignore = cols; std::ignore = rows;
 }
 
-static int _internal_gettime()
+int _internal_gettime()
 {
 	return (int)getticks();
 }
 
-static void _internal_onshowosd(int shown)
+void _internal_onshowosd(int shown)
 {
 	std::ignore = shown;
 }
 
 ////////////////////////////
 
-static int osdcmd_osdvars(const osdfuncparm_t *parm)
+int osdcmd_osdvars(const osdfuncparm_t *parm)
 {
 	const int showval = (parm->parms.size() < 1);
 
@@ -233,7 +235,7 @@ static int osdcmd_osdvars(const osdfuncparm_t *parm)
 	return OSDCMD_SHOWHELP;
 }
 
-static int osdcmd_listsymbols(const osdfuncparm_t *parm)
+int osdcmd_listsymbols(const osdfuncparm_t *parm)
 {
 	std::ignore = parm;
 
@@ -244,7 +246,7 @@ static int osdcmd_listsymbols(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 
-static int osdcmd_help(const osdfuncparm_t *parm)
+int osdcmd_help(const osdfuncparm_t *parm)
 {
 	if (parm->parms.size() != 1)
 		return OSDCMD_SHOWHELP;
@@ -260,7 +262,7 @@ static int osdcmd_help(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 
-static int osdcmd_clear(const osdfuncparm_t *parm)
+int osdcmd_clear(const osdfuncparm_t *parm)
 {
 	if (parm->parms.size() != 0)
 		return OSDCMD_SHOWHELP;
@@ -274,7 +276,7 @@ static int osdcmd_clear(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 
-static int osdcmd_echo(const osdfuncparm_t *parm)
+int osdcmd_echo(const osdfuncparm_t *parm)
 {
 	if (parm->parms.size() == 0)
 		return OSDCMD_SHOWHELP;
@@ -290,6 +292,7 @@ static int osdcmd_echo(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 
+} // namespace
 
 ////////////////////////////
 
@@ -399,6 +402,8 @@ int OSD_CaptureKey(int sc)
 	return prev;
 }
 
+namespace {
+
 enum {
 	OSDOP_START,
 	OSDOP_END,
@@ -421,7 +426,8 @@ enum {
 	OSDOP_PAGE_UP,
 	OSDOP_PAGE_DOWN,
 };
-static void OSD_Manipulate(int op) {
+
+void OSD_Manipulate(int op) {
 	int i;
 	int j;
 	symbol_t *tabc = nullptr;
@@ -664,7 +670,7 @@ static void OSD_Manipulate(int op) {
 	}
 }
 
-static void OSD_InsertChar(int ch)
+void OSD_InsertChar(int ch)
 {
 	if (!osdovertype && osdeditlen == EDITLENGTH)	// buffer full, can't insert another char
 		return;
@@ -684,6 +690,8 @@ static void OSD_InsertChar(int ch)
 		osdeditwinend++;
 	}
 }
+
+} // namespace
 
 //
 // OSD_HandleChar() -- Handles keyboard character input when capturing input.
@@ -925,8 +933,9 @@ void OSD_Draw()
 	drawosdcursor(3+osdeditcursor-osdeditwinstart,osdrows,osdovertype,keytime);
 }
 
+namespace {
 
-static inline void linefeed()
+inline void linefeed()
 {
 	std::memmove(osdtext + osdcols, osdtext, TEXTSIZE - osdcols);
 	std::memset(osdtext, 0, osdcols);
@@ -934,6 +943,8 @@ static inline void linefeed()
 	if (osdlines < osdmaxlines)
 		osdlines++;
 }
+
+} // namespace
 
 //
 // OSD_Printf() -- Print a formatted string to the onscreen display
@@ -999,11 +1010,9 @@ void OSD_DispatchQueued()
 }
 
 
-//
-// OSD_Dispatch() -- Executes a command string
-//
+namespace {
 
-static char *strtoken(char *s, char **ptrptr, int *restart)
+char *strtoken(char *s, char **ptrptr, int *restart)
 {
 	char *p;
 	char *p2;
@@ -1079,6 +1088,12 @@ static char *strtoken(char *s, char **ptrptr, int *restart)
 
 	return start;
 }
+
+} // namespace
+
+//
+// OSD_Dispatch() -- Executes a command string
+//
 
 int OSD_Dispatch(const char *cmd)
 {
@@ -1195,11 +1210,13 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 }
 
 
+namespace {
+
 //
 // addnewsymbol() -- Allocates space for a new symbol and attaches it
 //   appropriately to the lists, sorted.
 //
-static symbol_t *addnewsymbol(const char *name)
+symbol_t *addnewsymbol(const char *name)
 {
 	symbol_t *newsymb;
 	symbol_t *s;
@@ -1236,7 +1253,7 @@ static symbol_t *addnewsymbol(const char *name)
 //
 // findsymbol() -- Finds a symbol, possibly partially named
 //
-static symbol_t *findsymbol(const char *name, symbol_t *startingat)
+symbol_t *findsymbol(const char *name, symbol_t *startingat)
 {
 	if (!startingat) startingat = symbols;
 	if (!startingat) return nullptr;
@@ -1251,7 +1268,7 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat)
 //
 // findexactsymbol() -- Finds a symbol, complete named
 //
-static symbol_t *findexactsymbol(const char *name)
+symbol_t *findexactsymbol(const char *name)
 {
 	symbol_t *startingat;
 	if (!symbols) return nullptr;
@@ -1266,3 +1283,4 @@ static symbol_t *findexactsymbol(const char *name)
 	return nullptr;
 }
 
+} // namespace

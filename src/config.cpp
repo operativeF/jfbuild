@@ -63,12 +63,14 @@ enum {
 	type_fixed16,	//int
 };
 
+namespace {
+
 #if USE_POLYMOST
-static int tmprenderer = -1;
+int tmprenderer = -1;
 #endif
-static int tmpbrightness = -1;
+int tmpbrightness = -1;
 #ifdef RENDERTYPEWIN
-static unsigned tmpmaxrefreshfreq = -1;
+unsigned tmpmaxrefreshfreq = -1;
 #endif
 
 struct configspec_t {
@@ -78,7 +80,7 @@ struct configspec_t {
 	const char *doc;
 };
 
-static const auto configspec = std::to_array<configspec_t>({
+const auto configspec = std::to_array<configspec_t>({
 	{ "forcesetup", type_bool, &forcesetup,
 		"; Always show configuration options on startup\n"
 		";   0 - No\n"
@@ -168,6 +170,8 @@ static const auto configspec = std::to_array<configspec_t>({
 	{ "keyconsole", type_hex, &keys[19], nullptr },
 	{ nullptr, 0, nullptr, nullptr }
 });
+
+} // namespace
 
 // FIXME: Use a variant instead of switch-type resolver.
 int loadsetup(const std::string& fn)

@@ -14,13 +14,17 @@
 
 #include <algorithm>
 #include <array>
+#include <cerrno>
 
 #ifdef WITHKPLIB
 #include "kplib.hpp"
 
 	//Insert '|' in front of filename
 	//Doing this tells kzopen to load the file only if inside a .ZIP file
-static int kzipopen(const char *filnam)
+
+namespace {
+
+int kzipopen(const char *filnam)
 {
 	unsigned int i;
 	std::array<char, BMAX_PATH + 4> newst;
@@ -30,6 +34,8 @@ static int kzipopen(const char *filnam)
 	newst[i+1] = 0;
 	return(kzopen(&newst[0]));
 }
+
+} // namespace
 
 #endif
 
@@ -64,7 +70,6 @@ static int kzipopen(const char *filnam)
 
 constexpr auto MAXCACHEOBJECTS{9216};
 
-static size_t cache1dsize{0};
 unsigned char zerochar{0};
 intptr_t cachestart{0};
 int cacnum{0};
@@ -77,9 +82,14 @@ struct cactype {
 };
 
 std::array<cactype, MAXCACHEOBJECTS> cac;
-static std::array<int, 200> lockrecip;
 
-static unsigned char toupperlookup[256] =
+namespace {
+
+size_t cache1dsize{0};
+
+std::array<int, 200> lockrecip;
+
+unsigned char toupperlookup[256] =
 {
 	0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,
 	0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,
@@ -99,7 +109,9 @@ static unsigned char toupperlookup[256] =
 	0xf0,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xff
 };
 
-static void reportandexit(std::string_view errormessage);
+void reportandexit(std::string_view errormessage);
+
+} // namespace
 
 void initcache(void *dacachestart, size_t dacachesize)
 {
@@ -257,7 +269,9 @@ void agecache()
 	}
 }
 
-static void reportandexit(std::string_view errormessage)
+namespace {
+
+void reportandexit(std::string_view errormessage)
 {
     size_t j{0};
 
@@ -291,16 +305,16 @@ static void reportandexit(std::string_view errormessage)
 	std::exit(0);
 }
 
-#include <cerrno>
-
 struct searchpath_t {
 	searchpath_t* next;
 	char *path;
 	size_t pathlen;		// to save repeated calls to strlen()
 };
 
-static searchpath_t *searchpathhead = nullptr;
-static size_t maxsearchpathlen = 0;
+searchpath_t *searchpathhead = nullptr;
+size_t maxsearchpathlen = 0;
+
+} // namespace
 
 int addsearchpath(const char *p)
 {
@@ -441,17 +455,19 @@ std::FILE* fopenfrompath(const char *fn, const char *mode)
 constexpr auto MAXGROUPFILES{4};     //Warning: Fix groupfil if this is changed
 constexpr auto MAXOPENFILES{64};     //Warning: Fix filehan if this is changed
 
-static int numgroupfiles = 0;
-static std::array<int, MAXGROUPFILES> gnumfiles;
-static std::array<int, MAXGROUPFILES> groupfil = {-1,-1,-1,-1};
-static std::array<int, MAXGROUPFILES> groupfilpos;
-static std::array<char*, MAXGROUPFILES> gfilelist;
-static std::array<unsigned*, MAXGROUPFILES> gfileoffs;
+namespace {
 
-static std::array<unsigned char, MAXOPENFILES> filegrp;
-static std::array<int, MAXOPENFILES> filepos;
+int numgroupfiles = 0;
+std::array<int, MAXGROUPFILES> gnumfiles;
+std::array<int, MAXGROUPFILES> groupfil = {-1,-1,-1,-1};
+std::array<int, MAXGROUPFILES> groupfilpos;
+std::array<char*, MAXGROUPFILES> gfilelist;
+std::array<unsigned*, MAXGROUPFILES> gfileoffs;
 
-static std::array<int, MAXOPENFILES> filehan = {
+std::array<unsigned char, MAXOPENFILES> filegrp;
+std::array<int, MAXOPENFILES> filepos;
+
+std::array<int, MAXOPENFILES> filehan = {
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -459,9 +475,11 @@ static std::array<int, MAXOPENFILES> filehan = {
 };
 
 #ifdef WITHKPLIB
-static char filenamsav[MAXOPENFILES][260];
-static int kzcurhand{-1};
+char filenamsav[MAXOPENFILES][260];
+int kzcurhand{-1};
 #endif
+
+} // namespace
 
 int initgroupfile(const std::string& filename)
 {
@@ -856,7 +874,9 @@ void kclose(int handle)
 	filehan[handle] = -1;
 }
 
-static int klistaddentry(CACHE1D_FIND_REC **rec, const std::string& name, int type, int source)
+namespace {
+
+int klistaddentry(CACHE1D_FIND_REC **rec, const std::string& name, int type, int source)
 {
 	CACHE1D_FIND_REC *r = nullptr;
 	CACHE1D_FIND_REC *attach = nullptr;
@@ -929,6 +949,8 @@ static int klistaddentry(CACHE1D_FIND_REC **rec, const std::string& name, int ty
 
 	return 0;
 }
+
+} // namespace
 
 void klistfree(CACHE1D_FIND_REC *rec)
 {	
@@ -1123,14 +1145,20 @@ failure:
 
 	//Internal LZW variables
 constexpr auto LZWSIZE{16384};           //Watch out for shorts!
-static std::array<unsigned char, 5> lzwbuflock;
-static unsigned char *lzwbuf1, *lzwbuf4, *lzwbuf5;
-static short *lzwbuf2, *lzwbuf3;
 
-static int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned char *lzwoutbuf);
-static int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *lzwoutbuf);
+namespace {
 
-static void lzwallocate()
+std::array<unsigned char, 5> lzwbuflock;
+unsigned char* lzwbuf1;
+unsigned char* lzwbuf4;
+unsigned char* lzwbuf5;
+short *lzwbuf2;
+short *lzwbuf3;
+
+int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned char *lzwoutbuf);
+int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *lzwoutbuf);
+
+void lzwallocate()
 {
 	std::ranges::fill(lzwbuflock, 200);
 
@@ -1141,10 +1169,12 @@ static void lzwallocate()
 	if (lzwbuf5 == nullptr) allocache((void **)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
 }
 
-static void lzwrelease()
+void lzwrelease()
 {
 	std::ranges::fill(lzwbuflock, 1);
 }
+
+} // namespace
 
 unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
 {
@@ -1341,7 +1371,9 @@ unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil
 	return count;
 }
 
-static int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned char *lzwoutbuf)
+namespace {
+
+int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned char *lzwoutbuf)
 {
 	int i;
 	int addr;
@@ -1411,7 +1443,7 @@ static int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned c
 	return(uncompleng+4);
 }
 
-static int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *lzwoutbuf)
+int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *lzwoutbuf)
 {
 	int strtot;
 	int currstr;
@@ -1457,6 +1489,8 @@ static int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *l
 	} while (currstr < strtot);
 	return((int)B_LITTLE16(shortptr[0])); //uncompleng
 }
+
+} // namespace
 
 /*
  * vim:ts=4:sw=4:

@@ -27,17 +27,21 @@ extern int globalx3;
 extern int globaly3;
 extern intptr_t asm3;
 
-static int bpl;
-static int transmode{0};
-static int glogx;
-static int glogy;
-static int gbxinc;
-static int gbyinc;
-static int gpinc;
-static unsigned char *gbuf;
-static unsigned char *gpal;
-static unsigned char *ghlinepal;
-static unsigned char *gtrans;
+namespace {
+
+int bpl;
+int transmode{0};
+int glogx;
+int glogy;
+int gbxinc;
+int gbyinc;
+int gpinc;
+unsigned char *gbuf;
+unsigned char *gpal;
+unsigned char *ghlinepal;
+unsigned char *gtrans;
+
+} // namespace
 
 	//Global variable functions
 void setvlinebpl(int dabpl) {

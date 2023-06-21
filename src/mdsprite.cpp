@@ -38,16 +38,20 @@ int mdtims;
 int omdtims;
 
 constexpr auto MODELALLOCGROUP{256};
-static int nummodelsalloced = 0;
 int nextmodelid = 0;
 mdmodel **models = nullptr;
 
-static int maxmodelverts{0};
-static int allocmodelverts{0};
-static int maxelementvbo{0};
-static int allocelementvbo{0};
-static point3d *vertlist{nullptr}; //temp array to store interpolated vertices for drawing
-static struct polymostvboitem *elementvbo{nullptr};	 // 3 per triangle.
+namespace {
+
+int nummodelsalloced = 0;
+int maxmodelverts{0};
+int allocmodelverts{0};
+int maxelementvbo{0};
+int allocelementvbo{0};
+point3d *vertlist{nullptr}; //temp array to store interpolated vertices for drawing
+struct polymostvboitem *elementvbo{nullptr};	 // 3 per triangle.
+
+} // namespace
 
 mdmodel *mdload (const char *);
 void mdfree (mdmodel *);
@@ -184,7 +188,9 @@ int md_tilehasmodel (int tilenume)
 	return tile2model[tilenume].modelid;
 }
 
-static int framename2index(mdmodel *vm, std::string_view nam)
+namespace {
+
+int framename2index(mdmodel *vm, std::string_view nam)
 {
 	int i = 0;
 
@@ -212,6 +218,8 @@ static int framename2index(mdmodel *vm, std::string_view nam)
 
 	return i;
 }
+
+} // namespace
 
 int md_defineframe (int modelid, std::string_view framename, int tilenume, int skinnum)
 {
@@ -397,13 +405,17 @@ int md_undefinemodel(int modelid)
 	return 0;
 }
 
-static void md_initident(PTMIdent *id, const char * filename, int effects)
+namespace {
+
+void md_initident(PTMIdent *id, const char * filename, int effects)
 {
     std::memset(id, 0, sizeof(PTMIdent));
     id->effects = effects;
     strncpy(id->filename, filename, sizeof(id->filename)-1);
     id->filename[sizeof(id->filename)-1] = 0;
 }
+
+} // namespace
 
 //Note: even though it says md2model, it works for both md2model&md3model
 PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
@@ -531,8 +543,10 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 	return (*tex);
 }
 
+namespace {
+
 	//Note: even though it says md2model, it works for both md2model&md3model
-static void updateanimation (md2model *m, spritetype *tspr)
+void updateanimation (md2model *m, spritetype *tspr)
 {
 	mdanim_t *anim;
 	int i;
@@ -579,7 +593,7 @@ static void updateanimation (md2model *m, spritetype *tspr)
 
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
 
-static void md2free(md2model *m)
+void md2free(md2model *m)
 {
 	if (!m) {
 		return;
@@ -621,7 +635,7 @@ static void md2free(md2model *m)
 	std::free(m);
 }
 
-static md2model *md2load(int fil, const char *filnam)
+md2model *md2load(int fil, const char *filnam)
 {
 	auto* m = (md2model *) std::calloc(1, sizeof(md2model));
 	
@@ -741,7 +755,7 @@ static md2model *md2load(int fil, const char *filnam)
 	return m;
 }
 
-static int md2draw (md2model *m, spritetype *tspr, int method)
+int md2draw (md2model *m, spritetype *tspr, int method)
 {
 	point3d m0;
 	point3d m1;
@@ -964,9 +978,9 @@ static int md2draw (md2model *m, spritetype *tspr, int method)
 //---------------------------------------- MD2 LIBRARY ENDS ----------------------------------------
 //--------------------------------------- MD3 LIBRARY BEGINS ---------------------------------------
 
-static void md3free (md3model *m);
+void md3free (md3model *m);
 
-static md3model *md3load (int fil)
+md3model *md3load (int fil)
 {
 	auto* m = (md3model *)std::calloc(1,sizeof(md3model));
 
@@ -1119,7 +1133,7 @@ static md3model *md3load (int fil)
 	return m;
 }
 
-static int md3draw (md3model *m, spritetype *tspr, int method)
+int md3draw (md3model *m, spritetype *tspr, int method)
 {
 	point3d m0;
 	point3d m1;
@@ -1339,7 +1353,7 @@ static int md3draw (md3model *m, spritetype *tspr, int method)
 	return 1;
 }
 
-static void md3free (md3model *m)
+void md3free (md3model *m)
 {
 	mdanim_t *anim;
 	mdanim_t *nanim = nullptr;
@@ -1383,16 +1397,16 @@ static void md3free (md3model *m)
 //--------------------------------------- VOX LIBRARY BEGINS ---------------------------------------
 
 	//For loading/conversion only
-static int xsiz;
-static int ysiz;
-static int zsiz;
-static int yzsiz;
-static int* vbit{nullptr}; //vbit: 1 bit per voxel: 0=air,1=solid
-static float xpiv;
-static float ypiv;
-static float zpiv; //Might want to use more complex/unique names!
-static int* vcolhashead{nullptr};
-static int vcolhashsizm1;
+int xsiz;
+int ysiz;
+int zsiz;
+int yzsiz;
+int* vbit{nullptr}; //vbit: 1 bit per voxel: 0=air,1=solid
+float xpiv;
+float ypiv;
+float zpiv; //Might want to use more complex/unique names!
+int* vcolhashead{nullptr};
+int vcolhashsizm1;
 
 struct voxcol_t {
 	int p;
@@ -1400,27 +1414,33 @@ struct voxcol_t {
 	int n;
 };
 
-static voxcol_t* vcol{nullptr};
+voxcol_t* vcol{nullptr};
+
+} // namespace
+
 int vnum{0};
 int vmax{0};
+
+namespace {
 
 struct spoint2d {
 	short x;
 	short y;
 };
 
-static spoint2d* shp;
-static int* shcntmal;
-static int* shcnt{nullptr};
-static int shcntp;
-static int mytexo5;
-static int* zbit;
-static int gmaxx;
-static int gmaxy;
-static int garea;
-static std::array<int, 33> pow2m1;
-static voxmodel* gvox;
+spoint2d* shp;
+int* shcntmal;
+int* shcnt{nullptr};
+int shcntp;
+int mytexo5;
+int* zbit;
+int gmaxx;
+int gmaxy;
+int garea;
+std::array<int, 33> pow2m1;
+voxmodel* gvox;
 
+}
 	//pitch must equal xsiz * 4 <- FIXME: Codify this.
 unsigned int gloadtex(int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 {
@@ -1468,7 +1488,9 @@ unsigned int gloadtex(int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 	return rtexid;
 }
 
-static int getvox(int x, int y, int z)
+namespace {
+
+int getvox(int x, int y, int z)
 {
 	z += x*yzsiz + y*zsiz;
 	for(x=vcolhashead[(z*214013)&vcolhashsizm1];x>=0;x=vcol[x].n)
@@ -1476,7 +1498,7 @@ static int getvox(int x, int y, int z)
 	return(0x808080);
 }
 
-static void putvox (int x, int y, int z, int col)
+void putvox (int x, int y, int z, int col)
 {
 	if (vnum >= vmax) {
 		vmax = std::max(vmax << 1, 4096);
@@ -1492,7 +1514,7 @@ static void putvox (int x, int y, int z, int col)
 }
 /*
 	//Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 0's
-static void setzrange0 (int *lptr, int z0, int z1)
+void setzrange0 (int *lptr, int z0, int z1)
 {
 	int z, ze;
 	if (!((z0^z1)&~31)) { lptr[z0>>5] &= (~(-(1<<SHIFTMOD32(z0))))|(-(1<<SHIFTMOD32(z1))); return; }
@@ -1502,7 +1524,7 @@ static void setzrange0 (int *lptr, int z0, int z1)
 }
 */
 	//Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 1's
-static void setzrange1 (int *lptr, int z0, int z1)
+void setzrange1 (int *lptr, int z0, int z1)
 {
 	if (!((z0 ^ z1) & ~31)) {
 		lptr[z0 >> 5] |= (~(-(1 << SHIFTMOD32(z1)))) & (-(1 << SHIFTMOD32(z0)));
@@ -1521,7 +1543,7 @@ static void setzrange1 (int *lptr, int z0, int z1)
 	lptr[z] |=~(-(1 << SHIFTMOD32(z1)));
 }
 
-static int isrectfree (int x0, int y0, int dx, int dy)
+int isrectfree (int x0, int y0, int dx, int dy)
 {
 #if 0
 	int i, j, x;
@@ -1563,7 +1585,7 @@ static int isrectfree (int x0, int y0, int dx, int dy)
 	return 1;
 }
 
-static void setrect(int x0, int y0, int dx, int dy)
+void setrect(int x0, int y0, int dx, int dy)
 {
 #if 0
 	int i, j, y;
@@ -1599,7 +1621,7 @@ static void setrect(int x0, int y0, int dx, int dy)
 #endif
 }
 
-static void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
+void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
 {
 	std::ignore = x1;
 	std::ignore = y1;
@@ -1636,7 +1658,7 @@ static void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int 
 	gvox->qcnt++;
 }
 
-static void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
+void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
 {
 	int i;
 	int j;
@@ -1842,7 +1864,7 @@ static void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int
 	++gvox->qcnt;
 }
 
-static int isolid(int x, int y, int z)
+int isolid(int x, int y, int z)
 {
 	if ((unsigned int)x >= (unsigned int)xsiz)
 		return 0;
@@ -1858,7 +1880,7 @@ static int isolid(int x, int y, int z)
 	return vbit[z >> 5] & (1 << SHIFTMOD32(z));
 }
 
-static voxmodel *vox2poly ()
+voxmodel *vox2poly ()
 {
 	int i;
 	int j;
@@ -2014,7 +2036,7 @@ skindidntfit:;
 	return(gvox);
 }
 
-static int loadvox (const char *filnam)
+int loadvox (const char *filnam)
 {
 	int i;
 	int j;
@@ -2091,7 +2113,7 @@ static int loadvox (const char *filnam)
 	std::free(tbuf); kclose(fil); return(0);
 }
 
-static int loadkvx (const char *filnam)
+int loadkvx (const char *filnam)
 {
 	int i;
 	int j;
@@ -2162,7 +2184,7 @@ static int loadkvx (const char *filnam)
 	std::free(tbuf); std::free(xyoffs); return(0);
 }
 
-static int loadkv6 (const char *filnam)
+int loadkv6 (const char *filnam)
 {
 	int i;
 	int j;
@@ -2225,7 +2247,7 @@ static int loadkv6 (const char *filnam)
 
 #if 0
 	//While this code works, it's way too slow and can only cause trouble.
-static int loadvxl (const char *filnam)
+int loadvxl (const char *filnam)
 {
 	int i, j, x, y, z, fil;
 	unsigned char *v, *vbuf;
@@ -2272,6 +2294,8 @@ static int loadvxl (const char *filnam)
 	std::free(vbuf); return(0);
 }
 #endif
+
+} // namespace
 
 void voxfree (voxmodel *m)
 {
@@ -2356,7 +2380,11 @@ voxmodel* voxload (const char *filnam)
 	return vm;
 }
 
-static int voxloadbufs(voxmodel *m);
+namespace {
+
+int voxloadbufs(voxmodel *m);
+
+} // namespace
 
 	//Draw voxel model as perfect cubes
 int voxdraw (voxmodel *m, const spritetype *tspr, int method)
@@ -2576,7 +2604,9 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 	return 1;
 }
 
-static int voxloadbufs(voxmodel *m)
+namespace {
+
+int voxloadbufs(voxmodel *m)
 {
 	int i;
 	int j;
@@ -2652,6 +2682,8 @@ static int voxloadbufs(voxmodel *m)
 
 	return 0;
 }
+
+} // namespace
 
 //---------------------------------------- VOX LIBRARY ENDS ----------------------------------------
 //--------------------------------------- MD LIBRARY BEGINS  ---------------------------------------

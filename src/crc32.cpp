@@ -60,7 +60,11 @@ static unsigned int crc32table[256] = {
 };
 */
 
-static std::array<unsigned int, 256> crc32table;
+namespace {
+
+std::array<unsigned int, 256> crc32table;
+
+} // namespace
 
 void initcrc32table()
 {

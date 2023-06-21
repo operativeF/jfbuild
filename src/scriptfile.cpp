@@ -14,12 +14,16 @@
 #include <charconv>
 #include <cmath>
 
+namespace {
+
 constexpr bool is_whitespace(auto ch) {
 	return (ch == ' ') || (ch == '\t') || (ch == '\r') || (ch == '\n');
 };
 
-static void skipoverws(scriptfile *sf) { if ((sf->textptr < sf->eof) && (!sf->textptr[0])) sf->textptr++; }
-static void skipovertoken(scriptfile *sf) { while ((sf->textptr < sf->eof) && (sf->textptr[0])) sf->textptr++; }
+void skipoverws(scriptfile *sf) { if ((sf->textptr < sf->eof) && (!sf->textptr[0])) sf->textptr++; }
+void skipovertoken(scriptfile *sf) { while ((sf->textptr < sf->eof) && (sf->textptr[0])) sf->textptr++; }
+
+} // namespace
 
 char *scriptfile_gettoken(scriptfile *sf)
 {
@@ -56,7 +60,9 @@ int scriptfile_getstring(scriptfile *sf, std::string& retst)
 	return(0);
 }
 
-static int scriptfile_getnumber_radix(scriptfile *sf, int *num, int radix)
+namespace {
+
+int scriptfile_getnumber_radix(scriptfile *sf, int *num, int radix)
 {
 	skipoverws(sf);
 	if (sf->textptr >= sf->eof)
@@ -88,6 +94,8 @@ static int scriptfile_getnumber_radix(scriptfile *sf, int *num, int radix)
 
 	return 0;
 }
+
+} // namespace
 
 int scriptfile_getnumber(scriptfile *sf, int *num)
 {
@@ -123,7 +131,9 @@ int scriptfile_getbool(scriptfile* sf, bool* b)
 	return 0;	
 }
 
-static double parsedouble(char *ptr, char **end)
+namespace {
+
+double parsedouble(char *ptr, char **end)
 {	
 
 	int negative{0};
@@ -182,6 +192,8 @@ static double parsedouble(char *ptr, char **end)
 
 	return negative ? -num : num;
 }
+
+} // namespace
 
 int scriptfile_getdouble(scriptfile *sf, double *num)
 {
@@ -270,7 +282,6 @@ int scriptfile_getbraces(scriptfile *sf, char **braceend)
 
 	return 0;
 }
-
 
 int scriptfile_getlinum (scriptfile *sf, char *ptr)
 {
@@ -500,11 +511,13 @@ int scriptfile_eof(scriptfile *sf)
 	return 0;
 }
 
-constexpr std::size_t SYMBTABSTARTSIZE{256};
-static size_t symbtablength=0, symbtaballoclength=0;
-static char *symbtab = nullptr;
+namespace {
 
-static char* getsymbtabspace(size_t reqd)
+constexpr std::size_t SYMBTABSTARTSIZE{256};
+size_t symbtablength=0, symbtaballoclength=0;
+char *symbtab = nullptr;
+
+char* getsymbtabspace(size_t reqd)
 {
 	if (symbtablength + reqd > symbtaballoclength)
 	{
@@ -526,6 +539,8 @@ static char* getsymbtabspace(size_t reqd)
 	
 	return pos;
 }
+
+} // namespace
 
 int scriptfile_getsymbolvalue(const char *name, int *val)
 {

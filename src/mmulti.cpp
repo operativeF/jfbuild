@@ -52,13 +52,18 @@ LPFN_WSARECVMSG WSARecvMsgPtr;
 using SOCKET = int;
 
 #include <sys/time.h>
-static int GetTickCount()
+
+namespace {
+
+int GetTickCount()
 {
 	struct timeval tv;
 	if (gettimeofday(&tv,nullptr) < 0) return 0;
 	// tv is sec.usec, GTC gives msec
 	return (int)((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
+
+} // namespace
 
 #define IS_INVALID_SOCKET(sock) (sock < 0)
 
@@ -71,6 +76,8 @@ static int GetTickCount()
 #include <algorithm>
 #include <array>
 
+namespace {
+
 constexpr auto MAXPAKSIZ{256}; //576
 
 constexpr auto PAKRATE{40};   //Packet rate/sec limit ... necessary?
@@ -78,42 +85,44 @@ constexpr auto PAKRATE{40};   //Packet rate/sec limit ... necessary?
 #define SIMLAG 0     //Release:0  Test: 10 Packets to delay receipt
 constexpr auto PRESENCETIMEOUT{2000};
 #if (SIMLAG > 1)
-static int simlagcnt[MAXPLAYERS];
-static unsigned char simlagfif[MAXPLAYERS][SIMLAG+1][MAXPAKSIZ+2];
+int simlagcnt[MAXPLAYERS];
+unsigned char simlagfif[MAXPLAYERS][SIMLAG+1][MAXPAKSIZ+2];
 #endif
 #if ((SIMMIS != 0) || (SIMLAG != 0))
 #pragma message("\n\nWARNING! INTENTIONAL PACKET LOSS SIMULATION IS ENABLED!\nREMEMBER TO CHANGE SIMMIS&SIMLAG to 0 before RELEASE!\n\n")
 #endif
 
-static int tims;
-static std::array<int, MAXPLAYERS> lastsendtims;
-static std::array<int, MAXPLAYERS> lastrecvtims;
-static std::array<int, MAXPLAYERS> prevlastrecvtims;
-static std::array<unsigned char, MAXPAKSIZ> pakbuf;
-static std::array<unsigned char, MAXPAKSIZ> playerslive;
+int tims;
+std::array<int, MAXPLAYERS> lastsendtims;
+std::array<int, MAXPLAYERS> lastrecvtims;
+std::array<int, MAXPLAYERS> prevlastrecvtims;
+std::array<unsigned char, MAXPAKSIZ> pakbuf;
+std::array<unsigned char, MAXPAKSIZ> playerslive;
 
 constexpr auto FIFSIZ{512}; //16384/40 = 6min:49sec
-static int ipak[MAXPLAYERS][FIFSIZ];
-static std::array<int, MAXPLAYERS> icnt0;
-static int opak[MAXPLAYERS][FIFSIZ];
-static std::array<int, MAXPLAYERS> ocnt0;
-static std::array<int, MAXPLAYERS> ocnt1;
-static std::array<unsigned char, 4194304> pakmem;
-static int pakmemi{1};
+int ipak[MAXPLAYERS][FIFSIZ];
+std::array<int, MAXPLAYERS> icnt0;
+int opak[MAXPLAYERS][FIFSIZ];
+std::array<int, MAXPLAYERS> ocnt0;
+std::array<int, MAXPLAYERS> ocnt1;
+std::array<unsigned char, 4194304> pakmem;
+int pakmemi{1};
 
 constexpr auto NETPORT{0x5bd9};
-static SOCKET mysock = -1;
-static int domain{PF_UNSPEC};
-static std::array<struct sockaddr_storage, MAXPLAYERS> otherhost;
-static struct sockaddr_storage snatchhost;	// IPV4/6 address of peers
-static struct in_addr replyfrom4[MAXPLAYERS], snatchreplyfrom4;		// our IPV4 address peers expect to hear from us on
-static struct in6_addr replyfrom6[MAXPLAYERS], snatchreplyfrom6;	// our IPV6 address peers expect to hear from us on
-static int netready = 0;
+SOCKET mysock = -1;
+int domain{PF_UNSPEC};
+std::array<struct sockaddr_storage, MAXPLAYERS> otherhost;
+struct sockaddr_storage snatchhost;	// IPV4/6 address of peers
+struct in_addr replyfrom4[MAXPLAYERS], snatchreplyfrom4;		// our IPV4 address peers expect to hear from us on
+struct in6_addr replyfrom6[MAXPLAYERS], snatchreplyfrom6;	// our IPV6 address peers expect to hear from us on
+int netready = 0;
 
-static int lookuphost(const char *name, struct sockaddr *host, int warnifmany);
-static int issameaddress(struct sockaddr const *a, struct sockaddr const *b);
-static const char *presentaddress(struct sockaddr const *a);
-static void savesnatchhost(int other);
+int lookuphost(const char *name, struct sockaddr *host, int warnifmany);
+int issameaddress(struct sockaddr const *a, struct sockaddr const *b);
+const char *presentaddress(struct sockaddr const *a);
+void savesnatchhost(int other);
+
+} // namespace
 
 void netuninit ()
 {
@@ -519,7 +528,9 @@ int netread (int *other, void *dabuf, int bufsiz) //0:no packets in buffer
 	return(1);
 }
 
-static int issameaddress(struct sockaddr const *a, struct sockaddr const *b) {
+namespace {
+
+int issameaddress(struct sockaddr const *a, struct sockaddr const *b) {
 	if (a->sa_family != b->sa_family) {
 		// Different families.
 		return 0;
@@ -541,7 +552,7 @@ static int issameaddress(struct sockaddr const *a, struct sockaddr const *b) {
 	return 0;
 }
 
-static const char *presentaddress(struct sockaddr const *a) {
+const char *presentaddress(struct sockaddr const *a) {
 	static char str[128+32];
 	char addr[128];
 	int port;
@@ -569,8 +580,8 @@ static const char *presentaddress(struct sockaddr const *a) {
 
 //--------------------------------------------------------------------------------------------------
 
-static int crctab16[256];
-static void initcrc16 ()
+int crctab16[256];
+void initcrc16 ()
 {
 	int i;
 	int j;
@@ -587,7 +598,7 @@ static void initcrc16 ()
 	}
 }
 #define updatecrc16(crc,dat) crc = (((crc<<8)&65535)^crctab16[((((unsigned short)crc)>>8)&65535)^dat])
-static unsigned short getcrc16 (const unsigned char *buffer, int bufleng)
+unsigned short getcrc16 (const unsigned char *buffer, int bufleng)
 {
 	int i;
 	int j;
@@ -597,9 +608,13 @@ static unsigned short getcrc16 (const unsigned char *buffer, int bufleng)
 	return((unsigned short)(j&65535));
 }
 
+} // namespace
+
 void uninitmultiplayers () { netuninit(); }
 
-static void initmultiplayers_reset()
+namespace {
+
+void initmultiplayers_reset()
 {
 	initcrc16();
 	std::ranges::fill(icnt0, 0);
@@ -630,6 +645,8 @@ static void initmultiplayers_reset()
 
 	std::memset(&otherhost[0], 0, sizeof(otherhost));
 }
+
+} // namespace
 
 void initsingleplayers()
 {
@@ -899,7 +916,9 @@ void initmultiplayers (int argc, char const * const argv[])
 	}
 }
 
-static int lookuphost(const char *name, struct sockaddr *host, int warnifmany)
+namespace {
+
+int lookuphost(const char *name, struct sockaddr *host, int warnifmany)
 {
 	struct addrinfo * result;
 	struct addrinfo *res;
@@ -962,6 +981,8 @@ static int lookuphost(const char *name, struct sockaddr *host, int warnifmany)
 	std::free(wname);
 	return found;
 }
+
+} // namespace
 
 void dosendpackets (int other)
 {
@@ -1264,6 +1285,8 @@ void flushpackets()
 	getpacket(&i, nullptr);	// Process acks but no messages, do retransmission.
 }
 
+namespace {
+
 // Records the IP address of a peer, along with our IPV4 and/or IPV6 addresses
 // their packet came in on. We send our reply from the same address.
 void savesnatchhost(int other)
@@ -1274,3 +1297,5 @@ void savesnatchhost(int other)
 	replyfrom4[other] = snatchreplyfrom4;
 	replyfrom6[other] = snatchreplyfrom6;
 }
+
+} // namespace
