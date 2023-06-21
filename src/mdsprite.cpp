@@ -184,7 +184,7 @@ int md_tilehasmodel (int tilenume)
 	return tile2model[tilenume].modelid;
 }
 
-static int framename2index (mdmodel *vm, const char *nam)
+static int framename2index(mdmodel *vm, std::string_view nam)
 {
 	int i = 0;
 
@@ -213,7 +213,7 @@ static int framename2index (mdmodel *vm, const char *nam)
 	return i;
 }
 
-int md_defineframe (int modelid, const char *framename, int tilenume, int skinnum)
+int md_defineframe (int modelid, std::string_view framename, int tilenume, int skinnum)
 {
 	md2model *m;
 	int i;
@@ -222,7 +222,9 @@ int md_defineframe (int modelid, const char *framename, int tilenume, int skinnu
 
 	if ((unsigned int)modelid >= (unsigned int)nextmodelid) return(-1);
 	if ((unsigned int)tilenume >= (unsigned int)MAXTILES) return(-2);
-	if (!framename) return(-3);
+	
+	if (framename.empty())
+		return -3;
 
 	m = (md2model *)models[modelid];
 	if (m->mdnum == 1) {
@@ -232,8 +234,10 @@ int md_defineframe (int modelid, const char *framename, int tilenume, int skinnu
 		return 0;
 	}
 
-	i = framename2index((mdmodel*)m,framename);
-	if (i == m->numframes) return(-3);   // frame name invalid
+	i = framename2index((mdmodel*)m, framename);
+	
+	if (i == m->numframes)
+		return(-3);   // frame name invalid
 
 	tile2model[tilenume].modelid = modelid;
 	tile2model[tilenume].framenum = i;
@@ -242,7 +246,7 @@ int md_defineframe (int modelid, const char *framename, int tilenume, int skinnu
 	return 0;
 }
 
-int md_defineanimation (int modelid, const char *framestart, const char *frameend, int fpssc, int flags)
+int md_defineanimation (int modelid, std::string_view framestart, std::string_view frameend, int fpssc, int flags)
 {
 	if (!mdinited) mdinit();
 
@@ -263,7 +267,7 @@ int md_defineanimation (int modelid, const char *framestart, const char *frameen
 	ma.startframe = i;
 
 		//find index of finish frame which must trail start frame
-	i = framename2index((mdmodel*)m,frameend);
+	i = framename2index((mdmodel*)m, frameend);
 	
 	if (i == m->numframes)
 		return -3;
