@@ -59,8 +59,6 @@ hicreplctyp* hicfindsubst(int picnum, int palnum, int skybox)
  */
 void hicinit()
 {
-	hicreplctyp *next;
-
 	// all tints should be 100%
 	std::ranges::fill(hictinting,
 		palette_t{ .r = 0xFF,
@@ -71,7 +69,7 @@ void hicinit()
 	if (hicfirstinit) {
 		for (auto* hr : hicreplc) {
 			for (; hr != nullptr;) {
-				next = hr->next;
+				hicreplctyp* next = hr->next;
 
 				std::free(hr);
 
@@ -113,8 +111,6 @@ void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned ch
 //
 int hicsetsubsttex(int picnum, int palnum, const std::string& filen, float alphacut, unsigned char flags)
 {
-	hicreplctyp* hrn;
-
 	if ((unsigned int)picnum >= (unsigned int)MAXTILES)
 		return -1;
 
@@ -130,6 +126,7 @@ int hicsetsubsttex(int picnum, int palnum, const std::string& filen, float alpha
 			break;
 	}
 
+	hicreplctyp* hrn{nullptr};
 	if (!hr) {
 		// no replacement yet defined
 		hrn = (hicreplctyp *)std::calloc(1,sizeof(hicreplctyp));
@@ -172,9 +169,6 @@ int hicsetsubsttex(int picnum, int palnum, const std::string& filen, float alpha
 //
 int hicsetskybox(int picnum, int palnum, std::span<const std::string> faces)
 {
-	hicreplctyp* hrn;
-	int j;
-
 	if ((unsigned int)picnum >= (unsigned int)MAXTILES)
 		return -1;
 
@@ -189,6 +183,8 @@ int hicsetskybox(int picnum, int palnum, std::span<const std::string> faces)
 		if (hr->palnum == palnum)
 			break;
 	}
+
+	hicreplctyp* hrn{nullptr};
 
 	if (!hr) {
 		// no replacement yet defined
@@ -231,8 +227,6 @@ int hicsetskybox(int picnum, int palnum, std::span<const std::string> faces)
 //
 int hicclearsubst(int picnum, int palnum)
 {
-	hicreplctyp* hrn{nullptr};
-
 	if ((unsigned int)picnum >= (unsigned int)MAXTILES)
 		return -1;
 	
@@ -242,8 +236,9 @@ int hicclearsubst(int picnum, int palnum)
 	if (!hicfirstinit)
 		return 0;
 
-
+	hicreplctyp* hrn{nullptr};
 	hicreplctyp *hr{nullptr};
+
 	for (hr = hicreplc[picnum]; hr; hrn = hr, hr = hr->next) {
 		if (hr->palnum == palnum)
 			break;

@@ -244,40 +244,45 @@ int md_defineframe (int modelid, const char *framename, int tilenume, int skinnu
 
 int md_defineanimation (int modelid, const char *framestart, const char *frameend, int fpssc, int flags)
 {
-	md2model *m;
-	mdanim_t ma;
-	mdanim_t *map;
-	int i;
-
 	if (!mdinited) mdinit();
 
 	if ((unsigned int)modelid >= (unsigned int)nextmodelid) return(-1);
 
+	mdanim_t ma;
 	std::memset(&ma, 0, sizeof(ma));
-	m = (md2model *)models[modelid];
-	if (m->mdnum < 2) return 0;
+	auto* m = (md2model *) models[modelid];
+	
+	if (m->mdnum < 2)
+		return 0;
 
 		//find index of start frame
-	i = framename2index((mdmodel*)m,framestart);
-	if (i == m->numframes) return -2;
+	int i = framename2index((mdmodel*)m, framestart);
+
+	if (i == m->numframes)
+		return -2;
 	ma.startframe = i;
 
 		//find index of finish frame which must trail start frame
 	i = framename2index((mdmodel*)m,frameend);
-	if (i == m->numframes) return -3;
+	
+	if (i == m->numframes)
+		return -3;
+	
 	ma.endframe = i;
-
 	ma.fpssc = fpssc;
 	ma.flags = flags;
 
-	map = (mdanim_t*)std::calloc(1,sizeof(mdanim_t));
-	if (!map) return(-4);
+	auto* map = (mdanim_t*) std::calloc(1, sizeof(mdanim_t));
+
+	if (!map)
+		return(-4);
+	
 	std::memcpy(map, &ma, sizeof(ma));
 
 	map->next = m->animations;
 	m->animations = map;
 
-	return(0);
+	return 0;
 }
 
 int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int surfnum)
@@ -570,51 +575,60 @@ static void updateanimation (md2model *m, spritetype *tspr)
 
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
 
-static void md2free (md2model *m)
+static void md2free(md2model *m)
 {
-	mdanim_t* anim;
-	mdanim_t* nanim{ nullptr };
-	mdskinmap_t* sk;
-	mdskinmap_t* nsk{ nullptr };
-
 	if (!m) {
 		return;
 	}
 
-	for(anim=m->animations; anim; anim=nanim)
+	mdanim_t* nanim{nullptr};
+	for(mdanim_t* anim = m->animations; anim; anim = nanim)
 	{
 		nanim = anim->next;
 		std::free(anim);
 	}
-	for(sk=m->skinmap; sk; sk=nsk)
+
+	mdskinmap_t* nsk{nullptr};
+	for(mdskinmap_t* sk = m->skinmap; sk; sk = nsk)
 	{
 		nsk = sk->next;
 		std::free(sk->fn);
 		std::free(sk);
 	}
 
-	if (m->frames) std::free(m->frames);
-	if (m->uvs) std::free(m->uvs);
-	if (m->tris) std::free(m->tris);
-	if (m->basepath) std::free(m->basepath);
-	if (m->skinfn) std::free(m->skinfn);
+	if (m->frames)
+		std::free(m->frames);
 
-	if (m->tex) std::free(m->tex);
+	if (m->uvs)
+		std::free(m->uvs);
+
+	if (m->tris)
+		std::free(m->tris);
+
+	if (m->basepath)
+		std::free(m->basepath);
+
+	if (m->skinfn)
+		std::free(m->skinfn);
+
+	if (m->tex)
+		std::free(m->tex);
 
 	std::free(m);
 }
 
-static md2model *md2load (int fil, const char *filnam)
+static md2model *md2load(int fil, const char *filnam)
 {
-	md2model *m;
-	md2head_t head;
-	char st[BMAX_PATH];
-	size_t i;
+	auto* m = (md2model *) std::calloc(1, sizeof(md2model));
+	
+	if (!m)
+		return nullptr;
 
-	m = (md2model *)std::calloc(1,sizeof(md2model)); if (!m) return(nullptr);
-	m->mdnum = 2; m->scale = .01;
+	m->mdnum = 2;
+	m->scale = .01F;
 
-	kread(fil,(char *)&head,sizeof(md2head_t));
+	md2head_t head{};
+	kread(fil, (char *)&head, sizeof(md2head_t));
 	head.id = B_LITTLE32(head.id);                 head.vers = B_LITTLE32(head.vers);
 	head.skinxsiz = B_LITTLE32(head.skinxsiz);     head.skinysiz = B_LITTLE32(head.skinysiz);
 	head.framebytes = B_LITTLE32(head.framebytes); head.numskins = B_LITTLE32(head.numskins);
@@ -671,26 +685,56 @@ static md2model *md2load (int fil, const char *filnam)
 	}
 #endif
 
-	std::strcpy(st,filnam);
-	for(i=std::strlen(st)-1;i>0;i--)
-		if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
-	if (i<0) i=0;
+	char st[BMAX_PATH];
+	
+	std::strcpy(st, filnam);
+	std::size_t i = std::strlen(st) - 1;
+	for(; i > 0; --i) {
+		if ((st[i] == '/') || (st[i] == '\\')) {
+			i++;
+			break;
+		}
+	}
+
+	if (i < 0)
+		i = 0;
+
 	st[i] = 0;
-	m->basepath = (char *)std::malloc(i+1); if (!m->basepath) { md2free(m); return(nullptr); }
+
+	m->basepath = (char *)std::malloc(i + 1);
+	
+	if (!m->basepath) {
+		md2free(m);
+		return nullptr;
+	}
+
 	std::strcpy(m->basepath, st);
 
-	m->skinfn = (char *)std::calloc(m->numskins,64); if (!m->skinfn) { md2free(m); return(nullptr); }
-	klseek(fil,head.ofsskins,SEEK_SET);
-	if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
-		{ md2free(m); return(nullptr); }
+	m->skinfn = (char *)std::calloc(m->numskins,64);
+	
+	if (!m->skinfn) {
+		md2free(m);
+		return nullptr;
+	}
+	
+	klseek(fil, head.ofsskins, SEEK_SET);
 
-	m->tex = (PTMHead **)std::calloc(m->numskins, sizeof(PTMHead *) * (HICEFFECTMASK+1));
-	if (!m->tex) { md2free(m); return(nullptr); }
+	if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins) {
+		md2free(m);
+		return nullptr;
+	}
+
+	m->tex = (PTMHead **) std::calloc(m->numskins, sizeof(PTMHead *) * (HICEFFECTMASK + 1));
+	
+	if (!m->tex) {
+		md2free(m);
+		return nullptr;
+	}
 
 	maxmodelverts = std::max(maxmodelverts, m->numverts);
 	maxelementvbo = std::max(maxelementvbo, m->numtris * 3);
 
-	return(m);
+	return m;
 }
 
 static int md2draw (md2model *m, spritetype *tspr, int method)
@@ -920,15 +964,6 @@ static void md3free (md3model *m);
 
 static md3model *md3load (int fil)
 {
-	int surfi;
-	int ofsurf;
-	std::array<int, 4> offs;
-	std::array<int, 4> leng;
-	md3surf_t *s;
-
-	md3filehead_t filehead;
-	md3filesurf_t filesurf;
-
 	auto* m = (md3model *)std::calloc(1,sizeof(md3model));
 
 	if (!m) {
@@ -939,7 +974,8 @@ static md3model *md3load (int fil)
 	m->tex = nullptr;
 	m->scale = .01F;
 
-	kread(fil,&filehead,sizeof(md3filehead_t));
+	md3filehead_t filehead{};
+	kread(fil, &filehead, sizeof(md3filehead_t));
 	m->head.id = B_LITTLE32(filehead.id);
 	m->head.vers = B_LITTLE32(filehead.vers);
 	std::memcpy(m->head.nam, filehead.nam, sizeof(filehead.nam));
@@ -994,12 +1030,15 @@ static md3model *md3load (int fil)
 	}
 #endif
 
-	ofsurf = filehead.surfs;
+	int ofsurf = filehead.surfs;
 
-	for(surfi=0;surfi<m->head.numsurfs;surfi++)
+	for(int surfi{0}; surfi < m->head.numsurfs; ++surfi)
 	{
-		s = &m->head.surfs[surfi];
-		klseek(fil,ofsurf,SEEK_SET); kread(fil,&filesurf,sizeof(md3filesurf_t));
+		auto* s = &m->head.surfs[surfi];
+		klseek(fil, ofsurf, SEEK_SET);
+
+		md3filesurf_t filesurf{};
+		kread(fil, &filesurf, sizeof(md3filesurf_t));
 
 		s->id = B_LITTLE32(filesurf.id);
 		std::memcpy(s->nam, filesurf.nam, sizeof(filesurf.nam));
@@ -1014,25 +1053,36 @@ static md3model *md3load (int fil)
 		filesurf.xyzn = B_LITTLE32(filesurf.xyzn);
 		s->ofsend = B_LITTLE32(filesurf.ofsend);
 
-		offs[0] = ofsurf+filesurf.tris   ; leng[0] = s->numtris*sizeof(md3tri_t);
-		offs[1] = ofsurf+filesurf.shaders; leng[1] = s->numshaders*sizeof(md3shader_t);
-		offs[2] = ofsurf+filesurf.uv     ; leng[2] = s->numverts*sizeof(md3uv_t);
-		offs[3] = ofsurf+filesurf.xyzn   ; leng[3] = s->numframes*s->numverts*sizeof(md3xyzn_t);
+		std::array<int, 4> offs{};
+		std::array<int, 4> leng{};
 
-		s->tris = (md3tri_t *)std::malloc(leng[0]+leng[1]+leng[2]+leng[3]);
+		offs[0] = ofsurf + filesurf.tris;
+		leng[0] = s->numtris * sizeof(md3tri_t);
+		offs[1] = ofsurf + filesurf.shaders;
+		leng[1] = s->numshaders * sizeof(md3shader_t);
+		offs[2] = ofsurf + filesurf.uv;
+		leng[2] = s->numverts * sizeof(md3uv_t);
+		offs[3] = ofsurf + filesurf.xyzn;
+		leng[3] = s->numframes * s->numverts * sizeof(md3xyzn_t);
+
+		s->tris = (md3tri_t *) std::malloc(leng[0] + leng[1] + leng[2] + leng[3]);
 		if (!s->tris)
 		{
 			md3free(m);
 			return(nullptr);
 		}
-		s->shaders = (md3shader_t *)(((intptr_t)s->tris   )+leng[0]);
-		s->uv      = (md3uv_t     *)(((intptr_t)s->shaders)+leng[1]);
-		s->xyzn    = (md3xyzn_t   *)(((intptr_t)s->uv     )+leng[2]);
+		s->shaders = (md3shader_t*)(((intptr_t)s->tris) + leng[0]);
+		s->uv      = (md3uv_t*)(((intptr_t)s->shaders) + leng[1]);
+		s->xyzn    = (md3xyzn_t*)(((intptr_t)s->uv) + leng[2]);
 
-		klseek(fil,offs[0],SEEK_SET); kread(fil,s->tris   ,leng[0]);
-		klseek(fil,offs[1],SEEK_SET); kread(fil,s->shaders,leng[1]);
-		klseek(fil,offs[2],SEEK_SET); kread(fil,s->uv     ,leng[2]);
-		klseek(fil,offs[3],SEEK_SET); kread(fil,s->xyzn   ,leng[3]);
+		klseek(fil, offs[0], SEEK_SET);
+		kread(fil, s->tris, leng[0]);
+		klseek(fil, offs[1], SEEK_SET);
+		kread(fil, s->shaders, leng[1]);
+		klseek(fil, offs[2], SEEK_SET);
+		kread(fil, s->uv, leng[2]);
+		klseek(fil, offs[3], SEEK_SET);
+		kread(fil, s->xyzn, leng[3]);
 
 #if B_BIG_ENDIAN != 0
 		{
@@ -1062,7 +1112,7 @@ static md3model *md3load (int fil)
 		ofsurf += s->ofsend;
 	}
 
-	return(m);
+	return m;
 }
 
 static int md3draw (md3model *m, spritetype *tspr, int method)
@@ -1367,21 +1417,20 @@ static int garea;
 static std::array<int, 33> pow2m1;
 static voxmodel* gvox;
 
-	//pitch must equal xsiz*4
-unsigned gloadtex (int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
+	//pitch must equal xsiz * 4 <- FIXME: Codify this.
+unsigned int gloadtex(int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 {
-	unsigned rtexid;
-	coltype *pic;
-	coltype *pic2;
-	unsigned char *cptr;
-	int i;
+	auto* pic = (coltype *) picbuf; //Correct for GL's RGB order; also apply gamma here..
+	auto* pic2 = (coltype *) std::malloc(xsiz * ysiz * sizeof(coltype));
+	
+	if (!pic2)
+		return std::numeric_limits<unsigned int>::max();
 
-	pic = (coltype *)picbuf; //Correct for GL's RGB order; also apply gamma here..
-	pic2 = (coltype *)std::malloc(xsiz*ysiz*sizeof(coltype)); if (!pic2) return((unsigned)-1);
-	cptr = (unsigned char*)&britable[gammabrightness ? 0 : curbrightness][0];
+	auto* cptr = (unsigned char*)&britable[gammabrightness ? 0 : curbrightness][0];
+	
 	if (!is8bit)
 	{
-		for(i=xsiz*ysiz-1;i>=0;i--)
+		for(int i = xsiz * ysiz - 1; i >= 0; --i)
 		{
 			pic2[i].b = cptr[pic[i].r];
 			pic2[i].g = cptr[pic[i].g];
@@ -1391,8 +1440,10 @@ unsigned gloadtex (int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 	}
 	else
 	{
-		if (palookup[dapal] == nullptr) dapal = 0;
-		for(i=xsiz*ysiz-1;i>=0;i--)
+		if (palookup[dapal] == nullptr)
+			dapal = 0;
+
+		for(int i = xsiz * ysiz - 1; i >= 0; --i)
 		{
 			pic2[i].b = cptr[palette[(int)palookup[dapal][pic[i].a]*3+2]*4];
 			pic2[i].g = cptr[palette[(int)palookup[dapal][pic[i].a]*3+1]*4];
@@ -1401,16 +1452,19 @@ unsigned gloadtex (int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 		}
 	}
 
-	glfunc.glGenTextures(1,(GLuint*)&rtexid);
-	glfunc.glBindTexture(GL_TEXTURE_2D,rtexid);
-	glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glfunc.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glfunc.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,xsiz,ysiz,0,GL_RGBA,GL_UNSIGNED_BYTE,(unsigned char *)pic2);
+	unsigned int rtexid{};
+
+	glfunc.glGenTextures(1, (GLuint*) &rtexid);
+	glfunc.glBindTexture(GL_TEXTURE_2D, rtexid);
+	glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glfunc.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, xsiz, ysiz, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char *)pic2);
 	std::free(pic2);
-	return(rtexid);
+	
+	return rtexid;
 }
 
-static int getvox (int x, int y, int z)
+static int getvox(int x, int y, int z)
 {
 	z += x*yzsiz + y*zsiz;
 	for(x=vcolhashead[(z*214013)&vcolhashsizm1];x>=0;x=vcol[x].n)
@@ -1422,13 +1476,15 @@ static void putvox (int x, int y, int z, int col)
 {
 	if (vnum >= vmax) {
 		vmax = std::max(vmax << 1, 4096);
-		vcol = (voxcol_t *)realloc(vcol,vmax*sizeof(voxcol_t));
+		vcol = (voxcol_t *) std::realloc(vcol, vmax * sizeof(voxcol_t));
 	}
 
-	z += x*yzsiz + y*zsiz;
-	vcol[vnum].p = z; z = ((z*214013)&vcolhashsizm1);
+	z += x * yzsiz + y * zsiz;
+	vcol[vnum].p = z;
+	z = ((z * 214013) & vcolhashsizm1);
 	vcol[vnum].c = col;
-	vcol[vnum].n = vcolhashead[z]; vcolhashead[z] = vnum++;
+	vcol[vnum].n = vcolhashead[z];
+	vcolhashead[z] = vnum++;
 }
 /*
 	//Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 0's
@@ -1444,12 +1500,21 @@ static void setzrange0 (int *lptr, int z0, int z1)
 	//Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 1's
 static void setzrange1 (int *lptr, int z0, int z1)
 {
-	int z;
-	int ze;
-	if (!((z0^z1)&~31)) { lptr[z0>>5] |= (~(-(1<<SHIFTMOD32(z1))))&(-(1<<SHIFTMOD32(z0))); return; }
-	z = (z0>>5); ze = (z1>>5);
-	lptr[z] |= (-(1<<SHIFTMOD32(z0))); for(z++;z<ze;z++) lptr[z] = -1;
-	lptr[z] |=~(-(1<<SHIFTMOD32(z1)));
+	if (!((z0 ^ z1) & ~31)) {
+		lptr[z0 >> 5] |= (~(-(1 << SHIFTMOD32(z1)))) & (-(1 << SHIFTMOD32(z0)));
+		return;
+	}
+	
+	int z = (z0 >> 5);
+	int ze = (z1 >> 5);
+
+	lptr[z] |= (-(1 << SHIFTMOD32(z0)));
+	
+	for(z++; z < ze; z++) {
+		lptr[z] = -1;
+	}
+	
+	lptr[z] |=~(-(1 << SHIFTMOD32(z1)));
 }
 
 static int isrectfree (int x0, int y0, int dx, int dy)
@@ -1467,20 +1532,34 @@ static int isrectfree (int x0, int y0, int dx, int dy)
 	const int c = (dx >> 5) - (x0 >> 5);
 	int m = ~pow2m1[x0 & 31];
 	const int m1 = pow2m1[(dx & 31) + 1];
-	if (!c) { for(m&=m1;dy;dy--,i+=mytexo5) if (zbit[i]&m) return(0); }
+	
+	if(!c) {
+		for(m &= m1; dy; --dy, i += mytexo5) {
+			if (zbit[i] & m)
+				return 0;
+		}
+	}
 	else
-	{  for(;dy;dy--,i+=mytexo5)
+	{  for(; dy; --dy, i += mytexo5)
 		{
-			if (zbit[i]&m) return(0);
-			for(x=1;x<c;x++) if (zbit[i+x]) return(0);
-			if (zbit[i+x]&m1) return(0);
+			if (zbit[i] & m)
+				return 0;
+			
+			for(x = 1; x < c; ++x) {
+				if (zbit[i+x])
+					return 0;
+			}
+
+			if (zbit[i + x] & m1)
+				return 0;
 		}
 	}
 #endif
+
 	return 1;
 }
 
-static void setrect (int x0, int y0, int dx, int dy)
+static void setrect(int x0, int y0, int dx, int dy)
 {
 #if 0
 	int i, j, y;
@@ -1488,15 +1567,14 @@ static void setrect (int x0, int y0, int dx, int dy)
 	for(y=0;y<dy;y++,i+=gvox->mytexx)
 		for(x=0;x<dx;x++) { j = i+x; zbit[j>>5] |= (1<<SHIFTMOD32(j)); }
 #else
-	int x;
-
-	int i = y0 * mytexo5 + (x0 >> 5);
 	dx += x0 - 1;
-	const int c = (dx >> 5) - (x0 >> 5);
-	int m = ~pow2m1[x0&31];
 	const int m1 = pow2m1[(dx & 31) + 1];
+	const int c = (dx >> 5) - (x0 >> 5);
 
-	if (!c) {
+	int m = ~pow2m1[x0 & 31];
+	int i = y0 * mytexo5 + (x0 >> 5);
+
+	if (c == 0) {
 		for (m &= m1; dy; dy--, i += mytexo5) {
 			zbit[i] |= m;
 		}
@@ -1506,7 +1584,8 @@ static void setrect (int x0, int y0, int dx, int dy)
 		{
 			zbit[i] |= m;
 
-			for (x = 1; x < c; x++) {
+			int x{1};
+			for (; x < c; x++) {
 				zbit[i + x] = -1;
 			}
 
@@ -1516,7 +1595,7 @@ static void setrect (int x0, int y0, int dx, int dy)
 #endif
 }
 
-static void cntquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
+static void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
 {
 	std::ignore = x1;
 	std::ignore = y1;
@@ -1557,94 +1636,224 @@ static void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int
 {
 	int i;
 	int j;
-	int x;
-	int y;
-	int z;
 	int xx;
 	int yy;
-	int nx = 0;
-	int ny = 0;
-	int nz = 0;
 	int *lptr;
 	voxrect_t *qptr;
 
-	x = std::abs(x2-x0); y = std::abs(y2-y0); z = std::abs(z2-z0);
-	if (!x) { x = y; y = z; i = 0; } else if (!y) { y = z; i = 1; } else i = 2;
-	if (x < y) { z = x; x = y; y = z; i += 3; }
-	z = shcnt[y*shcntp+x]++;
+	int x = std::abs(x2 - x0);
+	int y = std::abs(y2 - y0);
+	int z = std::abs(z2 - z0);
+
+	if (x == 0) {
+		x = y;
+		y = z;
+		i = 0;
+	}
+	else if (y == 0) {
+		y = z;
+		i = 1;
+	}
+	else
+		i = 2;
+
+	if (x < y) {
+		z = x;
+		x = y;
+		y = z;
+		i += 3;
+	}
+
+	z = shcnt[y * shcntp + x]++;
 	lptr = &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+(shp[z].x+VOXBORDWIDTH)];
+
+	int nx{0};
+	int ny{0};
+	int nz{0};
+
 	switch(face)
 	{
-		case 0: ny = y1; x2 = x0; x0 = x1; x1 = x2; break;
-		case 1: ny = y0; y0++; y1++; y2++; break;
-		case 2: nz = z1; y0 = y2; y2 = y1; y1 = y0; z0++; z1++; z2++; break;
-		case 3: nz = z0; break;
-		case 4: nx = x1; y2 = y0; y0 = y1; y1 = y2; x0++; x1++; x2++; break;
-		case 5: nx = x0; break;
+		case 0:
+			ny = y1;
+			x2 = x0;
+			x0 = x1;
+			x1 = x2;
+			break;
+		case 1:
+			ny = y0;
+			++y0;
+			++y1;
+			++y2;
+			break;
+		case 2:
+			nz = z1;
+			y0 = y2;
+			y2 = y1;
+			y1 = y0;
+			++z0;
+			++z1;
+			++z2;
+			break;
+		case 3:
+			nz = z0;
+			break;
+		case 4:
+			nx = x1;
+			y2 = y0;
+			y0 = y1;
+			y1 = y2;
+			++x0;
+			++x1;
+			++x2;
+			break;
+		case 5:
+			nx = x0;
+			break;
 	}
-	for(yy=0;yy<y;yy++,lptr+=gvox->mytexx)
-		for(xx=0;xx<x;xx++)
+
+	for(int yy{0}; yy < y; ++yy, lptr += gvox->mytexx) {
+		for(int xx{0}; xx < x; ++xx)
 		{
 			switch(face)
 			{
-				case 0: if (i < 3) { nx = x1+x-1-xx; nz = z1+yy;   } //back
-								  else { nx = x1+y-1-yy; nz = z1+xx;   } break;
-				case 1: if (i < 3) { nx = x0+xx;     nz = z0+yy;   } //front
-								  else { nx = x0+yy;     nz = z0+xx;   } break;
-				case 2: if (i < 3) { nx = x1-x+xx;   ny = y1-1-yy; } //bot
-								  else { nx = x1-1-yy;   ny = y1-1-xx; } break;
-				case 3: if (i < 3) { nx = x0+xx;     ny = y0+yy;   } //top
-								  else { nx = x0+yy;     ny = y0+xx;   } break;
-				case 4: if (i < 3) { ny = y1+x-1-xx; nz = z1+yy;   } //right
-								  else { ny = y1+y-1-yy; nz = z1+xx;   } break;
-				case 5: if (i < 3) { ny = y0+xx;     nz = z0+yy;   } //left
-								  else { ny = y0+yy;     nz = z0+xx;   } break;
+				case 0: // back
+					if (i < 3) {
+						nx = x1 + x - 1 - xx;
+						nz = z1 + yy;
+					} 
+					else {
+						nx = x1 + y - 1 - yy;
+						nz = z1 + xx;
+					}
+					break;
+				case 1: // front
+					if (i < 3) {
+						nx = x0 + xx;
+						nz = z0 + yy;
+					}
+					else {
+						nx = x0 + yy;
+						nz = z0 + xx;
+					}
+					break;
+				case 2: // bottom
+					if (i < 3) {
+						nx = x1 - x + xx;
+						ny = y1 - 1 - yy;
+					}
+					else {
+						nx = x1 - 1 - yy;
+						ny = y1 - 1 - xx;
+					}
+					break;
+				case 3: // top
+					if (i < 3) {
+						nx = x0 + xx;
+						ny = y0 + yy;
+					}
+					else {
+						nx = x0 + yy;
+						ny = y0 + xx;
+					}
+					break;
+				case 4: // right
+					if (i < 3) {
+						ny = y1 + x - 1 - xx;
+						nz = z1 + yy;
+					}
+					else {
+						ny = y1 + y - 1 - yy;
+						nz = z1 + xx;
+					}
+					break;
+				case 5: // left
+					if (i < 3) {
+						ny = y0 + xx;
+						nz = z0 + yy;
+					}
+					else {
+						ny = y0 + yy;
+						nz = z0 + xx;
+					}
+					break;
 			}
-			lptr[xx] = getvox(nx,ny,nz);
-		}
 
-		//Extend borders horizontally
-	for(yy=VOXBORDWIDTH;yy<y+VOXBORDWIDTH;yy++)
-		for(xx=0;xx<VOXBORDWIDTH;xx++)
-		{
-			lptr = &gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x];
-			lptr[xx] = lptr[VOXBORDWIDTH]; lptr[xx+x+VOXBORDWIDTH] = lptr[x-1+VOXBORDWIDTH];
+			lptr[xx] = getvox(nx, ny, nz);
 		}
-		//Extend borders vertically
-	for(yy=0;yy<VOXBORDWIDTH;yy++)
+	}
+
+	//Extend borders horizontally
+	for(int yy = VOXBORDWIDTH;yy < y + VOXBORDWIDTH; ++yy) {
+		for(int xx{0}; xx < VOXBORDWIDTH; ++xx)
+		{
+			lptr = &gvox->mytex[(shp[z].y + yy) * gvox->mytexx + shp[z].x];
+			lptr[xx] = lptr[VOXBORDWIDTH];
+			lptr[xx + x + VOXBORDWIDTH] = lptr[x - 1 + VOXBORDWIDTH];
+		}
+	}
+
+	//Extend borders vertically
+	for(int yy{0}; yy < VOXBORDWIDTH; ++yy)
 	{
-		std::memcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x],
-				 &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
-				 (x+(VOXBORDWIDTH<<1))<<2);
-		std::memcpy(&gvox->mytex[(shp[z].y+y+yy+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
-				 &gvox->mytex[(shp[z].y+y-1+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
-				 (x+(VOXBORDWIDTH<<1))<<2);
+		std::memcpy(&gvox->mytex[(shp[z].y + yy) * gvox->mytexx + shp[z].x],
+				 &gvox->mytex[(shp[z].y + VOXBORDWIDTH) * gvox->mytexx + shp[z].x],
+				 (x + (VOXBORDWIDTH << 1)) << 2);
+		std::memcpy(&gvox->mytex[(shp[z].y + y + yy + VOXBORDWIDTH) * gvox->mytexx + shp[z].x],
+				 &gvox->mytex[(shp[z].y + y - 1 + VOXBORDWIDTH) * gvox->mytexx + shp[z].x],
+				 (x + (VOXBORDWIDTH << 1)) << 2);
 	}
 
 	qptr = &gvox->quad[gvox->qcnt];
-	qptr->v[0].x = x0; qptr->v[0].y = y0; qptr->v[0].z = z0;
-	qptr->v[1].x = x1; qptr->v[1].y = y1; qptr->v[1].z = z1;
-	qptr->v[2].x = x2; qptr->v[2].y = y2; qptr->v[2].z = z2;
-	for(j=0;j<3;j++) { qptr->v[j].u = shp[z].x+VOXBORDWIDTH; qptr->v[j].v = shp[z].y+VOXBORDWIDTH; }
-	if (i < 3) qptr->v[1].u += x; else qptr->v[1].v += y;
-	qptr->v[2].u += x; qptr->v[2].v += y;
+
+	qptr->v[0].x = x0;
+	qptr->v[0].y = y0;
+	qptr->v[0].z = z0;
+	qptr->v[1].x = x1;
+	qptr->v[1].y = y1;
+	qptr->v[1].z = z1;
+	qptr->v[2].x = x2;
+	qptr->v[2].y = y2;
+	qptr->v[2].z = z2;
+
+	for(j=0;j<3;j++) {
+		qptr->v[j].u = shp[z].x + VOXBORDWIDTH;
+		qptr->v[j].v = shp[z].y + VOXBORDWIDTH;
+	}
+
+	if (i < 3)
+		qptr->v[1].u += x;
+	else
+		qptr->v[1].v += y;
+
+	qptr->v[2].u += x;
+	qptr->v[2].v += y;
 
 	qptr->v[3].u = qptr->v[0].u - qptr->v[1].u + qptr->v[2].u;
 	qptr->v[3].v = qptr->v[0].v - qptr->v[1].v + qptr->v[2].v;
 	qptr->v[3].x = qptr->v[0].x - qptr->v[1].x + qptr->v[2].x;
 	qptr->v[3].y = qptr->v[0].y - qptr->v[1].y + qptr->v[2].y;
 	qptr->v[3].z = qptr->v[0].z - qptr->v[1].z + qptr->v[2].z;
-	if (gvox->qfacind[face] < 0) gvox->qfacind[face] = gvox->qcnt;
-	gvox->qcnt++;
 
+	if (gvox->qfacind[face] < 0)
+		gvox->qfacind[face] = gvox->qcnt;
+
+	++gvox->qcnt;
 }
 
-static int isolid (int x, int y, int z)
+static int isolid(int x, int y, int z)
 {
-	if ((unsigned int)x >= (unsigned int)xsiz) return(0);
-	if ((unsigned int)y >= (unsigned int)ysiz) return(0);
-	if ((unsigned int)z >= (unsigned int)zsiz) return(0);
-	z += x*yzsiz + y*zsiz; return(vbit[z>>5]&(1<<SHIFTMOD32(z)));
+	if ((unsigned int)x >= (unsigned int)xsiz)
+		return 0;
+	
+	if ((unsigned int)y >= (unsigned int)ysiz)
+		return 0;
+	
+	if ((unsigned int)z >= (unsigned int)zsiz)
+		return 0;
+
+	z += x*yzsiz + y*zsiz;
+	
+	return vbit[z >> 5] & (1 << SHIFTMOD32(z));
 }
 
 static voxmodel *vox2poly ()
