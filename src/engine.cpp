@@ -9007,14 +9007,7 @@ void nextpage()
 // TODO: Maybe consider a strict file format type for filename.
 int loadpics(const std::string& filename, int askedsize)
 {
-	int offscount;
-	int localtilestart;
-	int localtileend;
-	int dasiz;
-	short fil;
-	short i;
 	short j;
-	short k;
 
 	std::ranges::copy(filename, artfilename);
 
@@ -9026,6 +9019,8 @@ int loadpics(const std::string& filename, int askedsize)
 
 	numtilefiles = 0;
 
+	int k{0};
+
 	do
 	{
 		k = numtilefiles;
@@ -9033,37 +9028,47 @@ int loadpics(const std::string& filename, int askedsize)
 		artfilename[7] = (k%10)+48;
 		artfilename[6] = ((k/10)%10)+48;
 		artfilename[5] = ((k/100)%10)+48;
-		if ((fil = kopen4load(artfilename,0)) != -1)
+
+		short fil{0};
+
+		if ((fil = kopen4load(artfilename, 0)) != -1)
 		{
+			int localtilestart{0};
+			int localtileend{0};
 			kread(fil,&artversion,4); artversion = B_LITTLE32(artversion);
+			
 			if (artversion != 1) {
 				buildprintf("loadpics(): Invalid art file version in {}\n", artfilename);
 				return(-1);
 			}
+			
 			kread(fil,&numtiles,4);       numtiles       = B_LITTLE32(numtiles);
 			kread(fil,&localtilestart,4); localtilestart = B_LITTLE32(localtilestart);
 			kread(fil,&localtileend,4);   localtileend   = B_LITTLE32(localtileend);
 			kread(fil,&tilesizx[localtilestart],(localtileend-localtilestart+1)<<1);
 			kread(fil,&tilesizy[localtilestart],(localtileend-localtilestart+1)<<1);
 			kread(fil,&picanm[localtilestart],(localtileend-localtilestart+1)<<2);
-			for (i=localtilestart; i<=localtileend; i++) {
+			
+			for (int i{localtilestart}; i <= localtileend; ++i) {
 				tilesizx[i] = B_LITTLE16(tilesizx[i]);
 				tilesizy[i] = B_LITTLE16(tilesizy[i]);
 				picanm[i]   = B_LITTLE32(picanm[i]);
 			}
 
-			offscount = 4+4+4+4+((localtileend-localtilestart+1)<<3);
-			for(i=localtilestart;i<=localtileend;i++)
+			int offscount = 4 + 4 + 4 + 4 + ((localtileend-localtilestart+1)<<3);
+			
+			for(int i{localtilestart}; i <= localtileend; ++i)
 			{
 				tilefilenum[i] = k;
 				tilefileoffs[i] = offscount;
-				dasiz = (int)(tilesizx[i]*tilesizy[i]);
+				const int dasiz = (int)(tilesizx[i] * tilesizy[i]);
 				offscount += dasiz;
-				artsize += ((dasiz+15)&0xfffffff0);
+				artsize += ((dasiz + 15) & 0xfffffff0);
 			}
+
 			kclose(fil);
 
-			numtilefiles++;
+			++numtilefiles;
 		}
 	} while (k != numtilefiles);
 
@@ -9087,19 +9092,20 @@ int loadpics(const std::string& filename, int askedsize)
 
 	initcache(pic, cachesize);
 
-	for(i=0;i<MAXTILES;i++)
+	for(int i{0}; i < MAXTILES; ++i)
 	{
-		j = 15;
+		int j{15};
+
 		while ((j > 1) && (pow2long[j] > tilesizx[i]))
-			j--;
+			--j;
 
 		picsiz[i] = ((unsigned char)j);
 		
 		j = 15;
 		while ((j > 1) && (pow2long[j] > tilesizy[i]))
-			j--;
+			--j;
 		
-		picsiz[i] += ((unsigned char)(j<<4));
+		picsiz[i] += ((unsigned char)(j << 4));
 	}
 
 	artfil = -1;
@@ -9171,8 +9177,6 @@ void loadtile(short tilenume)
 //
 intptr_t allocatepermanenttile(short tilenume, int xsiz, int ysiz)
 {
-	int j;
-
 	if ((xsiz <= 0) || (ysiz <= 0) || ((unsigned)tilenume >= (unsigned)MAXTILES))
 		return 0;
 
@@ -9185,15 +9189,15 @@ intptr_t allocatepermanenttile(short tilenume, int xsiz, int ysiz)
 	tilesizy[tilenume] = ysiz;
 	picanm[tilenume] = 0;
 
-	j = 15;
+	int j{15};
 	while ((j > 1) && (pow2long[j] > xsiz))
-		j--;
+		--j;
 
 	picsiz[tilenume] = ((unsigned char)j);
 
 	j = 15;
 	while ((j > 1) && (pow2long[j] > ysiz))
-		j--;
+		--j;
 
 	picsiz[tilenume] += ((unsigned char)(j<<4));
 
@@ -9263,28 +9267,27 @@ void copytilepiece(int tilenume1, int sx1, int sy1, int xsiz, int ysiz,
 //
 int qloadkvx(int voxindex, const std::string& filename)
 {
-	int fil;
-	int dasiz;
-	unsigned char *ptr;
+	int fil{0};
 
 	if ((fil = kopen4load(filename.c_str(), 0)) == -1) {
 		return -1;
 	}
 
-	int lengcnt{ 0 };
+	int lengcnt{0};
 	const int lengtot = kfilelength(fil);
 
-	for (int i{ 0 }; i < MAXVOXMIPS; i++)
+	for(int i{0}; i < MAXVOXMIPS; ++i)
 	{
+		int dasiz{0};
 		kread(fil, &dasiz, 4);
 		dasiz = B_LITTLE32(dasiz);
 			//Must store filenames to use cacheing system :(
 		voxlock[voxindex][i] = 200;
 		allocache((void **)&voxoff[voxindex][i],dasiz,&voxlock[voxindex][i]);
-		ptr = (unsigned char *)voxoff[voxindex][i];
-		kread(fil,ptr,dasiz);
+		auto* ptr = (unsigned char *)voxoff[voxindex][i];
+		kread(fil, ptr, dasiz);
 
-		lengcnt += dasiz+4;
+		lengcnt += dasiz + 4;
 		
 		if (lengcnt >= lengtot - 768) {
 			break;
@@ -9653,14 +9656,10 @@ int changespritestat(short spritenum, short newstatnum)
 //
 int nextsectorneighborz(short sectnum, int thez, short topbottom, short direction)
 {
-	int testz;
-	int nextz;
+	int nextz = 0x80000000; // FIXME: Is overflow correct?
 
 	if (direction == 1) {
 		nextz = 0x7fffffff;
-	}
-	else {
-		nextz = 0x80000000; // FIXME: Is overflow correct?
 	}
 
 	short sectortouse{ -1 };
@@ -9674,7 +9673,7 @@ int nextsectorneighborz(short sectnum, int thez, short topbottom, short directio
 		{
 			if (topbottom == 1)
 			{
-				testz = sector[wal->nextsector].floorz;
+				const int testz = sector[wal->nextsector].floorz;
 
 				if (direction == 1)
 				{
@@ -9695,7 +9694,7 @@ int nextsectorneighborz(short sectnum, int thez, short topbottom, short directio
 			}
 			else
 			{
-				testz = sector[wal->nextsector].ceilingz;
+				const int testz = sector[wal->nextsector].ceilingz;
 				if (direction == 1)
 				{
 					if ((testz > thez) && (testz < nextz))
@@ -9715,11 +9714,11 @@ int nextsectorneighborz(short sectnum, int thez, short topbottom, short directio
 			}
 		}
 
-		wal++;
-		i--;
+		++wal;
+		--i;
 	} while (i != 0);
 
-	return sectortouse ;
+	return sectortouse;
 }
 
 
@@ -11130,14 +11129,6 @@ void getzrange(int x, int y, int z, short sectnum,
 		 int *ceilz, int *ceilhit, int *florz, int *florhit,
 		 int walldist, unsigned int cliptype)
 {
-	sectortype *sec;
-	walltype* wal;
-	walltype* wal2;
-	spritetype *spr;
-	int clipsectcnt;
-	int startwall;
-	int endwall;
-	int tilenum;
 	int xoff;
 	int yoff;
 	int dax;
@@ -11155,13 +11146,6 @@ void getzrange(int x, int y, int z, short sectnum,
 	int y3;
 	int x4;
 	int y4;
-	int ang;
-	int cosang;
-	int sinang;
-	int xspan;
-	int yspan;
-	int xrepeat;
-	int yrepeat;
 	short cstat;
 	unsigned char clipyou;
 
@@ -11190,23 +11174,25 @@ void getzrange(int x, int y, int z, short sectnum,
 	const int dasprclipmask = cliptype >> 16;
 
 	clipsectorlist[0] = sectnum;
-	clipsectcnt = 0;
+	int clipsectcnt{0};
 	clipsectnum = 1;
 
 	do  //Collect sectors inside your square first
 	{
-		sec = &sector[clipsectorlist[clipsectcnt]];
-		startwall = sec->wallptr;
-		endwall = startwall + sec->wallnum;
+		auto* sec = &sector[clipsectorlist[clipsectcnt]];
+		const int startwall = sec->wallptr;
+		const int endwall = startwall + sec->wallnum;
 		int j{startwall};
-		for(wal=&wall[startwall]; j < endwall; ++j, ++wal)
+
+		for(auto* wal = &wall[startwall]; j < endwall; ++j, ++wal)
 		{
 			int k = wal->nextsector;
 			
 			if (k >= 0)
 			{
-				wal2 = &wall[wal->point2];
-				x1 = wal->x; x2 = wal2->x;
+				auto* wal2 = &wall[wal->point2];
+				x1 = wal->x;
+				x2 = wal2->x;
 
 				if ((x1 < xmin) && (x2 < xmin))
 					continue;
@@ -11306,7 +11292,7 @@ void getzrange(int x, int y, int z, short sectnum,
 	{
 		for(short j = headspritesect[clipsectorlist[cnum]]; j >= 0; j = nextspritesect[j])
 		{
-			spr = &sprite[j];
+			auto* spr = &sprite[j];
 			cstat = spr->cstat;
 			
 			if (cstat&dasprclipmask)
@@ -11316,6 +11302,7 @@ void getzrange(int x, int y, int z, short sectnum,
 
 				clipyou = 0;
 				int k{0};
+				int tilenum{0};
 				switch(cstat&48)
 				{
 					case 0:
@@ -11378,13 +11365,13 @@ void getzrange(int x, int y, int z, short sectnum,
 						if ((cstat&8) > 0)
 							yoff = -yoff;
 
-						ang = spr->ang;
-						cosang = sintable[(ang+512)&2047];
-						sinang = sintable[ang];
-						xspan = tilesizx[tilenum];
-						xrepeat = spr->xrepeat;
-						yspan = tilesizy[tilenum];
-						yrepeat = spr->yrepeat;
+						const int ang = spr->ang;
+						const int cosang = sintable[(ang+512)&2047];
+						const int sinang = sintable[ang];
+						const int xspan = tilesizx[tilenum];
+						const int xrepeat = spr->xrepeat;
+						const int yspan = tilesizy[tilenum];
+						const int yrepeat = spr->yrepeat;
 
 						dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
 						x1 += dmulscalen<16>(sinang,dax,cosang,day)-x;
