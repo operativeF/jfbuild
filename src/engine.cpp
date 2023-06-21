@@ -2745,13 +2745,13 @@ static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int 
 		const int wallnum = thewall[z];
 		const int nextsectnum = wall[wallnum].nextsector;
 
-		int j{0};
+		int stat{0};
 		if (dastat == 0)
-			j = sector[nextsectnum].ceilingstat;
+			stat = sector[nextsectnum].ceilingstat;
 		else
-			j = sector[nextsectnum].floorstat;
+			stat = sector[nextsectnum].floorstat;
 
-		if ((nextsectnum < 0) || (wall[wallnum].cstat&32) || ((j&1) == 0))
+		if ((nextsectnum < 0) || (wall[wallnum].cstat&32) || ((stat & 1) == 0))
 		{
 			if (x == -1) x = xb1[z];
 
@@ -11153,11 +11153,11 @@ void getzrange(int x, int y, int z, short sectnum,
 	}
 
 		//Extra walldist for sprites on sector lines
-	const int i = walldist + MAXCLIPDIST + 1;
-	const int xmin = x - i;
-	const int ymin = y - i;
-	const int xmax = x + i;
-	const int ymax = y + i;
+	const int extdist = walldist + MAXCLIPDIST + 1;
+	const int xmin = x - extdist;
+	const int ymin = y - extdist;
+	const int xmax = x + extdist;
+	const int ymax = y + extdist;
 
 	getzsofslope(sectnum, x, y, ceilz, florz);
 	*ceilhit = sectnum + 16384;
@@ -11228,35 +11228,60 @@ void getzrange(int x, int y, int z, short sectnum,
 						continue;
 				}
 
-				for(int i = clipsectnum - 1; i >= 0; --i) {
-					if (clipsectorlist[i] == k)
+				int cnum = clipsectnum - 1;
+				for(; cnum >= 0; --cnum) {
+					if (clipsectorlist[cnum] == k)
 						break;
 				}
 
-				if (i < 0)
+				if (cnum < 0)
 					clipsectorlist[clipsectnum++] = k;
 
-				if ((x1 < xmin+MAXCLIPDIST) && (x2 < xmin+MAXCLIPDIST)) continue;
-				if ((x1 > xmax-MAXCLIPDIST) && (x2 > xmax-MAXCLIPDIST)) continue;
-				if ((y1 < ymin+MAXCLIPDIST) && (y2 < ymin+MAXCLIPDIST)) continue;
-				if ((y1 > ymax-MAXCLIPDIST) && (y2 > ymax-MAXCLIPDIST)) continue;
-				if (dx > 0) dax += dx*MAXCLIPDIST; else dax -= dx*MAXCLIPDIST;
-				if (dy > 0) day -= dy*MAXCLIPDIST; else day += dy*MAXCLIPDIST;
-				if (dax >= day) continue;
+				if ((x1 < xmin+MAXCLIPDIST) && (x2 < xmin+MAXCLIPDIST))
+					continue;
+
+				if ((x1 > xmax-MAXCLIPDIST) && (x2 > xmax-MAXCLIPDIST))
+					continue;
+
+				if ((y1 < ymin+MAXCLIPDIST) && (y2 < ymin+MAXCLIPDIST))
+					continue;
+
+				if ((y1 > ymax-MAXCLIPDIST) && (y2 > ymax-MAXCLIPDIST))
+					continue;
+
+				if (dx > 0)
+					dax += dx * MAXCLIPDIST;
+				else
+					dax -= dx * MAXCLIPDIST;
+
+				if (dy > 0)
+					day -= dy * MAXCLIPDIST;
+				else
+					day += dy * MAXCLIPDIST;
+				
+				if (dax >= day)
+					continue;
 
 					//It actually got here, through all the continue's!!!
 				getzsofslope((short)k,x,y,&daz,&daz2);
-				if (daz > *ceilz) { *ceilz = daz; *ceilhit = k+16384; }
-				if (daz2 < *florz) { *florz = daz2; *florhit = k+16384; }
+				if (daz > *ceilz) {
+					*ceilz = daz;
+					*ceilhit = k + 16384;
+				}
+
+				if (daz2 < *florz) {
+					*florz = daz2;
+					*florhit = k + 16384;
+				}
 			}
 		}
 
 		clipsectcnt++;
 	} while (clipsectcnt < clipsectnum);
 
-	for(short i{0}; i < clipsectnum; ++i)
+	for(short cnum{0}; cnum < clipsectnum; ++cnum)
 	{
-		for(short j = headspritesect[clipsectorlist[i]]; j >= 0; j = nextspritesect[j])
+		for(short j = headspritesect[clipsectorlist[cnum]]; j >= 0; j = nextspritesect[j])
 		{
 			spr = &sprite[j];
 			cstat = spr->cstat;
@@ -11285,37 +11310,58 @@ void getzrange(int x, int y, int z, short sectnum,
 					case 16:
 						tilenum = spr->picnum;
 						xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
-						if ((cstat&4) > 0) xoff = -xoff;
-						k = spr->ang; l = spr->xrepeat;
-						dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
-						l = tilesizx[tilenum]; k = (l>>1)+xoff;
-						x1 -= mulscalen<16>(dax,k); x2 = x1+mulscalen<16>(dax,l);
-						y1 -= mulscalen<16>(day,k); y2 = y1+mulscalen<16>(day,l);
+						if ((cstat&4) > 0)
+								xoff = -xoff;
+
+						k = spr->ang;
+						l = spr->xrepeat;
+						dax = sintable[k&2047]*l;
+						day = sintable[(k+1536)&2047]*l;
+						l = tilesizx[tilenum];
+						k = (l>>1)+xoff;
+						x1 -= mulscalen<16>(dax,k);
+						x2 = x1+mulscalen<16>(dax,l);
+						y1 -= mulscalen<16>(day,k);
+						y2 = y1+mulscalen<16>(day,l);
 						if (clipinsideboxline(x,y,x1,y1,x2,y2,walldist+1) != 0)
 						{
-							daz = spr->z; k = ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
-							if (cstat&128) daz += k;
-							if (picanm[spr->picnum]&0x00ff0000) daz -= ((int)((signed char)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+							daz = spr->z;
+							k = ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
+							
+							if (cstat&128)
+									daz += k;
+							
+							if (picanm[spr->picnum]&0x00ff0000)
+								daz -= ((int)((signed char)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
 							daz2 = daz-(k<<1);
 							clipyou = 1;
 						}
 						break;
 					case 32:
-						daz = spr->z; daz2 = daz;
+						daz = spr->z;
+						daz2 = daz;
 
 						if ((cstat&64) != 0)
-							if ((z > daz) == ((cstat&8)==0)) continue;
+							if ((z > daz) == ((cstat&8)==0))
+								continue;
 
 						tilenum = spr->picnum;
 						xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
 						yoff = (int)((signed char)((picanm[tilenum]>>16)&255))+((int)spr->yoffset);
-						if ((cstat&4) > 0) xoff = -xoff;
-						if ((cstat&8) > 0) yoff = -yoff;
+						
+						if ((cstat&4) > 0)
+							xoff = -xoff;
+						
+						if ((cstat&8) > 0)
+							yoff = -yoff;
 
 						ang = spr->ang;
-						cosang = sintable[(ang+512)&2047]; sinang = sintable[ang];
-						xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
-						yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
+						cosang = sintable[(ang+512)&2047];
+						sinang = sintable[ang];
+						xspan = tilesizx[tilenum];
+						xrepeat = spr->xrepeat;
+						yspan = tilesizy[tilenum];
+						yrepeat = spr->yrepeat;
 
 						dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
 						x1 += dmulscalen<16>(sinang,dax,cosang,day)-x;
@@ -11324,13 +11370,23 @@ void getzrange(int x, int y, int z, short sectnum,
 						x2 = x1 - mulscalen<16>(sinang,l);
 						y2 = y1 + mulscalen<16>(cosang,l);
 						l = yspan*yrepeat;
-						k = -mulscalen<16>(cosang,l); x3 = x2+k; x4 = x1+k;
-						k = -mulscalen<16>(sinang,l); y3 = y2+k; y4 = y1+k;
+						k = -mulscalen<16>(cosang,l);
+						x3 = x2+k;
+						x4 = x1+k;
+						k = -mulscalen<16>(sinang,l);
+						y3 = y2+k;
+						y4 = y1+k;
 
 						dax = mulscalen<14>(sintable[(spr->ang-256+512)&2047],walldist+4);
 						day = mulscalen<14>(sintable[(spr->ang-256)&2047],walldist+4);
-						x1 += dax; x2 -= day; x3 -= dax; x4 += day;
-						y1 += day; y2 += dax; y3 -= day; y4 -= dax;
+						x1 += dax;
+						x2 -= day;
+						x3 -= dax;
+						x4 += day;
+						y1 += day;
+						y2 += dax;
+						y3 -= day;
+						y4 -= dax;
 
 						if ((y1^y2) < 0)
 						{
@@ -11357,8 +11413,15 @@ void getzrange(int x, int y, int z, short sectnum,
 
 				if (clipyou != 0)
 				{
-					if ((z > daz) && (daz > *ceilz)) { *ceilz = daz; *ceilhit = j+49152; }
-					if ((z < daz2) && (daz2 < *florz)) { *florz = daz2; *florhit = j+49152; }
+					if ((z > daz) && (daz > *ceilz)) {
+						*ceilz = daz;
+						*ceilhit = j + 49152;
+					}
+					
+					if ((z < daz2) && (daz2 < *florz)) {
+						*florz = daz2;
+						*florhit = j + 49152;
+					}
 				}
 			}
 		}

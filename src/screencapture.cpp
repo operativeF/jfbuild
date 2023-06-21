@@ -52,7 +52,6 @@ int screencapture_writeframe(std::FILE *fil, char mode, void *v,
 	int yinc;
 	int j;
 	unsigned char *ptr;
-	unsigned char *buf;
 	char inverseit = 0;
 	char bottotop = 0;
 

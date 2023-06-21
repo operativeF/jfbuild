@@ -1003,11 +1003,10 @@ static void ptm_applyeffects(PTTexture * tex, int effects)
 				alph &= tptr[x].a;
 
 				if (effects & HICEFFECT_GREYSCALE) {
-					float y;
-					y  = 0.3  * (float)tcol.r;
-					y += 0.59 * (float)tcol.g;
-					y += 0.11 * (float)tcol.b;
-					tcol.b = static_cast<unsigned char>(std::max(0.0F, std::min(255.0F, y)));
+					float yval = 0.3  * (float)tcol.r;
+					yval += 0.59 * (float)tcol.g;
+					yval += 0.11 * (float)tcol.b;
+					tcol.b = static_cast<unsigned char>(std::max(0.0F, std::min(255.0F, yval)));
 					tcol.g = tcol.r = tcol.b;
 				}
 				if (effects & HICEFFECT_INVERT) {

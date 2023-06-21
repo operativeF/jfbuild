@@ -833,6 +833,7 @@ int OSD_HandleKey(int sc, int press)
 // OSD_ResizeDisplay() -- Handles readjustment of the display when the screen resolution
 // 	changes on us.
 //
+// TODO: Move memory to heap.
 void OSD_ResizeDisplay(int w, int h)
 {
 	const int newcols = getcolumnwidth(w);

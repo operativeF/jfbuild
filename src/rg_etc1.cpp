@@ -1519,8 +1519,8 @@ namespace rg_etc1
          
          for (int ydi = 0; ydi < scan_delta_size; ydi++)
          {
-            const int yd = m_pParams->m_pScan_deltas[ydi];
-            const int mbg = m_bg + yd;
+            const int ydelta = m_pParams->m_pScan_deltas[ydi];
+            const int mbg = m_bg + ydelta;
             if (mbg < 0) continue; else if (mbg > m_limit) break;
 
             for (int xdi = 0; xdi < scan_delta_size; xdi++)
@@ -1558,7 +1558,7 @@ namespace rg_etc1
                // Unfortunately, optimal_block_color must then be quantized to 555 or 444 so it's not always possible to improve matters using this formula.
                // Also, the above formula is for unclamped intensity deltas. The actual implementation takes into account clamping.
 
-               const uint max_refinement_trials = (m_pParams->m_quality == cLowQuality) ? 2 : (((xd | yd | zd) == 0) ? 4 : 2);
+               const uint max_refinement_trials = (m_pParams->m_quality == cLowQuality) ? 2 : (((xd | ydelta | zd) == 0) ? 4 : 2);
                for (uint refinement_trial = 0; refinement_trial < max_refinement_trials; refinement_trial++)
                {
                   const uint8* pSelectors = m_best_solution.m_selectors;
@@ -2120,8 +2120,8 @@ found_perfect_match:
                if ((diff) && (pBase_color5_unscaled))
                {
                   const int p0 = (x >> 8) & 255;
-                  const int delta = p0 - static_cast<int>(pBase_color5_unscaled->c[i]);
-                  if ((delta < cETC1ColorDeltaMin) || (delta > cETC1ColorDeltaMax))
+                  const int cdelta = p0 - static_cast<int>(pBase_color5_unscaled->c[i]);
+                  if ((cdelta < cETC1ColorDeltaMin) || (cdelta > cETC1ColorDeltaMax))
                   {
                      if (*pTable == 0xFFFF)
                         break;

@@ -1640,8 +1640,6 @@ static void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int
 {
 	int i;
 	int j;
-	int xx;
-	int yy;
 	int *lptr;
 	voxrect_t *qptr;
 
