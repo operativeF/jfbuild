@@ -151,9 +151,10 @@ void bflushkeys()
 	keyfifoend = 0;
 }
 
+namespace {
 
 #if USE_POLYMOST
-static int osdfunc_setrendermode(const osdfuncparm_t *parm)
+int osdfunc_setrendermode(const osdfuncparm_t *parm)
 {
 	constexpr std::string_view modestrs[] = {
 		"classic software",
@@ -180,7 +181,7 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 #endif //USE_POLYMOST
 
 #if defined(DEBUGGINGAIDS) && USE_POLYMOST && USE_OPENGL
-static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
+int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 {
 	int pal, cols[3], eff;
 
@@ -198,7 +199,7 @@ static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 }
 #endif //DEBUGGINGAIDS && USE_POLYMOST && USE_OPENGL
 
-static int osdcmd_vars(const osdfuncparm_t *parm)
+int osdcmd_vars(const osdfuncparm_t *parm)
 {
 	const bool showval = parm->parms.size() < 1;
 
@@ -242,6 +243,8 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 	}
 	return OSDCMD_SHOWHELP;
 }
+
+} // namespace
 
 int baselayer_init()
 {

@@ -41,6 +41,7 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <csignal>
 #include <numbers>
 #include <numeric>
 #include <span>
@@ -56,27 +57,7 @@ constexpr auto MAXYSIZ{256};
 constexpr auto MAXZSIZ{255};
 
 unsigned char voxlock[MAXVOXELS][MAXVOXMIPS];
-
-static std::array<int, MAXXSIZ + 1> ggxinc;
-static std::array<int, MAXXSIZ + 1> ggyinc;
-static std::array<int, 1024> lowrecip;
-static int nytooclose;
-static int nytoofar;
-static std::array<unsigned int, 65536> distrecip;
-
-static int* lookups{nullptr};
 bool beforedrawrooms{true};
-
-static int oxdimen{-1};
-static int oviewingrange{-1};
-static int oxyaspect{-1};
-
-	//Textured Map variables
-static unsigned char globalpolytype;
-static std::array<short*, MAXYDIM> dotp1;
-static std::array<short*, MAXYDIM> dotp2;
-
-static std::array<unsigned char, MAXWALLS> tempbuf;
 
 int ebpbak;
 int espbak;
@@ -85,19 +66,61 @@ std::array<intptr_t, SLOPALOOKUPSIZ> slopalookup;
 
 int artversion;
 void *pic{nullptr};
-static std::array<unsigned char, MAXTILES> tilefilenum;
+
 int lastageclock;
 std::array<int, MAXTILES> tilefileoffs;
-
-static std::array<short, 1280> radarang;
-static std::array<short, MAXXDIM> radarang2;
-static std::array<unsigned short, 4096> sqrtable;
-static std::array<unsigned short, 4096 + 256> shlookup;
 
 std::array<int, 2048> reciptable;
 int fpuasm;
 
-static std::array<char, 128> kensmessage;
+std::array<short, MAXXDIM> umost;
+std::array<short, MAXXDIM> dmost;
+
+int wx1;
+int wy1;
+int wx2;
+int wy2;
+
+std::array<short, MAXXDIM> uplc;
+std::array<short, MAXXDIM> dplc;
+
+
+unsigned char *globalpalwritten;
+int globaluclip;
+int globaldclip;
+int globvis;
+int globalvisibility;
+int globalhisibility;
+int globalpisibility;
+int globalcisibility;
+unsigned char globparaceilclip;
+unsigned char globparaflorclip;
+
+int viewingrangerecip;
+
+int asm1;
+int asm2;
+int asm4;
+intptr_t asm3;
+std::array<int, 4> vplce;
+std::array<int, 4> vince;
+intptr_t palookupoffse[4], bufplce[4];
+unsigned char globalxshift, globalyshift;
+int globalxpanning, globalypanning;
+short globalshiftval;
+int globalzd, globalyscale;
+intptr_t globalbufplc;
+int globaly1, globalx2, globalx3, globaly3, globalzx;
+int globalx, globaly, globalz;
+
+short pointhighlight;
+short linehighlight;
+short highlightcnt;
+
+int hitscangoalx = (1 << 29) - 1;
+int hitscangoaly = (1 << 29) - 1;
+
+constexpr auto FASTPALGRIDSIZ{8};
 
 const struct textfontspec textfonts[3] = {
 	{	//8x8
@@ -116,6 +139,41 @@ const struct textfontspec textfonts[3] = {
 		14, 0, 0
 	}
 };
+
+short searchwall;
+short searchstat;     //search output
+
+int totalclocklock;
+
+namespace {
+
+std::array<int, MAXXSIZ + 1> ggxinc;
+std::array<int, MAXXSIZ + 1> ggyinc;
+std::array<int, 1024> lowrecip;
+int nytooclose;
+int nytoofar;
+std::array<unsigned int, 65536> distrecip;
+
+int* lookups{nullptr};
+
+int oxdimen{-1};
+int oviewingrange{-1};
+int oxyaspect{-1};
+
+	//Textured Map variables
+unsigned char globalpolytype;
+std::array<short*, MAXYDIM> dotp1;
+std::array<short*, MAXYDIM> dotp2;
+
+std::array<unsigned char, MAXWALLS> tempbuf;
+
+std::array<unsigned char, MAXTILES> tilefilenum;
+std::array<short, 1280> radarang;
+std::array<short, MAXXDIM> radarang2;
+std::array<unsigned short, 4096> sqrtable;
+std::array<unsigned short, 4096 + 256> shlookup;
+
+std::array<char, 128> kensmessage;
 
 //unsigned int ratelimitlast[32], ratelimitn = 0, ratelimit = 60;
 
@@ -202,7 +260,7 @@ int getclipmask(int,int,int,int);
 // Microsoft C Inline Assembly Routines
 //
 
-static inline int nsqrtasm(int a)
+inline int nsqrtasm(int a)
 {
 	_asm {
 		push ebx
@@ -225,7 +283,7 @@ static inline int nsqrtasm(int a)
 	}
 }
 
-static inline int msqrtasm(int c)
+inline int msqrtasm(int c)
 {
 	_asm {
 		push ebx
@@ -250,7 +308,7 @@ static inline int msqrtasm(int c)
 }
 
 	//0x007ff000 is (11<<13), 0x3f800000 is (127<<23)
-static inline int krecipasm(int a)
+inline int krecipasm(int a)
 {
 	_asm {
 		push ebx
@@ -273,7 +331,7 @@ static inline int krecipasm(int a)
 	}
 }
 
-static inline int getclipmask(int a, int b, int c, int d)
+inline int getclipmask(int a, int b, int c, int d)
 {
 	_asm {
 		push ebx
@@ -372,7 +430,7 @@ static inline int getclipmask(int a, int b, int c, int d)
 
 #else	// __GNUC__ && __i386__
 
-static inline unsigned int nsqrtasm(unsigned int a)
+inline unsigned int nsqrtasm(unsigned int a)
 {	// JBF 20030901: This was a damn lot simpler to reverse engineer than
 	// msqrtasm was. Really, it was just like simplifying an algebra equation.
     const unsigned short c = [a]() {
@@ -396,7 +454,7 @@ static inline unsigned int nsqrtasm(unsigned int a)
 	return a;
 }
 
-static inline int msqrtasm(unsigned int c)
+inline int msqrtasm(unsigned int c)
 {
 	unsigned int a{0x40000000L};    // mov eax, 0x40000000
 	unsigned int b{0x20000000L};	// mov ebx, 0x20000000
@@ -418,7 +476,7 @@ static inline int msqrtasm(unsigned int c)
 	return a;
 }
 
-static inline int krecipasm(int i)
+inline int krecipasm(int i)
 { // Ken did this
 	const float f = (float)i;
 	i = *(int *)&f;
@@ -426,7 +484,7 @@ static inline int krecipasm(int i)
 }
 
 
-static inline int getclipmask(int a, int b, int c, int d)
+inline int getclipmask(int a, int b, int c, int d)
 { // Ken did this
 	d = ((a<0)*8) + ((b<0)*4) + ((c<0)*2) + (d<0);
 	return(((d<<4)^0xf0)|d);
@@ -434,110 +492,65 @@ static inline int getclipmask(int a, int b, int c, int d)
 
 #endif
 
-static std::array<int, MAXWALLSB> yb1;
-static std::array<int, MAXWALLSB> xb2;
-static std::array<int, MAXWALLSB> yb2;
+std::array<int, MAXWALLSB> yb1;
+std::array<int, MAXWALLSB> xb2;
+std::array<int, MAXWALLSB> yb2;
 
-static std::array<int, MAXWALLSB> rx2;
-static std::array<int, MAXWALLSB> ry2;
+std::array<int, MAXWALLSB> rx2;
+std::array<int, MAXWALLSB> ry2;
 
-static std::array<short, MAXYSAVES> smost;
-static short smostcnt;
-static std::array<short, MAXWALLSB> smoststart;
-static std::array<unsigned char, MAXWALLSB> smostwalltype;
-static std::array<int, MAXWALLSB> smostwall;
-static int smostwallcnt{-1L};
+std::array<short, MAXYSAVES> smost;
+short smostcnt;
+std::array<short, MAXWALLSB> smoststart;
+std::array<unsigned char, MAXWALLSB> smostwalltype;
+std::array<int, MAXWALLSB> smostwall;
+int smostwallcnt{-1L};
 
-static std::array<int, MAXSPRITESONSCREEN> spritesx;
-static std::array<int, MAXSPRITESONSCREEN + 1> spritesy;
-static std::array<int, MAXSPRITESONSCREEN> spritesz;
+std::array<int, MAXSPRITESONSCREEN> spritesx;
+std::array<int, MAXSPRITESONSCREEN + 1> spritesy;
+std::array<int, MAXSPRITESONSCREEN> spritesz;
+std::array<short, MAXXDIM> bakumost;
+std::array<short, MAXXDIM> bakdmost;
+std::array<short, MAXXDIM> uwall;
+std::array<short, MAXXDIM> dwall;
+std::array<int, MAXXDIM> swplc;
+std::array<int, MAXXDIM> lplc;
+std::array<int, MAXXDIM> swall;
+std::array<int, MAXXDIM + 4> lwall;
+std::array<int, 8> nrx1;
+std::array<int, 8> nry1;
+std::array<int, 8> nrx2;
+std::array<int, 8> nry2;	// JBF 20031206: Thanks Ken
 
-std::array<short, MAXXDIM> umost;
-std::array<short, MAXXDIM> dmost;
-static std::array<short, MAXXDIM> bakumost;
-static std::array<short, MAXXDIM> bakdmost;
-std::array<short, MAXXDIM> uplc;
-std::array<short, MAXXDIM> dplc;
-static std::array<short, MAXXDIM> uwall;
-static std::array<short, MAXXDIM> dwall;
-static std::array<int, MAXXDIM> swplc;
-static std::array<int, MAXXDIM> lplc;
-static std::array<int, MAXXDIM> swall;
-static std::array<int, MAXXDIM + 4> lwall;
-int wx1;
-int wy1;
-int wx2;
-int wy2;
+std::array<int, 8> rxi;
+std::array<int, 8> ryi;
+std::array<int, 8> rzi;
+std::array<int, 8> rxi2;
+std::array<int, 8> ryi2;
+std::array<int, 8> rzi2;
 
-static std::array<int, 8> nrx1;
-static std::array<int, 8> nry1;
-static std::array<int, 8> nrx2;
-static std::array<int, 8> nry2;	// JBF 20031206: Thanks Ken
+std::array<int, 8> xsi;
+std::array<int, 8> ysi;
+int* horizlookup{nullptr};
+int* horizlookup2{nullptr};
+int horizycent;
 
-static std::array<int, 8> rxi;
-static std::array<int, 8> ryi;
-static std::array<int, 8> rzi;
-static std::array<int, 8> rxi2;
-static std::array<int, 8> ryi2;
-static std::array<int, 8> rzi2;
-
-static std::array<int, 8> xsi;
-static std::array<int, 8> ysi;
-static int* horizlookup{nullptr};
-static int* horizlookup2{nullptr};
-static int horizycent;
-
-unsigned char *globalpalwritten;
-int globaluclip;
-int globaldclip;
-int globvis;
-int globalvisibility;
-int globalhisibility;
-int globalpisibility;
-int globalcisibility;
-unsigned char globparaceilclip;
-unsigned char globparaflorclip;
-
-int viewingrangerecip;
-
-int asm1;
-int asm2;
-int asm4;
-intptr_t asm3;
-std::array<int, 4> vplce;
-std::array<int, 4> vince;
-intptr_t palookupoffse[4], bufplce[4];
-unsigned char globalxshift, globalyshift;
-int globalxpanning, globalypanning;
-short globalshiftval;
-int globalzd, globalyscale;
-intptr_t globalbufplc;
-int globaly1, globalx2, globalx3, globaly3, globalzx;
-int globalx, globaly, globalz;
-
-short pointhighlight;
-short linehighlight;
-short highlightcnt;
-
-constexpr auto FASTPALGRIDSIZ{8};
-static std::array<int, 129> rdist;
-static std::array<int, 129> gdist;
-static std::array<int, 129> bdist;
-static constexpr auto TOTALPALGRIDSIZING = (FASTPALGRIDSIZ + 2) * (FASTPALGRIDSIZ + 2) * (FASTPALGRIDSIZ + 2);
-static std::array<unsigned char, (TOTALPALGRIDSIZING >> 3)> colhere;
-static std::array<unsigned char, TOTALPALGRIDSIZING> colhead;
-static std::array<int, 256> colnext;
+std::array<int, 129> rdist;
+std::array<int, 129> gdist;
+std::array<int, 129> bdist;
+constexpr auto TOTALPALGRIDSIZING = (FASTPALGRIDSIZ + 2) * (FASTPALGRIDSIZ + 2) * (FASTPALGRIDSIZ + 2);
+std::array<unsigned char, (TOTALPALGRIDSIZING >> 3)> colhere;
+std::array<unsigned char, TOTALPALGRIDSIZING> colhead;
+std::array<int, 256> colnext;
 
 constexpr std::array<unsigned char, 8> coldist = {
 	0, 1, 2, 3, 4, 3, 2, 1
 };
 
-static std::array<int, 27> colscan;
+std::array<int, 27> colscan;
 
-static short clipnum;
-static std::array<short, 4> hitwalls;
-int hitscangoalx = (1 << 29) - 1;
-int hitscangoaly = (1 << 29) - 1;
+short clipnum;
+std::array<short, 4> hitwalls;
 
 struct linetype {
 	int x1;
@@ -546,10 +559,10 @@ struct linetype {
 	int y2;
 };
 
-static std::array<linetype, MAXCLIPNUM> clipit;
-static std::array<short, MAXCLIPNUM> clipsectorlist;
-static short clipsectnum;
-static std::array<short, MAXCLIPNUM> clipobjectval;
+std::array<linetype, MAXCLIPNUM> clipit;
+std::array<short, MAXCLIPNUM> clipsectorlist;
+short clipsectnum;
+std::array<short, MAXCLIPNUM> clipobjectval;
 
 struct permfifotype
 {
@@ -569,9 +582,9 @@ struct permfifotype
 	int uniqid;	//JF extension
 };
 
-static std::array<permfifotype, MAXPERMS> permfifo;
-static int permhead{0};
-static int permtail{0};
+std::array<permfifotype, MAXPERMS> permfifo;
+int permhead{0};
+int permtail{0};
 
 // FIXME: Consider grouping the 4 numbers together in a struct
 constexpr std::array<unsigned char, 4 * 256> vgapal16 = {
@@ -581,35 +594,30 @@ constexpr std::array<unsigned char, 4 * 256> vgapal16 = {
 	63,63,63,00
 };
 
-short searchwall;
-short searchstat;     //search output
+char artfilename[20];
+int numtilefiles;
+int artfil{-1};
+int artfilnum;
+int artfilplc;
 
-static char artfilename[20];
-static int numtilefiles;
-static int artfil{-1};
-static int artfilnum;
-static int artfilplc;
+int mirrorsx1;
+int mirrorsy1;
+int mirrorsx2;
+int mirrorsy2;
 
-static int mirrorsx1;
-static int mirrorsy1;
-static int mirrorsx2;
-static int mirrorsy2;
-
-static int setviewcnt{0};	// interface layers use this now
-static std::array<intptr_t, 4> bakframeplace;
-static std::array<int, 4> bakxsiz;
-static std::array<int, 4> bakysiz;
-static std::array<int, 4> bakwindowx1;
-static std::array<int, 4> bakwindowy1;
-static std::array<int, 4> bakwindowx2;
-static std::array<int, 4> bakwindowy2;
+int setviewcnt{0};	// interface layers use this now
+std::array<intptr_t, 4> bakframeplace;
+std::array<int, 4> bakxsiz;
+std::array<int, 4> bakysiz;
+std::array<int, 4> bakwindowx1;
+std::array<int, 4> bakwindowy1;
+std::array<int, 4> bakwindowx2;
+std::array<int, 4> bakwindowy2;
 
 #if USE_POLYMOST
-static int bakrendmode;
-static int baktile;
+int bakrendmode;
+int baktile;
 #endif
-
-int totalclocklock;
 
 //
 // Internal Engine Functions
@@ -619,7 +627,7 @@ int totalclocklock;
 //
 // getpalookup (internal)
 //
-static inline int getpalookup(int davis, int dashade)
+inline int getpalookup(int davis, int dashade)
 {
 	return std::min(std::max(dashade + (davis >> 8), 0), static_cast<int>(numpalookups) - 1);
 }
@@ -628,7 +636,7 @@ static inline int getpalookup(int davis, int dashade)
 //
 // scansector (internal)
 //
-static void scansector(short sectnum)
+void scansector(short sectnum)
 {
 	walltype* wal;
 	walltype* wal2;
@@ -788,7 +796,7 @@ skipitaddwall:
 //
 // maskwallscan (internal)
 //
-static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<const short> dwal, std::span<const int> swal, std::span<const int> lwal)
+void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<const short> dwal, std::span<const int> swal, std::span<const int> lwal)
 {
 	std::array<int, 4> y1ve;
 	std::array<int, 4> y2ve;
@@ -977,6 +985,7 @@ static void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<
 	faketimerhandler();
 }
 
+} // namespace
 
 //
 // wallfront (internal)
@@ -1045,10 +1054,12 @@ int wallfront(int l1, int l2)
 }
 
 
+namespace {
+
 //
 // spritewallfront (internal)
 //
-static bool spritewallfront(const spritetype *s, int w)
+bool spritewallfront(const spritetype *s, int w)
 {
 	walltype* wal = &wall[w];
 	const int x1 = wal->x;
@@ -1063,7 +1074,7 @@ static bool spritewallfront(const spritetype *s, int w)
 //
 // bunchfront (internal)
 //
-static int bunchfront(int b1, int b2)
+int bunchfront(int b1, int b2)
 {
 	const int b1f = bunchfirst[b1];
 	const int x1b1 = xb1[b1f];
@@ -1099,7 +1110,7 @@ static int bunchfront(int b1, int b2)
 //
 // hline (internal)
 //
-static void hline(int xr, int yp)
+void hline(int xr, int yp)
 {
 	const int xl = lastx[yp];
 
@@ -1120,7 +1131,7 @@ static void hline(int xr, int yp)
 //
 // slowhline (internal)
 //
-static void slowhline(int xr, int yp)
+void slowhline(int xr, int yp)
 {
 	const int xl = lastx[yp];
 
@@ -1149,7 +1160,7 @@ static void slowhline(int xr, int yp)
 //
 // prepwall (internal)
 //
-static void prepwall(int z, const walltype *wal)
+void prepwall(int z, const walltype *wal)
 {
 	int l{0};
 	int ol{0};
@@ -1243,6 +1254,7 @@ static void prepwall(int z, const walltype *wal)
 	}
 }
 
+} // namespace
 
 //
 // animateoffs (internal)
@@ -1279,10 +1291,12 @@ int animateoffs(short tilenum, short fakevar)
 }
 
 
+namespace {
+
 //
 // owallmost (internal)
 //
-static int owallmost(std::span<short> mostbuf, int w, int z)
+int owallmost(std::span<short> mostbuf, int w, int z)
 {
 	z <<= 7;
 	const int s1 = mulscalen<20>(globaluclip, yb1[w]);
@@ -1404,6 +1418,7 @@ static int owallmost(std::span<short> mostbuf, int w, int z)
 	return bad;
 }
 
+} // namespace
 
 //
 // wallmost (internal)
@@ -1654,11 +1669,12 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	return bad;
 }
 
+namespace {
 
 //
 // ceilscan (internal)
 //
-static void ceilscan(int x1, int x2, int sectnum)
+void ceilscan(int x1, int x2, int sectnum)
 {
 	int i;
 	int j;
@@ -1858,7 +1874,7 @@ static void ceilscan(int x1, int x2, int sectnum)
 //
 // florscan (internal)
 //
-static void florscan(int x1, int x2, int sectnum)
+void florscan(int x1, int x2, int sectnum)
 {
 	int i;
 	int j;
@@ -2067,7 +2083,7 @@ static void florscan(int x1, int x2, int sectnum)
 //
 // wallscan (internal)
 //
-static void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short> dwal, std::span<const int> swal, std::span<const int> lwal)
+void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short> dwal, std::span<const int> swal, std::span<const int> lwal)
 {
 	int x;
 	int xnice;
@@ -2235,7 +2251,7 @@ static void wallscan(int x1, int x2, std::span<const short> uwal, std::span<cons
 //
 // transmaskvline (internal)
 //
-static void transmaskvline(int x)
+void transmaskvline(int x)
 {
 	int vplc;
 	int vinc;
@@ -2272,7 +2288,7 @@ static void transmaskvline(int x)
 // transmaskvline2 (internal)
 //
 #ifndef USING_A_C
-static void transmaskvline2(int x)
+void transmaskvline2(int x)
 {
 	intptr_t i;
 	int y1, y2, x2;
@@ -2345,7 +2361,7 @@ static void transmaskvline2(int x)
 //
 // transmaskwallscan (internal)
 //
-static void transmaskwallscan(int x1, int x2)
+void transmaskwallscan(int x1, int x2)
 {
 	setgotpic(globalpicnum);
 	if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) return;
@@ -2368,7 +2384,7 @@ static void transmaskwallscan(int x1, int x2)
 //
 // ceilspritehline (internal)
 //
-static void ceilspritehline(int x2, int y)
+void ceilspritehline(int x2, int y)
 {
 	//x = x1 + (x2-x1)t + (y1-y2)u  ~  x = 160v
 	//y = y1 + (y2-y1)t + (x2-x1)u  ~  y = (scrx-160)v
@@ -2400,7 +2416,7 @@ static void ceilspritehline(int x2, int y)
 //
 // ceilspritescan (internal)
 //
-static void ceilspritescan(int x1, int x2)
+void ceilspritescan(int x1, int x2)
 {
 	int y1 = uwall[x1];
 	int y2 = y1;
@@ -2455,7 +2471,7 @@ static void ceilspritescan(int x1, int x2)
 // grouscan (internal)
 //
 constexpr auto BITSOFPRECISION{3};  //Don't forget to change this in A.ASM also!
-static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
+void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 {
 	auto* sec = &sector[sectnum];
 
@@ -2677,7 +2693,7 @@ static void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 //
 // parascan (internal)
 //
-static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int bunch)
+void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int bunch)
 {
 	std::ignore = dax1;
 	std::ignore = dax2;
@@ -2847,7 +2863,7 @@ static void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int 
 //
 // drawalls (internal)
 //
-static void drawalls(int bunch)
+void drawalls(int bunch)
 {
 	sectortype *nextsec;
 	walltype *wal;
@@ -3217,7 +3233,7 @@ static void drawalls(int bunch)
 //
 // drawvox
 //
-static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
+void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 		  int daxscale, int dayscale, unsigned char daindex,
 		  signed char dashade, unsigned char dapal, std::span<const int> daumost, std::span<const int> dadmost)
 {
@@ -3496,7 +3512,7 @@ static void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 //
 // drawsprite (internal)
 //
-static void drawsprite(int snum)
+void drawsprite(int snum)
 {
 	int startum;
 	int startdm;
@@ -4485,7 +4501,7 @@ static void drawsprite(int snum)
 //
 // drawmaskwall (internal)
 //
-static void drawmaskwall(short damaskwallcnt)
+void drawmaskwall(short damaskwallcnt)
 {
 	int i;
 	int j;
@@ -4600,7 +4616,7 @@ static void drawmaskwall(short damaskwallcnt)
 //
 // fillpolygon (internal)
 //
-static void fillpolygon(int npoints)
+void fillpolygon(int npoints)
 {
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode == 3) {
@@ -4738,7 +4754,7 @@ static void fillpolygon(int npoints)
 //
 // clippoly (internal)
 //
-static int clippoly(int npoints, int clipstat)
+int clippoly(int npoints, int clipstat)
 {
 	int z;
 	int zz;
@@ -4964,7 +4980,7 @@ static int clippoly(int npoints, int clipstat)
 //
 	//Assume npoints=4 with polygon on &nrx1,&nry1
 	//JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
-static int clippoly4(int cx1, int cy1, int cx2, int cy2)
+int clippoly4(int cx1, int cy1, int cx2, int cy2)
 {
 	int z{0};
 	int nn{0};
@@ -5071,7 +5087,7 @@ static int clippoly4(int cx1, int cy1, int cx2, int cy2)
 // dorotatesprite (internal)
 //
 	//JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
-static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade,
+void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade,
 	unsigned char dapalnum, unsigned char dastat, int cx1, int cy1, int cx2, int cy2, int uniqid)
 {
 	int x;
@@ -5661,7 +5677,7 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
 //
 // initksqrt (internal)
 //
-static void initksqrt()
+void initksqrt()
 {
 	int j{1};
 	int k{0};
@@ -5684,7 +5700,7 @@ static void initksqrt()
 //
 // dosetaspect
 //
-static void dosetaspect()
+void dosetaspect()
 {
 	if (xyaspect != oxyaspect)
 	{
@@ -5732,7 +5748,7 @@ static void dosetaspect()
 //
 // loadtables (internal)
 //
-static void calcbritable()
+void calcbritable()
 {
 	for (int i{0}; i < 16; ++i) {
 		const double a = 8.0 / (static_cast<double>(i) + 8.0);
@@ -5743,7 +5759,7 @@ static void calcbritable()
 	}
 }
 
-static bool loadtables()
+bool loadtables()
 {
 	initksqrt();
 
@@ -5778,7 +5794,7 @@ static bool loadtables()
 //
 // initfastcolorlookup (internal)
 //
-static void initfastcolorlookup(int rscale, int gscale, int bscale)
+void initfastcolorlookup(int rscale, int gscale, int bscale)
 {
 	for(int i{64}, j{0}; i >= 0; i--)
 	{
@@ -5824,7 +5840,7 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 //
 // loadpalette (internal)
 //
-static bool loadpalette()
+bool loadpalette()
 {
 	int fil{-1};
 
@@ -5889,6 +5905,7 @@ badpalette:
 	return false;
 }
 
+} // namespace
 
 //
 // getclosestcol
@@ -5960,11 +5977,12 @@ int getclosestcol(int r, int g, int b)
 	return retcol;
 }
 
+namespace {
 
 //
 // insertspritesect (internal)
 //
-static int insertspritesect(short sectnum)
+int insertspritesect(short sectnum)
 {
 	if ((sectnum >= MAXSECTORS) || (headspritesect[MAXSECTORS] == -1))
 		return -1;  //list full
@@ -5990,7 +6008,7 @@ static int insertspritesect(short sectnum)
 //
 // insertspritestat (internal)
 //
-static int insertspritestat(short statnum)
+int insertspritestat(short statnum)
 {
 	if ((statnum >= MAXSTATUS) || (headspritestat[MAXSTATUS] == -1))
 		return -1;  //list full
@@ -6016,7 +6034,7 @@ static int insertspritestat(short statnum)
 //
 // deletespritesect (internal)
 //
-static int deletespritesect(short deleteme)
+int deletespritesect(short deleteme)
 {
 	if (sprite[deleteme].sectnum == MAXSECTORS)
 		return(-1);
@@ -6040,7 +6058,7 @@ static int deletespritesect(short deleteme)
 //
 // deletespritestat (internal)
 //
-static int deletespritestat(short deleteme)
+int deletespritestat(short deleteme)
 {
 	if (sprite[deleteme].statnum == MAXSTATUS)
 		return -1;
@@ -6064,7 +6082,7 @@ static int deletespritestat(short deleteme)
 //
 // lintersect (internal)
 //
-static bool lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
+bool lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 		  int y3, int x4, int y4, int *intx, int *inty, int *intz)
 {
 	//p1 to p2 is a line segment
@@ -6127,7 +6145,7 @@ static bool lintersect(int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 //
 // rintersect (internal)
 //
-static bool rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3,
+bool rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3,
 		  int y3, int x4, int y4, int *intx, int *inty, int *intz)
 {     //p1 towards p2 is a ray
 	const int x34 = x3 - x4;
@@ -6180,7 +6198,7 @@ static bool rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3,
 //
 // keepaway (internal)
 //
-static void keepaway (int *x, int *y, int w)
+void keepaway (int *x, int *y, int w)
 {
 	const int x1 = clipit[w].x1;
 	const int dx = clipit[w].x2 - x1;
@@ -6208,7 +6226,7 @@ static void keepaway (int *x, int *y, int w)
 //
 // raytrace (internal)
 //
-static int raytrace(int x3, int y3, int *x4, int *y4)
+int raytrace(int x3, int y3, int *x4, int *y4)
 {
 	int x1;
 	int y1;
@@ -6268,8 +6286,7 @@ static int raytrace(int x3, int y3, int *x4, int *y4)
 //
 
 #if !defined _WIN32 && defined DEBUGGINGAIDS
-#include <csignal>
-static void sighandler(int sig, siginfo_t *info, void *ctx)
+void sighandler(int sig, siginfo_t *info, void *ctx)
 {
 	const char *s;
 
@@ -6299,7 +6316,10 @@ static void sighandler(int sig, siginfo_t *info, void *ctx)
 //
 // preinitengine
 //
-static int preinitcalled = 0;
+int preinitcalled = 0;
+
+} // namespace
+
 int preinitengine()
 {
 #if defined(_MSC_VER)
@@ -7380,6 +7400,7 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 	return 0;
 }
 
+namespace {
 
 //
 // loadboardv5/6
@@ -7527,7 +7548,7 @@ struct spritetypev6
 	short extra;
 };
 
-static short sectorofwallv5(short theline)
+short sectorofwallv5(short theline)
 {
 	short i;
 	short startwall;
@@ -7549,7 +7570,7 @@ static short sectorofwallv5(short theline)
 	return sucksect;
 }
 
-static int readv5sect(int fil, struct sectortypev5 *sect)
+int readv5sect(int fil, struct sectortypev5 *sect)
 {
 	if (kread(fil, &sect->wallptr, 2) != 2) return -1;
 	if (kread(fil, &sect->wallnum, 2) != 2) return -1;
@@ -7589,7 +7610,7 @@ static int readv5sect(int fil, struct sectortypev5 *sect)
 	return 0;
 }
 
-static int writev5sect(int fil, struct sectortypev5 const *sect)
+int writev5sect(int fil, struct sectortypev5 const *sect)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -7620,7 +7641,7 @@ static int writev5sect(int fil, struct sectortypev5 const *sect)
 	return 0;
 }
 
-static void convertv5sectv6(struct sectortypev5 const *from, struct sectortypev6 *to)
+void convertv5sectv6(struct sectortypev5 const *from, struct sectortypev6 *to)
 {
 	to->wallptr = from->wallptr;
 	to->wallnum = from->wallnum;
@@ -7646,7 +7667,7 @@ static void convertv5sectv6(struct sectortypev5 const *from, struct sectortypev6
 	to->extra = from->extra;
 }
 
-static void convertv6sectv5(struct sectortypev6 const *from, struct sectortypev5 *to)
+void convertv6sectv5(struct sectortypev6 const *from, struct sectortypev5 *to)
 {
 	to->wallptr = from->wallptr;
 	to->wallnum = from->wallnum;
@@ -7672,7 +7693,7 @@ static void convertv6sectv5(struct sectortypev6 const *from, struct sectortypev5
 	to->extra = from->extra;
 }
 
-static int readv5wall(int fil, struct walltypev5 *wall)
+int readv5wall(int fil, struct walltypev5 *wall)
 {
 	if (kread(fil, &wall->x, 4) != 4) return -1;
 	if (kread(fil, &wall->y, 4) != 4) return -1;
@@ -7710,7 +7731,7 @@ static int readv5wall(int fil, struct walltypev5 *wall)
 	return 0;
 }
 
-static int writev5wall(int fil, struct walltypev5 const *wall)
+int writev5wall(int fil, struct walltypev5 const *wall)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -7737,7 +7758,7 @@ static int writev5wall(int fil, struct walltypev5 const *wall)
 	return 0;
 }
 
-static void convertv5wallv6(struct walltypev5 const *from, struct walltypev6 *to, int i)
+void convertv5wallv6(struct walltypev5 const *from, struct walltypev6 *to, int i)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -7758,7 +7779,7 @@ static void convertv5wallv6(struct walltypev5 const *from, struct walltypev6 *to
 	to->extra = from->extra;
 }
 
-static void convertv6wallv5(struct walltypev6 const *from, struct walltypev5 *to)
+void convertv6wallv5(struct walltypev6 const *from, struct walltypev5 *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -7780,7 +7801,7 @@ static void convertv6wallv5(struct walltypev6 const *from, struct walltypev5 *to
 	to->extra = from->extra;
 }
 
-static int readv5sprite(int fil, struct spritetypev5 *spr)
+int readv5sprite(int fil, struct spritetypev5 *spr)
 {
 	if (kread(fil, &spr->x, 4) != 4) return -1;
 	if (kread(fil, &spr->y, 4) != 4) return -1;
@@ -7819,7 +7840,7 @@ static int readv5sprite(int fil, struct spritetypev5 *spr)
 	return 0;
 }
 
-static int writev5sprite(int fil, struct spritetypev5 const *spr)
+int writev5sprite(int fil, struct spritetypev5 const *spr)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -7846,7 +7867,7 @@ static int writev5sprite(int fil, struct spritetypev5 const *spr)
 	return 0;
 }
 
-static void convertv5sprv6(struct spritetypev5 const *from, struct spritetypev6 *to)
+void convertv5sprv6(struct spritetypev5 const *from, struct spritetypev6 *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -7878,7 +7899,7 @@ static void convertv5sprv6(struct spritetypev5 const *from, struct spritetypev6 
 	to->extra = from->extra;
 }
 
-static void convertv6sprv5(struct spritetypev6 const *from, struct spritetypev5 *to)
+void convertv6sprv5(struct spritetypev6 const *from, struct spritetypev5 *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -7900,7 +7921,7 @@ static void convertv6sprv5(struct spritetypev6 const *from, struct spritetypev5 
 	to->extra = from->extra;
 }
 
-static int readv6sect(int fil, struct sectortypev6 *sect)
+int readv6sect(int fil, struct sectortypev6 *sect)
 {
 	if (kread(fil, &sect->wallptr, 2) != 2) return -1;
 	if (kread(fil, &sect->wallnum, 2) != 2) return -1;
@@ -7940,7 +7961,7 @@ static int readv6sect(int fil, struct sectortypev6 *sect)
 	return 0;
 }
 
-static int writev6sect(int fil, struct sectortypev6 const *sect)
+int writev6sect(int fil, struct sectortypev6 const *sect)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -7971,7 +7992,7 @@ static int writev6sect(int fil, struct sectortypev6 const *sect)
 	return 0;
 }
 
-static void convertv6sectv7(struct sectortypev6 const *from, sectortype *to)
+void convertv6sectv7(struct sectortypev6 const *from, sectortype *to)
 {
 	to->ceilingz = from->ceilingz;
 	to->floorz = from->floorz;
@@ -8000,7 +8021,7 @@ static void convertv6sectv7(struct sectortypev6 const *from, sectortype *to)
 	to->extra = from->extra;
 }
 
-static void convertv7sectv6(const sectortype *from, struct sectortypev6 *to)
+void convertv7sectv6(const sectortype *from, struct sectortypev6 *to)
 {
 	to->ceilingz = from->ceilingz;
 	to->floorz = from->floorz;
@@ -8028,7 +8049,7 @@ static void convertv7sectv6(const sectortype *from, struct sectortypev6 *to)
 	to->extra = from->extra;
 }
 
-static int readv6wall(int fil, struct walltypev6 *wall)
+int readv6wall(int fil, struct walltypev6 *wall)
 {
 	if (kread(fil, &wall->x, 4) != 4) return -1;
 	if (kread(fil, &wall->y, 4) != 4) return -1;
@@ -8063,7 +8084,7 @@ static int readv6wall(int fil, struct walltypev6 *wall)
 	return 0;
 }
 
-static int writev6wall(int fil, struct walltypev6 const *wall)
+int writev6wall(int fil, struct walltypev6 const *wall)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -8089,7 +8110,7 @@ static int writev6wall(int fil, struct walltypev6 const *wall)
 	return 0;
 }
 
-static void convertv6wallv7(struct walltypev6 const *from, walltype *to)
+void convertv6wallv7(struct walltypev6 const *from, walltype *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -8110,7 +8131,7 @@ static void convertv6wallv7(struct walltypev6 const *from, walltype *to)
 	to->extra = from->extra;
 }
 
-static void convertv7wallv6(const walltype *from, struct walltypev6 *to)
+void convertv7wallv6(const walltype *from, struct walltypev6 *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -8131,7 +8152,7 @@ static void convertv7wallv6(const walltype *from, struct walltypev6 *to)
 	to->extra = from->extra;
 }
 
-static int readv6sprite(int fil, struct spritetypev6 *spr)
+int readv6sprite(int fil, struct spritetypev6 *spr)
 {
 	if (kread(fil, &spr->x, 4) != 4) return -1;
 	if (kread(fil, &spr->y, 4) != 4) return -1;
@@ -8175,7 +8196,7 @@ static int readv6sprite(int fil, struct spritetypev6 *spr)
 	return 0;
 }
 
-static int writev6sprite(int fil, struct spritetypev6 const *spr)
+int writev6sprite(int fil, struct spritetypev6 const *spr)
 {
 	uint32_t tl;
 	uint16_t ts;
@@ -8206,7 +8227,7 @@ static int writev6sprite(int fil, struct spritetypev6 const *spr)
 	return 0;
 }
 
-static void convertv6sprv7(struct spritetypev6 const *from, spritetype *to)
+void convertv6sprv7(struct spritetypev6 const *from, spritetype *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -8233,7 +8254,7 @@ static void convertv6sprv7(struct spritetypev6 const *from, spritetype *to)
 	to->extra = from->extra;
 }
 
-static void convertv7sprv6(const spritetype *from, struct spritetypev6 *to)
+void convertv7sprv6(const spritetype *from, struct spritetypev6 *to)
 {
 	to->x = from->x;
 	to->y = from->y;
@@ -8258,6 +8279,8 @@ static void convertv7sprv6(const spritetype *from, struct spritetypev6 *to)
 	to->hitag = from->hitag;
 	to->extra = from->extra;
 }
+
+} // namespace
 
 // Powerslave uses v6
 // Witchaven 1 and TekWar use v5

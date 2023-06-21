@@ -44,6 +44,8 @@
  All multibyte values are little-endian.
  */
 
+namespace {
+
 struct PTCacheIndex_typ {
 	std::string filename;
 	int effects;
@@ -54,20 +56,20 @@ struct PTCacheIndex_typ {
 
 typedef struct PTCacheIndex_typ PTCacheIndex;
 constexpr auto PTCACHEHASHSIZ{512};
-static std::array<PTCacheIndex*, PTCACHEHASHSIZ> cachehead;	// will be initialized 0 by .bss segment
+std::array<PTCacheIndex*, PTCACHEHASHSIZ> cachehead;	// will be initialized 0 by .bss segment
 constexpr auto PTCACHEINDEXFILENAMELEN{260};
 
-static constexpr int CACHEVER{ 0 };
-static constexpr std::array<int8_t, 16> indexsig = { 'P','o','l','y','m','o','s','t','T','e','x','I','n','d','x',CACHEVER };
-static constexpr std::array<int8_t, 16> storagesig = { 'P','o','l','y','m','o','s','t','T','e','x','S','t','o','r',CACHEVER };
+constexpr int CACHEVER{ 0 };
+constexpr std::array<int8_t, 16> indexsig = { 'P','o','l','y','m','o','s','t','T','e','x','I','n','d','x',CACHEVER };
+constexpr std::array<int8_t, 16> storagesig = { 'P','o','l','y','m','o','s','t','T','e','x','S','t','o','r',CACHEVER };
 
-static constexpr char CACHEINDEXFILE[]   = "texture.cacheindex";
-static constexpr char CACHESTORAGEFILE[] = "texture.cache";
+constexpr char CACHEINDEXFILE[]   = "texture.cacheindex";
+constexpr char CACHESTORAGEFILE[] = "texture.cache";
 
-static bool cachedisabled{false};
-static bool cachereplace{false};
+bool cachedisabled{false};
+bool cachereplace{false};
 
-static unsigned int gethashhead(const std::string& filename)
+unsigned int gethashhead(const std::string& filename)
 {
 	// implements the djb2 hash, constrained to the hash table size
 	// http://www.cse.yorku.ca/~oz/hash.html
@@ -87,7 +89,7 @@ static unsigned int gethashhead(const std::string& filename)
  * @param flags
  * @param offset
  */
-static void ptcache_addhash(const std::string& filename, int effects, int flags, unsigned offset)
+void ptcache_addhash(const std::string& filename, int effects, int flags, unsigned offset)
 {
 	const unsigned int hash = gethashhead(filename);
 
@@ -110,7 +112,7 @@ static void ptcache_addhash(const std::string& filename, int effects, int flags,
  * @param flags
  * @return the PTCacheIndex item, or null
  */
-static PTCacheIndex* ptcache_findhash(const std::string& filename, int effects, int flags)
+PTCacheIndex* ptcache_findhash(const std::string& filename, int effects, int flags)
 {
 	PTCacheIndex* pci = cachehead[ gethashhead(filename) ];
 
@@ -131,6 +133,8 @@ static PTCacheIndex* ptcache_findhash(const std::string& filename, int effects, 
 
 	return nullptr;
 }
+
+} // namespace
 
 /**
  * Loads the cache index file into memory
@@ -268,12 +272,14 @@ void PTCacheUnloadIndex()
 	buildprintf("PolymostTexCache: cache index unloaded\n");
 }
 
+namespace {
+
 /**
  * Does the task of loading a tile from the cache
  * @param offset the starting offset
  * @return a PTCacheTile entry fully completed
  */
-static std::unique_ptr<PTCacheTile> ptcache_load(off_t offset)
+std::unique_ptr<PTCacheTile> ptcache_load(off_t offset)
 {
 	int32_t tsizx;
 	int32_t tsizy;
@@ -362,6 +368,8 @@ fail:
 
 	return {};
 }
+
+} // namespace
 
 /**
  * Loads a tile from the cache.

@@ -49,30 +49,40 @@ credits.
 # define BIGENDIAN 1
 #endif
 
+namespace {
+
 #ifdef BIGENDIAN
-static unsigned int LSWAPIB (unsigned int a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<<24)+(a>>24)); }
-static unsigned short SSWAPIB (unsigned short a) { return((a>>8)+(a<<8)); }
+unsigned int LSWAPIB (unsigned int a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<<24)+(a>>24)); }
+unsigned short SSWAPIB (unsigned short a) { return((a>>8)+(a<<8)); }
 #define LSWAPIL(a) (a)
 #define SSWAPIL(a) (a)
 #else
 #define LSWAPIB(a) (a)
 #define SSWAPIB(a) (a)
-static unsigned int LSWAPIL (unsigned int a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<<24)+(a>>24)); }
-static unsigned short SSWAPIL (unsigned short a) { return((a>>8)+(a<<8)); }
+unsigned int LSWAPIL (unsigned int a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<<24)+(a>>24)); }
+unsigned short SSWAPIL (unsigned short a) { return((a>>8)+(a<<8)); }
 #endif
+
+} // namespace
 
 #if !defined(_WIN32) && !defined(__DOS__)
 #include <unistd.h>
 #include <dirent.h>
 typedef long long __int64;
-static inline int _lrotl (int i, int sh)
+
+namespace {
+
+inline int _lrotl (int i, int sh)
 	{ return((i>>(-sh))|(i<<sh)); }
-static inline int _filelength (int h)
+inline int _filelength (int h)
 {
 	struct stat st;
 	if (fstat(h,&st) < 0) return(-1);
 	return((int)st.st_size);
 }
+
+} // namespace
+
 #define _fileno fileno
 #else
 #include <io.h>
@@ -89,10 +99,12 @@ static inline int _filelength (int h)
 #define O_BINARY 0
 #endif
 
-static int bytesperline, xres, yres, globxoffs, globyoffs;
-static intptr_t frameplace_kl;
+namespace {
 
-static constexpr std::array<int, 32> pow2mask =
+int bytesperline, xres, yres, globxoffs, globyoffs;
+intptr_t frameplace_kl;
+
+constexpr std::array<int, 32> pow2mask =
 {
 	0x00000000,0x00000001,0x00000003,0x00000007,
 	0x0000000f,0x0000001f,0x0000003f,0x0000007f,
@@ -104,7 +116,7 @@ static constexpr std::array<int, 32> pow2mask =
 	0x0fffffff,0x1fffffff,0x3fffffff,0x7fffffff
 };
 
-static constexpr std::array<int, 32> pow2long =
+constexpr std::array<int, 32> pow2long =
 {
 	0x00000001,0x00000002,0x00000004,0x00000008,
 	0x00000010,0x00000020,0x00000040,0x00000080,
@@ -119,7 +131,7 @@ static constexpr std::array<int, 32> pow2long =
 	//Hack for peekbits,getbits,suckbits (to prevent lots of duplicate code)
 	//   0: PNG: do 12-byte chunk_header removal hack
 	// !=0: ZIP: use 64K buffer (olinbuf)
-static int zipfilmode;
+int zipfilmode;
 
 struct kzfilestate
 {
@@ -137,7 +149,9 @@ struct kzfilestate
 	int bfinal;  //LZ77 decompression state (for later calls)
 };
 
-static kzfilestate kzfs;
+kzfilestate kzfs;
+
+} // namespace
 
 //Initialized tables (can't be in union)
 //jpg:                png:
@@ -167,29 +181,32 @@ signed char coltype, filtype, bitdepth;
 //   * Some useless ancillary chunks, like: gAMA(gamma) & pHYs(aspect ratio)
 
 	//.PNG specific variables:
-static int bakr = 0x80, bakg = 0x80, bakb = 0x80; //this used to be public...
-static int gslidew = 0, gslider = 0, xm, xmn[4], xr0, xr1, xplc, yplc;
-static intptr_t nfplace;
-static int clen[320], cclen[19], bitpos, filt, xsiz, ysiz;
-static int xsizbpl, ixsiz, ixoff, iyoff, ixstp, iystp, intlac, nbpl, trnsrgb;
-static int ccind[19] = {16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15};
-static int hxbit[59][2], ibuf0[288], nbuf0[32], ibuf1[32], nbuf1[32];
-static const unsigned char *filptr;
-static unsigned char slidebuf[32768], opixbuf0[4], opixbuf1[4];
-static unsigned char pnginited{0};
-static std::array<unsigned char, 65536> olinbuf; //WARNING:max xres is: 65536/bpp-1
-static int gotcmov = -2;
-static std::array<int, 1024> abstab10;
+
+namespace {
+
+int bakr = 0x80, bakg = 0x80, bakb = 0x80; //this used to be public...
+int gslidew = 0, gslider = 0, xm, xmn[4], xr0, xr1, xplc, yplc;
+intptr_t nfplace;
+int clen[320], cclen[19], bitpos, filt, xsiz, ysiz;
+int xsizbpl, ixsiz, ixoff, iyoff, ixstp, iystp, intlac, nbpl, trnsrgb;
+int ccind[19] = {16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15};
+int hxbit[59][2], ibuf0[288], nbuf0[32], ibuf1[32], nbuf1[32];
+const unsigned char *filptr;
+unsigned char slidebuf[32768], opixbuf0[4], opixbuf1[4];
+unsigned char pnginited{0};
+std::array<unsigned char, 65536> olinbuf; //WARNING:max xres is: 65536/bpp-1
+int gotcmov = -2;
+std::array<int, 1024> abstab10;
 
 	//Variables to speed up dynamic Huffman decoding:
 constexpr auto LOGQHUFSIZ0{9};
 constexpr auto LOGQHUFSIZ1{6};
-static int qhufval0[1<<LOGQHUFSIZ0], qhufval1[1<<LOGQHUFSIZ1];
-static unsigned char qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
+int qhufval0[1<<LOGQHUFSIZ0], qhufval1[1<<LOGQHUFSIZ1];
+unsigned char qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
 
 #if defined(__WATCOMC__) && USE_ASM
 
-static int bswap (int);
+int bswap (int);
 #pragma aux bswap =\
 	".586"\
 	"bswap eax"\
@@ -197,7 +214,7 @@ static int bswap (int);
 	modify nomemory exact [eax]\
 	value [eax]
 
-static int bitrev (int, int);
+int bitrev (int, int);
 #pragma aux bitrev =\
 	"xor eax, eax"\
 	"beg: shr ebx, 1"\
@@ -208,7 +225,7 @@ static int bitrev (int, int);
 	modify nomemory exact [eax ebx ecx]\
 	value [eax]
 
-static int testflag (int);
+int testflag (int);
 #pragma aux testflag =\
 	"pushfd"\
 	"pop eax"\
@@ -227,7 +244,7 @@ static int testflag (int);
 	modify exact [eax ebx]\
 	value [eax]
 
-static void cpuid (int, int *);
+void cpuid (int, int *);
 #pragma aux cpuid =\
 	".586"\
 	"cpuid"\
@@ -241,7 +258,7 @@ static void cpuid (int, int *);
 
 #elif defined(_MSC_VER) && defined(_M_IX86) && USE_ASM
 
-static _inline unsigned int bswap (unsigned int a)
+_inline unsigned int bswap (unsigned int a)
 {
 	_asm
 	{
@@ -250,7 +267,7 @@ static _inline unsigned int bswap (unsigned int a)
 	}
 }
 
-static _inline int bitrev (int b, int c)
+_inline int bitrev (int b, int c)
 {
 	_asm
 	{
@@ -264,7 +281,7 @@ static _inline int bitrev (int b, int c)
 	}
 }
 
-static _inline int testflag (int c)
+_inline int testflag (int c)
 {
 	_asm
 	{
@@ -285,7 +302,7 @@ static _inline int testflag (int c)
 	}
 }
 
-static _inline void cpuid (int a, int *s)
+_inline void cpuid (int a, int *s)
 {
 	_asm
 	{
@@ -305,13 +322,13 @@ static _inline void cpuid (int a, int *s)
 
 #elif defined(__GNUC__) && defined(__i386__) && USE_ASM
 
-static inline unsigned int bswap (unsigned int a)
+inline unsigned int bswap (unsigned int a)
 {
 	__asm__ __volatile__ ("bswap %0" : "+r" (a) : : "cc" );
 	return a;
 }
 
-static inline int bitrev (int b, int c)
+inline int bitrev (int b, int c)
 {
 	int a;
 	__asm__ __volatile__ (
@@ -326,7 +343,7 @@ static inline int bitrev (int b, int c)
 	return a;
 }
 
-static inline int testflag (int c)
+inline int testflag (int c)
 {
 	int a;
 	__asm__ __volatile__ (
@@ -349,7 +366,7 @@ static inline int testflag (int c)
 	return a;
 }
 
-static inline void cpuid (int a, int *s)
+inline void cpuid (int a, int *s)
 {
 	__asm__ __volatile__ (
 		"pushl %%ebx\n"
@@ -367,13 +384,13 @@ static inline void cpuid (int a, int *s)
 #else
 
 #if defined(BIGENDIAN)
-static inline unsigned int bswap (unsigned int a)
+inline unsigned int bswap (unsigned int a)
 {
 	return(((a&0xff0000)>>8) + ((a&0xff00)<<8) + (a<<24) + (a>>24));
 }
 #endif
 
-static inline int bitrev (int b, int c)
+inline int bitrev (int b, int c)
 {
 	int i;
 	int j;
@@ -381,15 +398,15 @@ static inline int bitrev (int b, int c)
 	return(j);
 }
 
-static inline int testflag (int c) { std::ignore = c; return(0); }
+inline int testflag (int c) { std::ignore = c; return(0); }
 
-static inline void cpuid (int a, const int *s) { std::ignore = a; std::ignore = s; }
+inline void cpuid (int a, const int *s) { std::ignore = a; std::ignore = s; }
 
 #endif
 
 	//Bit numbers of return value:
 	//0:FPU, 4:RDTSC, 15:CMOV, 22:MMX+, 23:MMX, 25:SSE, 26:SSE2, 30:3DNow!+, 31:3DNow!
-static int getcputype ()
+int getcputype ()
 {
 	int i;
 	int cpb[4];
@@ -409,9 +426,9 @@ static int getcputype ()
 	return(i);
 }
 
-static unsigned char fakebuf[8], *nfilptr;
-static int nbitpos;
-static void suckbitsnextblock ()
+unsigned char fakebuf[8], *nfilptr;
+int nbitpos;
+void suckbitsnextblock ()
 {
 	int n;
 
@@ -448,11 +465,11 @@ static void suckbitsnextblock ()
 	}
 }
 
-static inline int peekbits (int n) { return((LSWAPIB(*(int *)&filptr[bitpos>>3])>>(bitpos&7))&pow2mask[n]); }
-static inline void suckbits (int n) { bitpos += n; if (bitpos >= 0) suckbitsnextblock(); }
-static inline int getbits (int n) { const int i = peekbits(n); suckbits(n); return(i); }
+inline int peekbits (int n) { return((LSWAPIB(*(int *)&filptr[bitpos>>3])>>(bitpos&7))&pow2mask[n]); }
+inline void suckbits (int n) { bitpos += n; if (bitpos >= 0) suckbitsnextblock(); }
+inline int getbits (int n) { const int i = peekbits(n); suckbits(n); return(i); }
 
-static int hufgetsym (const int *hitab, const int *hbmax)
+int hufgetsym (const int *hitab, const int *hbmax)
 {
 	int v;
 	int n;
@@ -463,7 +480,7 @@ static int hufgetsym (const int *hitab, const int *hbmax)
 }
 
 	//This did not result in a speed-up on P4-3.6Ghz (02/22/2005)
-//static int hufgetsym_skipb (int *hitab, int *hbmax, int n, int addit)
+//int hufgetsym_skipb (int *hitab, int *hbmax, int n, int addit)
 //{
 //   int v;
 //
@@ -472,7 +489,7 @@ static int hufgetsym (const int *hitab, const int *hbmax)
 //   return(hitab[hbmax[n]+v]);
 //}
 
-static void qhufgencode (const int *hitab, const int *hbmax, int *qhval, unsigned char *qhbit, int numbits)
+void qhufgencode (const int *hitab, const int *hbmax, int *qhval, unsigned char *qhbit, int numbits)
 {
 	int i;
 	int j;
@@ -523,7 +540,7 @@ static void qhufgencode (const int *hitab, const int *hbmax, int *qhval, unsigne
 	//inum        : Number of indices
 	//hitab[inum] : Indices from size-ordered list to original symbol
 	//hbmax[0-31] : Highest index (+1) of n-bit symbol
-static void hufgencode (int *inbuf, int inum, int *hitab, int *hbmax)
+void hufgencode (int *inbuf, int inum, int *hitab, int *hbmax)
 {
 	int i;
 	int tbuf[31];
@@ -535,7 +552,7 @@ static void hufgencode (int *inbuf, int inum, int *hitab, int *hbmax)
 	for(i=0;i<inum;i++) if (inbuf[i]) hitab[hbmax[inbuf[i]]++] = i;
 }
 
-static int initpass () //Interlaced images have 7 "passes", non-interlaced have 1
+int initpass () //Interlaced images have 7 "passes", non-interlaced have 1
 {
 	int i;
 	int j;
@@ -602,7 +619,7 @@ static int initpass () //Interlaced images have 7 "passes", non-interlaced have 
 	return(0);
 }
 
-static int Paeth (int a, int b, int c)
+int Paeth (int a, int b, int c)
 {
 	int pa;
 	int pb;
@@ -616,7 +633,7 @@ static int Paeth (int a, int b, int c)
 #if defined(__WATCOMC__) && USE_ASM
 
 	//NOTE: cmov now has correctly ordered registers (thx to bug fix in 11.0c!)
-static int Paeth686 (int, int, int);
+int Paeth686 (int, int, int);
 #pragma aux Paeth686 =\
 	".686"\
 	"mov edx, ecx"\
@@ -635,7 +652,7 @@ static int Paeth686 (int, int, int);
 	value [ecx]
 
 	//Note: "cmove eax,?" may be faster than "jne ?:and eax,?" but who cares
-static void rgbhlineasm (int, int, intptr_t, int);
+void rgbhlineasm (int, int, intptr_t, int);
 #pragma aux rgbhlineasm =\
 	"sub ecx, edx"\
 	"jle short endit"\
@@ -663,7 +680,7 @@ static void rgbhlineasm (int, int, intptr_t, int);
 	modify exact [eax ecx edi]\
 	value
 
-static void pal8hlineasm (int, int, intptr_t, int);
+void pal8hlineasm (int, int, intptr_t, int);
 #pragma aux pal8hlineasm =\
 	"sub ecx, edx"\
 	"jle short endit"\
@@ -681,7 +698,7 @@ static void pal8hlineasm (int, int, intptr_t, int);
 
 #elif defined(_MSC_VER) && defined(_M_IX86) && USE_ASM
 
-static _inline int Paeth686 (int a, int b, int c)
+_inline int Paeth686 (int a, int b, int c)
 {
 	_asm
 	{
@@ -702,7 +719,7 @@ static _inline int Paeth686 (int a, int b, int c)
 	}
 }
 
-static _inline void rgbhlineasm (int c, int d, intptr_t t, int b)
+_inline void rgbhlineasm (int c, int d, intptr_t t, int b)
 {
 	_asm
 	{
@@ -735,7 +752,7 @@ static _inline void rgbhlineasm (int c, int d, intptr_t t, int b)
 	}
 }
 
-static _inline void pal8hlineasm (int c, int d, intptr_t t, int b)
+_inline void pal8hlineasm (int c, int d, intptr_t t, int b)
 {
 	_asm
 	{
@@ -758,7 +775,7 @@ static _inline void pal8hlineasm (int c, int d, intptr_t t, int b)
 
 #elif defined(__GNUC__) && defined(__i386__) && USE_ASM
 
-static inline int Paeth686 (int a, int b, int c)
+inline int Paeth686 (int a, int b, int c)
 {
 	__asm__ __volatile__ (
 		"movl %%ecx, %%edx\n"
@@ -780,7 +797,7 @@ static inline int Paeth686 (int a, int b, int c)
 }
 
 	//Note: "cmove eax,?" may be faster than "jne ?:and eax,?" but who cares
-static inline void rgbhlineasm (int c, int d, intptr_t t, int b)
+inline void rgbhlineasm (int c, int d, intptr_t t, int b)
 {
 	__asm__ __volatile__ (
 		"subl %%edx, %%ecx\n"
@@ -811,7 +828,7 @@ static inline void rgbhlineasm (int c, int d, intptr_t t, int b)
 		);
 }
 
-static inline void pal8hlineasm (int c, int d, intptr_t t, int b)
+inline void pal8hlineasm (int c, int d, intptr_t t, int b)
 {
 	__asm__ __volatile__ (
 		"subl %%edx, %%ecx\n"
@@ -832,12 +849,12 @@ static inline void pal8hlineasm (int c, int d, intptr_t t, int b)
 
 #else
 
-static inline int Paeth686 (int a, int b, int c)
+inline int Paeth686 (int a, int b, int c)
 {
 	return(Paeth(a,b,c));
 }
 
-static inline void rgbhlineasm (int x, int xr1, intptr_t p, int ixstp)
+inline void rgbhlineasm (int x, int xr1, intptr_t p, int ixstp)
 {
 	int i;
 	if (!trnsrgb)
@@ -853,7 +870,7 @@ static inline void rgbhlineasm (int x, int xr1, intptr_t p, int ixstp)
 	}
 }
 
-static inline void pal8hlineasm (int x, int xr1, intptr_t p, int ixstp)
+inline void pal8hlineasm (int x, int xr1, intptr_t p, int ixstp)
 {
 	for(;x>xr1;p+=ixstp,x--) *(int *)p = palcol[olinbuf[x]];
 }
@@ -868,8 +885,8 @@ static inline void pal8hlineasm (int x, int xr1, intptr_t p, int ixstp)
 	//    /f3: 3333333...
 	//    /f4: 4444444...
 	//    /f5: 0142321...
-static int filter1st, filterest;
-static void putbuf (const unsigned char *buf, int leng)
+int filter1st, filterest;
+void putbuf (const unsigned char *buf, int leng)
 {
 	int i;
 	int x;
@@ -999,7 +1016,7 @@ static void putbuf (const unsigned char *buf, int leng)
 	}
 }
 
-static void initpngtables()
+void initpngtables()
 {
 	int i;
 	int j;
@@ -1031,7 +1048,7 @@ static void initpngtables()
 	}
 }
 
-static int kpngrend (const char *kfilebuf, int kfilength,
+int kpngrend (const char *kfilebuf, int kfilength,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
@@ -1293,52 +1310,52 @@ kpngrend_goodret:;
 	//   All non 32-bit color drawing was removed
 	//   "Motion" JPG code was removed
 	//   A lot of parameters were added to kpeg() for library usage
-static int kpeginited{0};
-static int clipxdim;
-static int clipydim;
+int kpeginited{0};
+int clipxdim;
+int clipydim;
 
-static int hufmaxatbit[8][20], hufvalatbit[8][20];
-static std::array<int, 8> hufcnt;
-static unsigned char hufnumatbit[8][20], huftable[8][256];
-static int hufquickval[8][1024], hufquickbits[8][1024];
-static std::array<int, 8> hufquickcnt;
-static int quantab[4][64];
-static int dct[12][64];
-static std::array<int, 4> lastdc;
-static std::array<int, 64> unzig;
-static std::array<int, 64> zigit; //dct:10=MAX (says spec);+2 for hacks
-static unsigned char gnumcomponents;
-static std::array<unsigned char, 64> dcflagor;
-static std::array<int, 4> gcompid;
-static std::array<int, 4> gcomphsamp;
-static std::array<int, 4> gcompvsamp;
-static std::array<int, 4> gcompquantab;
-static std::array<int, 4> gcomphsampshift;
-static std::array<int, 4> gcompvsampshift;
-static int lnumcomponents;
-static std::array<int, 4> lcompid;
-static std::array<int, 4> lcompdc;
-static std::array<int, 4> lcompac;
-static std::array<int, 4> lcomphsamp;
-static std::array<int, 4> lcompvsamp;
-static std::array<int, 4> lcompquantab;
-static int lcomphvsamp0;
-static int lcomphsampshift0;
-static int lcompvsampshift0;
-static std::array<int, 1024> colclip;
-static std::array<int, 1024> colclipup8;
-static std::array<int, 1024> colclipup16;
+int hufmaxatbit[8][20], hufvalatbit[8][20];
+std::array<int, 8> hufcnt;
+unsigned char hufnumatbit[8][20], huftable[8][256];
+int hufquickval[8][1024], hufquickbits[8][1024];
+std::array<int, 8> hufquickcnt;
+int quantab[4][64];
+int dct[12][64];
+std::array<int, 4> lastdc;
+std::array<int, 64> unzig;
+std::array<int, 64> zigit; //dct:10=MAX (says spec);+2 for hacks
+unsigned char gnumcomponents;
+std::array<unsigned char, 64> dcflagor;
+std::array<int, 4> gcompid;
+std::array<int, 4> gcomphsamp;
+std::array<int, 4> gcompvsamp;
+std::array<int, 4> gcompquantab;
+std::array<int, 4> gcomphsampshift;
+std::array<int, 4> gcompvsampshift;
+int lnumcomponents;
+std::array<int, 4> lcompid;
+std::array<int, 4> lcompdc;
+std::array<int, 4> lcompac;
+std::array<int, 4> lcomphsamp;
+std::array<int, 4> lcompvsamp;
+std::array<int, 4> lcompquantab;
+int lcomphvsamp0;
+int lcomphsampshift0;
+int lcompvsampshift0;
+std::array<int, 1024> colclip;
+std::array<int, 1024> colclipup8;
+std::array<int, 1024> colclipup16;
 
 #if defined(__WATCOMC__) && USE_ASM
 
-static int mulshr24 (int, int);
+int mulshr24 (int, int);
 #pragma aux mulshr24 =\
 	"imul edx"\
 	"shrd eax, edx, 24"\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
 
-static int mulshr32 (int, int);
+int mulshr32 (int, int);
 #pragma aux mulshr32 =\
 	"imul edx"\
 	parm nomemory [eax][edx]\
@@ -1347,7 +1364,7 @@ static int mulshr32 (int, int);
 
 #elif defined(_MSC_VER) && defined(_M_IX86) && USE_ASM
 
-static _inline int mulshr24 (int a, int d)
+_inline int mulshr24 (int a, int d)
 {
 	_asm
 	{
@@ -1357,7 +1374,7 @@ static _inline int mulshr24 (int a, int d)
 	}
 }
 
-static _inline int mulshr32 (int a, int d)
+_inline int mulshr32 (int a, int d)
 {
 	_asm
 	{
@@ -1383,23 +1400,23 @@ static _inline int mulshr32 (int a, int d)
 
 #else
 
-static inline int mulshr24 (int a, int b)
+inline int mulshr24 (int a, int b)
 {
 	return((int)((((__int64)a)*((__int64)b))>>24));
 }
 
-static inline int mulshr32 (int a, int b)
+inline int mulshr32 (int a, int b)
 {
 	return((int)((((__int64)a)*((__int64)b))>>32));
 }
 
 #endif
 
-static int cosqr16[8] =    //cosqr16[i] = ((cos(PI*i/16)*sqrt(2))<<24);
+int cosqr16[8] =    //cosqr16[i] = ((cos(PI*i/16)*sqrt(2))<<24);
   {23726566,23270667,21920489,19727919,16777216,13181774,9079764,4628823};
-static int crmul[4096], cbmul[4096];
+int crmul[4096], cbmul[4096];
 
-static void initkpeg ()
+void initkpeg ()
 {
 	int i;
 	int x;
@@ -1445,7 +1462,7 @@ static void initkpeg ()
 	std::memset((void *)&dct[10][0],0,64*2*sizeof(dct[0][0]));
 }
 
-static void huffgetval (int index, int curbits, int num, int *daval, int *dabits)
+void huffgetval (int index, int curbits, int num, int *daval, int *dabits)
 {
 	int b;
 	int v;
@@ -1469,7 +1486,7 @@ static void huffgetval (int index, int curbits, int num, int *daval, int *dabits
 	*dabits = 16; *daval = 0;
 }
 
-static void invdct8x8 (int *dc, unsigned char dcflag)
+void invdct8x8 (int *dc, unsigned char dcflag)
 {
 	#define SQRT2 23726566   //(sqrt(2))<<24
 	#define C182 31000253    //(cos(PI/8)*2)<<24
@@ -1522,7 +1539,7 @@ static void invdct8x8 (int *dc, unsigned char dcflag)
 	} while (dc < edc);
 }
 
-static void yrbrend (int x, int y)
+void yrbrend (int x, int y)
 {
 	int i;
 	int j;
@@ -1628,7 +1645,7 @@ static void yrbrend (int x, int y)
 	}
 }
 
-static int kpegrend (const char *kfilebuf, int kfilength,
+int kpegrend (const char *kfilebuf, int kfilength,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
@@ -2076,10 +2093,10 @@ kpegrend_break2:;
 //==============================  KPEGILIB ends ==============================
 //================================ GIF begins ================================
 
-static unsigned char suffix[4100], filbuffer[768], tempstack[4096];
-static int prefix[4100];
+unsigned char suffix[4100], filbuffer[768], tempstack[4096];
+int prefix[4100];
 
-static int kgifrend (const char *kfilebuf, int kfilelength,
+int kgifrend (const char *kfilebuf, int kfilelength,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
@@ -2251,7 +2268,7 @@ static int kgifrend (const char *kfilebuf, int kfilelength,
 	//short id = 0x9119, xdim, ydim, xoff, yoff, id = 0x0008;
 	//int imagebytes, filler[4];
 	//char pal6bit[256][3], image[ydim][xdim];
-static int kcelrend (const char *buf, int fleng,
+int kcelrend (const char *buf, int fleng,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
@@ -2303,7 +2320,7 @@ static int kcelrend (const char *buf, int fleng,
 //===============================  CEL ends ==================================
 //=============================  TARGA begins ================================
 
-static int ktgarend (const char *header, int fleng,
+int ktgarend (const char *header, int fleng,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
@@ -2415,7 +2432,7 @@ static int ktgarend (const char *header, int fleng,
 	//└─────────────────────┬───────────────┴─────────┬────────────────────────────────────┘
 	//                      │ rastoff(?): bitmap data │
 	//                      └─────────────────────────┘
-static int kbmprend (const char *buf, int fleng,
+int kbmprend (const char *buf, int fleng,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
@@ -2545,7 +2562,7 @@ static int kbmprend (const char *buf, int fleng,
 //===============================  BMP ends ==================================
 //==============================  PCX begins =================================
 	//Note: currently only supports 8 and 24 bit PCX
-static int kpcxrend (const char *buf, int fleng,
+int kpcxrend (const char *buf, int fleng,
 	intptr_t daframeplace, int dabytesperline, int daxres, int dayres,
 	int daglobxoffs, int daglobyoffs)
 {
@@ -2641,7 +2658,7 @@ static int kpcxrend (const char *buf, int fleng,
 //==============================  DDS begins =================================
 
 	//Note:currently supports: DXT1,DXT2,DXT3,DXT4,DXT5,A8R8G8B8
-static int kddsrend (const char *buf, int leng,
+int kddsrend (const char *buf, int leng,
 	intptr_t frameptr, int bpl, int xdim, int ydim, int xoff, int yoff)
 {
 	int x;
@@ -2784,6 +2801,8 @@ static int kddsrend (const char *buf, int leng,
 	return(0);
 }
 
+} // namespace
+
 //===============================  DDS ends ==================================
 //=================== External picture interface begins ======================
 
@@ -2910,10 +2929,12 @@ int kprender (const char *buf, int leng, intptr_t frameptr, int bpl,
 
 //==================== External picture interface ends =======================
 
+namespace {
+
 	//Brute-force case-insensitive, slash-insensitive, * and ? wildcard matcher
 	//Given: string i and string j. string j can have wildcards
 	//Returns: 1:matches, 0:doesn't match
-static int wildmatch (const char *i, const char *j)
+int wildmatch (const char *i, const char *j)
 {
 	const char *k;
 	char c0;
@@ -2940,7 +2961,7 @@ static int wildmatch (const char *i, const char *j)
 }
 
 	//Same as: stricmp(st0,st1) except: '/' == '\'
-static int filnamcmp (const char *st0, const char *st1)
+int filnamcmp (const char *st0, const char *st1)
 {
 	int i{ 0 };
 
@@ -2990,10 +3011,10 @@ static int filnamcmp (const char *st0, const char *st1)
 	//[next hashindex/-1][next index/-1][zipnam index][zipseek][char filnam[?]\0]
 	//...
 #define KZHASHINITSIZE 8192
-static char *kzhashbuf = nullptr;
-static int kzhashead[256], kzhashpos, kzlastfnam, kzhashsiz;
+char *kzhashbuf = nullptr;
+int kzhashead[256], kzhashpos, kzlastfnam, kzhashsiz;
 
-static int kzcheckhashsiz (int siz)
+int kzcheckhashsiz (int siz)
 {
 	int i;
 
@@ -3012,7 +3033,7 @@ static int kzcheckhashsiz (int siz)
 	return(1);
 }
 
-static int kzcalchash (const char *st)
+int kzcalchash (const char *st)
 {
 	int i;
 	int hashind;
@@ -3028,7 +3049,7 @@ static int kzcalchash (const char *st)
 	return(hashind%(sizeof(kzhashead)/sizeof(kzhashead[0])));
 }
 
-static int kzcheckhash (const char *filnam, char **zipnam, unsigned int *zipseek)
+int kzcheckhash (const char *filnam, char **zipnam, unsigned int *zipseek)
 {
 	int i;
 
@@ -3043,6 +3064,8 @@ static int kzcheckhash (const char *filnam, char **zipnam, unsigned int *zipseek
 		}
 	return(0);
 }
+
+} // namespace
 
 void kzuninit ()
 {
@@ -3172,20 +3195,24 @@ int kzopen (const char *filnam)
 
 // --------------------------------------------------------------------------
 
-static int srchstat = -1, wildstpathleng;
+namespace {
+
+int srchstat = -1, wildstpathleng;
 
 #if defined(__DOS__)
-static char wildst[260] = "";
-static struct find_t findata;
+char wildst[260] = "";
+struct find_t findata;
 #elif defined(_WIN32)
-static char wildst[MAX_PATH] = "";
-static HANDLE hfind = INVALID_HANDLE_VALUE;
-static WIN32_FIND_DATA findata;
+char wildst[MAX_PATH] = "";
+HANDLE hfind = INVALID_HANDLE_VALUE;
+WIN32_FIND_DATA findata;
 #else
-static char wildst[260] = "";
-static DIR *hfind = nullptr;
-static struct dirent *findata = nullptr;
+char wildst[260] = "";
+DIR *hfind = nullptr;
+struct dirent *findata = nullptr;
 #endif
+
+} // namespace
 
 void kzfindfilestart (const char *st)
 {
@@ -3316,8 +3343,10 @@ int kzfindfile (char *filnam)
 
 // --------------------------------------------------------------------------
 
-static char *gzbufptr;
-static void putbuf4zip (const unsigned char *buf, int uncomp0, int uncomp1)
+namespace {
+
+char *gzbufptr;
+void putbuf4zip (const unsigned char *buf, int uncomp0, int uncomp1)
 {
 		//              uncomp0 ... uncomp1
 		//  &gzbufptr[kzfs.pos] ... &gzbufptr[kzfs.endpos];
@@ -3325,6 +3354,8 @@ static void putbuf4zip (const unsigned char *buf, int uncomp0, int uncomp1)
 	const int i1 = std::min(uncomp1, kzfs.endpos);
 	if (i0 < i1) std::memcpy(&gzbufptr[i0],&buf[i0-uncomp0],i1-i0);
 }
+
+} // namespace
 
 	//returns number of bytes copied
 int kzread (void *buffer, int leng)

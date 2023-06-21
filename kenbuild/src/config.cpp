@@ -56,6 +56,8 @@ extern std::array<char, 8> option;
  * 18     = Chat (0xf)
  */
 
+namespace {
+
 enum {
 	type_bool = 0,	//int
 	type_double = 1,
@@ -64,18 +66,18 @@ enum {
 };
 
 #if USE_POLYMOST
-static int tmprenderer = -1;
+int tmprenderer = -1;
 #endif
-static int tmpbrightness = -1;
-static int tmpsamplerate = -1;
-static int tmpmusic = -1;
-static int tmpmouse = -1;
-static int tmpjoystick = -1;
+int tmpbrightness = -1;
+int tmpsamplerate = -1;
+int tmpmusic = -1;
+int tmpmouse = -1;
+int tmpjoystick = -1;
 #ifdef RENDERTYPEWIN
-static unsigned tmpmaxrefreshfreq = -1;
+unsigned tmpmaxrefreshfreq = -1;
 #endif
 
-static struct {
+struct {
 	const char *name;
 	int type;
 	void *store;
@@ -191,6 +193,8 @@ static struct {
 	{ "keyconsole", type_hex, &keys[19], nullptr },
 	{ nullptr, 0, nullptr, nullptr }
 };
+
+} // namespace
 
 int loadsetup(const std::string& fn)
 {

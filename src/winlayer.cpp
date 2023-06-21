@@ -44,33 +44,36 @@
 #include <string_view>
 #include <utility>
 
-static char *argvbuf = nullptr;
+extern int gammabrightness;
+
+namespace {
+
+char *argvbuf = nullptr;
 
 // Windows crud
-static HINSTANCE hInstance{nullptr};
-static HWND hWindow{nullptr};
-static HDC hDCWindow{nullptr};
+HINSTANCE hInstance{nullptr};
+HWND hWindow{nullptr};
+HDC hDCWindow{nullptr};
 #define WINDOW_CLASS "buildapp"
-static BOOL window_class_registered{FALSE};
-static HANDLE instanceflag{nullptr};
+BOOL window_class_registered{FALSE};
+HANDLE instanceflag{nullptr};
 
-static int backgroundidle{0};
-static char apptitle[256] = "Build Engine";
-static char wintitle[256] = "";
+int backgroundidle{0};
+char apptitle[256] = "Build Engine";
+char wintitle[256] = "";
 
-static WORD sysgamma[3][256];
-extern int gammabrightness;
+WORD sysgamma[3][256];
 
 #if USE_OPENGL
 // OpenGL stuff
-static HGLRC hGLRC{nullptr};
-static HANDLE hGLDLL;
-static glbuild8bit gl8bit;
-static std::vector<unsigned char> frame;
+HGLRC hGLRC{nullptr};
+HANDLE hGLDLL;
+glbuild8bit gl8bit;
+std::vector<unsigned char> frame;
 
-static HWND hGLWindow{nullptr};
-static HWND dummyhGLwindow{nullptr};
-static HDC hDCGLWindow{nullptr};
+HWND hGLWindow{nullptr};
+HWND dummyhGLwindow{nullptr};
+HDC hDCGLWindow{nullptr};
 
 using wglExtStringARB_t = const char* (WINAPI *)(HDC);
 using wglChoosePixelFmtARB_t = BOOL (WINAPI *)(HDC, const int *, const FLOAT *, UINT, int *, UINT *);
@@ -84,7 +87,7 @@ using wglGetProcAddr_t = PROC (WINAPI *)(LPCSTR);
 using wglMakeCurrent_t = BOOL (WINAPI *)(HDC,HGLRC);
 using wglSwapBuffer_t = BOOL (WINAPI *)(HDC);
 
-static struct winlayer_glfuncs {
+struct winlayer_glfuncs {
 	HGLRC (WINAPI * wglCreateContext)(HDC);
 	BOOL (WINAPI * wglDeleteContext)(HGLRC);
 	PROC (WINAPI * wglGetProcAddress)(LPCSTR);
@@ -105,40 +108,40 @@ static struct winlayer_glfuncs {
 
 #endif
 
-static LPTSTR GetWindowsErrorMsg(DWORD code);
-static const char * getwindowserrorstr(DWORD code);
-static void ShowErrorBox(const char *m);
-static BOOL CheckWinVersion();
-static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-static void fetchkeynames();
-static void updatemouse();
-static void updatejoystick();
-static void UninitDIB();
-static int SetupDIB(int width, int height);
-static void UninitOpenGL();
-static int SetupOpenGL(int width, int height, unsigned char bitspp);
-static BOOL RegisterWindowClass();
-static BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refresh);
-static void DestroyAppWindow();
-static void UpdateAppWindowTitle();
+LPTSTR GetWindowsErrorMsg(DWORD code);
+const char * getwindowserrorstr(DWORD code);
+void ShowErrorBox(const char *m);
+BOOL CheckWinVersion();
+LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void fetchkeynames();
+void updatemouse();
+void updatejoystick();
+void UninitDIB();
+int SetupDIB(int width, int height);
+void UninitOpenGL();
+int SetupOpenGL(int width, int height, unsigned char bitspp);
+BOOL RegisterWindowClass();
+BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refresh);
+void DestroyAppWindow();
+void UpdateAppWindowTitle();
 
-static void shutdownvideo();
+void shutdownvideo();
 
 // video
-static int desktopxdim=0,desktopydim=0,desktopbpp=0, desktopmodeset=0;
-static int windowposx, windowposy;
-static unsigned modeschecked=0;
-static unsigned maxrefreshfreq=60;
+int desktopxdim=0,desktopydim=0,desktopbpp=0, desktopmodeset=0;
+int windowposx, windowposy;
+unsigned modeschecked=0;
+unsigned maxrefreshfreq=60;
 
 // input and events
-static std::array<unsigned int, 2> mousewheel = { 0, 0 };
+std::array<unsigned int, 2> mousewheel = { 0, 0 };
 constexpr auto MouseWheelFakePressTime{100};	// getticks() is a 1000Hz timer, and the button press is faked for 100ms
 
-static char taskswitching=1;
+char taskswitching=1;
 
-static char keynames[256][24];
+char keynames[256][24];
 
-static constexpr std::array<int, 256> wscantable = {
+constexpr std::array<int, 256> wscantable = {
 /*         x0    x1    x2    x3    x4    x5    x6    x7    x8    x9    xA    xB    xC    xD    xE    xF */
 /* 0y */ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 /* 1y */ 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
@@ -158,7 +161,7 @@ static constexpr std::array<int, 256> wscantable = {
 /* Fy */ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
 };
 
-static constexpr std::array<int, 256> wxscantable = {
+constexpr std::array<int, 256> wxscantable = {
 /*         x0    x1    x2    x3    x4    x5    x6    x7    x8    x9    xA    xB    xC    xD    xE    xF */
 /* 0y */ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
 /* 1y */ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0x9c, 0x9d, 0,    0,
@@ -177,6 +180,8 @@ static constexpr std::array<int, 256> wxscantable = {
 /* Ey */ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
 /* Fy */ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
 };
+
+} // namespace
 
 //-------------------------------------------------------------------------------------------------
 //  MAIN CRAP
@@ -359,10 +364,12 @@ void wm_setwindowtitle(const char *name)
 	UpdateAppWindowTitle();
 }
 
+namespace {
+
 //
 // SignalHandler() -- called when we've sprung a leak
 //
-static void SignalHandler(int signum)
+void SignalHandler(int signum)
 {
 	switch (signum) {
 		case SIGSEGV:
@@ -375,6 +382,7 @@ static void SignalHandler(int signum)
 	}
 }
 
+} // namespace
 
 //
 // WinMain() -- main Windows entry point
@@ -503,8 +511,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, 
 	return r;
 }
 
+namespace {
 
-static int set_maxrefreshfreq(const osdfuncparm_t *parm)
+int set_maxrefreshfreq(const osdfuncparm_t *parm)
 {
 	if (parm->parms.size() == 0) {
 		if (maxrefreshfreq == 0) {
@@ -536,7 +545,7 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 }
 
 #if USE_OPENGL
-static int set_glswapinterval(const osdfuncparm_t *parm)
+int set_glswapinterval(const osdfuncparm_t *parm)
 {
 	if (!wglfunc.wglSwapIntervalEXT || glunavailable) {
 		buildputs("glswapinterval is not adjustable\n");
@@ -572,6 +581,8 @@ static int set_glswapinterval(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 #endif
+
+} // namespace
 
 //
 // initsystem() -- init systems
@@ -686,7 +697,11 @@ void debugprintf(const char *f, ...)
 // handleevents() -- process the Windows message queue
 //   returns !0 if there was an important event worth checking (like quitting)
 //
-static int eatosdinput{0};
+namespace {
+
+int eatosdinput{0};
+
+} // namespace
 
 int handleevents() {
 	MSG msg;
@@ -724,11 +739,13 @@ int handleevents() {
 //  INPUT (MOUSE/KEYBOARD)
 //=================================================================================================
 
-static char moustat{0};
-static char mousegrab{0};
-static int joyblast{0};
+namespace {
 
-static int xinputusernum{-1};
+char moustat{0};
+char mousegrab{0};
+int joyblast{0};
+
+int xinputusernum{-1};
 
 // I don't see any pressing need to store the key-up events yet
 #define SetKey(key,state) { \
@@ -740,6 +757,7 @@ static int xinputusernum{-1};
 		} \
 }
 
+} // namespace
 
 //
 // initinput() -- init input system
@@ -860,7 +878,9 @@ void uninitmouse()
 	}
 }
 
-static void constrainmouse(int a)
+namespace {
+
+void constrainmouse(int a)
 {
 	if (!hWindow) {
 		return;
@@ -887,7 +907,7 @@ static void constrainmouse(int a)
 	}
 }
 
-static void updatemouse()
+void updatemouse()
 {
 	const unsigned int t = getticks();
 
@@ -905,6 +925,8 @@ static void updatemouse()
 		mouseb &= ~32;
 	}
 }
+
+} // namespace
 
 //
 // grabmouse() -- show/hide mouse cursor
@@ -956,8 +978,9 @@ void readmousebstatus(int *b)
 	}
 }
 
+namespace {
 
-static void updatejoystick()
+void updatejoystick()
 {
 	if (xinputusernum < 0) {
 		return;
@@ -993,6 +1016,7 @@ static void updatejoystick()
 	joyaxis[5] = (state.Gamepad.bRightTrigger >> 1) | ((int)state.Gamepad.bRightTrigger << 7);
 }
 
+} // namespace
 
 void releaseallbuttons()
 {
@@ -1012,11 +1036,11 @@ void releaseallbuttons()
 	}
 }
 
-
+namespace {
 //
 // fetchkeynames() -- retrieves the names for all the keys on the keyboard
 //
-static void putkeyname(int vsc, int ex, int scan) {
+void putkeyname(int vsc, int ex, int scan) {
 	TCHAR tbuf[24];
 
 	vsc <<= 16;
@@ -1027,7 +1051,7 @@ static void putkeyname(int vsc, int ex, int scan) {
 	//buildprintf("VSC %8x scan %-2x = {}\n", vsc, scan, keynames[scan]);
 }
 
-static void fetchkeynames()
+void fetchkeynames()
 {
 	std::memset(keynames, 0, sizeof(keynames));
 
@@ -1045,6 +1069,8 @@ static void fetchkeynames()
 		}
 	}
 }
+
+} // namespace
 
 const char *getkeyname(int num)
 {
@@ -1102,10 +1128,14 @@ const char* getjoyname(int what, int num)
 //  TIMER
 //=================================================================================================
 
-static int64_t timerfreq{0};
-static int timerlastsample{0};
-static int timerticspersec{0};
-static void (*usertimercallback)() = nullptr;
+namespace {
+
+int64_t timerfreq{0};
+int timerlastsample{0};
+int timerticspersec{0};
+void (*usertimercallback)() = nullptr;
+
+} // namespace
 
 //  This timer stuff is all Ken's idea.
 
@@ -1223,16 +1253,18 @@ int gettimerfreq()
 //  VIDEO
 //=================================================================================================
 
+namespace {
+
 // DIB stuff
-static HDC      hDCSection{nullptr};
-static HBITMAP  hDIBSection{nullptr};
-static HPALETTE hPalette{nullptr};
-static VOID    *lpPixels{nullptr};
+HDC      hDCSection{nullptr};
+HBITMAP  hDIBSection{nullptr};
+HPALETTE hPalette{nullptr};
+VOID    *lpPixels{nullptr};
 
-static int setgammaramp(WORD gt[3][256]);
-static int getgammaramp(WORD gt[3][256]);
+int setgammaramp(WORD gt[3][256]);
+int getgammaramp(WORD gt[3][256]);
 
-static void shutdownvideo()
+void shutdownvideo()
 {
 #if USE_OPENGL
 	frame.clear();
@@ -1246,6 +1278,8 @@ static void shutdownvideo()
 		desktopmodeset = 0;
 	}
 }
+
+} // namespace
 
 //
 // setvideomode() -- set the video mode
@@ -1314,7 +1348,9 @@ int setvideomode(int x, int y, int c, bool fs)
 // getvalidmodes() -- figure out what video modes are available
 //
 
-static void addmode(int x, int y, unsigned char c, bool fs, int ext)
+namespace {
+
+void addmode(int x, int y, unsigned char c, bool fs, int ext)
 {
 	validmode.emplace_back(validmode_t{
 		.xdim = x,
@@ -1331,7 +1367,7 @@ static void addmode(int x, int y, unsigned char c, bool fs, int ext)
 #define CHECKLE(w,h) if ((w <= maxx) && (h <= maxy))
 
 #if USE_OPENGL
-static void cdsenummodes()
+void cdsenummodes()
 {
 	DEVMODE dm;
 	int i = 0;
@@ -1379,7 +1415,7 @@ static void cdsenummodes()
 }
 #endif
 
-static int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
+int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
 {
 	int x;
 
@@ -1390,6 +1426,8 @@ static int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
 
 	return 0;
 }
+
+} // namespace
 
 void getvalidmodes()
 {
@@ -1545,12 +1583,17 @@ int setpalette(int start, int num, const unsigned char* dapal)
 //
 // setgamma
 //
-static int setgammaramp(WORD gt[3][256])
+
+namespace {
+
+int setgammaramp(WORD gt[3][256])
 {
 	int i;
 	i = ::SetDeviceGammaRamp(hDCWindow, gt) ? 0 : -1;
 	return i;
 }
+
+} // namespace
 
 int setgamma(float gamma)
 {
@@ -1569,7 +1612,9 @@ int setgamma(float gamma)
 	return setgammaramp(gt);
 }
 
-static int getgammaramp(WORD gt[3][256])
+namespace {
+
+int getgammaramp(WORD gt[3][256])
 {
 	int i;
 
@@ -1584,7 +1629,7 @@ static int getgammaramp(WORD gt[3][256])
 //
 // UninitDIB() -- clean up the DIB renderer
 //
-static void UninitDIB()
+void UninitDIB()
 {
 	if (hPalette) {
 		::DeleteObject(hPalette);
@@ -1606,7 +1651,7 @@ static void UninitDIB()
 //
 // SetupDIB() -- sets up DIB rendering
 //
-static int SetupDIB(int width, int height)
+int SetupDIB(int width, int height)
 {
 	struct binfo {
 		BITMAPINFOHEADER header;
@@ -1658,6 +1703,8 @@ static int SetupDIB(int width, int height)
 
 	return FALSE;
 }
+
+} // namespace
 
 #if USE_OPENGL
 
@@ -1717,7 +1764,9 @@ void *getglprocaddress(const char *name, int ext)
 // UninitOpenGL() -- cleans up OpenGL rendering
 //
 
-static void UninitOpenGL()
+namespace {
+
+void UninitOpenGL()
 {
 	if (hGLRC) {
 #if USE_POLYMOST
@@ -1739,7 +1788,7 @@ static void UninitOpenGL()
 }
 
 // Enumerate the WGL interface extensions.
-static void EnumWGLExts(HDC hdc)
+void EnumWGLExts(HDC hdc)
 {
 	const GLchar *extstr;
 	char *workstr;
@@ -1791,7 +1840,7 @@ static void EnumWGLExts(HDC hdc)
 //
 // SetupOpenGL() -- sets up opengl rendering
 //
-static int SetupOpenGL(int width, int height, unsigned char bitspp)
+int SetupOpenGL(int width, int height, unsigned char bitspp)
 {
 	int err;
 	int pixelformat;
@@ -2060,7 +2109,7 @@ fail:
 //
 // CreateAppWindow() -- create the application window
 //
-static BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refresh)
+BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refresh)
 {
 	RECT rect;
 	int ww;
@@ -2242,7 +2291,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refr
 //
 // DestroyAppWindow() -- destroys the application window
 //
-static void DestroyAppWindow()
+void DestroyAppWindow()
 {
 	if (hWindow && gammabrightness) {
 		setgammaramp(sysgamma);
@@ -2265,7 +2314,7 @@ static void DestroyAppWindow()
 //
 // UpdateAppWindowTitle() -- sets the title of the application window
 //
-static void UpdateAppWindowTitle()
+void UpdateAppWindowTitle()
 {
 	if (!hWindow) {
 		return;
@@ -2288,7 +2337,7 @@ static void UpdateAppWindowTitle()
 //
 // ShowErrorBox() -- shows an error message box
 //
-static void ShowErrorBox(const char *m)
+void ShowErrorBox(const char *m)
 {
 	std::array<TCHAR, 1024> msg;
 
@@ -2300,7 +2349,7 @@ static void ShowErrorBox(const char *m)
 //
 // CheckWinVersion() -- check to see what version of Windows we happen to be running under
 //
-static BOOL CheckWinVersion()
+BOOL CheckWinVersion()
 {
 	OSVERSIONINFO osv;
 
@@ -2318,7 +2367,7 @@ static BOOL CheckWinVersion()
 //
 // WndProcCallback() -- the Windows window callback
 //
-static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 #if USE_OPENGL
 	if (hGLWindow && hWnd == hGLWindow) return ::DefWindowProc(hWnd,uMsg,wParam,lParam);
@@ -2511,7 +2560,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 //
 // RegisterWindowClass() -- register the window class
 //
-static BOOL RegisterWindowClass()
+BOOL RegisterWindowClass()
 {
 	WNDCLASSEX wcx;
 
@@ -2547,7 +2596,7 @@ static BOOL RegisterWindowClass()
 //
 // GetWindowsErrorMsg() -- gives a pointer to a static buffer containing the Windows error message
 //
-static LPTSTR GetWindowsErrorMsg(DWORD code)
+LPTSTR GetWindowsErrorMsg(DWORD code)
 {
 	static std::array<TCHAR, 1024> lpMsgBuf;
 
@@ -2559,10 +2608,12 @@ static LPTSTR GetWindowsErrorMsg(DWORD code)
 	return &lpMsgBuf[0];
 }
 
-static const char *getwindowserrorstr(DWORD code)
+const char *getwindowserrorstr(DWORD code)
 {
 	static std::array<char, 1024> msg;
 	std::ranges::fill(msg, 0);
 	::OemToCharBuff(GetWindowsErrorMsg(code), &msg[0], msg.size() - 1);
 	return &msg[0];
 }
+
+} // namespace

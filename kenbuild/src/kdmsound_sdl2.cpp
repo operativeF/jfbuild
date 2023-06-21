@@ -17,9 +17,13 @@
 #  error This must be built with SDL2
 #endif
 
-static SDL_AudioDeviceID dev;
+namespace {
 
-static void preparesndbuf(void *udata, Uint8 *sndoffsplc, int sndbufsiz);
+SDL_AudioDeviceID dev;
+
+void preparesndbuf(void *udata, Uint8 *sndoffsplc, int sndbufsiz);
+
+} // namespace
 
 void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeakers, char dabytespersample, char daintspersec, char daquality)
 {
@@ -88,9 +92,13 @@ void refreshaudio()
 {
 }
 
-static void preparesndbuf(void *udata, Uint8 *sndoffsplc, int sndbufsiz)
+namespace {
+
+void preparesndbuf(void *udata, Uint8 *sndoffsplc, int sndbufsiz)
 {
     (void)udata;
 
     preparekdmsndbuf(sndoffsplc, sndbufsiz);
 }
+
+} // namespace

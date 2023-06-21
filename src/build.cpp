@@ -33,9 +33,6 @@ constexpr auto TIMERINTSPERSECOND{120};
 
 #define updatecrc16(crc,dat) (crc = (((crc<<8)&65535)^crctable[((((unsigned short)crc)>>8)&65535)^dat]))
 
-static std::array<int, 256> crctable;
-static std::array<char, 24> kensig;
-
 int vel;
 int svel;
 int angvel;
@@ -58,17 +55,11 @@ int hvel;
 
 int grponlymode{0};
 
-static int synctics{0};
-static int lockclock{0};
-
 int ytop16;
-static int bakydim16;
-static int bakytop16;
 int ydimgame{480};
 int bppgame{8};
 int forcesetup{1};
 
-static short oldmousebstatus{0};
 int zlock{0x7fffffff};
 int zmode{0};
 int whitecol;
@@ -76,10 +67,6 @@ int blackcol;
 int kensplayerheight{32};
 int kenswalldist{128};
 short defaultspritecstat{0};
-
-static std::array<short, MAXTILES> localartfreq;
-static std::array<short, MAXTILES> localartlookup;
-static short localartlookupnum;
 
 std::array<unsigned char, 4096> tempbuf;
 
@@ -105,8 +92,6 @@ std::array<short, MAXWALLS> highlight;
 std::array<short, MAXSECTORS> highlightsector;
 short highlightsectorcnt{-1};
 
-static std::array<unsigned char, MAXSECTORS> pskysearch;
-
 short temppicnum;
 short tempcstat;
 short templotag;
@@ -119,20 +104,39 @@ unsigned char tempxrepeat;
 unsigned char tempyrepeat;
 unsigned char somethingintab{255};
 
-static std::array<char, BMAX_PATH> boardfilename;
-static std::array<char, BMAX_PATH> selectedboardfilename;
-static CACHE1D_FIND_REC* finddirs{nullptr};
-static CACHE1D_FIND_REC* findfiles{nullptr};
-static CACHE1D_FIND_REC* finddirshigh{nullptr};
-static CACHE1D_FIND_REC* findfileshigh{nullptr};
-static int numdirs{0};
-static int numfiles{0};
-static int currentlist{0};
+namespace {
 
-static int repeatcountx;
-static int repeatcounty;
+std::array<int, 256> crctable;
+std::array<char, 24> kensig;
 
-static std::array<int, 640> fillist;
+int bakydim16;
+int bakytop16;
+
+int synctics{0};
+int lockclock{0};
+short oldmousebstatus{0};
+
+std::array<short, MAXTILES> localartfreq;
+std::array<short, MAXTILES> localartlookup;
+short localartlookupnum;
+
+std::array<unsigned char, MAXSECTORS> pskysearch;
+std::array<char, BMAX_PATH> boardfilename;
+std::array<char, BMAX_PATH> selectedboardfilename;
+CACHE1D_FIND_REC* finddirs{nullptr};
+CACHE1D_FIND_REC* findfiles{nullptr};
+CACHE1D_FIND_REC* finddirshigh{nullptr};
+CACHE1D_FIND_REC* findfileshigh{nullptr};
+int numdirs{0};
+int numfiles{0};
+int currentlist{0};
+
+int repeatcountx;
+int repeatcounty;
+
+std::array<int, 640> fillist;
+
+} // namespace
 
 enum class ClockDir_t {
 	CW, // clockwise
@@ -184,10 +188,12 @@ void clearkeys() {
 	std::ranges::fill(keystatus, 0);
 }
 
-static int osdcmd_restartvid(const osdfuncparm_t *parm)
-{
-	extern int qsetmode;
+extern int qsetmode;
 
+namespace {
+
+int osdcmd_restartvid(const osdfuncparm_t *parm)
+{
 	std::ignore = parm;
 
 	if (qsetmode != 200) {
@@ -202,14 +208,12 @@ static int osdcmd_restartvid(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 
-static int osdcmd_vidmode(const osdfuncparm_t *parm)
+int osdcmd_vidmode(const osdfuncparm_t *parm)
 {
 	int newx{ xdim };
 	int newy{ ydim };
 	int newbpp{ bpp };
 	bool newfullscreen{ fullscreen };
-
-	extern int qsetmode;
 
 	if (qsetmode != 200) {
 		return OSDCMD_OK;
@@ -260,7 +264,7 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 
-static int osdcmd_mapversion(const osdfuncparm_t *parm)
+int osdcmd_mapversion(const osdfuncparm_t *parm)
 {
 	if (parm->parms.size() < 1) {
 		buildprintf("mapversion is {}\n", mapversion);
@@ -281,7 +285,7 @@ static int osdcmd_mapversion(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 
-static int osdcmd_showspriteextents(const osdfuncparm_t *parm)
+int osdcmd_showspriteextents(const osdfuncparm_t *parm)
 {
 	if (parm->parms.size() != 1) {
 		buildprintf("showspriteextents is {}\n", showspriteextents);
@@ -300,6 +304,8 @@ static int osdcmd_showspriteextents(const osdfuncparm_t *parm)
 	showspriteextents = newval;
 	return OSDCMD_OK;
 }
+
+} // namespace
 
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && (defined __APPLE__ || defined HAVE_GTK))
 # define HAVE_STARTWIN
@@ -7847,7 +7853,11 @@ void initcrc()
 	}
 }
 
-static std::array<char, 8192> visited;
+namespace {
+
+std::array<char, 8192> visited;
+
+} // namespace
 
 int GetWallZPeg(int nWall)
 {

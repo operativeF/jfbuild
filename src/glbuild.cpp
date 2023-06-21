@@ -20,14 +20,16 @@
 
 struct glbuild_funcs glfunc;
 
+namespace {
+
 #if defined(DEBUGGINGAIDS)
-static int gldebuglogseverity = 2;	// default to 'low'
-static int osdcmd_vars(const osdfuncparm_t *);
+int gldebuglogseverity = 2;	// default to 'low'
+int osdcmd_vars(const osdfuncparm_t *);
 #endif
 
-static int osdcmd_glinfo(const osdfuncparm_t *);
+int osdcmd_glinfo(const osdfuncparm_t *);
 
-static void enumerate_configure(std::string_view ext) {
+void enumerate_configure(std::string_view ext) {
 	if (ext == "GL_EXT_texture_filter_anisotropic") {
 			// supports anisotropy. get the maximum anisotropy level
 #ifdef GL_EXT_texture_filter_anisotropic
@@ -89,7 +91,7 @@ static void enumerate_configure(std::string_view ext) {
 	}
 }
 
-static void glbuild_enumerate_exts(void (*callback)(std::string_view)) {
+void glbuild_enumerate_exts(void (*callback)(std::string_view)) {
 	char *workstr = nullptr;
 	char *workptr = nullptr;
 	char *nextptr = nullptr;
@@ -135,7 +137,7 @@ static void glbuild_enumerate_exts(void (*callback)(std::string_view)) {
 }
 
 #if defined(DEBUGGINGAIDS) && (defined(GL_KHR_debug) || defined(GL_ARB_debug_output))
-static void APIENTRY gl_debug_proc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+void APIENTRY gl_debug_proc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
 	const GLchar* message, const GLvoid* userParam)
 {
 	const char *sourcestr = "(unknown)";
@@ -257,6 +259,8 @@ static void APIENTRY gl_debug_proc(GLenum source, GLenum type, GLuint id, GLenum
 }
 #endif
 
+} // namespace
+
 int glbuild_init()
 {
 	const char *glver;
@@ -349,7 +353,9 @@ int glbuild_init()
 	return 0;
 }
 
-static inline void * getproc_(const char *func, int *err, int fatal)
+namespace {
+
+inline void * getproc_(const char *func, int *err, int fatal)
 {
 	void *proc = getglprocaddress(func, 1);
 	if (!proc && fatal) {
@@ -358,6 +364,9 @@ static inline void * getproc_(const char *func, int *err, int fatal)
 	}
 	return proc;
 }
+
+} // namespace
+
 #define INIT_PROC(c,s)        glfunc.s = (c)getproc_(#s, &err, 1)
 #define INIT_PROC_SOFT(c,s)   glfunc.s = (c)getproc_(#s, &err, 0)
 
@@ -499,11 +508,12 @@ void glbuild_check_errors(const char *file, int line)
 	}
 }
 
+namespace {
 
 //
 // OpenGL shader compilation and linking
 //
-static GLchar *glbuild_cook_source(const GLchar *source, const char *spec)
+GLchar *glbuild_cook_source(const GLchar *source, const char *spec)
 {
 	GLchar *cooked;
 	GLchar *pos;
@@ -537,6 +547,8 @@ static GLchar *glbuild_cook_source(const GLchar *source, const char *spec)
 
 	return cooked;
 }
+
+} // namespace
 
 GLuint glbuild_compile_shader(GLuint type, const GLchar *source)
 {
@@ -841,6 +853,7 @@ void glbuild_draw_8bit_frame(const glbuild8bit *state)
 	glfunc.glDrawElements(GL_TRIANGLE_FAN, 6, GL_UNSIGNED_SHORT, 0);
 }
 
+namespace {
 
 //
 // OSD variables and commands
@@ -865,7 +878,7 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 }
 #endif
 
-static void dumpglinfo()
+void dumpglinfo()
 {
 	constexpr std::string_view supported   = "supported";
 	constexpr std::string_view unsupported = "not supported";
@@ -926,12 +939,12 @@ static void dumpglinfo()
 #endif
 }
 
-static void indentedputs(std::string_view ext) {
+void indentedputs(std::string_view ext) {
 	buildputs(" ");
 	buildputs(ext);
 }
 
-static void dumpglexts()
+void dumpglexts()
 {
 	if (!glinfo.loaded) {
 		buildputs("OpenGL information not available.\n");
@@ -943,7 +956,7 @@ static void dumpglexts()
 	buildputs("\n");
 }
 
-static int osdcmd_glinfo(const osdfuncparm_t *parm)
+int osdcmd_glinfo(const osdfuncparm_t *parm)
 {
 	if (parm->parms.size() == 0) {
 		dumpglinfo();
@@ -954,5 +967,6 @@ static int osdcmd_glinfo(const osdfuncparm_t *parm)
 	return OSDCMD_OK;
 }
 
+} // namespace
 
 #endif  //USE_OPENGL
