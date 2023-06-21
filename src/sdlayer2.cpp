@@ -682,7 +682,8 @@ static int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
 
 	return 0;
 }
-static char modeschecked=0;
+static bool modeschecked{false};
+
 void getvalidmodes()
 {
 	static int defaultres[][2] = {
@@ -693,7 +694,8 @@ void getvalidmodes()
 	SDL_DisplayMode desktop;
 	int i, maxx=0, maxy=0;
 
-	if (modeschecked) return;
+	if (modeschecked)
+		return;
 
 	if (SDL_GetNumVideoDisplays() < 1) {
 		buildputs("No video displays available!\n");
@@ -765,7 +767,7 @@ void getvalidmodes()
 
 	qsort((void*)validmode, validmode.size(), sizeof(struct validmode_t), (int(*)(const void*,const void*))sortmodes);
 
-	modeschecked=1;
+	modeschecked = true;
 }
 
 static void shutdownvideo()
@@ -816,8 +818,7 @@ int setvideomode(int x, int y, int c, int fs)
 	int regrab = 0;
 	int flags;
 
-	if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) &&
-		!videomodereset) {
+	if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) && !videomodereset) {
 		OSD_ResizeDisplay(xres,yres);
 		return 0;
 	}
@@ -1016,8 +1017,8 @@ int setvideomode(int x, int y, int c, int fs)
 
 	gammabrightness = (SDL_SetWindowBrightness(sdl_window, curgamma) == 0);
 
-	modechange = 1;
-	videomodereset = 0;
+	modechange = true;
+	videomodereset = false;
 	if (baselayer_videomodedidchange) baselayer_videomodedidchange();
 	OSD_ResizeDisplay(xres,yres);
 
@@ -1040,8 +1041,8 @@ int setvideomode(int x, int y, int c, int fs)
 //
 void resetvideomode()
 {
-	videomodereset = 1;
-	modeschecked = 0;
+	videomodereset = true;
+	modeschecked = false;
 }
 
 

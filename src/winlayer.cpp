@@ -1297,8 +1297,8 @@ int setvideomode(int x, int y, int c, bool fs)
 		}
 	}
 
-	modechange = 1;
-	videomodereset = 0;
+	modechange = true;
+	videomodereset = false;
 
 	if (baselayer_videomodedidchange) {
 		baselayer_videomodedidchange();
@@ -1455,7 +1455,7 @@ void getvalidmodes()
 //
 void resetvideomode()
 {
-	videomodereset = 1;
+	videomodereset = true;
 	modeschecked = 0;
 }
 
@@ -2072,7 +2072,8 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refr
 	int stylebits = 0;
 	int stylebitsex = 0;
 
-	if (width == xres && height == yres && fs == fullscreen && bitspp == bpp && !videomodereset) return FALSE;
+	if (width == xres && height == yres && fs == fullscreen && bitspp == bpp && !videomodereset)
+		return FALSE;
 
 	if (hWindow) {
 		::ShowWindow(hWindow, SW_HIDE);	// so Windows redraws what's behind if the window shrinks
@@ -2183,7 +2184,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refr
 		setvlinebpl(bytesperline);
 
 		for(i=j=0; i<=height; i++) ylookup[i] = j, j += bytesperline;
-		modechange=0;
+		modechange = false;
 
 		numpages = 1;
 	} else {
@@ -2230,7 +2231,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refr
 	bpp = bitspp;
 	fullscreen = fs;
 
-	modechange = 1;
+	modechange = true;
 
 	::UpdateWindow(hWindow);
 

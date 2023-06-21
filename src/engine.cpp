@@ -8761,7 +8761,7 @@ int setgamemode(bool davidoption, int daxdim, int daydim, int dabpp)
 {
 	int i;
 
-	if ((qsetmode == 200) && (videomodereset == 0) &&
+	if ((qsetmode == 200) && !videomodereset &&
 	    (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp))
 		return(0);
 
@@ -11894,7 +11894,6 @@ void setviewtotile(short tilenume, int xsiz, int ysiz)
 //
 // setviewback
 //
-extern char modechange;
 void setviewback()
 {
 	if (setviewcnt <= 0) {
@@ -11934,7 +11933,7 @@ void setviewback()
 	}
 
 	setvlinebpl(bytesperline);
-	modechange = 1;
+	modechange = true;
 }
 
 
