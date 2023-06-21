@@ -118,7 +118,7 @@ static int SetupDIB(int width, int height);
 static void UninitOpenGL();
 static int SetupOpenGL(int width, int height, unsigned char bitspp);
 static BOOL RegisterWindowClass();
-static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refresh);
+static BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refresh);
 static void DestroyAppWindow();
 static void UpdateAppWindowTitle();
 
@@ -1250,7 +1250,7 @@ static void shutdownvideo()
 //
 // setvideomode() -- set the video mode
 //
-int setvideomode(int x, int y, int c, int fs)
+int setvideomode(int x, int y, int c, bool fs)
 {
 	int refresh{-1};
 
@@ -1281,7 +1281,7 @@ int setvideomode(int x, int y, int c, int fs)
 	shutdownvideo();
 
 	buildprintf("Setting video mode {}x{} ({}-bit {})\n",
-			x, y, c, ((fs & 1) ? "fullscreen" : "windowed"));
+			x, y, c, (fs ? "fullscreen" : "windowed"));
 
 	if (::CreateAppWindow(x, y, c, fs, refresh)) {
 		return -1;
@@ -1314,7 +1314,7 @@ int setvideomode(int x, int y, int c, int fs)
 // getvalidmodes() -- figure out what video modes are available
 //
 
-static void addmode(int x, int y, unsigned char c, unsigned char fs, int ext)
+static void addmode(int x, int y, unsigned char c, bool fs, int ext)
 {
 	validmode.emplace_back(validmode_t{
 		.xdim = x,
@@ -1324,7 +1324,7 @@ static void addmode(int x, int y, unsigned char c, unsigned char fs, int ext)
 		.extra = ext
 	});
 
-	buildprintf("  - {}x{} {}-bit {}\n", x, y, c, (fs & 1)?"fullscreen":"windowed"); \
+	buildprintf("  - {}x{} {}-bit {}\n", x, y, c, fs ? "fullscreen" : "windowed"); \
 }
 
 #define CHECKL(w,h) if ((w < maxx) && (h < maxy))
@@ -2060,7 +2060,7 @@ fail:
 //
 // CreateAppWindow() -- create the application window
 //
-static BOOL CreateAppWindow(int width, int height, int bitspp, int fs, int refresh)
+static BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refresh)
 {
 	RECT rect;
 	int ww;

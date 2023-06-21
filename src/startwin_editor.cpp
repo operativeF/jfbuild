@@ -34,7 +34,10 @@ static int retval = -1;
 static void populate_video_modes(BOOL firstTime)
 {
     int i, j, mode2d = -1, mode3d = -1;
-    int xdim = 0, ydim = 0, bpp = 0, fullscreen = 0;
+    int xdim{0};
+    int ydim{0};
+    int bpp{0};
+    bool fullscreen{false};
     int xdim2d = 0, ydim2d = 0;
     char modestr[64];
     int cd[] = { 32, 24, 16, 15, 8, 0 };

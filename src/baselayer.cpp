@@ -31,7 +31,7 @@ void (*baselayer_videomodedidchange)() = nullptr;
 //
 // checkvideomode() -- makes sure the video mode passed is legal
 //
-int checkvideomode(int *x, int *y, int c, int fs, int forced)
+int checkvideomode(int *x, int *y, int c, bool fs, int forced)
 {
 	int nearest{-1};
 	int odx = std::numeric_limits<int>::max();
@@ -78,7 +78,7 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 	}
 
 #ifdef ANY_WINDOWED_SIZE
-	if (!forced && (fs&1) == 0 && (nearest < 0 || validmode[nearest].xdim!=*x || validmode[nearest].ydim!=*y)) {
+	if (!forced && !fs && (nearest < 0 || validmode[nearest].xdim!=*x || validmode[nearest].ydim!=*y)) {
 		// check the colour depth is recognised at the very least
 		if (const auto vit = std::ranges::find_if(validmode, [c](const auto& vmode) { return vmode.bpp == c; });
 			vit != validmode.end())

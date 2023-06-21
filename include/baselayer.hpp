@@ -35,7 +35,7 @@ extern int startwin_run(struct startwin_settings *);
 inline int xres{-1};
 inline int yres{-1};
 inline int bpp{0};
-inline int fullscreen{0};
+inline bool fullscreen{false};
 inline int bytesperline{0};
 inline int imageSize{0};
 inline char offscreenrendering{0};
@@ -100,8 +100,8 @@ unsigned int getticks();
 unsigned int getusecticks();
 int gettimerfreq();
 
-int checkvideomode(int *x, int *y, int c, int fs, int forced);
-int setvideomode(int x, int y, int c, int fs);
+int checkvideomode(int *x, int *y, int c, bool fs, int forced);
+int setvideomode(int x, int y, int c, bool fs);
 void getvalidmodes();
 void resetvideomode();
 

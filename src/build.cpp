@@ -207,7 +207,7 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 	int newx{ xdim };
 	int newy{ ydim };
 	int newbpp{ bpp };
-	int newfullscreen{ fullscreen };
+	bool newfullscreen{ fullscreen };
 
 	extern int qsetmode;
 

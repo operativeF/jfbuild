@@ -250,8 +250,8 @@ inline int numpages{0};
 inline int yxaspect{0};
 inline int xyaspect{0};
 inline int pixelaspect{0};
-inline int widescreen{0};
-inline int tallscreen{0};
+inline bool widescreen{false};
+inline bool tallscreen{false};
 inline int viewingrange{0};
 
 inline constexpr auto MAXVALIDMODES{256};
@@ -260,7 +260,7 @@ struct validmode_t {
 	int xdim;
 	int ydim;
 	unsigned char bpp;
-	unsigned char fs;	// bit 0 = fullscreen flag
+	bool fs;	// bit 0 = fullscreen flag
 	char filler[2];
 	int extra;	// internal use
 };
@@ -500,7 +500,7 @@ void   setbrightness(int dabrightness, std::span<const unsigned char> dapal, cha
 void   setpalettefade(unsigned char r, unsigned char g, unsigned char b, unsigned char offset);
 void   squarerotatetile(short tilenume);
 
-int   setgamemode(char davidoption, int daxdim, int daydim, int dabpp);
+int   setgamemode(bool davidoption, int daxdim, int daydim, int dabpp);
 void   nextpage();
 void   setview(int x1, int y1, int x2, int y2);
 void   setaspect(int daxrange, int daaspect);

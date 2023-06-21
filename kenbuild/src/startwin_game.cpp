@@ -38,7 +38,7 @@ static void populate_video_modes(BOOL firstTime)
     int xdim = 0;
     int ydim = 0;
     int bpp = 0;
-    int fullscreen = 0;
+    bool fullscreen{false};
     TCHAR modestr[64];
     const int cd[] = { 32, 24, 16, 15, 8, 0 };
     HWND hwnd;

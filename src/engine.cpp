@@ -8756,8 +8756,8 @@ writeerror:
 //
 // setgamemode
 //
-// JBF: davidoption now functions as a windowed-mode flag (0 == windowed, 1 == fullscreen)
-int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
+// JBF: davidoption now functions as a windowed-mode flag (0 == windowed, true == fullscreen)
+int setgamemode(bool davidoption, int daxdim, int daydim, int dabpp)
 {
 	int i;
 
@@ -8793,8 +8793,8 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 	// is built around the non-square pixels of Mode 13h, so to get
 	// things back square on VGA screens, things need to be "compressed"
 	// vertically a little.
-	widescreen = 0;
-	tallscreen = 0;
+	widescreen = false;
+	tallscreen = false;
 
 	if ((xdim == 320 && ydim == 200) || (xdim == 640 && ydim == 400)) {
 		pixelaspect = 65536;
@@ -8804,10 +8804,10 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 		pixelaspect = divscalen<16>(240 * 320L, 320 * 200L);
 
 		if (ratio < 65536) {
-			widescreen = 1;
+			widescreen = true;
 		}
 		else if (ratio > 65536) {
-			tallscreen = 1;
+			tallscreen = true;
 
 			// let tall screens (eg. 1280x1024) stretch the 2D elements
 			// vertically a little until something better is thought of
