@@ -7572,12 +7572,9 @@ void showsectordata(short sectnum)
 
 void showwalldata(short wallnum)
 {
-	int dax;
-	int day;
-	int dist;
-	std::array<char, 80> snotbuf;
-
 	setstatusbarviewport();
+
+	std::array<char, 80> snotbuf{};
 
 	fmt::format_to(&snotbuf[0],"Wall {}",wallnum);
 	printext16(8,32,11,-1, &snotbuf[0],0);
@@ -7619,9 +7616,9 @@ void showwalldata(short wallnum)
 	fmt::format_to(&snotbuf[0],"Extra: {}",wall[wallnum].extra);
 	printext16(400,72,11,-1,&snotbuf[0],0);
 
-	dax = wall[wallnum].x-wall[wall[wallnum].point2].x;
-	day = wall[wallnum].y-wall[wall[wallnum].point2].y;
-	dist = ksqrt(dax*dax+day*day);
+	int dax = wall[wallnum].x-wall[wall[wallnum].point2].x;
+	int day = wall[wallnum].y-wall[wall[wallnum].point2].y;
+	int dist = ksqrt(dax*dax+day*day);
 	fmt::format_to(&snotbuf[0],"Wall length: {}",dist>>4);
 	printext16(400,96,11,-1,&snotbuf[0],0);
 
@@ -7634,57 +7631,56 @@ void showwalldata(short wallnum)
 
 void showspritedata(short spritenum)
 {
-	char snotbuf[80];
-
 	setstatusbarviewport();
 
+	std::array<char, 80> snotbuf{};
 	fmt::format_to(&snotbuf[0],"Sprite {}",spritenum);
-	printext16(8,32,11,-1,snotbuf,0);
+	printext16(8,32,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"X-coordinate: {}",sprite[spritenum].x);
-	printext16(8,48,11,-1,snotbuf,0);
+	printext16(8,48,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"Y-coordinate: {}",sprite[spritenum].y);
-	printext16(8,56,11,-1,snotbuf,0);
+	printext16(8,56,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"Z-coordinate: {}",sprite[spritenum].z);
-	printext16(8,64,11,-1,snotbuf,0);
+	printext16(8,64,11,-1, &snotbuf[0], 0);
 
 	fmt::format_to(&snotbuf[0],"Sectnum: {}",sprite[spritenum].sectnum);
-	printext16(8,72,11,-1,snotbuf,0);
+	printext16(8,72,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"Statnum: {}",sprite[spritenum].statnum);
-	printext16(8,80,11,-1,snotbuf,0);
+	printext16(8,80,11,-1, &snotbuf[0], 0);
 
 	fmt::format_to(&snotbuf[0],"Tags: {}, {}",sprite[spritenum].hitag,sprite[spritenum].lotag);
-	printext16(8,96,11,-1,snotbuf,0);
+	printext16(8,96,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"     (0x{}), (0x{})",sprite[spritenum].hitag,sprite[spritenum].lotag);
-	printext16(8,104,11,-1,snotbuf,0);
+	printext16(8,104,11,-1, &snotbuf[0], 0);
 
 	printext16(200,32,11,-1,names[sprite[spritenum].picnum],0);
 	fmt::format_to(&snotbuf[0],"Flags (hex): {}",sprite[spritenum].cstat);
-	printext16(200,48,11,-1,snotbuf,0);
+	printext16(200,48,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"Shade: {}",sprite[spritenum].shade);
-	printext16(200,56,11,-1,snotbuf,0);
+	printext16(200,56,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"Pal: {}",sprite[spritenum].pal);
-	printext16(200,64,11,-1,snotbuf,0);
+	printext16(200,64,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"(X,Y)repeat: {}, {}",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat);
-	printext16(200,72,11,-1,snotbuf,0);
+	printext16(200,72,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"(X,Y)offset: {}, {}",sprite[spritenum].xoffset,sprite[spritenum].yoffset);
-	printext16(200,80,11,-1,snotbuf,0);
+	printext16(200,80,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"Tile number: {}",sprite[spritenum].picnum);
-	printext16(200,88,11,-1,snotbuf,0);
+	printext16(200,88,11,-1, &snotbuf[0], 0);
 
 	fmt::format_to(&snotbuf[0],"Angle (2048 degrees): {}",sprite[spritenum].ang);
-	printext16(400,48,11,-1,snotbuf,0);
+	printext16(400,48,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"X-Velocity: {}",sprite[spritenum].xvel);
-	printext16(400,56,11,-1,snotbuf,0);
+	printext16(400,56,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"Y-Velocity: {}",sprite[spritenum].yvel);
-	printext16(400,64,11,-1,snotbuf,0);
+	printext16(400,64,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"Z-Velocity: {}",sprite[spritenum].zvel);
-	printext16(400,72,11,-1,snotbuf,0);
+	printext16(400,72,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"Owner: {}",sprite[spritenum].owner);
-	printext16(400,80,11,-1,snotbuf,0);
+	printext16(400,80,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"Clipdist: {}",sprite[spritenum].clipdist);
-	printext16(400,88,11,-1,snotbuf,0);
+	printext16(400,88,11,-1, &snotbuf[0], 0);
 	fmt::format_to(&snotbuf[0],"Extra: {}",sprite[spritenum].extra);
-	printext16(400,96,11,-1,snotbuf,0);
+	printext16(400,96,11,-1, &snotbuf[0], 0);
 
 	restoreviewport();
 }
