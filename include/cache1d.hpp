@@ -23,7 +23,7 @@ inline int cachecount{0};
 inline int pathsearchmode{0};
 
 int     addsearchpath(const char *p);
-int		findfrompath(const char *fn, char **where);
+int		findfrompath(const char *fn, std::string& where);
 int     openfrompath(const char *fn, int flags, int mode);
 std::FILE  *fopenfrompath(const char *fn, const char *mode);
 

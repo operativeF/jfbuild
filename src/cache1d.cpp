@@ -12,6 +12,8 @@
 #include "pragmas.hpp"
 #include "string_utils.hpp"
 
+#include <fmt/core.h>
+
 #include <algorithm>
 #include <array>
 #include <cerrno>
@@ -356,7 +358,7 @@ int addsearchpath(const char *p)
 	return 0;
 }
 
-int findfrompath(const char *fn, char **where)
+int findfrompath(const char *fn, std::string& where)
 {
 	// pathsearchmode == 0: tests current dir and then the dirs of the path stack
 	// pathsearchmode == 1: tests fn without modification, then like for pathsearchmode == 0
@@ -364,7 +366,7 @@ int findfrompath(const char *fn, char **where)
 	if (pathsearchmode) {
 		// test unmolested filename first
 		if (access(fn, F_OK) >= 0) {
-			*where = strdup(fn);
+			where = strdup(fn);
 			return 0;
 		}
 	}
@@ -372,39 +374,28 @@ int findfrompath(const char *fn, char **where)
 	for (; toupperlookup[(int)(unsigned char)*fn] == '/'; fn++);
 	char* ffn = strdup(fn);
 	if (!ffn) return -1;
-	Bcorrectfilename(ffn,0);	// compress relative paths
-	
-	std::size_t allocsiz = std::max(maxsearchpathlen, std::size_t{2});	// "./" (aka. curdir)
-	allocsiz += std::strlen(ffn);
-	allocsiz += 1;	// a nul
-	
-	auto* pfn = static_cast<char *>(std::malloc(allocsiz));
+	Bcorrectfilename(ffn, 0);	// compress relative paths
 
-	if (!pfn) {
-		std::free(ffn);
-		return -1;
-	}
+	std::string pfn = fmt::format("./{}", ffn);
 
-	std::strcpy(pfn, "./");
-	std::strcat(pfn, ffn);
-	if (access(pfn, F_OK) >= 0) {
-		*where = pfn;
+	if (access(pfn.data(), F_OK) >= 0) {
+		where = pfn;
 		std::free(ffn);
+
 		return 0;
 	}
 	
 	for (auto sp = searchpathhead; sp; sp = sp->next) {
-		std::strcpy(pfn, sp->path);
-		std::strcat(pfn, ffn);
+		auto possiblefile = fmt::format("{}{}", sp->path, ffn);
 		//buildprintf("Trying {}\n", pfn);
-		if (access(pfn, F_OK) >= 0) {
-			*where = pfn;
+		if (access(possiblefile.data(), F_OK) >= 0) {
+			where = possiblefile;
 			std::free(ffn);
+
 			return 0;
 		}
 	}
 
-	std::free(pfn);
 	std::free(ffn);
 
 	return -1;
@@ -412,10 +403,12 @@ int findfrompath(const char *fn, char **where)
 
 int openfrompath(const char *fn, int flags, int mode)
 {
-	char *pfn{};
-	if (findfrompath(fn, &pfn) < 0) return -1;
-	const int h = Bopen(pfn, flags, mode);
-	std::free(pfn);
+	std::string pfn;
+
+	if (findfrompath(fn, pfn) < 0)
+		return -1;
+
+	const int h = Bopen(pfn.c_str(), flags, mode);
 
 	return h;
 }
@@ -484,7 +477,7 @@ int kzcurhand{-1};
 int initgroupfile(const std::string& filename)
 {
 #ifdef WITHKPLIB
-	char *zfn;
+	std::string zfn;
 #endif
 
 #ifdef _WIN32
@@ -493,12 +486,11 @@ int initgroupfile(const std::string& filename)
 #endif
 	
 #ifdef WITHKPLIB
-	if (findfrompath(filename.c_str(), &zfn) < 0) return -1;
+	if (findfrompath(filename.c_str(), zfn) < 0) return -1;
 	
 	// check to see if the file passed is a ZIP and pass it on to kplib if it is
-	int i = Bopen(zfn,BO_BINARY|BO_RDONLY,BS_IREAD);
+	int i = Bopen(zfn.c_str(), BO_BINARY | BO_RDONLY, BS_IREAD);
 	if (i < 0) {
-		std::free(zfn);
 		return -1;
 	}
 
@@ -506,13 +498,10 @@ int initgroupfile(const std::string& filename)
 	if (Bread(i, &buf[0], 4) == 4) {
 		if (buf[0] == 0x50 && buf[1] == 0x4B && buf[2] == 0x03 && buf[3] == 0x04) {
 			close(i);
-			i = kzaddstack(zfn);
-			std::free(zfn);
+			i = kzaddstack(zfn.c_str());
 			return i;
 		}
 	}
-
-	std::free(zfn);
 
 	if (numgroupfiles >= MAXGROUPFILES) return(-1);
 
