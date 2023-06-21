@@ -1112,11 +1112,11 @@ const char* getjoyname(int what, int num)
 
 	switch (what) {
 		case 0:	// axis
-			if ((unsigned)num > (unsigned)6) return nullptr;
+			if ((unsigned)num >= (unsigned)6) return nullptr;
 			return axisnames[num];
 
 		case 1: // button
-			if ((unsigned)num > (unsigned)15) return nullptr;
+			if ((unsigned)num >= (unsigned)15) return nullptr;
 			return buttonnames[num];
 
 		default:
