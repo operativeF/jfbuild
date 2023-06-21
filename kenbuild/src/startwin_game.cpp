@@ -32,7 +32,6 @@ static int retval = -1;
 
 static void populate_video_modes(BOOL firstTime)
 {
-    int i;
     int j;
     int mode3d = -1;
     int xdim = 0;
@@ -52,8 +51,11 @@ static void populate_video_modes(BOOL firstTime)
         fullscreen = settings->fullscreen;
     } else {
         fullscreen = IsDlgButtonChecked(pages[TAB_CONFIG], IDC_FULLSCREEN) == BST_CHECKED;
-        i = ComboBox_GetCurSel(hwnd);
-        if (i != CB_ERR) i = ComboBox_GetItemData(hwnd, i);
+        int i = ComboBox_GetCurSel(hwnd);
+
+        if (i != CB_ERR)
+            i = ComboBox_GetItemData(hwnd, i);
+        
         if (i != CB_ERR) {
             xdim = validmode[i].xdim;
             ydim = validmode[i].ydim;
@@ -64,8 +66,15 @@ static void populate_video_modes(BOOL firstTime)
     // Find an ideal match.
     mode3d = checkvideomode(&xdim, &ydim, bpp, fullscreen, 1);
     if (mode3d < 0) {
-        for (i=0; cd[i]; ) { if (cd[i] >= bpp) i++; else break; }
-        for ( ; cd[i]; i++) {
+        int i{0};
+        for (; cd[i]; ) {
+            if (cd[i] >= bpp)
+                ++i;
+            else
+                break;
+        }
+
+        for ( ; cd[i]; ++i) {
             mode3d = checkvideomode(&xdim, &ydim, cd[i], fullscreen, 1);
             if (mode3d < 0) continue;
             break;

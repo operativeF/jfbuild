@@ -3727,8 +3727,6 @@ void view(short snum, int *vx, int *vy, int *vz, short *vsectnum, short ang, int
 
 void drawscreen(short snum, int dasmoothratio)
 {
-	int i;
-	int j;
 	int k=0;
 	int l;
 	int charsperline;
@@ -3762,7 +3760,6 @@ void drawscreen(short snum, int dasmoothratio)
 	unsigned char *ptr2;
 	unsigned char *ptr3;
 	unsigned char *ptr4;
-	spritetype *tspr;
 
 	smoothratio = std::max(std::min(dasmoothratio, 65536), 0);
 
@@ -3820,7 +3817,7 @@ void drawscreen(short snum, int dasmoothratio)
 			if (screensize <= xdim)
 			{
 				rotatesprite((xdim-320)<<15,(ydim-32)<<16,65536L,0,STATUSBAR,0,0,8+16+64+128,0L,0L,xdim-1L,ydim-1L);
-				i = ((xdim-320)>>1);
+				int i = ((xdim-320)>>1);
 				while (i >= 8) i -= 8, rotatesprite(i<<16,(ydim-32)<<16,65536L,0,STATUSBARFILL8,0,0,8+16+64+128,0L,0L,xdim-1L,ydim-1L);
 				if (i >= 4) i -= 4, rotatesprite(i<<16,(ydim-32)<<16,65536L,0,STATUSBARFILL4,0,0,8+16+64+128,0L,0L,xdim-1L,ydim-1L);
 				i = ((xdim-320)>>1)+320;
@@ -3869,16 +3866,19 @@ void drawscreen(short snum, int dasmoothratio)
 				//At least screen-buffer mode covers all the HI hi-res modes
 			//if (vidoption == 2)
 			//{
-				for(i=connecthead;i>=0;i=connectpoint2[i]) frame2draw[i] = 0;
+				for(int i{connecthead}; i >= 0; i = connectpoint2[i]) {
+					frame2draw[i] = 0;
+				}
+
 				frame2draw[snum] = 1;
 
 					//2-1,3-1,4-2
 					//5-2,6-2,7-2,8-3,9-3,10-3,11-3,12-4,13-4,14-4,15-4,16-5
 				x1 = posx[snum]; y1 = posy[snum];
-				for(j=(numplayers>>2)+1;j>0;j--)
+				for(int j = (numplayers >> 2) + 1; j > 0; --j)
 				{
 					maxdist = 0x80000000;
-					for(i=connecthead;i>=0;i=connectpoint2[i])
+					for(int i{connecthead}; i >= 0; i = connectpoint2[i]) {
 						if (frame2draw[i] == 0)
 						{
 							x2 = posx[i]-x1; y2 = posy[i]-y1;
@@ -3897,9 +3897,12 @@ void drawscreen(short snum, int dasmoothratio)
 
 							if (dist > maxdist) maxdist = dist, k = i;
 						}
+					}
 
-					for(i=connecthead;i>=0;i=connectpoint2[i])
+					for(int i{connecthead}; i >= 0; i = connectpoint2[i]) {
 						frameskipcnt[i] += (frameskipcnt[i]>>3)+1;
+					}
+
 					frameskipcnt[k] = 0;
 
 					frame2draw[k] = 1;
@@ -3910,7 +3913,7 @@ void drawscreen(short snum, int dasmoothratio)
 			//   for(i=connecthead;i>=0;i=connectpoint2[i]) frame2draw[i] = 1;
 			//}
 
-			for(i=connecthead,j=0;i>=0;i=connectpoint2[i],j++)
+			for(int i{connecthead}, j = 0; i >= 0; i = connectpoint2[i], ++j) {
 				if (frame2draw[i] != 0)
 				{
 					if (numplayers <= 4)
@@ -3977,6 +3980,7 @@ void drawscreen(short snum, int dasmoothratio)
 					if (health[i] <= 0)
 						rotatesprite(320<<15,200<<15,(-health[i])<<11,(-health[i])<<5,NO,0,0,2,windowx1,windowy1,windowx2,windowy2);
 				}
+			}
 		}
 		else
 		{
@@ -4001,36 +4005,48 @@ void drawscreen(short snum, int dasmoothratio)
 						setviewtotile(MAXTILES-2,320L>>detailmode,320L>>detailmode);
 					if ((tiltlock&1023) == 512)
 					{     //Block off unscreen section of 90¯ tilted screen
-						j = ((320-60)>>detailmode);
-						for(i=(60>>detailmode)-1;i>=0;i--)
+						int j = ((320 - 60) >> detailmode);
+						for(int i = (60 >> detailmode) - 1; i >= 0; --i)
 						{
-							startumost[i] = 1; startumost[i+j] = 1;
-							startdmost[i] = 0; startdmost[i+j] = 0;
+							startumost[i] = 1;
+							startumost[i + j] = 1;
+							startdmost[i] = 0;
+							startdmost[i + j] = 0;
 						}
 					}
 
-					i = (tiltlock&511); if (i > 256) i = 512-i;
-					i = sintable[i+512]*8 + sintable[i]*5L;
-					setaspect(i>>1,yxaspect);
+					int i = (tiltlock & 511);
+					
+					if (i > 256)
+						i = 512 - i;
+					
+					i = sintable[i + 512] * 8 + sintable[i] * 5L;
+					setaspect(i >> 1, yxaspect);
 				}
 			}
 
 			if ((gotpic[FLOORMIRROR>>3]&(1<<(FLOORMIRROR&7))) > 0)
 			{
-				dist = 0x7fffffff; i = 0;
+				dist = 0x7fffffff;
+				int i{0};
+
 				for(k=floormirrorcnt-1;k>=0;k--)
 				{
-					j = std::abs(wall[sector[floormirrorsector[k]].wallptr].x-cposx);
+					int j = std::abs(wall[sector[floormirrorsector[k]].wallptr].x-cposx);
 					j += std::abs(wall[sector[floormirrorsector[k]].wallptr].y-cposy);
-					if (j < dist) dist = j, i = k;
+
+					if (j < dist) {
+						dist = j;
+						i = k;
+					}
 				}
 
 				//if (cposz > sector[floormirrorsector[i]].ceilingz) i = 1-i; //SOS
 
-				j = floormirrorsector[i];
+				int fmsect = floormirrorsector[i];
 
 				if (cameradist < 0) sprite[playersprite[snum]].cstat |= 0x8000;
-				drawrooms(cposx,cposy,(sector[j].floorz<<1)-cposz,cang,201-choriz,j); //SOS
+				drawrooms(cposx,cposy,(sector[fmsect].floorz<<1)-cposz,cang,201-choriz,fmsect); //SOS
 				//drawrooms(cposx,cposy,cposz,cang,choriz,j+MAXSECTORS); //SOS
 				sprite[playersprite[snum]].cstat &= ~0x8000;
 				analyzesprites(cposx,cposy);
@@ -4049,7 +4065,7 @@ void drawscreen(short snum, int dasmoothratio)
 						ptr4 = palookup[18];
 						ptr4 += (std::min(std::abs(y2 - l) >> 2, 31) << 8);
 
-						j = sintable[((y2+totalclock)<<6)&2047];
+						int j = sintable[((y2+totalclock)<<6)&2047];
 						j += sintable[((y2-totalclock)<<7)&2047];
 						j >>= 14;
 
@@ -4099,7 +4115,7 @@ void drawscreen(short snum, int dasmoothratio)
 				//WARNING!  Assuming (MIRRORLABEL&31) = 0 and MAXMIRRORS = 64
 			intptr = (int *)&gotpic[MIRRORLABEL>>3];   // CHECK!
 			if (intptr[0]|intptr[1])
-				for(i=MAXMIRRORS-1;i>=0;i--)
+				for(int i = MAXMIRRORS - 1; i >= 0; --i) {
 					if (gotpic[(i+MIRRORLABEL)>>3]&(1<<(i&7)))
 					{
 						gotpic[(i+MIRRORLABEL)>>3] &= ~(1<<(i&7));
@@ -4115,15 +4131,25 @@ void drawscreen(short snum, int dasmoothratio)
 						oparallaxvisibility = parallaxvisibility;
 						visibility <<= 1;
 						parallaxvisibility <<= 1;
-						ptr = palookup[0]; palookup[0] = palookup[17]; palookup[17] = ptr;
+						ptr = palookup[0];
+						palookup[0] = palookup[17];
+						palookup[17] = ptr;
 
 						drawrooms(tposx,tposy,cposz,tang,choriz,mirrorsector[i]|MAXSECTORS);
-						for(j=0,tspr=&tsprite[0];j<spritesortcnt;j++,tspr++)
-							if ((tspr->cstat&48) == 0) tspr->cstat |= 4;
+						
+						int j{0};
+						
+						for(auto* tspr = &tsprite[0]; j < spritesortcnt; ++j, ++tspr) {
+							if ((tspr->cstat&48) == 0)
+								tspr->cstat |= 4;
+						}
+
 						analyzesprites(tposx,tposy);
 						drawmasks();
 
-						ptr = palookup[0]; palookup[0] = palookup[17]; palookup[17] = ptr;
+						ptr = palookup[0];
+						palookup[0] = palookup[17];
+						palookup[17] = ptr;
 						visibility = ovisibility;
 						parallaxvisibility = oparallaxvisibility;
 
@@ -4131,8 +4157,11 @@ void drawscreen(short snum, int dasmoothratio)
 
 						break;
 					}
+			}
 
-			if (cameradist < 0) sprite[playersprite[snum]].cstat |= 0x8000;
+			if (cameradist < 0)
+				sprite[playersprite[snum]].cstat |= 0x8000;
+
 			drawrooms(cposx,cposy,cposz,cang,choriz,csect);
 			sprite[playersprite[snum]].cstat &= ~0x8000;
 			analyzesprites(cposx,cposy);
@@ -4144,9 +4173,16 @@ void drawscreen(short snum, int dasmoothratio)
 				if ((tiltlock) || (detailmode))
 				{
 					setviewback();
-					i = (tiltlock&511); if (i > 256) i = 512-i;
+					int i = (tiltlock & 511);
+					
+					if (i > 256)
+						i = 512 - i;
+
 					i = sintable[i+512]*8 + sintable[i]*5L;
-					if (detailmode == 0) i >>= 1;
+					
+					if (detailmode == 0)
+						i >>= 1;
+
 					rotatesprite(320<<15,200<<15,i,tiltlock+512,MAXTILES-2,0,0,2+4+64,windowx1,windowy1,windowx2,windowy2);
 					walock[MAXTILES-2] = 1;
 				}
@@ -4158,8 +4194,9 @@ void drawscreen(short snum, int dasmoothratio)
 				if ((windowx1 == 0) && (windowx2 == 319) && (yxaspect == 65536) && (tiltlock == 0))
 				{
 					x1 = 160L-(tilesizx[GUNONBOTTOM]>>1); y1 = windowy2+1;
-					for(i=0;i<tilesizx[GUNONBOTTOM];i++)
-						startdmost[i+x1] = y1;
+					for(int i{0}; i < tilesizx[GUNONBOTTOM]; ++i) {
+						startdmost[i + x1] = y1;
+					}
 				}
 				rotatesprite(160<<16,184L<<16,65536,0,GUNONBOTTOM,sector[cursectnum[screenpeek]].floorshade,0,2,windowx1,windowy1,windowx2,windowy2);
 			}
@@ -4205,13 +4242,14 @@ void drawscreen(short snum, int dasmoothratio)
 	if (dimensionmode[snum] != 3)
 	{
 			//Move back pivot point
-		i = scale(czoom,screensize,320);
+		int i = scale(czoom,screensize,320);
+
 		if (dimensionmode[snum] == 2)
 		{
 			clearview(0L);  //Clear screen to specified color
-			drawmapview(cposx,cposy,i,cang);
+			drawmapview(cposx, cposy, i, cang);
 		}
-		drawoverheadmap(cposx,cposy,i,cang);
+		drawoverheadmap(cposx, cposy, i, cang);
 	}
 
 	if (typemode != 0)
@@ -4219,11 +4257,13 @@ void drawscreen(short snum, int dasmoothratio)
 		charsperline = 40;
 		//if (dimensionmode[snum] == 2) charsperline = 80;
 
-		for(i=0;i<=typemessageleng;i+=charsperline)
+		for(int i{0}; i <= typemessageleng; i += charsperline)
 		{
-			for(j=0;j<charsperline;j++)
+			for(int j{0}; j < charsperline; ++j) {
 				tempbuf[j] = typemessage[i+j];
-			if (typemessageleng < i+charsperline)
+			}
+
+			if (typemessageleng < i + charsperline)
 			{
 				tempbuf[(typemessageleng-i)] = '_';
 				tempbuf[(typemessageleng-i)+1] = 0;
@@ -4240,10 +4280,12 @@ void drawscreen(short snum, int dasmoothratio)
 		charsperline = 40;
 		//if (dimensionmode[snum] == 2) charsperline = 80;
 
-		for(i=0;i<=getmessageleng;i+=charsperline)
+		for(int i{0}; i <= getmessageleng; i += charsperline)
 		{
-			for(j=0;j<charsperline;j++)
-				tempbuf[j] = getmessage[i+j];
+			for(int j{0}; j < charsperline; ++j) {
+				tempbuf[j] = getmessage[i + j];
+			}
+
 			if (getmessageleng < i+charsperline)
 				tempbuf[(getmessageleng-i)] = 0;
 			else
@@ -4256,12 +4298,16 @@ void drawscreen(short snum, int dasmoothratio)
 	}
 	if ((numplayers >= 2) && (screenpeek != myconnectindex))
 	{
-		j = 1;
-		for(i=connecthead;i>=0;i=connectpoint2[i])
+		int j{1};
+
+		for(int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			if (i == screenpeek) break;
-			j++;
+			if (i == screenpeek)
+				break;
+
+			++j;
 		}
+
 		std::sprintf(tempbuf,"(Player %d's view)",j);
 		printext256((xdim>>1)-(int)(std::strlen(tempbuf)<<2),0,24,-1,tempbuf,0);
 	}
@@ -4304,10 +4350,11 @@ void drawscreen(short snum, int dasmoothratio)
 
 		if (keystatus[0x2a]|keystatus[0x36]) {
 			setgamemode(!fullscreen, xdim, ydim, bpp);
-		} else {
+		}
+		else {
 
 			//cycle through all modes
-			j = -1;
+			int j{-1};
 
 			// work out a mask to select the mode
 			for (int i{0}; const auto& vmode : validmode) {
@@ -4334,8 +4381,9 @@ void drawscreen(short snum, int dasmoothratio)
 			if (j==-1)
 				j = k;
 			else {
-				j++;
-				if (j == validmode.size()) j=k;
+				++j;
+				if (j == validmode.size())
+					j = k;
 			}
 
 			setgamemode(fullscreen,validmode[j].xdim,validmode[j].ydim,bpp);
