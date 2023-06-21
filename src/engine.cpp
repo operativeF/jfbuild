@@ -10474,45 +10474,6 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 		 int xvect, int yvect,
 		 int walldist, int ceildist, int flordist, unsigned int cliptype)
 {
-	walltype* wal;
-	walltype* wal2;
-	spritetype *spr;
-	sectortype* sec2;
-	int i;
-	int j;
-	int templong1;
-	int templong2;
-	int intx;
-	int inty;
-	int lx;
-	int ly;
-	int k;
-	int l;
-	int cstat;
-	int x1;
-	int y1;
-	int x2;
-	int y2;
-	int daz;
-	int daz2;
-	int bsz;
-	int dax;
-	int day;
-	int xoff;
-	int yoff;
-	int xspan;
-	int yspan;
-	int cosang;
-	int sinang;
-	int tilenum;
-	int xrepeat;
-	int yrepeat;
-	int dx;
-	int dy;
-	int hitwall;
-	int cnt;
-	int clipyou;
-
 	if (((xvect | yvect) == 0) || (*sectnum < 0)) {
 		return 0;
 	}
@@ -10552,37 +10513,62 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 		const sectortype* sec = &sector[dasect];
 		const int startwall = sec->wallptr;
 		const int endwall = startwall + sec->wallnum;
-
-		for(j=startwall,wal=&wall[startwall];j<endwall;j++,wal++)
+		auto* wal = &wall[startwall];
+		
+		for(int j{startwall}; j < endwall; ++j, ++wal)
 		{
-			wal2 = &wall[wal->point2];
-			if ((wal->x < xmin) && (wal2->x < xmin)) continue;
-			if ((wal->x > xmax) && (wal2->x > xmax)) continue;
-			if ((wal->y < ymin) && (wal2->y < ymin)) continue;
-			if ((wal->y > ymax) && (wal2->y > ymax)) continue;
+			auto* wal2 = &wall[wal->point2];
 
-			x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
+			if ((wal->x < xmin) && (wal2->x < xmin))
+				continue;
+			if ((wal->x > xmax) && (wal2->x > xmax))
+				continue;
+			if ((wal->y < ymin) && (wal2->y < ymin))
+				continue;
+			if ((wal->y > ymax) && (wal2->y > ymax))
+				continue;
 
-			dx = x2-x1; dy = y2-y1;
+			int x1 = wal->x;
+			int y1 = wal->y;
+			int x2 = wal2->x;
+			int y2 = wal2->y;
+
+			int dx = x2-x1;
+			int dy = y2-y1;
+
 			if (dx*((*y)-y1) < ((*x)-x1)*dy) continue;  //If wall's not facing you
 
-			if (dx > 0) dax = dx*(ymin-y1); else dax = dx*(ymax-y1);
-			if (dy > 0) day = dy*(xmax-x1); else day = dy*(xmin-x1);
-			if (dax >= day) continue;
+			int dax{0};
+			if (dx > 0)
+				dax = dx*(ymin-y1);
+			else
+				dax = dx*(ymax-y1);
 
-			clipyou = 0;
-			if ((wal->nextsector < 0) || (wal->cstat&dawalclipmask)) clipyou = 1;
+			int day{0};
+			if (dy > 0)
+				day = dy*(xmax-x1);
+			else
+				day = dy*(xmin-x1);
+			
+			if (dax >= day)
+				continue;
+
+			int clipyou{0};
+			if ((wal->nextsector < 0) || (wal->cstat & dawalclipmask))
+				clipyou = 1;
 			else if (!editstatus)
 			{
+				int daz{0};
+
 				if (!rintersect(*x,*y,0,gx,gy,0,x1,y1,x2,y2,&dax,&day,&daz)) {
 					dax = *x;
 					day = *y;
 				}
 
 				daz = getflorzofslope((short)dasect,dax,day);
-				daz2 = getflorzofslope(wal->nextsector,dax,day);
+				int daz2 = getflorzofslope(wal->nextsector,dax,day);
 
-				sec2 = &sector[wal->nextsector];
+				auto* sec2 = &sector[wal->nextsector];
 				if (daz2 < daz-(1<<8))
 					if ((sec2->floorstat&1) == 0)
 						if ((*z) >= daz2-(flordist-1)) clipyou = 1;
@@ -10599,7 +10585,7 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 			if (clipyou)
 			{
 					//Add 2 boxes at endpoints
-				bsz = walldist; if (gx < 0) bsz = -bsz;
+				int bsz = walldist; if (gx < 0) bsz = -bsz;
 				addclipline(x1-bsz,y1-bsz,x1-bsz,y1+bsz,(short)j+32768);
 				addclipline(x2-bsz,y2-bsz,x2-bsz,y2+bsz,(short)j+32768);
 				bsz = walldist; if (gy < 0) bsz = -bsz;
@@ -10612,18 +10598,46 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 			}
 			else
 			{
-				for(i=clipsectnum-1;i>=0;i--)
-					if (wal->nextsector == clipsectorlist[i]) break;
-				if (i < 0) clipsectorlist[clipsectnum++] = wal->nextsector;
+				int i = clipsectnum - 1;
+				for(; i >= 0; --i) {
+					if (wal->nextsector == clipsectorlist[i])
+						break;
+				}
+
+				if (i < 0)
+					clipsectorlist[clipsectnum++] = wal->nextsector;
 			}
 		}
 
-		for(j=headspritesect[dasect];j>=0;j=nextspritesect[j])
+		for(int j = headspritesect[dasect]; j >= 0; j = nextspritesect[j])
 		{
-			spr = &sprite[j];
-			cstat = spr->cstat;
-			if ((cstat&dasprclipmask) == 0) continue;
-			x1 = spr->x; y1 = spr->y;
+			auto* spr = &sprite[j];
+			short cstat = spr->cstat;
+
+			if ((cstat&dasprclipmask) == 0)
+				continue;
+			
+			int x1 = spr->x;
+			int y1 = spr->y;
+			int bsz{0};
+			int cosang{0};
+			int dax{0};
+			int day{0};
+			int daz{0};
+			int daz2{0};
+			int k{0};
+			int l{0};
+			int sinang{0};
+			int tilenum{0};
+			int x2{0};
+			int y2{0};
+			int xoff{0};
+			int yoff{0};
+			int xspan{0};
+			int yspan{0};
+			int xrepeat{0};
+			int yrepeat{0};
+
 			switch(cstat&48)
 			{
 				case 0:
@@ -10654,7 +10668,8 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 						tilenum = spr->picnum;
 						xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
 						if ((cstat&4) > 0) xoff = -xoff;
-						k = spr->ang; l = spr->xrepeat;
+						k = spr->ang;
+						l = spr->xrepeat;
 						dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
 						l = tilesizx[tilenum]; k = (l>>1)+xoff;
 						x1 -= mulscalen<16>(dax,k); x2 = x1+mulscalen<16>(dax,l);
@@ -10697,11 +10712,15 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 						if ((cstat&8) > 0) yoff = -yoff;
 
 						k = spr->ang;
-						cosang = sintable[(k+512)&2047]; sinang = sintable[k];
-						xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
-						yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
+						cosang = sintable[(k+512)&2047];
+						sinang = sintable[k];
+						xspan = tilesizx[tilenum];
+						xrepeat = spr->xrepeat;
+						yspan = tilesizy[tilenum];
+						yrepeat = spr->yrepeat;
 
-						dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
+						dax = ((xspan>>1)+xoff) * xrepeat;
+						day = ((yspan>>1)+yoff)*yrepeat;
 						rxi[0] = x1 + dmulscalen<16>(sinang,dax,cosang,day);
 						ryi[0] = y1 + dmulscalen<16>(sinang,day,-cosang,dax);
 						l = xspan*xrepeat;
@@ -10742,43 +10761,42 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 	} while (clipsectcnt < clipsectnum);
 
 
-	hitwall = 0;
-	cnt = clipmoveboxtracenum;
+	int hitwall{0};
+	int cnt{clipmoveboxtracenum};
 	
 	do
 	{
-		intx = goalx;
-		inty = goaly;
+		int intx{goalx};
+		int inty{goaly};
 
 		if ((hitwall = raytrace(*x, *y, &intx, &inty)) >= 0)
 		{
-			lx = clipit[hitwall].x2-clipit[hitwall].x1;
-			ly = clipit[hitwall].y2-clipit[hitwall].y1;
-			templong2 = lx * lx + ly * ly;
+			int lx = clipit[hitwall].x2-clipit[hitwall].x1;
+			int ly = clipit[hitwall].y2-clipit[hitwall].y1;
+			int templong2 = lx * lx + ly * ly;
 
 			if (templong2 > 0)
 			{
-				templong1 = (goalx - intx) * lx + (goaly - inty) * ly;
-
+				int templong1 = (goalx - intx) * lx + (goaly - inty) * ly;
+				
+				int i{0};
 				if ((std::abs(templong1) >> 11) < templong2)
 					i = divscalen<20>(templong1, templong2);
-				else
-					i = 0;
 
 				goalx = mulscalen<20>(lx, i) + intx;
 				goaly = mulscalen<20>(ly, i) + inty;
 			}
 
-			templong1 = dmulscalen<6>(lx, oxvect, ly, oyvect);
+			int templong1 = dmulscalen<6>(lx, oxvect, ly, oyvect);
 			
-			for(i=cnt+1;i<=clipmoveboxtracenum;i++)
+			for(int i = cnt + 1; i <= clipmoveboxtracenum; ++i)
 			{
-				j = hitwalls[i];
+				int j = hitwalls[i];
 				templong2 = dmulscalen<6>(clipit[j].x2-clipit[j].x1,oxvect,clipit[j].y2-clipit[j].y1,oyvect);
-				if ((templong1^templong2) < 0)
+				if ((templong1 ^ templong2) < 0)
 				{
 					updatesector(*x,*y,sectnum);
-					return(retval);
+					return retval;
 				}
 			}
 
@@ -10786,30 +10804,34 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 			xvect = ((goalx-intx)<<14);
 			yvect = ((goaly-inty)<<14);
 
-			if (cnt == clipmoveboxtracenum) retval = clipobjectval[hitwall];
+			if (cnt == clipmoveboxtracenum)
+				retval = clipobjectval[hitwall];
+
 			hitwalls[cnt] = hitwall;
 		}
 
-		cnt--;
+		--cnt;
 
 		*x = intx;
 		*y = inty;
 	} while (((xvect|yvect) != 0) && (hitwall >= 0) && (cnt > 0));
 
-	for(j=0;j<clipsectnum;j++) {
-		if (inside(*x,*y,clipsectorlist[j]) == 1)
+	for(int j{0}; j < clipsectnum; ++j) {
+		if (inside(*x, *y, clipsectorlist[j]) == 1)
 		{
 			*sectnum = clipsectorlist[j];
-			return(retval);
+			return retval;
 		}
 	}
 
 	*sectnum = -1;
-	templong1 = 0x7fffffff;
+	int templong1 = 0x7fffffff;
 	
-	for(j=numsectors-1;j>=0;j--)
-		if (inside(*x,*y,j) == 1)
+	for(int j = numsectors - 1; j >= 0; --j) {
+		if (inside(*x, *y, j) == 1)
 		{
+			int templong2{0};
+
 			if (sector[j].ceilingstat&2)
 				templong2 = (getceilzofslope((short)j,*x,*y)-(*z));
 			else
@@ -10830,12 +10852,15 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 				if (templong2 <= 0)
 				{
 					*sectnum = j;
-					return(retval);
+					return retval;
 				}
-				if (templong2 < templong1)
-					{ *sectnum = j; templong1 = templong2; }
+				if (templong2 < templong1) {
+					*sectnum = j;
+					templong1 = templong2;
+				}
 			}
 		}
+	}
 
 	return retval;
 }
@@ -10847,21 +10872,6 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 int pushmove (int *x, int *y, const int *z, short *sectnum,
 		 int walldist, int ceildist, int flordist, unsigned int cliptype)
 {
-	sectortype* sec;
-	sectortype* sec2;
-	walltype* wal;
-	int i;
-	int j;
-	int t;
-	int dx;
-	int dy;
-	int dax;
-	int day;
-	int daz;
-	int daz2;
-	short startwall;
-	short endwall;
-
 	if ((*sectnum) < 0)
 		return -1;
 
@@ -10916,53 +10926,74 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 				}
 			}*/
 
-			sec = &sector[clipsectorlist[clipsectcnt]];
-			if (dir > 0)
-				startwall = sec->wallptr, endwall = startwall + sec->wallnum;
-			else
-				endwall = sec->wallptr, startwall = endwall + sec->wallnum;
+			auto* sec = &sector[clipsectorlist[clipsectcnt]];
+			short startwall{0};
+			short endwall{0};
 
-			for(i=startwall,wal=&wall[startwall];i!=endwall;i+=dir,wal+=dir)
+			if (dir > 0) {
+				startwall = sec->wallptr;
+				endwall = startwall + sec->wallnum;
+			}
+			else {
+				endwall = sec->wallptr;
+				startwall = endwall + sec->wallnum;
+			}
+
+			auto* wal = &wall[startwall];
+			for(int i{startwall}; i != endwall; i += dir, wal += dir) {
 				if (clipinsidebox(*x,*y,i,walldist-4) == 1)
 				{
-					j = 0;
-					if (wal->nextsector < 0) j = 1;
-					if (wal->cstat&dawalclipmask) j = 1;
+					int j{0};
+					
+					if (wal->nextsector < 0)
+						j = 1;
+					
+					if (wal->cstat&dawalclipmask)
+						j = 1;
+
 					if (j == 0)
 					{
-						sec2 = &sector[wal->nextsector];
+						auto* sec2 = &sector[wal->nextsector];
 
 
 							//Find closest point on wall (dax, day) to (*x, *y)
-						dax = wall[wal->point2].x-wal->x;
-						day = wall[wal->point2].y-wal->y;
-						daz = dax*((*x)-wal->x) + day*((*y)-wal->y);
-						if (daz <= 0)
-							t = 0;
-						else
+						int dax = wall[wal->point2].x - wal->x;
+						int day = wall[wal->point2].y - wal->y;
+						int daz = dax * ((*x) - wal->x) + day * ((*y) - wal->y);
+						int t{0};
+
+						if (daz > 0)
 						{
-							daz2 = dax*dax+day*day;
-							if (daz >= daz2) t = (1<<30); else t = divscalen<30>(daz,daz2);
+							int daz2 = dax * dax + day * day;
+							
+							if (daz >= daz2)
+								t = (1 << 30);
+							else
+								t = divscalen<30>(daz, daz2);
 						}
+
 						dax = wal->x + mulscalen<30>(dax,t);
 						day = wal->y + mulscalen<30>(day,t);
 
 
 						daz = getflorzofslope(clipsectorlist[clipsectcnt],dax,day);
-						daz2 = getflorzofslope(wal->nextsector,dax,day);
+						int daz2 = getflorzofslope(wal->nextsector,dax,day);
+
 						if ((daz2 < daz-(1<<8)) && ((sec2->floorstat&1) == 0))
-							if (*z >= daz2-(flordist-1)) j = 1;
+							if (*z >= daz2-(flordist-1))
+								j = 1;
 
 						daz = getceilzofslope(clipsectorlist[clipsectcnt],dax,day);
 						daz2 = getceilzofslope(wal->nextsector,dax,day);
 						if ((daz2 > daz+(1<<8)) && ((sec2->ceilingstat&1) == 0))
 							if (*z <= daz2+(ceildist-1)) j = 1;
 					}
+
 					if (j != 0)
 					{
 						j = getangle(wall[wal->point2].x-wal->x,wall[wal->point2].y-wal->y);
-						dx = (sintable[(j+1024)&2047]>>11);
-						dy = (sintable[(j+512)&2047]>>11);
+						int dx = (sintable[(j+1024)&2047]>>11);
+						int dy = (sintable[(j+512)&2047]>>11);
 						char bad2 = 16;
 						
 						do
@@ -10982,12 +11013,16 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 					else
 					{
 						for(j=clipsectnum-1;j>=0;j--)
-							if (wal->nextsector == clipsectorlist[j]) break;
-						if (j < 0) clipsectorlist[clipsectnum++] = wal->nextsector;
+							if (wal->nextsector == clipsectorlist[j])
+								break;
+
+						if (j < 0)
+							clipsectorlist[clipsectnum++] = wal->nextsector;
 					}
 				}
+			}
 
-			clipsectcnt++;
+			++clipsectcnt;
 		} while (clipsectcnt < clipsectnum);
 
 		dir = -dir;
@@ -11129,26 +11164,6 @@ void getzrange(int x, int y, int z, short sectnum,
 		 int *ceilz, int *ceilhit, int *florz, int *florhit,
 		 int walldist, unsigned int cliptype)
 {
-	int xoff;
-	int yoff;
-	int dax;
-	int day;
-	int l;
-	int daz;
-	int daz2;
-	int dx;
-	int dy;
-	int x1;
-	int y1;
-	int x2;
-	int y2;
-	int x3;
-	int y3;
-	int x4;
-	int y4;
-	short cstat;
-	unsigned char clipyou;
-
 	if (sectnum < 0)
 	{
 		*ceilz = 0x80000000;
@@ -11191,32 +11206,34 @@ void getzrange(int x, int y, int z, short sectnum,
 			if (k >= 0)
 			{
 				auto* wal2 = &wall[wal->point2];
-				x1 = wal->x;
-				x2 = wal2->x;
+				int x1 = wal->x;
+				int x2 = wal2->x;
 
 				if ((x1 < xmin) && (x2 < xmin))
 					continue;
 				if ((x1 > xmax) && (x2 > xmax))
 					continue;
 
-				y1 = wal->y;
-				y2 = wal2->y;
+				int y1 = wal->y;
+				int y2 = wal2->y;
 
 				if ((y1 < ymin) && (y2 < ymin))
 					continue;
 				if ((y1 > ymax) && (y2 > ymax))
 					continue;
 
-				dx = x2 - x1;
-				dy = y2 - y1;
+				int dx = x2 - x1;
+				int dy = y2 - y1;
 				if (dx * (y - y1) < (x - x1) * dy)
 					continue; //back
 
+				int dax{0};
 				if (dx > 0)
 					dax = dx * (ymin - y1);
 				else
 					dax = dx * (ymax - y1);
 				
+				int day{0};
 				if (dy > 0)
 					day = dy * (xmax - x1);
 				else
@@ -11271,6 +11288,8 @@ void getzrange(int x, int y, int z, short sectnum,
 				if (dax >= day)
 					continue;
 
+				int daz{0};
+				int daz2{0};
 					//It actually got here, through all the continue's!!!
 				getzsofslope((short)k,x,y,&daz,&daz2);
 				if (daz > *ceilz) {
@@ -11293,16 +11312,29 @@ void getzrange(int x, int y, int z, short sectnum,
 		for(short j = headspritesect[clipsectorlist[cnum]]; j >= 0; j = nextspritesect[j])
 		{
 			auto* spr = &sprite[j];
-			cstat = spr->cstat;
+			short cstat = spr->cstat;
 			
-			if (cstat&dasprclipmask)
+			if (cstat & dasprclipmask)
 			{
-				x1 = spr->x;
-				y1 = spr->y;
+				int x1 = spr->x;
+				int y1 = spr->y;
 
-				clipyou = 0;
+				unsigned char clipyou{0};
 				int k{0};
+				int day{0};
+				int dax{0};
+				int daz{0};
+				int daz2{0};
+				int l{0};
 				int tilenum{0};
+				int xoff{0};
+				int yoff{0};
+				int x2{0};
+				int y2{0};
+				int x3{0};
+				int y3{0};
+				int x4{0};
+				int y4{0};
 				switch(cstat&48)
 				{
 					case 0:
