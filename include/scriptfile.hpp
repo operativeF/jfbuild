@@ -2,6 +2,8 @@
 #define __scriptfile_h__
 
 #include <memory>
+#include <string>
+#include <vector>
 
 struct scriptfile {
     char *textbuf;
@@ -11,7 +13,7 @@ struct scriptfile {
     char *eof;
     std::string filename;
     int linenum;
-    int *lineoffs;
+    std::vector<int> lineoffs;
 };
 
 char *scriptfile_gettoken(scriptfile *sf);

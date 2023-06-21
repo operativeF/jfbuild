@@ -40,9 +40,7 @@ char *scriptfile_gettoken(scriptfile *sf)
 
 char *scriptfile_peektoken(const scriptfile *sf)
 {
-	scriptfile dupe;
-
-	std::memcpy(&dupe, sf, sizeof(scriptfile));
+	scriptfile dupe = *sf;
 
 	skipoverws(&dupe);
 	if (dupe.textptr >= dupe.eof) return nullptr;
@@ -327,7 +325,7 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 	}
 
 	sf->linenum = numcr;
-	sf->lineoffs = (int *) std::malloc(sf->linenum*sizeof(int));
+	sf->lineoffs.reserve(sf->linenum);
 
 	//Preprocess file for comments (// and /*...*/, and convert all whitespace to single spaces)
 	int nflen{0};
@@ -335,8 +333,6 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 	int cs{0};
 	int inquote{0};
 	
-	numcr = 0;
-
 	for(int i{}; i < flen; ++i)
 	{
 			//detect all 4 types of carriage return (\r, \n, \r\n, \n\r :)
@@ -351,7 +347,7 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 		{
 				//Remember line numbers by storing the byte index at the start of each line
 				//Line numbers can be retrieved by doing a binary search on the byte index :)
-			sf->lineoffs[numcr++] = nflen;
+			sf->lineoffs.push_back(nflen);
 			
 			if (cs == 1)
 				cs = 0;
@@ -405,7 +401,7 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 	}
 
 	tx[nflen++] = 0;
-	sf->lineoffs[numcr] = nflen;
+	sf->lineoffs.push_back(nflen);
 	tx[nflen++] = 0;
 
 #if 0
@@ -491,9 +487,6 @@ void scriptfile_close(scriptfile* sf)
 {
 	if (!sf)
 		return;
-
-	if (sf->lineoffs)
-		std::free(sf->lineoffs);
 
 	if (sf->textbuf)
 		std::free(sf->textbuf);
