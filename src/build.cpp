@@ -2651,7 +2651,7 @@ int gettile(int tilenum)
 				const auto ch = bgetchar();
 
 				//drawtilescreen(topleft,tilenum);
-				std::sprintf(&snotbuf[0],"Goto tile: %d_ ",j);
+				fmt::format_to(&snotbuf[0], "Goto tile: {}_ ", j);
 				printext256(0,0,whitecol,blackcol, &snotbuf[0], 0);
 				showframe();
 
@@ -2780,7 +2780,7 @@ void drawtilescreen(int pictopleft, int picbox)
 				{
 					dax = ((cnt%(xtiles<<gettilezoom))<<(6-gettilezoom));
 					day = ((cnt/(xtiles<<gettilezoom))<<(6-gettilezoom));
-					std::sprintf(&snotbuf[0], "%d", localartfreq[cnt+pictopleft]);
+					fmt::format_to(&snotbuf[0], "{}", localartfreq[cnt+pictopleft]);
 					printext256(dax,day,whitecol,-1, &snotbuf[0], 1);
 				}
 			}
@@ -2798,11 +2798,11 @@ void drawtilescreen(int pictopleft, int picbox)
 	drawline256((dax  )<<12, (day+i)<<12, (dax  )<<12, (day  )<<12, whitecol);
 
 	i = localartlookup[picbox];
-	std::sprintf(&snotbuf[0],"%d",i);
+	fmt::format_to(&snotbuf[0], "{}", i);
 	printext256(0L, ydim - 8, whitecol, -1, &snotbuf[0], 0);
 	printext256(xdim-((int)std::strlen(names[i])<<3),ydim-8,whitecol,-1,names[i],0);
 
-	std::sprintf(&snotbuf[0],"%dx%d",tilesizx[i],tilesizy[i]);
+	fmt::format_to(&snotbuf[0], "{}x{}", tilesizx[i], tilesizy[i]);
 	printext256(xdim >> 2, ydim - 8, whitecol, -1, &snotbuf[0], 0);
 }
 
@@ -3516,7 +3516,7 @@ void overheadeditor()
 				if (pointhighlight >= 16384)
 				{
 					i = pointhighlight-16384;
-					std::sprintf(buffer,"Sprite (%d) Lo-tag: ",i);
+					fmt::format_to(buffer, "Sprite ({}) Lo-tag: ", i);
 					sprite[i].lotag = getnumber16(buffer,sprite[i].lotag,65536L,0);
 					clearmidstatbar16();
 					showspritedata((short)i);
@@ -3524,7 +3524,7 @@ void overheadeditor()
 				else if (linehighlight >= 0)
 				{
 					i = linehighlight;
-					std::sprintf(buffer,"Wall (%d) Lo-tag: ",i);
+					fmt::format_to(buffer, "Wall ({}) Lo-tag: ", i);
 					wall[i].lotag = getnumber16(buffer,wall[i].lotag,65536L,0);
 					clearmidstatbar16();
 					showwalldata((short)i);
@@ -3536,7 +3536,7 @@ void overheadeditor()
 				for (i=0;i<numsectors;i++)
 					if (inside(mousxplc,mousyplc,i) == 1)
 					{
-						std::sprintf(buffer,"Sector (%d) Lo-tag: ",i);
+						fmt::format_to(buffer, "Sector ({}) Lo-tag: ", i);
 						sector[i].lotag = getnumber16(buffer,sector[i].lotag,65536L,0);
 						clearmidstatbar16();
 						showsectordata((short)i);
@@ -3574,7 +3574,7 @@ void overheadeditor()
 				if (pointhighlight >= 16384)
 				{
 					i = pointhighlight-16384;
-					std::sprintf(buffer,"Sprite (%d) Hi-tag: ",i);
+					fmt::format_to(buffer, "Sprite ({}) Hi-tag: ", i);
 					sprite[i].hitag = getnumber16(buffer,sprite[i].hitag,65536L,0);
 					clearmidstatbar16();
 					showspritedata((short)i);
@@ -3582,7 +3582,7 @@ void overheadeditor()
 				else if (linehighlight >= 0)
 				{
 					i = linehighlight;
-					std::sprintf(buffer,"Wall (%d) Hi-tag: ",i);
+					fmt::format_to(buffer, "Wall ({}) Hi-tag: ", i);
 					wall[i].hitag = getnumber16(buffer,wall[i].hitag,65536L,0);
 					clearmidstatbar16();
 					showwalldata((short)i);
@@ -3593,7 +3593,7 @@ void overheadeditor()
 				for (i=0;i<numsectors;i++)
 					if (inside(mousxplc,mousyplc,i) == 1)
 					{
-						std::sprintf(buffer,"Sector (%d) Hi-tag: ",i);
+						fmt::format_to(buffer, "Sector ({}) Hi-tag: ", i);
 						sector[i].hitag = getnumber16(buffer,sector[i].hitag,65536L,0);
 						clearmidstatbar16();
 						showsectordata((short)i);
@@ -3609,12 +3609,12 @@ void overheadeditor()
 			for (i=0;i<numsectors;i++)
 				if (inside(mousxplc,mousyplc,i) == 1)
 				{
-					std::sprintf(buffer,"Sector (%d) Ceilingpal: ",i);
+					fmt::format_to(buffer, "Sector ({}) Ceilingpal: ", i);
 					sector[i].ceilingpal = getnumber16(buffer,sector[i].ceilingpal,256L,0);
 					clearmidstatbar16();
 					showsectordata((short)i);
 
-					std::sprintf(buffer,"Sector (%d) Floorpal: ",i);
+					fmt::format_to(buffer, "Sector ({}) Floorpal: ", i);
 					sector[i].floorpal = getnumber16(buffer,sector[i].floorpal,256L,0);
 					clearmidstatbar16();
 					showsectordata((short)i);
@@ -3628,7 +3628,7 @@ void overheadeditor()
 			if (pointhighlight >= 16384)
 			{
 				i = pointhighlight-16384;
-				std::sprintf(buffer,"Sprite (%d) Status list: ",i);
+				fmt::format_to(buffer, "Sprite ({}) Status list: ", i);
 				changespritestat(i,getnumber16(buffer,sprite[i].statnum,65536L,0));
 				clearmidstatbar16();
 				showspritedata((short)i);
@@ -5497,7 +5497,7 @@ void overheadeditor()
 
 							if (mapversion < 7) {
 								char buf[82];
-								std::sprintf(buf, "Old map (v%d) loaded successfully.", mapversion);
+								fmt::format_to(buf, "Old map (v{}) loaded successfully.", mapversion);
 								printmessage16(buf);
 							} else {
 								printmessage16("Map loaded successfully.");
@@ -7516,55 +7516,55 @@ void showsectordata(short sectnum)
 
 	setstatusbarviewport();
 
-	std::sprintf(&snotbuf[0],"Sector %d",sectnum);
+	fmt::format_to(&snotbuf[0],"Sector {}",sectnum);
 	printext16(8,32,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Firstwall: %d",sector[sectnum].wallptr);
+	fmt::format_to(&snotbuf[0],"Firstwall: {}",sector[sectnum].wallptr);
 	printext16(8,48,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Numberofwalls: %d",sector[sectnum].wallnum);
+	fmt::format_to(&snotbuf[0],"Numberofwalls: {}",sector[sectnum].wallnum);
 	printext16(8,56,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Firstsprite: %d",headspritesect[sectnum]);
+	fmt::format_to(&snotbuf[0],"Firstsprite: {}",headspritesect[sectnum]);
 	printext16(8,64,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Tags: %d, %d",sector[sectnum].hitag,sector[sectnum].lotag);
+	fmt::format_to(&snotbuf[0],"Tags: {}, {}",sector[sectnum].hitag,sector[sectnum].lotag);
 	printext16(8,72,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"     (0x%x), (0x%x)",sector[sectnum].hitag,sector[sectnum].lotag);
+	fmt::format_to(&snotbuf[0],"     (0x{}), (0x{})",sector[sectnum].hitag,sector[sectnum].lotag);
 	printext16(8,80,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Extra: %d",sector[sectnum].extra);
+	fmt::format_to(&snotbuf[0],"Extra: {}",sector[sectnum].extra);
 	printext16(8,88,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Visibility: %d",sector[sectnum].visibility);
+	fmt::format_to(&snotbuf[0],"Visibility: {}",sector[sectnum].visibility);
 	printext16(8,96,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Pixel height: %d",(sector[sectnum].floorz-sector[sectnum].ceilingz)>>8);
+	fmt::format_to(&snotbuf[0],"Pixel height: {}",(sector[sectnum].floorz-sector[sectnum].ceilingz)>>8);
 	printext16(8,104,11,-1,&snotbuf[0],0);
 
 	printext16(200,32,11,-1,"CEILINGS:",0);
-	std::sprintf(&snotbuf[0],"Flags (hex): %x",sector[sectnum].ceilingstat);
+	fmt::format_to(&snotbuf[0],"Flags (hex): {}",sector[sectnum].ceilingstat);
 	printext16(200,48,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning);
+	fmt::format_to(&snotbuf[0],"(X,Y)pan: {}, {}",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning);
 	printext16(200,56,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Shade byte: %d",sector[sectnum].ceilingshade);
+	fmt::format_to(&snotbuf[0],"Shade byte: {}",sector[sectnum].ceilingshade);
 	printext16(200,64,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Z-coordinate: %d",sector[sectnum].ceilingz);
+	fmt::format_to(&snotbuf[0],"Z-coordinate: {}",sector[sectnum].ceilingz);
 	printext16(200,72,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Tile number: %d",sector[sectnum].ceilingpicnum);
+	fmt::format_to(&snotbuf[0],"Tile number: {}",sector[sectnum].ceilingpicnum);
 	printext16(200,80,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Ceiling heinum: %d",sector[sectnum].ceilingheinum);
+	fmt::format_to(&snotbuf[0],"Ceiling heinum: {}",sector[sectnum].ceilingheinum);
 	printext16(200,88,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Palookup number: %d",sector[sectnum].ceilingpal);
+	fmt::format_to(&snotbuf[0],"Palookup number: {}",sector[sectnum].ceilingpal);
 	printext16(200,96,11,-1,&snotbuf[0],0);
 
 	printext16(400,32,11,-1,"FLOORS:",0);
-	std::sprintf(&snotbuf[0],"Flags (hex): %x",sector[sectnum].floorstat);
+	fmt::format_to(&snotbuf[0],"Flags (hex): {}",sector[sectnum].floorstat);
 	printext16(400,48,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning);
+	fmt::format_to(&snotbuf[0],"(X,Y)pan: {}, {}",sector[sectnum].floorxpanning,sector[sectnum].floorypanning);
 	printext16(400,56,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Shade byte: %d",sector[sectnum].floorshade);
+	fmt::format_to(&snotbuf[0],"Shade byte: {}",sector[sectnum].floorshade);
 	printext16(400,64,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Z-coordinate: %d",sector[sectnum].floorz);
+	fmt::format_to(&snotbuf[0],"Z-coordinate: {}",sector[sectnum].floorz);
 	printext16(400,72,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Tile number: %d",sector[sectnum].floorpicnum);
+	fmt::format_to(&snotbuf[0],"Tile number: {}",sector[sectnum].floorpicnum);
 	printext16(400,80,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Floor heinum: %d",sector[sectnum].floorheinum);
+	fmt::format_to(&snotbuf[0],"Floor heinum: {}",sector[sectnum].floorheinum);
 	printext16(400,88,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Palookup number: %d",sector[sectnum].floorpal);
+	fmt::format_to(&snotbuf[0],"Palookup number: {}",sector[sectnum].floorpal);
 	printext16(400,96,11,-1,&snotbuf[0],0);
 
 	restoreviewport();
@@ -7579,54 +7579,54 @@ void showwalldata(short wallnum)
 
 	setstatusbarviewport();
 
-	std::sprintf(&snotbuf[0],"Wall %d",wallnum);
+	fmt::format_to(&snotbuf[0],"Wall {}",wallnum);
 	printext16(8,32,11,-1, &snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"X-coordinate: %d",wall[wallnum].x);
+	fmt::format_to(&snotbuf[0],"X-coordinate: {}",wall[wallnum].x);
 	printext16(8,48,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Y-coordinate: %d",wall[wallnum].y);
+	fmt::format_to(&snotbuf[0],"Y-coordinate: {}",wall[wallnum].y);
 	printext16(8,56,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Point2: %d",wall[wallnum].point2);
+	fmt::format_to(&snotbuf[0],"Point2: {}",wall[wallnum].point2);
 	printext16(8,64,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Sector: %d",sectorofwall(wallnum));
+	fmt::format_to(&snotbuf[0],"Sector: {}",sectorofwall(wallnum));
 	printext16(8,72,11,-1,&snotbuf[0],0);
 
-	std::sprintf(&snotbuf[0],"Tags: %d, %d",wall[wallnum].hitag,wall[wallnum].lotag);
+	fmt::format_to(&snotbuf[0],"Tags: {}, {}",wall[wallnum].hitag,wall[wallnum].lotag);
 	printext16(8,88,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"     (0x%x), (0x%x)",wall[wallnum].hitag,wall[wallnum].lotag);
+	fmt::format_to(&snotbuf[0],"     (0x{}), (0x{})",wall[wallnum].hitag,wall[wallnum].lotag);
 	printext16(8,96,11,-1,&snotbuf[0],0);
 
 	printext16(200,32,11,-1,names[wall[wallnum].picnum],0);
-	std::sprintf(&snotbuf[0],"Flags (hex): %x",wall[wallnum].cstat);
+	fmt::format_to(&snotbuf[0],"Flags (hex): {}",wall[wallnum].cstat);
 	printext16(200,48,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Shade: %d",wall[wallnum].shade);
+	fmt::format_to(&snotbuf[0],"Shade: {}",wall[wallnum].shade);
 	printext16(200,56,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Pal: %d",wall[wallnum].pal);
+	fmt::format_to(&snotbuf[0],"Pal: {}",wall[wallnum].pal);
 	printext16(200,64,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat);
+	fmt::format_to(&snotbuf[0],"(X,Y)repeat: {}, {}",wall[wallnum].xrepeat,wall[wallnum].yrepeat);
 	printext16(200,72,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning);
+	fmt::format_to(&snotbuf[0],"(X,Y)pan: {}, {}",wall[wallnum].xpanning,wall[wallnum].ypanning);
 	printext16(200,80,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"Tile number: %d",wall[wallnum].picnum);
+	fmt::format_to(&snotbuf[0],"Tile number: {}",wall[wallnum].picnum);
 	printext16(200,88,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"OverTile number: %d",wall[wallnum].overpicnum);
+	fmt::format_to(&snotbuf[0],"OverTile number: {}",wall[wallnum].overpicnum);
 	printext16(200,96,11,-1,&snotbuf[0],0);
 
-	std::sprintf(&snotbuf[0],"nextsector: %d",wall[wallnum].nextsector);
+	fmt::format_to(&snotbuf[0],"nextsector: {}",wall[wallnum].nextsector);
 	printext16(400,48,11,-1,&snotbuf[0],0);
-	std::sprintf(&snotbuf[0],"nextwall: %d",wall[wallnum].nextwall);
+	fmt::format_to(&snotbuf[0],"nextwall: {}",wall[wallnum].nextwall);
 	printext16(400,56,11,-1,&snotbuf[0],0);
 
-	std::sprintf(&snotbuf[0],"Extra: %d",wall[wallnum].extra);
+	fmt::format_to(&snotbuf[0],"Extra: {}",wall[wallnum].extra);
 	printext16(400,72,11,-1,&snotbuf[0],0);
 
 	dax = wall[wallnum].x-wall[wall[wallnum].point2].x;
 	day = wall[wallnum].y-wall[wall[wallnum].point2].y;
 	dist = ksqrt(dax*dax+day*day);
-	std::sprintf(&snotbuf[0],"Wall length: %d",dist>>4);
+	fmt::format_to(&snotbuf[0],"Wall length: {}",dist>>4);
 	printext16(400,96,11,-1,&snotbuf[0],0);
 
 	dax = (int)sectorofwall(wallnum);
-	std::sprintf(&snotbuf[0],"Pixel height: %d",(sector[dax].floorz-sector[dax].ceilingz)>>8);
+	fmt::format_to(&snotbuf[0],"Pixel height: {}",(sector[dax].floorz-sector[dax].ceilingz)>>8);
 	printext16(400,104,11,-1,&snotbuf[0],0);
 
 	restoreviewport();
@@ -7638,52 +7638,52 @@ void showspritedata(short spritenum)
 
 	setstatusbarviewport();
 
-	std::sprintf(snotbuf,"Sprite %d",spritenum);
+	fmt::format_to(&snotbuf[0],"Sprite {}",spritenum);
 	printext16(8,32,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"X-coordinate: %d",sprite[spritenum].x);
+	fmt::format_to(&snotbuf[0],"X-coordinate: {}",sprite[spritenum].x);
 	printext16(8,48,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"Y-coordinate: %d",sprite[spritenum].y);
+	fmt::format_to(&snotbuf[0],"Y-coordinate: {}",sprite[spritenum].y);
 	printext16(8,56,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"Z-coordinate: %d",sprite[spritenum].z);
+	fmt::format_to(&snotbuf[0],"Z-coordinate: {}",sprite[spritenum].z);
 	printext16(8,64,11,-1,snotbuf,0);
 
-	std::sprintf(snotbuf,"Sectnum: %d",sprite[spritenum].sectnum);
+	fmt::format_to(&snotbuf[0],"Sectnum: {}",sprite[spritenum].sectnum);
 	printext16(8,72,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"Statnum: %d",sprite[spritenum].statnum);
+	fmt::format_to(&snotbuf[0],"Statnum: {}",sprite[spritenum].statnum);
 	printext16(8,80,11,-1,snotbuf,0);
 
-	std::sprintf(snotbuf,"Tags: %d, %d",sprite[spritenum].hitag,sprite[spritenum].lotag);
+	fmt::format_to(&snotbuf[0],"Tags: {}, {}",sprite[spritenum].hitag,sprite[spritenum].lotag);
 	printext16(8,96,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"     (0x%x), (0x%x)",sprite[spritenum].hitag,sprite[spritenum].lotag);
+	fmt::format_to(&snotbuf[0],"     (0x{}), (0x{})",sprite[spritenum].hitag,sprite[spritenum].lotag);
 	printext16(8,104,11,-1,snotbuf,0);
 
 	printext16(200,32,11,-1,names[sprite[spritenum].picnum],0);
-	std::sprintf(snotbuf,"Flags (hex): %x",sprite[spritenum].cstat);
+	fmt::format_to(&snotbuf[0],"Flags (hex): {}",sprite[spritenum].cstat);
 	printext16(200,48,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"Shade: %d",sprite[spritenum].shade);
+	fmt::format_to(&snotbuf[0],"Shade: {}",sprite[spritenum].shade);
 	printext16(200,56,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"Pal: %d",sprite[spritenum].pal);
+	fmt::format_to(&snotbuf[0],"Pal: {}",sprite[spritenum].pal);
 	printext16(200,64,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat);
+	fmt::format_to(&snotbuf[0],"(X,Y)repeat: {}, {}",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat);
 	printext16(200,72,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset);
+	fmt::format_to(&snotbuf[0],"(X,Y)offset: {}, {}",sprite[spritenum].xoffset,sprite[spritenum].yoffset);
 	printext16(200,80,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"Tile number: %d",sprite[spritenum].picnum);
+	fmt::format_to(&snotbuf[0],"Tile number: {}",sprite[spritenum].picnum);
 	printext16(200,88,11,-1,snotbuf,0);
 
-	std::sprintf(snotbuf,"Angle (2048 degrees): %d",sprite[spritenum].ang);
+	fmt::format_to(&snotbuf[0],"Angle (2048 degrees): {}",sprite[spritenum].ang);
 	printext16(400,48,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"X-Velocity: %d",sprite[spritenum].xvel);
+	fmt::format_to(&snotbuf[0],"X-Velocity: {}",sprite[spritenum].xvel);
 	printext16(400,56,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"Y-Velocity: %d",sprite[spritenum].yvel);
+	fmt::format_to(&snotbuf[0],"Y-Velocity: {}",sprite[spritenum].yvel);
 	printext16(400,64,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"Z-Velocity: %d",sprite[spritenum].zvel);
+	fmt::format_to(&snotbuf[0],"Z-Velocity: {}",sprite[spritenum].zvel);
 	printext16(400,72,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"Owner: %d",sprite[spritenum].owner);
+	fmt::format_to(&snotbuf[0],"Owner: {}",sprite[spritenum].owner);
 	printext16(400,80,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"Clipdist: %d",sprite[spritenum].clipdist);
+	fmt::format_to(&snotbuf[0],"Clipdist: {}",sprite[spritenum].clipdist);
 	printext16(400,88,11,-1,snotbuf,0);
-	std::sprintf(snotbuf,"Extra: %d",sprite[spritenum].extra);
+	fmt::format_to(&snotbuf[0],"Extra: {}",sprite[spritenum].extra);
 	printext16(400,96,11,-1,snotbuf,0);
 
 	restoreviewport();
