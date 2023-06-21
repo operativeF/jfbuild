@@ -2660,7 +2660,7 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 			assert(y2 + (shoffs >> 15) >= 0);
 			assert(y2 + (shoffs >> 15) <= SLOPALOOKUPSIZ - 1);
 
-			intptr_t* nptr1 = &slopalookup[y1 + (shoffs >> 15)];
+			const intptr_t* nptr1 = &slopalookup[y1 + (shoffs >> 15)];
 			intptr_t* nptr2 = &slopalookup[y2 + (shoffs >> 15)];
 			
 			while (nptr1 <= mptr1)
@@ -9007,8 +9007,6 @@ void nextpage()
 // TODO: Maybe consider a strict file format type for filename.
 int loadpics(const std::string& filename, int askedsize)
 {
-	short j;
-
 	std::ranges::copy(filename, artfilename);
 
 	std::ranges::fill(tilesizx, 0);
@@ -10528,13 +10526,13 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 			if ((wal->y > ymax) && (wal2->y > ymax))
 				continue;
 
-			int x1 = wal->x;
-			int y1 = wal->y;
-			int x2 = wal2->x;
-			int y2 = wal2->y;
+			const int x1 = wal->x;
+			const int y1 = wal->y;
+			const int x2 = wal2->x;
+			const int y2 = wal2->y;
 
-			int dx = x2-x1;
-			int dy = y2-y1;
+			const int dx = x2-x1;
+			const int dy = y2-y1;
 
 			if (dx*((*y)-y1) < ((*x)-x1)*dy) continue;  //If wall's not facing you
 
@@ -10612,7 +10610,7 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 		for(int j = headspritesect[dasect]; j >= 0; j = nextspritesect[j])
 		{
 			auto* spr = &sprite[j];
-			short cstat = spr->cstat;
+			const short cstat = spr->cstat;
 
 			if ((cstat&dasprclipmask) == 0)
 				continue;
@@ -10771,13 +10769,13 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 
 		if ((hitwall = raytrace(*x, *y, &intx, &inty)) >= 0)
 		{
-			int lx = clipit[hitwall].x2-clipit[hitwall].x1;
-			int ly = clipit[hitwall].y2-clipit[hitwall].y1;
+			const int lx = clipit[hitwall].x2-clipit[hitwall].x1;
+			const int ly = clipit[hitwall].y2-clipit[hitwall].y1;
 			int templong2 = lx * lx + ly * ly;
 
 			if (templong2 > 0)
 			{
-				int templong1 = (goalx - intx) * lx + (goaly - inty) * ly;
+				const int templong1 = (goalx - intx) * lx + (goaly - inty) * ly;
 				
 				int i{0};
 				if ((std::abs(templong1) >> 11) < templong2)
@@ -10787,11 +10785,11 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 				goaly = mulscalen<20>(ly, i) + inty;
 			}
 
-			int templong1 = dmulscalen<6>(lx, oxvect, ly, oyvect);
+			const int templong1 = dmulscalen<6>(lx, oxvect, ly, oyvect);
 			
 			for(int i = cnt + 1; i <= clipmoveboxtracenum; ++i)
 			{
-				int j = hitwalls[i];
+				const int j = hitwalls[i];
 				templong2 = dmulscalen<6>(clipit[j].x2-clipit[j].x1,oxvect,clipit[j].y2-clipit[j].y1,oyvect);
 				if ((templong1 ^ templong2) < 0)
 				{
@@ -10964,7 +10962,7 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 
 						if (daz > 0)
 						{
-							int daz2 = dax * dax + day * day;
+							const int daz2 = dax * dax + day * day;
 							
 							if (daz >= daz2)
 								t = (1 << 30);
@@ -11206,24 +11204,25 @@ void getzrange(int x, int y, int z, short sectnum,
 			if (k >= 0)
 			{
 				auto* wal2 = &wall[wal->point2];
-				int x1 = wal->x;
-				int x2 = wal2->x;
+				const int x1 = wal->x;
+				const int x2 = wal2->x;
 
 				if ((x1 < xmin) && (x2 < xmin))
 					continue;
 				if ((x1 > xmax) && (x2 > xmax))
 					continue;
 
-				int y1 = wal->y;
-				int y2 = wal2->y;
+				const int y1 = wal->y;
+				const int y2 = wal2->y;
 
 				if ((y1 < ymin) && (y2 < ymin))
 					continue;
 				if ((y1 > ymax) && (y2 > ymax))
 					continue;
 
-				int dx = x2 - x1;
-				int dy = y2 - y1;
+				const int dx = x2 - x1;
+				const int dy = y2 - y1;
+				
 				if (dx * (y - y1) < (x - x1) * dy)
 					continue; //back
 
@@ -11312,7 +11311,7 @@ void getzrange(int x, int y, int z, short sectnum,
 		for(short j = headspritesect[clipsectorlist[cnum]]; j >= 0; j = nextspritesect[j])
 		{
 			auto* spr = &sprite[j];
-			short cstat = spr->cstat;
+			const short cstat = spr->cstat;
 			
 			if (cstat & dasprclipmask)
 			{

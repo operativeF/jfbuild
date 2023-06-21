@@ -452,7 +452,7 @@ std::unique_ptr<scriptfile> scriptfile_fromstring(const std::string& str)
 	if (str.empty())
 		return nullptr;
 
-	auto flen = str.length();
+	const auto flen = str.length();
 
 	std::string tx;
 	tx.resize(flen + 2);

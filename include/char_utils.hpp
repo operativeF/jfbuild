@@ -252,7 +252,7 @@ concept Hexable = requires
 
 inline constexpr std::byte HexCharToDec(std::byte C)
 {
-    auto asChar = static_cast<char>(C);
+    const auto asChar = static_cast<char>(C);
 
     if('A' <= asChar && asChar <= 'F')
     {

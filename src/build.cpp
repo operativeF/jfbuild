@@ -226,14 +226,14 @@ int osdcmd_vidmode(const osdfuncparm_t *parm)
 	if (parm->parms.size() == 4) {
 		// fs, res, bpp switch
 		int tmpval{0};
-		std::string_view parmv{parm->parms[3]};
+		const std::string_view parmv{parm->parms[3]};
 		std::from_chars(parmv.data(), parmv.data() + parmv.size(), tmpval);
 		// TODO: Use return result here?
 		newfullscreen = (tmpval != 0);
 	}
 	if (parm->parms.size() >= 3) {
 		// res & bpp switch
-		std::string_view parmv{parm->parms[2]};
+		const std::string_view parmv{parm->parms[2]};
 		std::from_chars(parmv.data(), parmv.data() + parmv.size(), newbpp);
 		// FIXME: Use return result here?
 	}
@@ -247,7 +247,7 @@ int osdcmd_vidmode(const osdfuncparm_t *parm)
 	}
 	if (parm->parms.size() == 1) {
 		// bpp switch
-		std::string_view parmv{parm->parms[0]};
+		const std::string_view parmv{parm->parms[0]};
 		std::from_chars(parmv.data(), parmv.data() + parmv.size(), newbpp);
 		// TODO: Use return results here?
 	}
@@ -292,7 +292,7 @@ int osdcmd_showspriteextents(const osdfuncparm_t *parm)
 		return OSDCMD_OK;
 	}
 	
-	std::string_view parmv{parm->parms[0]};
+	const std::string_view parmv{parm->parms[0]};
 	int newval{0};
 	auto [ptr, ec] = std::from_chars(parmv.data(), parmv.data() + parmv.size(), newval);
 
@@ -6016,7 +6016,7 @@ void deletepoint(short point)
 	}
 
 	const int j = lastwall(point);
-	int k = wall[point].point2;
+	const int k = wall[point].point2;
 	wall[j].point2 = k;
 
 	if (wall[j].nextwall >= 0)
@@ -6753,7 +6753,7 @@ int loadnames()
 						continue;
 					}
 
-					char* number = p;
+					const char* number = p;
 					while (*p != 0) p++;
 					if (*p != 0) *p = 0;
 
@@ -7497,9 +7497,9 @@ void copysector(short soursector, short destsector, short deststartwall, unsigne
 			short j = headspritesect[soursector];
 			while (j >= 0)
 			{
-				short k = nextspritesect[j];
+				const short k = nextspritesect[j];
 
-				short m = insertsprite(destsector,sprite[j].statnum);
+				const short m = insertsprite(destsector,sprite[j].statnum);
 				std::memcpy(&sprite[m],&sprite[j],sizeof(spritetype));
 				sprite[m].sectnum = destsector;   //Don't let memcpy overwrite sector!
 
@@ -7617,8 +7617,8 @@ void showwalldata(short wallnum)
 	printext16(400,72,11,-1,&snotbuf[0],0);
 
 	int dax = wall[wallnum].x-wall[wall[wallnum].point2].x;
-	int day = wall[wallnum].y-wall[wall[wallnum].point2].y;
-	int dist = ksqrt(dax*dax+day*day);
+	const int day = wall[wallnum].y-wall[wall[wallnum].point2].y;
+	const int dist = ksqrt(dax*dax+day*day);
 	fmt::format_to(&snotbuf[0],"Wall length: {}",dist>>4);
 	printext16(400,96,11,-1,&snotbuf[0],0);
 

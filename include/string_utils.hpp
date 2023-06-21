@@ -402,7 +402,7 @@ inline bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool 
 
 [[nodiscard]] inline constexpr bool EndsWith(std::string_view strView, std::string_view suffix, std::string& beforeSuffix)
 {
-    auto pos = strView.find(suffix, strView.size() - suffix.size());
+    const auto pos = strView.find(suffix, strView.size() - suffix.size());
 
     if(pos != std::string::npos)
     {
@@ -416,7 +416,7 @@ inline bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool 
 
 [[nodiscard]] inline constexpr bool StartsWith(std::string_view strView, std::string_view prefix, std::string& afterStart)
 {
-    auto pos = strView.rfind(prefix, 0);
+    const auto pos = strView.rfind(prefix, 0);
 
     if(pos != std::string::npos)
     {
@@ -430,7 +430,7 @@ inline bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool 
 
 [[nodiscard]] inline constexpr bool StartsWith(std::string_view strView, std::string_view prefix)
 {
-    auto pos = strView.rfind(prefix, 0);
+    const auto pos = strView.rfind(prefix, 0);
 
     if(pos != std::string::npos)
     {
