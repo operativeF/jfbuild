@@ -6,13 +6,12 @@
 #include <vector>
 
 struct scriptfile {
-    char *textbuf;
-    unsigned int textlength;
     char *ltextptr;     // pointer to start of the last token fetched (use this for line numbers)
     char *textptr;
     char *eof;
+    
     std::string filename;
-    int linenum;
+    std::string txbuffer;
     std::vector<int> lineoffs;
 };
 
@@ -28,7 +27,7 @@ int scriptfile_getlinum(scriptfile *sf, char *ptr);
 int scriptfile_getbraces(scriptfile *sf, char **braceend);
 
 std::unique_ptr<scriptfile> scriptfile_fromfile(const std::string& fn);
-scriptfile *scriptfile_fromstring(const std::string& str);
+std::unique_ptr<scriptfile> scriptfile_fromstring(const std::string& str);
 void scriptfile_close(scriptfile *sf);
 int scriptfile_eof(scriptfile *sf);
 

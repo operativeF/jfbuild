@@ -111,7 +111,7 @@ int scriptfile_getbool(scriptfile* sf, bool* b)
 
 	if (boolean_val == nullptr)
 	{
-		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
+		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf, sf->textptr));
 		return -2;
 	}
 
@@ -122,7 +122,7 @@ int scriptfile_getbool(scriptfile* sf, bool* b)
 	else if(boolean_strv == "false")
 		*b = false;
 	else {
-		buildprintf("Error on line {}:{}: expecting bool (true / false), got \"{}\"\n",sf->filename, scriptfile_getlinum(sf,sf->textptr), boolean_strv);
+		buildprintf("Error on line {}:{}: expecting bool (true / false), got \"{}\"\n",sf->filename, scriptfile_getlinum(sf, sf->textptr), boolean_strv);
 		return -2;
 	}
 
@@ -283,22 +283,24 @@ int scriptfile_getbraces(scriptfile *sf, char **braceend)
 
 int scriptfile_getlinum (scriptfile *sf, char *ptr)
 {
-	//for(i=0;i<sf->linenum;i++) if (sf->lineoffs[i] >= ind) return(i+1); //brute force algo
+	//for(i=0;i<sf->lineoffs.size();i++) if (sf->lineoffs[i] >= ind) return(i+1); //brute force algo
 
-	const ptrdiff_t ind = ((intptr_t)ptr) - ((intptr_t)sf->textbuf);
+	const ptrdiff_t ind = ((intptr_t)ptr) - ((intptr_t)sf->txbuffer.data());
 
 	int stp{1};
-	for(; stp + stp<sf->linenum; stp += stp); //stp = highest power of 2 less than sf->linenum
+	for(; stp + stp < sf->lineoffs.size(); stp += stp); //stp = highest power of 2 less than sf->linenum
 	
 	int i{0};
 	for(; stp; stp >>= 1)
-		if ((i + stp < sf->linenum) && (sf->lineoffs[i + stp] < ind))
+		if ((i + stp < sf->lineoffs.size()) && (sf->lineoffs[i + stp] < ind))
 			i += stp;
 	
 	return i + 1; //i = index to highest lineoffs which is less than ind; convert to 1-based line numbers
 }
 
-void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
+namespace {
+
+void scriptfile_preparse(scriptfile *sf, std::string tx, size_t flen)
 {
 	//Count number of lines
 	int numcr{1};
@@ -324,8 +326,7 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 		}
 	}
 
-	sf->linenum = numcr;
-	sf->lineoffs.reserve(sf->linenum);
+	sf->lineoffs.reserve(numcr);
 
 	//Preprocess file for comments (// and /*...*/, and convert all whitespace to single spaces)
 	int nflen{0};
@@ -408,15 +409,18 @@ void scriptfile_preparse (scriptfile *sf, char *tx, size_t flen)
 		//for debugging only:
 	std::printf("pre-parsed file:flen={},nflen={}\n",flen,nflen);
 	for(i=0;i<nflen;i++) { if (tx[i] < 32) std::printf("_"); else std::printf("{}",tx[i]); }
-	std::printf("[eof]\nnumlines={}\n",sf->linenum);
-	for(i=0;i<sf->linenum;i++) std::printf("line {} = byte {}\n",i,sf->lineoffs[i]);
+	std::printf("[eof]\nnumlines={}\n",sf->lineoffs.size());
+	for(i=0;i<sf->lineoffs.size();i++) std::printf("line {} = byte {}\n",i,sf->lineoffs[i]);
 #endif
 	flen = nflen;
 
-	sf->textbuf = sf->textptr = tx;
-	sf->textlength = nflen;
-	sf->eof = &sf->textbuf[nflen-1];
+	sf->txbuffer = tx;
+
+	sf->textptr = sf->txbuffer.data();
+	sf->eof = &sf->txbuffer[nflen - 1];
 }
+
+} // namespace
 
 std::unique_ptr<scriptfile> scriptfile_fromfile(const std::string& fn)
 {
@@ -426,22 +430,12 @@ std::unique_ptr<scriptfile> scriptfile_fromfile(const std::string& fn)
 		return nullptr;
 
 	const unsigned int flen = kfilelength(fp);
-	auto* tx = (char *) std::malloc(flen + 2);
-	
-	if (!tx) {
-		kclose(fp);
-		return nullptr;
-	}
+	std::string tx;
+	tx.resize(flen + 2);
 
 	auto sf = std::make_unique<scriptfile>();
 
-	if (!sf) {
-		kclose(fp);
-		std::free(tx);
-		return nullptr;
-	}
-
-	kread(fp, tx, flen);
+	kread(fp, &tx[0], flen);
 	tx[flen] = 0;
 	tx[flen+1] = 0;
 
@@ -453,31 +447,28 @@ std::unique_ptr<scriptfile> scriptfile_fromfile(const std::string& fn)
 	return sf;
 }
 
-scriptfile* scriptfile_fromstring(const std::string& str)
+std::unique_ptr<scriptfile> scriptfile_fromstring(const std::string& str)
 {
 	if (str.empty())
 		return nullptr;
 
 	auto flen = str.length();
 
-	auto* tx = (char *) std::malloc(flen + 2);
-	
-	if (!tx)
-		return nullptr;
+	std::string tx;
+	tx.resize(flen + 2);
 
-	auto* sf = (scriptfile*) std::malloc(sizeof(scriptfile));
+	auto sf = std::make_unique<scriptfile>();
 
 	if (!sf) {
-		std::free(tx);
-
 		return nullptr;
 	}
 
-	std::memcpy(tx, &str[0], flen);
+	tx = str;
+
 	tx[flen] = 0;
 	tx[flen + 1] = 0;
 
-	scriptfile_preparse(sf, tx, flen);
+	scriptfile_preparse(sf.get(), tx, flen);
 	sf->filename.clear();
 
 	return sf;
@@ -487,11 +478,6 @@ void scriptfile_close(scriptfile* sf)
 {
 	if (!sf)
 		return;
-
-	if (sf->textbuf)
-		std::free(sf->textbuf);
-
-	sf->textbuf = nullptr;
 }
 
 int scriptfile_eof(scriptfile *sf)
