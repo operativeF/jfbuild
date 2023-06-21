@@ -297,13 +297,13 @@ int wm_ynbox(const char *name, const char *fmt, ...) {
 //
 // wm_filechooser() -- display a file selector dialogue box
 //
-int wm_filechooser(const std::string& initialdir, const char *initialfile, const char *type, int foropen, char **choice)
+int wm_filechooser(const std::string& initialdir, const char *initialfile, const char *type, int foropen, std::string& choice)
 {
 	char filter[100];
 	char* filterp = filter;
 	char filename[BMAX_PATH + 1] = "";
 
-	*choice = nullptr;
+	choice.clear();
 
 	if (!foropen && initialfile) {
 		std::strcpy(filename, initialfile);
@@ -329,7 +329,7 @@ int wm_filechooser(const std::string& initialdir, const char *initialfile, const
 	ofn.lpstrDefExt = type;
 
 	if (foropen ? ::GetOpenFileName(&ofn) : ::GetSaveFileName(&ofn)) {
-		*choice = strdup(filename);
+		choice = filename;
 		return 1;
 	}
 	else {

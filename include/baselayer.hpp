@@ -120,7 +120,7 @@ int wm_ynbox(const char *name, const char *fmt, ...) PRINTF_FORMAT(2, 3);
 // foropen - boolean true, or false if for saving
 // choice - the file chosen by the user to be free()'d when done
 // Returns -1 if not supported, 0 if cancelled, 1 if accepted
-int wm_filechooser(const std::string& initialdir, const char *initialfile, const char *type, int foropen, char **choice);
+int wm_filechooser(const std::string& initialdir, const char *initialfile, const char *type, int foropen, std::string& choice);
 
 int wm_idle(void *);
 void wm_setapptitle(const char *name);

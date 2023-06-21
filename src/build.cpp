@@ -121,8 +121,8 @@ std::array<short, MAXTILES> localartlookup;
 short localartlookupnum;
 
 std::array<unsigned char, MAXSECTORS> pskysearch;
-std::array<char, BMAX_PATH> boardfilename;
-std::array<char, BMAX_PATH> selectedboardfilename;
+std::string boardfilename;
+std::string selectedboardfilename;
 CACHE1D_FIND_REC* finddirs{nullptr};
 CACHE1D_FIND_REC* findfiles{nullptr};
 CACHE1D_FIND_REC* finddirshigh{nullptr};
@@ -179,7 +179,7 @@ void initcrc();
 void AutoAlignWalls(int nWall0, int ply);
 int gettile(int tilenum);
 
-char *findfilename(char *path);
+std::string findfilename(const std::string& path);
 int menuselect(int newpathmode);
 void getfilenames(const std::string& path, const std::string& kind);
 void clearfilenames();
@@ -341,7 +341,7 @@ int app_main(int argc, char const * const argv[])
 #endif
 
 	editstatus = true;
-	boardfilename[0] = 0;
+
 	for (i=1; i<argc; i++) {
 		if (argv[i][0] == '-') {
 			if (IsSameAsNoCase(argv[i], "-g") || IsSameAsNoCase(argv[i], "-grp")) {
@@ -377,10 +377,10 @@ int app_main(int argc, char const * const argv[])
 			boardfilename[BMAX_PATH - 4 - 1] = 0;
 		}
 	}
-	if (boardfilename[0] == 0) {
-		std::strcpy(&boardfilename[0], "newboard.map");
-	} else if (std::strrchr(&boardfilename[0],'.') == nullptr) {
-		std::strcat(&boardfilename[0], ".map");
+	if (boardfilename.empty()) {
+		boardfilename = "newboard.map";
+	} else if (!boardfilename.ends_with(".map")) {
+		boardfilename.append(".map");
 	}
 	//Bcanonicalisefilename(boardfilename,0);
 
@@ -466,8 +466,8 @@ int app_main(int argc, char const * const argv[])
 
 	ExtPreLoadMap();
 	j = pathsearchmode == PATHSEARCH_GAME && grponlymode ? KOPEN4LOAD_ANYGRP : KOPEN4LOAD_ANY;
-	i = loadboard(&boardfilename[0], j, &posx, &posy, &posz, &ang, &cursectnum);
-	if (i == -2) i = loadoldboard(&boardfilename[0], j, &posx, &posy, &posz, &ang, &cursectnum);
+	i = loadboard(boardfilename.data(), j, &posx, &posy, &posz, &ang, &cursectnum);
+	if (i == -2) i = loadoldboard(boardfilename.data(), j, &posx, &posy, &posz, &ang, &cursectnum);
 	if (i < 0)
 	{
 		initspritelists();
@@ -556,12 +556,11 @@ int app_main(int argc, char const * const argv[])
 			if (handleevents()) if (quitevent) break;	// like saying no
 
 			if (keystatus[0x15] != 0) {
-				char *filename;
 				int bad;
 
 				keystatus[0x15] = 0;
 
-				filename = &boardfilename[0];
+				std::string filename = &boardfilename[0];
 				if (pathsearchmode == PATHSEARCH_GAME) {
 					filename = findfilename(filename);
 				}
@@ -570,12 +569,12 @@ int app_main(int argc, char const * const argv[])
 				updatesector(startposx,startposy,&startsectnum);
 				ExtPreSaveMap();
 				if (mapversion < 7) {
-					bad = saveoldboard(filename,&startposx,&startposy,&startposz,&startang,&startsectnum);
+					bad = saveoldboard(filename.c_str(), &startposx, &startposy, &startposz, &startang, &startsectnum);
 				} else {
 					bad = saveboard(filename,&startposx,&startposy,&startposz,&startang,&startsectnum);
 				}
 				if (!bad) {
-					ExtSaveMap(filename);
+					ExtSaveMap(filename.c_str());
 				}
 				break;
 			}
@@ -5288,7 +5287,7 @@ void overheadeditor()
 							numwalls = 0;
 							cursectnum = -1;
 							initspritelists();
-							std::strcpy(&boardfilename[0],"newboard.map");
+							boardfilename = "newboard.map";
 							mapversion = 7;
 
 							wm_setwindowtitle("(new board)");
@@ -5306,42 +5305,39 @@ void overheadeditor()
 					printmessage16("Load board...");
 					showframe();
 
-					std::strcpy(&selectedboardfilename[0], &boardfilename[0]);
+					selectedboardfilename = boardfilename;
 					if (ch == 'g' || ch == 'G') {
 						i = menuselect(PATHSEARCH_GAME);
 					} else {
-						char * filename = nullptr;
+						std::string filename;
 						const char* initialdir = nullptr;
 						int filer;
 
-						char* initialfile = findfilename(&selectedboardfilename[0]);
-						if (pathsearchmode == PATHSEARCH_GAME || initialfile == &selectedboardfilename[0]) {
+						std::string initialfile = findfilename(&selectedboardfilename[0]);
+						if (pathsearchmode == PATHSEARCH_GAME || initialfile == selectedboardfilename) {
 							initialdir = "";
 						} else {
 							initialdir = &selectedboardfilename[0];
-							*(initialfile - 1) = 0;
 						}
 						while (1) {
-							filer = wm_filechooser(initialdir, initialfile, "map", 1, &filename);
+							filer = wm_filechooser(initialdir, initialfile.c_str(), "map", 1, filename);
 							if (filer >= 0) {
-								if (filename && std::strlen(filename)+1 > sizeof(selectedboardfilename)) {
+								if (!filename.empty() && filename.length() + 1 > sizeof(selectedboardfilename)) {
 									printmessage16("File path is too long.");
 									showframe();
-									std::free(filename);
 									continue;
 								}
 
-								if (filer == 0 || !filename) {
+								if (filer == 0 || filename.empty()) {
 									i = -1;
 								} else {
-									std::strcpy(&selectedboardfilename[0], filename);
-									std::free(filename);
+									selectedboardfilename = filename;
 									i = 0;
 									pathsearchmode = PATHSEARCH_SYSTEM;
 								}
 							} else {
 								// Fallback behaviour.
-								std::strcpy(&selectedboardfilename[0], &boardfilename[0]);
+								selectedboardfilename = boardfilename;
 								i = menuselect(pathsearchmode);
 							}
 							break;
@@ -5355,7 +5351,7 @@ void overheadeditor()
 					}
 					else
 					{
-						std::strcpy(&boardfilename[0], &selectedboardfilename[0]);
+						boardfilename = selectedboardfilename;
 
 						if (highlightsectorcnt >= 0)
 						{
@@ -5519,9 +5515,9 @@ void overheadeditor()
 				}
 				else if (ch == 'a' || ch == 'A')  //A
 				{
-					char *filename = nullptr;
+					std::string filename;
 					const char* initialdir = nullptr;
-					char *initialfile = nullptr;
+					std::string initialfile;
 					char *curs;
 					int filer;
 
@@ -5529,39 +5525,38 @@ void overheadeditor()
 					printmessage16("Save board as...");
 					showframe();
 
-					std::strcpy(&selectedboardfilename[0], &boardfilename[0]);
+					selectedboardfilename = boardfilename;
 					initialfile = findfilename(&selectedboardfilename[0]);
 					if (pathsearchmode == PATHSEARCH_GAME || initialfile == &selectedboardfilename[0]) {
 						initialdir = "";
-					} else {
-						initialdir = &selectedboardfilename[0];
-						*(initialfile-1) = 0;
 					}
+					else {
+						initialdir = &selectedboardfilename[0];
+					}
+
 					while (1) {
-						filer = wm_filechooser(initialdir, initialfile, "map", 0, &filename);
+						filer = wm_filechooser(initialdir, initialfile.c_str(), "map", 0, filename);
 						if (filer >= 0) {
-							if (filename && std::strlen(filename)+1 > sizeof(selectedboardfilename)) {
+							if (!filename.empty() && filename.length() + 1 > sizeof(selectedboardfilename)) {
 								printmessage16("File path is too long.");
 								showframe();
-								std::free(filename);
 								continue;
 							}
 
-							if (filer == 0 || !filename) {
+							if (filer == 0 || filename.empty()) {
 								bad = 1;	// Cancel.
 							} else {
-								std::strcpy(&selectedboardfilename[0], filename);
-								std::free(filename);
+								selectedboardfilename = filename;
 								bad = 2;	// OK.
 							}
-							filename = nullptr;
-						} else {
+						}
+						else {
 							// Fallback behaviour.
 							if (pathsearchmode == PATHSEARCH_SYSTEM) {
-								std::strcpy(&selectedboardfilename[0], &boardfilename[0]);
+								selectedboardfilename = boardfilename;
 							} else {
-								filename = findfilename(&boardfilename[0]);
-								std::strcpy(&selectedboardfilename[0], filename);
+								filename = findfilename(boardfilename);
+								selectedboardfilename = filename;
 								Bcanonicalisefilename(&selectedboardfilename[0], 0);
 							}
 							bad = 0;
@@ -5573,8 +5568,8 @@ void overheadeditor()
 					filename = findfilename(&selectedboardfilename[0]);
 
 					// Find the end of the filename and cut off any .map extension.
-					curs = strrchr(filename, 0);
-					if (curs - filename >= 4 && IsSameAsNoCase(curs - 4, ".map")) { curs -= 4; *curs = 0; }
+					curs = std::strrchr(&filename[0], 0);
+					if (curs - &filename[0] >= 4 && IsSameAsNoCase(curs - 4, ".map")) { curs -= 4; *curs = 0; }
 
 					bflushchars();
 					while (bad == 0)
@@ -5592,7 +5587,7 @@ void overheadeditor()
 						if (keystatus[1] > 0) bad = 1;
 						else if (ch == 13) bad = 2;
 						else if (ch > 0) {
-							if (curs - filename > 0 && (ch == 8 || ch == 127)) {
+							if (curs - &filename[0] > 0 && (ch == 8 || ch == 127)) {
 								*(--curs) = 0;
 							}
 							else if (std::strlen(&selectedboardfilename[0]) < sizeof(selectedboardfilename)-5
@@ -5613,7 +5608,7 @@ void overheadeditor()
 					{
 						keystatus[0x1c] = 0;
 
-						std::strcat(filename, ".map");
+						filename.append(".map");
 						fmt::format_to(buffer, "Saving to {}...", filename);
 						printmessage16(buffer);
 						showframe();
@@ -5635,7 +5630,7 @@ void overheadeditor()
 						if (!bad) {
 							ExtSaveMap(&selectedboardfilename[0]);
 							printmessage16("Board saved.");
-							std::strcpy(&boardfilename[0], &selectedboardfilename[0]);
+							boardfilename = selectedboardfilename;
 							pathsearchmode = PATHSEARCH_SYSTEM;
 							asksave = false;
 						} else {
@@ -5647,25 +5642,23 @@ void overheadeditor()
 				}
 				else if (ch == 's' || ch == 'S')  //S
 				{
-					char *filename;
-
 					bad = 0;
 					printmessage16("Saving board...");
 					showframe();
-					filename = &boardfilename[0];
+					std::string filename = boardfilename;
 					if (pathsearchmode == PATHSEARCH_GAME) {
-						filename = findfilename(filename);
+						filename = findfilename(filename.c_str());
 					}
 					fixspritesectors();   //Do this before saving!
 					updatesector(startposx,startposy,&startsectnum);
 					ExtPreSaveMap();
 					if (mapversion < 7) {
-						bad = saveoldboard(filename,&startposx,&startposy,&startposz,&startang,&startsectnum);
+						bad = saveoldboard(filename.c_str(), &startposx, &startposy, &startposz, &startang, &startsectnum);
 					} else {
-						bad = saveboard(filename,&startposx,&startposy,&startposz,&startang,&startsectnum);
+						bad = saveboard(filename.c_str(), &startposx, &startposy, &startposz, &startang, &startsectnum);
 					}
 					if (!bad) {
-						ExtSaveMap(filename);
+						ExtSaveMap(filename.c_str());
 						printmessage16("Board saved.");
 						asksave = false;
 					} else {
@@ -5703,22 +5696,20 @@ void overheadeditor()
 
 									if (ch == 'y' || ch == 'Y')
 									{
-										char *filename;
-
-										filename = &boardfilename[0];
+										std::string filename = boardfilename;
 										if (pathsearchmode == PATHSEARCH_GAME) {
-											filename = findfilename(filename);
+											filename = findfilename(filename.c_str());
 										}
 										fixspritesectors();   //Do this before saving!
 										updatesector(startposx,startposy,&startsectnum);
 										ExtPreSaveMap();
 										if (mapversion < 7) {
-											bad = saveoldboard(filename,&startposx,&startposy,&startposz,&startang,&startsectnum);
+											bad = saveoldboard(filename.c_str(), &startposx, &startposy, &startposz, &startang, &startsectnum);
 										} else {
-											bad = saveboard(filename,&startposx,&startposy,&startposz,&startang,&startsectnum);
+											bad = saveboard(filename.c_str(), &startposx, &startposy, &startposz, &startang, &startsectnum);
 										}
 										if (!bad) {
-											ExtSaveMap(filename);
+											ExtSaveMap(filename.c_str());
 										}
 										break;
 									} else if (ch == 'n' || ch == 'N' || ch == 13 || ch == ' ') {
@@ -6376,16 +6367,14 @@ void getfilenames(const std::string& path, const std::string& kind)
 	if (findfileshigh) currentlist = 1;
 }
 
-char *findfilename(char *path)
+std::string findfilename(const std::string& path)
 {
-	char *filename;
-
-	filename = std::strrchr(path, '/');
+	std::string filename = AfterLast(path, '/');
 #ifdef _WIN32
-	filename = std::max(filename, std::strrchr(path, '\\')); // FIXME: Hmm..
+	filename = std::max(filename.c_str(), std::strrchr(path.data(), '\\')); // FIXME: Hmm..
 #endif
-	if (filename) {
-		filename += 1;	// Skip the '/'
+	if (!filename.empty()) {
+		filename = AfterFirst(filename, '/'); // FIXME: Hmm..
 	} else {
 		filename = path;
 	}
@@ -6405,7 +6394,7 @@ int menuselect(int newpathmode)
 	const int listsize = (ydim16 - 32) / 8;
 
 	if (newpathmode != pathsearchmode) {
-		std::strcpy(&selectedboardfilename[0], "");
+		selectedboardfilename.clear();
 		pathsearchmode = newpathmode;
 	}
 	if (pathsearchmode == PATHSEARCH_SYSTEM) {
@@ -6495,9 +6484,12 @@ int menuselect(int newpathmode)
 			currentlist = 0;
 			pathsearchmode = 1-pathsearchmode;
 			if (pathsearchmode == PATHSEARCH_SYSTEM) {
-				std::strcpy(&selectedboardfilename[0], "");
+				selectedboardfilename.clear();
 				Bcanonicalisefilename(&selectedboardfilename[0], 1);
-			} else std::strcpy(&selectedboardfilename[0], "/");
+			}
+			else
+				selectedboardfilename = "/";
+
 			getfilenames(&selectedboardfilename[0], "*.map");
 		} else if (ch == 'g' || ch == 'G') {
 			if (pathsearchmode == PATHSEARCH_GAME) {
@@ -6521,11 +6513,11 @@ int menuselect(int newpathmode)
 			}
 		} else if ((ch == 13) && (currentlist == 0) && finddirshigh) {
 			if (finddirshigh->type == CACHE1D_FIND_DRIVE) {
-				std::strcpy(&selectedboardfilename[0], finddirshigh->name);
+				selectedboardfilename = finddirshigh->name;
 			} else {
-				std::strcat(&selectedboardfilename[0], finddirshigh->name);
+				selectedboardfilename.append(finddirshigh->name);
 			}
-			std::strcat(&selectedboardfilename[0], "/");
+			selectedboardfilename.append("/");
 			if (pathsearchmode == PATHSEARCH_SYSTEM)
 				Bcanonicalisefilename(&selectedboardfilename[0], 1);
 			else
@@ -6544,7 +6536,7 @@ int menuselect(int newpathmode)
 	while ((ch != 13) && (ch != 27));
 	if (ch == 13)
 	{
-		std::strcat(&selectedboardfilename[0], findfileshigh->name);
+		selectedboardfilename.append(findfileshigh->name);
 		//std::printf("Selected file: {}\n", selectedboardfilename);
 
 		return(0);
