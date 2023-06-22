@@ -26,7 +26,6 @@ enum class TokenType {
 	T_INCLUDE,
 	T_ECHO,
 	T_DEFINE,
-	T_DEFINETEXTURE,
 	T_DEFINESKYBOX,
 	T_DEFINETINT,
 	T_DEFINEMODEL,
@@ -82,8 +81,6 @@ constexpr auto basetokens = std::to_array<tokenlist>({
 	{ "#define",         TokenType::T_DEFINE           },
 	{ "echo",            TokenType::T_ECHO             },
 
-	// deprecated style
-	{ "definetexture",    TokenType::T_DEFINETEXTURE    },
 	{ "defineskybox",     TokenType::T_DEFINESKYBOX     },
 	{ "definetint",       TokenType::T_DEFINETINT       },
 	{ "definemodel",      TokenType::T_DEFINEMODEL      },
@@ -272,27 +269,6 @@ int defsparser(scriptfile *script)
 					if (scriptfile_addsymbolvalue(name.c_str(), number) < 0)
 						buildprintf("Warning: Symbol {} was NOT redefined to {} on line {}:{}\n",
 								name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
-					break;
-				}
-
-				// OLD (DEPRECATED) DEFINITION SYNTAX
-			case TokenType::T_DEFINETEXTURE:
-				{
-					int tile;
-					int pal;
-					int fnoo;
-					std::string fn;
-
-					if (scriptfile_getsymbol(script, &tile)) break;
-					if (scriptfile_getsymbol(script, &pal))  break;
-					if (scriptfile_getnumber(script, &fnoo)) break; //x-center
-					if (scriptfile_getnumber(script, &fnoo)) break; //y-center
-					if (scriptfile_getnumber(script, &fnoo)) break; //x-size
-					if (scriptfile_getnumber(script, &fnoo)) break; //y-size
-					if (scriptfile_getstring(script, fn))  break;
-#if USE_POLYMOST && USE_OPENGL
-					hicsetsubsttex(tile, pal, fn, -1.0, 0);
-#endif
 				}
 				break;
 			case TokenType::T_DEFINESKYBOX:
