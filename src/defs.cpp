@@ -221,7 +221,7 @@ int lastmodelid{-1};
 int lastvoxid{-1};
 int modelskin{-1};
 int lastmodelskin{-1};
-int seenframe{0};
+bool seenframe{false};
 
 constexpr auto skyfaces = std::to_array<std::string_view>({
 	"front face", "right face", "back face",
@@ -351,7 +351,7 @@ int defsparser(scriptfile *script)
 #endif
 					modelskin = 0;
 					lastmodelskin = 0;
-					seenframe = 0;
+					seenframe = false;
 				}
 				break;
 			case TokenType::T_DEFINEMODELFRAME:
@@ -376,23 +376,23 @@ int defsparser(scriptfile *script)
 						break;
 					}
 #if USE_POLYMOST && USE_OPENGL
-					char happy = 1;
+					bool happy{true};
 					for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
 						switch (md_defineframe(lastmodelid, framename.c_str(), tilex, std::max(0, modelskin))) {
 							case 0: break;
-							case -1: happy = 0; break; // invalid model id!?
+							case -1: happy = false; break; // invalid model id!?
 							case -2: buildprintf("Invalid tile number on line {}:{}\n",
 										 script->filename, scriptfile_getlinum(script,cmdtokptr));
-								 happy = 0;
+								 happy = false;
 								 break;
 							case -3: buildprintf("Invalid frame name on line {}:{}\n",
 										 script->filename, scriptfile_getlinum(script,cmdtokptr));
-								 happy = 0;
+								 happy = false;
 								 break;
 						}
 					}
 #endif
-					seenframe = 1;
+					seenframe = true;
 				}
 				break;
 			case TokenType::T_DEFINEMODELANIM:
@@ -449,7 +449,7 @@ int defsparser(scriptfile *script)
 					// selectmodelskin 0         // resets to skin 0
 					// definemodelframe "foo3" 1005 1006   // these use skin 0
 					if (seenframe) { modelskin = ++lastmodelskin; }
-					seenframe = 0;
+					seenframe = false;
 
 #if USE_POLYMOST && USE_OPENGL
 					switch (md_defineskin(lastmodelid, skinfn.c_str(), palnum, std::max(0, modelskin), 0)) {
@@ -536,7 +536,7 @@ int defsparser(scriptfile *script)
 
 					modelskin = 0;
 					lastmodelskin = 0;
-					seenframe = 0;
+					seenframe = false;
 
 					if (scriptfile_getstring(script, modelfn)) break;
 
@@ -559,7 +559,7 @@ int defsparser(scriptfile *script)
 								char *frametokptr = script->ltextptr;
 								char *frameend;
 								std::string framename;
-								char happy=1;
+								bool happy{true};
 								int ftilenume = -1;
 								int ltilenume = -1;
 								int tilex = 0;
@@ -576,13 +576,16 @@ int defsparser(scriptfile *script)
 
 								if (ftilenume < 0) {
 									buildprintf("Error: missing 'first tile number' for frame definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,frametokptr));
-									happy = 0;
+									happy = false;
 								}
+
 								if (ltilenume < 0) {
 									buildprintf("Error: missing 'last tile number' for frame definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,frametokptr));
-									happy = 0;
+									happy = false;
 								}
-								if (!happy) break;
+
+								if (!happy)
+									break;
 
 								if (ltilenume < ftilenume) {
 									buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,frametokptr));
@@ -599,19 +602,19 @@ int defsparser(scriptfile *script)
 								for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
 									switch (md_defineframe(lastmodelid, framename.c_str(), tilex, std::max(0, modelskin))) {
 										case 0: break;
-										case -1: happy = 0; break; // invalid model id!?
+										case -1: happy = false; break; // invalid model id!?
 										case -2: buildprintf("Invalid tile number on line {}:{}\n",
 													 script->filename, scriptfile_getlinum(script,frametokptr));
-											 happy = 0;
+											 happy = false;
 											 break;
 										case -3: buildprintf("Invalid frame name on line {}:{}\n",
 													 script->filename, scriptfile_getlinum(script,frametokptr));
-											 happy = 0;
+											 happy = false;
 											 break;
 									}
 								}
 #endif
-								seenframe = 1;
+								seenframe = true;
 								}
 								break;
 							case TokenType::T_ANIM:
@@ -620,7 +623,7 @@ int defsparser(scriptfile *script)
 								char *animend;
 								std::string startframe;
 								std::string endframe;
-								char happy=1; // FIXME: char* == 1?
+								bool happy{true};
 								int flags{0};
 								double dfps{1.0};
 
@@ -636,11 +639,11 @@ int defsparser(scriptfile *script)
 
 								if (startframe.empty()) {
 									buildprintf("Error: missing 'start frame' for anim definition near line {}:{}\n", script->filename, scriptfile_getlinum(script, animtokptr));
-									happy = 0;
+									happy = false;
 								}
 								if (endframe.empty()) {
 									buildprintf("Error: missing 'end frame' for anim definition near line {}:{}\n", script->filename, scriptfile_getlinum(script, animtokptr));
-									happy = 0;
+									happy = false;
 								}
 								if (!happy) break;
 
@@ -686,8 +689,11 @@ int defsparser(scriptfile *script)
 										break;
 								}
 
-								if (seenframe) { modelskin = ++lastmodelskin; }
-								seenframe = 0;
+								if (seenframe) {
+									modelskin = ++lastmodelskin;
+								}
+								
+								seenframe = false;
 
 #if USE_POLYMOST && USE_OPENGL
 								switch (md_defineskin(lastmodelid, skinfn.c_str(), palnum, std::max(0, modelskin), surfnum)) {
@@ -708,7 +714,7 @@ int defsparser(scriptfile *script)
 							case TokenType::T_HUD:
 							{
 								char *hudtokptr = script->ltextptr;
-								char happy=1;
+								char happy{true};
 								char *frameend;
 								int ftilenume = -1;
 								int ltilenume = -1;
@@ -738,11 +744,11 @@ int defsparser(scriptfile *script)
 
 								if (ftilenume < 0) {
 									buildprintf("Error: missing 'first tile number' for hud definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,hudtokptr));
-									happy = 0;
+									happy = false;
 								}
 								if (ltilenume < 0) {
 									buildprintf("Error: missing 'last tile number' for hud definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,hudtokptr));
-									happy = 0;
+									happy = false;
 								}
 								if (!happy) break;
 
@@ -761,14 +767,14 @@ int defsparser(scriptfile *script)
 								for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
 									switch (md_definehud(lastmodelid, tilex, xadd, yadd, zadd, angadd, flags)) {
 										case 0: break;
-										case -1: happy = 0; break; // invalid model id!?
+										case -1: happy = false; break; // invalid model id!?
 										case -2: buildprintf("Invalid tile number on line {}:{}\n",
 												script->filename, scriptfile_getlinum(script,hudtokptr));
-											happy = 0;
+											happy = false;
 											break;
 										case -3: buildprintf("Invalid frame name on line {}:{}\n",
 												script->filename, scriptfile_getlinum(script,hudtokptr));
-											happy = 0;
+											happy = false;
 											break;
 									}
 								}
@@ -782,7 +788,7 @@ int defsparser(scriptfile *script)
 #endif
 
 					modelskin = lastmodelskin = 0;
-					seenframe = 0;
+					seenframe = false;
 
 				}
 				break;
@@ -838,7 +844,7 @@ int defsparser(scriptfile *script)
 					char *skyboxtokptr = script->ltextptr;
 					std::array<std::string, 6> fn{};
 					char *modelend;
-					char happy=1;
+					bool happy{true};
 					int i;
 					int tile = -1;
 					int pal = 0;
@@ -860,12 +866,12 @@ int defsparser(scriptfile *script)
 
 					if (tile < 0) {
 						buildprintf("Error: missing 'tile number' for skybox definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,skyboxtokptr));
-						happy=0;
+						happy = false;
 					}
 					for (const auto& name : fn) {
 						if (name.empty()) {
 							buildprintf("Error: missing '{} filename' for skybox definition near line {}:{}\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr));
-							happy = 0;
+							happy = false;
 						}
 					}
 

@@ -148,7 +148,7 @@ void clear2dscreen();
 void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride);
 void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride);
 
-unsigned char changechar(unsigned char dachar, int dadir, unsigned char smooshyalign, unsigned char boundcheck);
+unsigned char changechar(unsigned char dachar, int dadir, unsigned char smooshyalign, bool boundcheck);
 void adjustmark(int *xplc, int *yplc, short danumwalls);
 bool checkautoinsert(int dax, int day, short danumwalls);
 void keytimerstuff();
@@ -163,7 +163,7 @@ short loopinside(int x, int y, short startwall);
 void fillsector(short sectnum, unsigned char fillcolor);
 short whitelinescan(short dalinehighlight);
 void printcoords16(int posxe, int posye, short ange);
-void copysector(short soursector, short destsector, short deststartwall, unsigned char copystat);
+void copysector(short soursector, short destsector, short deststartwall, bool copystat);
 void showsectordata(short sectnum);
 void showwalldata(short wallnum);
 void showspritedata(short spritenum);
@@ -1711,20 +1711,20 @@ void editinput()
 				if ((searchstat == 0) || (searchstat == 4))
 				{
 					if (repeatpanalign == 0)
-						wall[searchwall].xrepeat = changechar(wall[searchwall].xrepeat,changedir,smooshyalign,1);
+						wall[searchwall].xrepeat = changechar(wall[searchwall].xrepeat, changedir, smooshyalign, true);
 					else
-						wall[searchwall].xpanning = changechar(wall[searchwall].xpanning,changedir,smooshyalign,0);
+						wall[searchwall].xpanning = changechar(wall[searchwall].xpanning, changedir, smooshyalign, false);
 				}
 				if ((searchstat == 1) || (searchstat == 2))
 				{
 					if (searchstat == 1)
-						sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning,changedir,smooshyalign,0);
+						sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning, changedir, smooshyalign, false);
 					else
-						sector[searchsector].floorxpanning = changechar(sector[searchsector].floorxpanning,changedir,smooshyalign,0);
+						sector[searchsector].floorxpanning = changechar(sector[searchsector].floorxpanning, changedir, smooshyalign, false);
 				}
 				if (searchstat == 3)
 				{
-					sprite[searchwall].xrepeat = changechar(sprite[searchwall].xrepeat,changedir,smooshyalign,1);
+					sprite[searchwall].xrepeat = changechar(sprite[searchwall].xrepeat, changedir, smooshyalign, true);
 					if (sprite[searchwall].xrepeat < 4)
 						sprite[searchwall].xrepeat = 4;
 				}
@@ -1747,20 +1747,20 @@ void editinput()
 				if ((searchstat == 0) || (searchstat == 4))
 				{
 					if (repeatpanalign == 0)
-						wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat,changedir,smooshyalign,1);
+						wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat, changedir, smooshyalign, true);
 					else
-						wall[searchwall].ypanning = changechar(wall[searchwall].ypanning,changedir,smooshyalign,0);
+						wall[searchwall].ypanning = changechar(wall[searchwall].ypanning, changedir, smooshyalign, false);
 				}
 				if ((searchstat == 1) || (searchstat == 2))
 				{
 					if (searchstat == 1)
-						sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning,changedir,smooshyalign,0);
+						sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning, changedir, smooshyalign, false);
 					else
-						sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning,changedir,smooshyalign,0);
+						sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning, changedir, smooshyalign, false);
 				}
 				if (searchstat == 3)
 				{
-					sprite[searchwall].yrepeat = changechar(sprite[searchwall].yrepeat,changedir,smooshyalign,1);
+					sprite[searchwall].yrepeat = changechar(sprite[searchwall].yrepeat, changedir, smooshyalign, true);
 					if (sprite[searchwall].yrepeat < 4)
 						sprite[searchwall].yrepeat = 4;
 				}
@@ -2467,11 +2467,11 @@ void editinput()
 	}
 }
 
-unsigned char changechar(unsigned char dachar, int dadir, unsigned char smooshyalign, unsigned char boundcheck)
+unsigned char changechar(unsigned char dachar, int dadir, unsigned char smooshyalign, bool boundcheck)
 {
 	if (dadir < 0)
 	{
-		if ((dachar > 0) || (boundcheck == 0))
+		if ((dachar > 0) || !boundcheck)
 		{
 			dachar--;
 			if (smooshyalign > 0)
@@ -2480,7 +2480,7 @@ unsigned char changechar(unsigned char dachar, int dadir, unsigned char smooshya
 	}
 	else if (dadir > 0)
 	{
-		if ((dachar < 255) || (boundcheck == 0))
+		if ((dachar < 255) || !boundcheck)
 		{
 			dachar++;
 			if (smooshyalign > 0)
@@ -5101,7 +5101,7 @@ void overheadeditor()
 				newnumwalls = numwalls;
 				for(i=0;i<highlightsectorcnt;i++)
 				{
-					copysector(highlightsector[i],newnumsectors,newnumwalls,1);
+					copysector(highlightsector[i], newnumsectors, newnumwalls, true);
 					newnumsectors++;
 					newnumwalls += sector[highlightsector[i]].wallnum;
 				}
@@ -5380,7 +5380,7 @@ void overheadeditor()
 								for(i=0;i<highlightsectorcnt;i++)
 								{
 									j -= sector[highlightsector[i]].wallnum;
-									copysector(highlightsector[i],(short)(MAXSECTORS-highlightsectorcnt+i),(short)j,0);
+									copysector(highlightsector[i], (short)(MAXSECTORS - highlightsectorcnt + i), (short)j, false);
 								}
 
 									//Put sprites to end of list
@@ -5454,7 +5454,7 @@ void overheadeditor()
 										//Re-attach sectors&walls
 									for(i=0;i<highlightsectorcnt;i++)
 									{
-										copysector((short)(MAXSECTORS-highlightsectorcnt+i),numsectors,numwalls,0);
+										copysector((short)(MAXSECTORS - highlightsectorcnt + i), numsectors, numwalls, false);
 										highlightsector[i] = numsectors;
 										numwalls += sector[numsectors].wallnum;
 										numsectors++;
@@ -7455,7 +7455,7 @@ void updatenumsprites()
 	}
 }
 
-void copysector(short soursector, short destsector, short deststartwall, unsigned char copystat)
+void copysector(short soursector, short destsector, short deststartwall, bool copystat)
 {
 	short newnumwalls = deststartwall;  //erase existing sector fragments
 
@@ -7491,7 +7491,7 @@ void copysector(short soursector, short destsector, short deststartwall, unsigne
 		sector[destsector].wallptr = deststartwall;
 		sector[destsector].wallnum = newnumwalls-deststartwall;
 
-		if (copystat == 1)
+		if (copystat)
 		{
 				//duplicate sprites
 			short j = headspritesect[soursector];
