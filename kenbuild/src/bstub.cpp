@@ -13,18 +13,14 @@
 #include "names.hpp"
 #include "osd.hpp"
 #include "cache1d.hpp"
+#include "engine_priv.hpp"
+
+#include <fmt/core.h>
 
 #include <array>
-
+#include <string>
 
 static std::array<unsigned char, 256> tempbuf;
-
-constexpr auto NUMOPTIONS{9};
-
-std::array<unsigned char, NUMOPTIONS> option = {
-	0, 0, 0, 0,
-	0, 0, 1, 0, 0
-};
 
 std::array<int, NUMBUILDKEYS> keys =
 {
@@ -62,7 +58,6 @@ constexpr auto AVERAGEFRAMES{32};
 static std::array<unsigned int, AVERAGEFRAMES> frameval;
 static int framecnt{0};
 
-char *defsfilename = "kenbuild.def";
 int nextvoxid = 0;
 
 int ExtInit()
@@ -89,7 +84,7 @@ int ExtInit()
 #endif
 
     {
-        char *supportdir = Bgetsupportdir(1);
+        std::string supportdir = Bgetsupportdir(1);
         char *appdir = Bgetappdir();
         char dirpath[BMAX_PATH+1];
 
@@ -100,11 +95,10 @@ int ExtInit()
         }
 
         // the global support files directory
-        if (supportdir) {
+        if (!supportdir.empty()) {
 			// FIXME: Defaults to '/'; use '\ on windows.
 			fmt::format_to(&dirpath[0], "{}/KenBuild", supportdir);
             addsearchpath(dirpath);
-            std::free(supportdir);
         }
     }
 
@@ -117,11 +111,11 @@ int ExtInit()
             addsearchpath(cwd);
         }
     } else {
-        char *supportdir;
+        std::string supportdir = Bgetsupportdir(0);
         char dirpath[BMAX_PATH+1];
         int asperr;
 
-        if ((supportdir = Bgetsupportdir(0))) {
+        if (!supportdir.empty()) {
 #if defined(_WIN32) || defined(__APPLE__)
             constexpr std::string_view dirname = "KenBuild";
 #else
@@ -140,14 +134,13 @@ int ExtInit()
             if (asperr == 0 && chdir(dirpath) < 0) {
                 buildprintf("warning: could not change directory to {}\n", dirpath);
             }
-            std::free(supportdir);
         }
     }
 
 	initgroupfile("stuff.dat");
 	bpp = 8;
 	if (loadsetup("build.cfg") < 0) buildputs("Configuration file not found, using defaults.\n"), rv = 1;
-	std::memcpy((void *)buildkeys,(void *)keys,sizeof(buildkeys));   //Trick to make build use setup.dat keys
+	std::memcpy((void *)&buildkeys[0],(void *)&keys[0],sizeof(buildkeys));   //Trick to make build use setup.dat keys
 	if (option[4] > 0) option[4] = 0;
 	if (!initengine()) {
 		wm_msgbox("Build Engine Initialisation Error",
@@ -370,7 +363,7 @@ void ExtCheckKeys()
 		i = frameval[framecnt&(AVERAGEFRAMES-1)];
 		j = frameval[framecnt&(AVERAGEFRAMES-1)] = getticks(); framecnt++;
 		if (i != j) averagefps = ((mul3(averagefps)+((AVERAGEFRAMES*1000)/(j-i)) )>>2);
-		std::sprintf((char *)tempbuf, "%d", averagefps);
+		fmt::format_to(&tempbuf[0], "{}", averagefps);
 		printext256(0L,0L,31,-1, (char *)&tempbuf[0], 1);
 
 		editinput();

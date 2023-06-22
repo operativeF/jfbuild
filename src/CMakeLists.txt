@@ -3,6 +3,7 @@ set(ENGINE_BASE_SRCS
   ${CMAKE_CURRENT_LIST_DIR}/a-c.cpp
   ${CMAKE_CURRENT_LIST_DIR}/asmprot.cpp
   ${CMAKE_CURRENT_LIST_DIR}/baselayer.cpp
+  ${CMAKE_SOURCE_DIR}/kenbuild/src/bstub.cpp
   ${CMAKE_CURRENT_LIST_DIR}/build.cpp
   ${CMAKE_CURRENT_LIST_DIR}/cache1d.cpp
   ${CMAKE_CURRENT_LIST_DIR}/compat.cpp
@@ -103,8 +104,6 @@ target_link_libraries(build_engine
     unofficial::libsquish::squish
     ${WINDOWS_LINK_LIBRARIES}
     fmt::fmt
-    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
 )
 
 target_include_directories(build_engine
@@ -118,4 +117,25 @@ target_compile_definitions(build_engine
   PUBLIC
   -DUSE_OPENGL=3
   -DUSE_POLYMOST=1
+)
+
+set(BUILD_EDITOR_SRCS
+  ${CMAKE_CURRENT_LIST_DIR}/startwin_editor.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/winlayer.cpp
+)
+
+add_executable(build_editor WIN32
+  ${BUILD_EDITOR_SRCS}
+)
+
+target_compile_definitions(build_editor
+  PRIVATE
+    -DRENDERTYPEWIN
+)
+
+target_link_libraries(build_editor
+  PRIVATE
+    ${WINDOWS_LINK_LIBRARIES}
+    build_engine
+    fmt::fmt
 )

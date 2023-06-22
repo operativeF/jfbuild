@@ -16,8 +16,6 @@
 
 #include <array>
 
-extern std::array<char, 8> option;
-
 /*
  * SETUP.DAT
  * 0      = video mode (0:chained 1:vesa 2:screen buffered 3/4/5:tseng/paradise/s3 6:red-blue)

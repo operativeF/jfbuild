@@ -5,13 +5,14 @@
 #ifndef __editor_h__
 #define __editor_h__
 
+#include "engine_priv.hpp"
+
 #include <string>
 
 inline constexpr auto NUMBUILDKEYS{20};
 
 // extern int qsetmode;
 extern short searchwall;
-extern short searchstat;
 extern int zmode;
 extern int kensplayerheight;
 extern int kenswalldist;

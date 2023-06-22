@@ -141,7 +141,6 @@ const struct textfontspec textfonts[3] = {
 };
 
 short searchwall;
-short searchstat;     //search output
 
 int totalclocklock;
 

@@ -46,6 +46,18 @@
 
 extern int gammabrightness;
 
+static BOOL CheckWinVersion();
+static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+static LPTSTR GetWindowsErrorMsg(DWORD code);
+static void ShowErrorBox(const char *m);
+static BOOL RegisterWindowClass();
+static BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refresh);
+static void DestroyAppWindow();
+static void UpdateAppWindowTitle();
+static int SetupOpenGL(int width, int height, unsigned char bitspp);
+static void UninitOpenGL();
+static const char * getwindowserrorstr(DWORD code);
+
 namespace {
 
 char *argvbuf = nullptr;
@@ -108,22 +120,11 @@ struct winlayer_glfuncs {
 
 #endif
 
-LPTSTR GetWindowsErrorMsg(DWORD code);
-const char * getwindowserrorstr(DWORD code);
-void ShowErrorBox(const char *m);
-BOOL CheckWinVersion();
-LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void fetchkeynames();
 void updatemouse();
 void updatejoystick();
 void UninitDIB();
 int SetupDIB(int width, int height);
-void UninitOpenGL();
-int SetupOpenGL(int width, int height, unsigned char bitspp);
-BOOL RegisterWindowClass();
-BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refresh);
-void DestroyAppWindow();
-void UpdateAppWindowTitle();
 
 void shutdownvideo();
 
@@ -1764,8 +1765,6 @@ void *getglprocaddress(const char *name, int ext)
 // UninitOpenGL() -- cleans up OpenGL rendering
 //
 
-namespace {
-
 void UninitOpenGL()
 {
 	if (hGLRC) {
@@ -2109,7 +2108,7 @@ fail:
 //
 // CreateAppWindow() -- create the application window
 //
-BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refresh)
+static BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refresh)
 {
 	RECT rect;
 	int ww;
@@ -2291,7 +2290,7 @@ BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refresh)
 //
 // DestroyAppWindow() -- destroys the application window
 //
-void DestroyAppWindow()
+static void DestroyAppWindow()
 {
 	if (hWindow && gammabrightness) {
 		setgammaramp(sysgamma);
@@ -2314,7 +2313,7 @@ void DestroyAppWindow()
 //
 // UpdateAppWindowTitle() -- sets the title of the application window
 //
-void UpdateAppWindowTitle()
+static void UpdateAppWindowTitle()
 {
 	if (!hWindow) {
 		return;
@@ -2337,7 +2336,7 @@ void UpdateAppWindowTitle()
 //
 // ShowErrorBox() -- shows an error message box
 //
-void ShowErrorBox(const char *m)
+static void ShowErrorBox(const char *m)
 {
 	std::array<TCHAR, 1024> msg;
 
@@ -2349,7 +2348,7 @@ void ShowErrorBox(const char *m)
 //
 // CheckWinVersion() -- check to see what version of Windows we happen to be running under
 //
-BOOL CheckWinVersion()
+static BOOL CheckWinVersion()
 {
 	OSVERSIONINFO osv;
 
@@ -2367,7 +2366,7 @@ BOOL CheckWinVersion()
 //
 // WndProcCallback() -- the Windows window callback
 //
-LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 #if USE_OPENGL
 	if (hGLWindow && hWnd == hGLWindow) return ::DefWindowProc(hWnd,uMsg,wParam,lParam);
@@ -2560,7 +2559,7 @@ LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 //
 // RegisterWindowClass() -- register the window class
 //
-BOOL RegisterWindowClass()
+static BOOL RegisterWindowClass()
 {
 	WNDCLASSEX wcx;
 
@@ -2596,7 +2595,7 @@ BOOL RegisterWindowClass()
 //
 // GetWindowsErrorMsg() -- gives a pointer to a static buffer containing the Windows error message
 //
-LPTSTR GetWindowsErrorMsg(DWORD code)
+static LPTSTR GetWindowsErrorMsg(DWORD code)
 {
 	static std::array<TCHAR, 1024> lpMsgBuf;
 
@@ -2608,12 +2607,10 @@ LPTSTR GetWindowsErrorMsg(DWORD code)
 	return &lpMsgBuf[0];
 }
 
-const char *getwindowserrorstr(DWORD code)
+static const char *getwindowserrorstr(DWORD code)
 {
 	static std::array<char, 1024> msg;
 	std::ranges::fill(msg, 0);
 	::OemToCharBuff(GetWindowsErrorMsg(code), &msg[0], msg.size() - 1);
 	return &msg[0];
 }
-
-} // namespace

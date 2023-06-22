@@ -70,7 +70,7 @@ inline int globaly2{0};
 inline int globalorientation{0};
 
 extern "C" short searchwall;
-extern "C" short searchstat;
+inline short searchstat{0};
 
 inline char inpreparemirror{0};
 

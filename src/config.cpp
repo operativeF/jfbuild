@@ -14,7 +14,6 @@
 
 #include <array>
 
-extern std::array<char, 8> option;
 extern std::array<int, NUMBUILDKEYS> keys;
 
 /*

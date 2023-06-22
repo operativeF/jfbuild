@@ -257,9 +257,12 @@ INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM 
                 // Add tabs to the tab control
                 ZeroMemory(&tab, sizeof(tab));
                 tab.mask = TCIF_TEXT;
-                tab.pszText = TEXT("Configuration");
+                constexpr char WinConfigTab[] = "Configuration";
+                constexpr char MessagesTab[] = "Messages";
+
+                tab.pszText = const_cast<char*>(WinConfigTab);
                 TabCtrl_InsertItem(hwnd, 0, &tab);
-                tab.pszText = TEXT("Messages");
+                tab.pszText = const_cast<char*>(MessagesTab);
                 TabCtrl_InsertItem(hwnd, 1, &tab);
 
                 // Work out the position and size of the area inside the tab control for the pages.

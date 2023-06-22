@@ -74,7 +74,6 @@ char names[MAXTILES][25];
 
 bool asksave{false};
 extern short searchwall;
-extern short searchstat;     //search output
 
 extern short pointhighlight;
 extern short linehighlight;
@@ -311,7 +310,8 @@ int osdcmd_showspriteextents(const osdfuncparm_t *parm)
 # define HAVE_STARTWIN
 #endif
 
-extern char *defsfilename;	// set in bstub.c
+static constexpr char defsfilename[] = "kenbuild.def";
+
 int app_main(int argc, char const * const argv[])
 {
 	char quitflag;
