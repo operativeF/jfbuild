@@ -1299,9 +1299,9 @@ unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil)
 	
 	if (k > LZWSIZE-dasizeof)
 	{
-		auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
+		const auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
 		k = 0;
-		auto swleng = B_LITTLE16(leng);
+		const auto swleng = B_LITTLE16(leng);
 		if (Bwrite(fil, &swleng, 2) != 2) {
 			lzwrelease();
 			return 0;
@@ -1323,9 +1323,9 @@ unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil)
 		
 		if (k > LZWSIZE-dasizeof)
 		{
-			auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
+			const auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
 			k = 0;
-			auto swleng = B_LITTLE16(leng);
+			const auto swleng = B_LITTLE16(leng);
 			if (Bwrite(fil,&swleng,2) != 2) { lzwrelease(); return 0; }
 			if (Bwrite(fil,lzwbuf5,(int)leng) != leng) { lzwrelease(); return 0; }
 		}
@@ -1335,8 +1335,8 @@ unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil)
 
 	if (k > 0)
 	{
-		auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
-		auto swleng = B_LITTLE16(leng);
+		const auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
+		const auto swleng = B_LITTLE16(leng);
 		if (Bwrite(fil, &swleng, 2) != 2) {
 			lzwrelease();
 			return 0;
@@ -1369,9 +1369,9 @@ unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil
 
 	if (k > LZWSIZE-dasizeof)
 	{
-		auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
+		const auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
 		k = 0;
-		auto swleng = B_LITTLE16(leng);
+		const auto swleng = B_LITTLE16(leng);
 
 		if (std::fwrite(&swleng, 2, 1, fil) != 1) {
 			lzwrelease();
@@ -1394,9 +1394,9 @@ unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil
 
 		if (k > LZWSIZE-dasizeof)
 		{
-			auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
+			const auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
 			k = 0;
-			auto swleng = B_LITTLE16(leng);
+			const auto swleng = B_LITTLE16(leng);
 
 			if (std::fwrite(&swleng, 2, 1, fil) != 1) {
 				lzwrelease();
@@ -1414,8 +1414,8 @@ unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil
 
 	if (k > 0)
 	{
-		auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
-		auto swleng = B_LITTLE16(leng);
+		const auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
+		const auto swleng = B_LITTLE16(leng);
 		
 		if (std::fwrite(&swleng, 2, 1, fil) != 1) {
 			lzwrelease();

@@ -4005,7 +4005,7 @@ void drawscreen(short snum, int dasmoothratio)
 						setviewtotile(MAXTILES-2,320L>>detailmode,320L>>detailmode);
 					if ((tiltlock&1023) == 512)
 					{     //Block off unscreen section of 90¯ tilted screen
-						int j = ((320 - 60) >> detailmode);
+						const int j = ((320 - 60) >> detailmode);
 						for(int i = (60 >> detailmode) - 1; i >= 0; --i)
 						{
 							startumost[i] = 1;
@@ -4043,7 +4043,7 @@ void drawscreen(short snum, int dasmoothratio)
 
 				//if (cposz > sector[floormirrorsector[i]].ceilingz) i = 1-i; //SOS
 
-				int fmsect = floormirrorsector[i];
+				const int fmsect = floormirrorsector[i];
 
 				if (cameradist < 0) sprite[playersprite[snum]].cstat |= 0x8000;
 				drawrooms(cposx,cposy,(sector[fmsect].floorz<<1)-cposz,cang,201-choriz,fmsect); //SOS
@@ -4242,7 +4242,7 @@ void drawscreen(short snum, int dasmoothratio)
 	if (dimensionmode[snum] != 3)
 	{
 			//Move back pivot point
-		int i = scale(czoom,screensize,320);
+		const int i = scale(czoom,screensize,320);
 
 		if (dimensionmode[snum] == 2)
 		{

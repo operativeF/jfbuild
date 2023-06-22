@@ -1532,7 +1532,7 @@ void setzrange1 (int *lptr, int z0, int z1)
 	}
 	
 	int z = (z0 >> 5);
-	int ze = (z1 >> 5);
+	const int ze = (z1 >> 5);
 
 	lptr[z] |= (-(1 << SHIFTMOD32(z0)));
 	
