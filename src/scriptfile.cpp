@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <charconv>
 #include <cmath>
+#include <optional>
 
 namespace {
 
@@ -105,28 +106,26 @@ int scriptfile_gethex(scriptfile *sf, int *num)
 	return scriptfile_getnumber_radix(sf, num, 16);
 }
 
-int scriptfile_getbool(scriptfile* sf, bool* b)
+std::optional<bool> scriptfile_getbool(scriptfile* sf)
 {
 	const auto* boolean_val = scriptfile_gettoken(sf);
 
 	if (boolean_val == nullptr)
 	{
 		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf, sf->textptr));
-		return -2;
+		return std::nullopt;
 	}
 
 	std::string_view boolean_strv{boolean_val};
 
 	if(boolean_strv == "true")
-		*b = true;
+		return true;
 	else if(boolean_strv == "false")
-		*b = false;
+		return false;
 	else {
 		buildprintf("Error on line {}:{}: expecting bool (true / false), got \"{}\"\n",sf->filename, scriptfile_getlinum(sf, sf->textptr), boolean_strv);
-		return -2;
+		return std::nullopt;
 	}
-
-	return 0;	
 }
 
 namespace {
@@ -193,28 +192,29 @@ double parsedouble(char *ptr, char **end)
 
 } // namespace
 
-int scriptfile_getdouble(scriptfile *sf, double *num)
+std::optional<double> scriptfile_getdouble(scriptfile *sf)
 {
 	skipoverws(sf);
 	if (sf->textptr >= sf->eof)
 	{
 		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
-		return -1;
+		return std::nullopt;
 	}
 	
 	sf->ltextptr = sf->textptr;
 
 	// On Linux, locale settings interfere with interpreting x.y format numbers
 	//(*num) = strtod((const char *)sf->textptr,&sf->textptr);
-	(*num) = parsedouble(sf->textptr, &sf->textptr);
+	auto num = parsedouble(sf->textptr, &sf->textptr);
 	
 	if (!is_whitespace(*sf->textptr) && *sf->textptr) {
 		char *p = sf->textptr;
 		skipovertoken(sf);
 		buildprintf("Error on line {}:{}: expecting float, got \"{}\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
-		return -2;
+		return std::nullopt;
 	}
-	return 0;
+
+	return num;
 }
 
 int scriptfile_getsymbol(scriptfile *sf, int *num)

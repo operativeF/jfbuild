@@ -333,11 +333,12 @@ int defsparser(scriptfile *script)
 			case TokenType::T_DEFINEMODEL:
 				{
 					std::string modelfn;
-					double scale;
 					int shadeoffs;
 
 					if (scriptfile_getstring(script, modelfn)) break;
-					if (scriptfile_getdouble(script,&scale)) break;
+					auto scale = scriptfile_getdouble(script);
+					if(!scale.has_value())
+						break;
 					if (scriptfile_getnumber(script,&shadeoffs)) break;
 
 #if USE_POLYMOST && USE_OPENGL
@@ -346,7 +347,7 @@ int defsparser(scriptfile *script)
 						buildprintf("Failure loading MD2/MD3 model \"{}\"\n", modelfn);
 						break;
 					}
-					md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0);
+					md_setmisc(lastmodelid,static_cast<float>(scale.value()), shadeoffs,0.0); // FIXME: Narrowing.
 #endif
 					modelskin = 0;
 					lastmodelskin = 0;
@@ -399,11 +400,13 @@ int defsparser(scriptfile *script)
 					std::string startframe;
 					std::string endframe;
 					int flags;
-					double dfps;
+					
 
 					if (scriptfile_getstring(script, startframe)) break;
 					if (scriptfile_getstring(script, endframe)) break;
-					if (scriptfile_getdouble(script,&dfps)) break; //animation frame rate
+					auto dfps = scriptfile_getdouble(script);  //animation frame rate
+					if(!dfps.has_value())
+						break;
 					if (scriptfile_getnumber(script,&flags)) break;
 
 					if (lastmodelid < 0) {
@@ -411,7 +414,7 @@ int defsparser(scriptfile *script)
 						break;
 					}
 #if USE_POLYMOST && USE_OPENGL
-					switch (md_defineanimation(lastmodelid, startframe.c_str(), endframe.c_str(), (int)(dfps*(65536.0*.001)), flags)) {
+					switch (md_defineanimation(lastmodelid, startframe.c_str(), endframe.c_str(), (int)(dfps.value() * (65536.0*.001)), flags)) {
 						case 0: break;
 						case -1: break; // invalid model id!?
 						case -2: buildprintf("Invalid starting frame name on line {}:{}\n",
@@ -550,9 +553,13 @@ int defsparser(scriptfile *script)
 					while (script->textptr < modelend) {
 						switch (getatoken(script, modeltokens)) {
 							//case TokenType::T_ERROR: buildprintf("Error on line {}:{} in model tokens\n", script->filename,script->linenum); break;
-							case TokenType::T_SCALE: scriptfile_getdouble(script,&scale); break;
+							case TokenType::T_SCALE:
+								scale = scriptfile_getdouble(script).value_or(1.0);
+								break;
 							case TokenType::T_SHADE: scriptfile_getnumber(script,&shadeoffs); break;
-							case TokenType::T_ZADD:  scriptfile_getdouble(script,&mzadd); break;
+							case TokenType::T_ZADD:
+								mzadd = scriptfile_getdouble(script).value_or(0.0);
+								break;
 							case TokenType::T_FRAME:
 							{
 								char *frametokptr = script->ltextptr;
@@ -631,7 +638,9 @@ int defsparser(scriptfile *script)
 									switch(getatoken(script, modelanimtokens)) {
 										case TokenType::T_FRAME0: scriptfile_getstring(script, startframe); break;
 										case TokenType::T_FRAME1: scriptfile_getstring(script, endframe); break;
-										case TokenType::T_FPS: scriptfile_getdouble(script,&dfps); break; //animation frame rate
+										case TokenType::T_FPS:
+											dfps = scriptfile_getdouble(script).value_or(1.0);
+											break; //animation frame rate
 										case TokenType::T_FLAGS: scriptfile_getsymbol(script,&flags); break;
 									}
 								}
@@ -719,10 +728,10 @@ int defsparser(scriptfile *script)
 								int ltilenume = -1;
 								int tilex = 0;
 								int flags = 0;
-								double xadd = 0.0;
-								double yadd = 0.0;
-								double zadd = 0.0;
-								double angadd = 0.0;
+								double xadd{0.0};
+								double yadd{0.0};
+								double zadd{0.0};
+								double angadd{0.0};
 
 								if (scriptfile_getbraces(script,&frameend)) break;
 								while (script->textptr < frameend) {
@@ -730,10 +739,10 @@ int defsparser(scriptfile *script)
 										case TokenType::T_TILE:  scriptfile_getsymbol(script,&ftilenume); ltilenume = ftilenume; break;
 										case TokenType::T_TILE0: scriptfile_getsymbol(script,&ftilenume); break; //first tile number
 										case TokenType::T_TILE1: scriptfile_getsymbol(script,&ltilenume); break; //last tile number (inclusive)
-										case TokenType::T_XADD:  scriptfile_getdouble(script,&xadd); break;
-										case TokenType::T_YADD:  scriptfile_getdouble(script,&yadd); break;
-										case TokenType::T_ZADD:  scriptfile_getdouble(script,&zadd); break;
-										case TokenType::T_ANGADD:scriptfile_getdouble(script,&angadd); break;
+										case TokenType::T_XADD:  xadd = scriptfile_getdouble(script).value_or(0.0); break;
+										case TokenType::T_YADD:  yadd = scriptfile_getdouble(script).value_or(0.0); break;
+										case TokenType::T_ZADD:  zadd = scriptfile_getdouble(script).value_or(0.0); break;
+										case TokenType::T_ANGADD: angadd = scriptfile_getdouble(script).value_or(0.0); break;
 										case TokenType::T_HIDE:    flags |= 1; break;
 										case TokenType::T_NOBOB:   flags |= 2; break;
 										case TokenType::T_FLIPPED: flags |= 4; break;
@@ -783,7 +792,7 @@ int defsparser(scriptfile *script)
 					}
 
 #if USE_POLYMOST && USE_OPENGL
-					md_setmisc(lastmodelid,(float)scale,shadeoffs,(float)mzadd);
+					md_setmisc(lastmodelid, (float) scale, shadeoffs, (float)mzadd);
 #endif
 
 					modelskin = lastmodelskin = 0;
@@ -828,9 +837,8 @@ int defsparser(scriptfile *script)
 								for(tilex=tile0;tilex<=tile1;tilex++) tiletovox[tilex] = lastvoxid;
 								break; //last tile number (inclusive)
 							case TokenType::T_SCALE: {
-								double scale=1.0;
-								scriptfile_getdouble(script,&scale);
-								voxscale[lastvoxid] = 65536*scale;
+								double scale = scriptfile_getdouble(script).value_or(1.0);
+								voxscale[lastvoxid] = 65536 * scale;
 								break;
 							}
 						}
@@ -927,7 +935,7 @@ int defsparser(scriptfile *script)
 								char *palend;
 								int pal=-1;
 								std::string fn;
-								double alphacut = -1.0;
+								double alphacut{-1.0};
 								char flags = 0;
 
 								if (scriptfile_getsymbol(script,&pal)) break;
@@ -935,7 +943,7 @@ int defsparser(scriptfile *script)
 								while (script->textptr < palend) {
 									switch (getatoken(script, texturetokens_pal)) {
 										case TokenType::T_FILE:     scriptfile_getstring(script, fn); break;
-										case TokenType::T_ALPHACUT: scriptfile_getdouble(script,&alphacut); break;
+										case TokenType::T_ALPHACUT: alphacut = scriptfile_getdouble(script).value_or(-1.0); break;
 										case TokenType::T_NOCOMPRESS: flags |= 1; break;
 										default: break;
 									}

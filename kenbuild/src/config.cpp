@@ -223,9 +223,9 @@ int loadsetup(const std::string& fn)
 
 				switch (configspec[item].type) {
 					case type_bool: {
-						bool value{false};
-						if (scriptfile_getbool(cfg.get(), &value)) break;
-						*(bool*)configspec[item].store = value;
+						auto value = scriptfile_getbool(cfg.get());
+						if (!value.has_value()) break;
+						*(bool*)configspec[item].store = value.value();
 						break;
 					}
 					case type_int: {
@@ -241,9 +241,9 @@ int loadsetup(const std::string& fn)
 						break;
 					}
 					case type_double: {
-						double value = 0.0;
-						if (scriptfile_getdouble(cfg.get(), &value)) break;
-						*(double*)configspec[item].store = value;
+						auto value = scriptfile_getdouble(cfg.get());
+						if (!value.has_value()) break;
+						*(double*)configspec[item].store = value.value();
 						break;
 					}
 					default: {
