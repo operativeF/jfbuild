@@ -202,6 +202,10 @@ int loadsetup(const std::string& fn)
 			if (IsSameAsNoCase(token.value(), configspec[item].name)) {
 				// Seek past any = symbol.
 				token = scriptfile_peektoken(cfg);
+				
+				if(!token.has_value())
+					break;
+
 				if (token.value() == "=") {
 					scriptfile_gettoken(cfg);
 				}
