@@ -194,7 +194,7 @@ constexpr auto texturetokens_pal = std::to_array<tokenlist>({
 });
 
 
-TokenType getatoken(std::unique_ptr<scriptfile>& sf, std::span<const tokenlist> tl)
+TokenType getatoken(scriptfile* sf, std::span<const tokenlist> tl)
 {
 	if (!sf) {
 		return TokenType::T_ERROR;
@@ -225,7 +225,7 @@ constexpr auto skyfaces = std::to_array<std::string_view>({
 	"left face", "top face", "bottom face"
 });
 
-int defsparser(std::unique_ptr<scriptfile>& script)
+int defsparser(scriptfile* script)
 {
 	while (1) {
 		const auto tokn = getatoken(script, basetokens);
@@ -246,7 +246,7 @@ int defsparser(std::unique_ptr<scriptfile>& script)
 							buildprintf("Warning: Failed including {} on line {}:{}\n",
 									fnvstr, script->filename,scriptfile_getlinum(script,cmdtokptr));
 						} else {
-							defsparser(included);
+							defsparser(included.get());
 						}
 					}
 					break;
@@ -1106,7 +1106,7 @@ int loaddefinitionsfile(const char *fn)
 		return -1;
 	}
 
-	defsparser(script);
+	defsparser(script.get());
 
 	scriptfile_clearsymbols();
 

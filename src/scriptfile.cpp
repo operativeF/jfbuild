@@ -21,7 +21,7 @@ constexpr bool is_whitespace(auto ch) {
 	return (ch == ' ') || (ch == '\t') || (ch == '\r') || (ch == '\n');
 };
 
-char* skipoverwspeek(const std::unique_ptr<scriptfile>& sf) {
+char* skipoverwspeek(const scriptfile* sf) {
 	if ((sf->textptr < sf->eof) && (!sf->textptr[0])) {
 		auto peekptr = sf->textptr;
 		return ++peekptr;
@@ -29,12 +29,12 @@ char* skipoverwspeek(const std::unique_ptr<scriptfile>& sf) {
 
 	return nullptr;
 }
-void skipoverws(std::unique_ptr<scriptfile>& sf) { if ((sf->textptr < sf->eof) && (!sf->textptr[0])) sf->textptr++; }
-void skipovertoken(std::unique_ptr<scriptfile>& sf) { while ((sf->textptr < sf->eof) && (sf->textptr[0])) sf->textptr++; }
+void skipoverws(scriptfile* sf) { if ((sf->textptr < sf->eof) && (!sf->textptr[0])) sf->textptr++; }
+void skipovertoken(scriptfile* sf) { while ((sf->textptr < sf->eof) && (sf->textptr[0])) sf->textptr++; }
 
 } // namespace
 
-std::optional<std::string_view> scriptfile_gettoken(std::unique_ptr<scriptfile>& sf)
+std::optional<std::string_view> scriptfile_gettoken(scriptfile* sf)
 {
 	skipoverws(sf);
 
@@ -47,7 +47,7 @@ std::optional<std::string_view> scriptfile_gettoken(std::unique_ptr<scriptfile>&
 	return start;
 }
 
-std::optional<std::string_view> scriptfile_peektoken(const std::unique_ptr<scriptfile>& sf)
+std::optional<std::string_view> scriptfile_peektoken(const scriptfile* sf)
 {
 	auto peekptr = skipoverwspeek(sf);
 
@@ -57,7 +57,7 @@ std::optional<std::string_view> scriptfile_peektoken(const std::unique_ptr<scrip
 	return peekptr;
 }
 
-std::optional<std::string_view> scriptfile_getstring(std::unique_ptr<scriptfile>& sf)
+std::optional<std::string_view> scriptfile_getstring(scriptfile* sf)
 {
 	auto retst = scriptfile_gettoken(sf);
 
@@ -72,7 +72,7 @@ std::optional<std::string_view> scriptfile_getstring(std::unique_ptr<scriptfile>
 
 namespace {
 
-std::optional<int> scriptfile_getnumber_radix(std::unique_ptr<scriptfile>& sf, int radix)
+std::optional<int> scriptfile_getnumber_radix(scriptfile* sf, int radix)
 {
 	skipoverws(sf);
 	if (sf->textptr >= sf->eof)
@@ -108,17 +108,17 @@ std::optional<int> scriptfile_getnumber_radix(std::unique_ptr<scriptfile>& sf, i
 
 } // namespace
 
-std::optional<int> scriptfile_getnumber(std::unique_ptr<scriptfile>& sf)
+std::optional<int> scriptfile_getnumber(scriptfile* sf)
 {
 	return scriptfile_getnumber_radix(sf, 0);
 }
 
-std::optional<int> scriptfile_gethex(std::unique_ptr<scriptfile>& sf)
+std::optional<int> scriptfile_gethex(scriptfile* sf)
 {
 	return scriptfile_getnumber_radix(sf, 16);
 }
 
-std::optional<bool> scriptfile_getbool(std::unique_ptr<scriptfile>& sf)
+std::optional<bool> scriptfile_getbool(scriptfile* sf)
 {
 	const auto boolean_val = scriptfile_gettoken(sf);
 
@@ -204,7 +204,7 @@ double parsedouble(char *ptr, char **end)
 
 } // namespace
 
-std::optional<double> scriptfile_getdouble(std::unique_ptr<scriptfile>& sf)
+std::optional<double> scriptfile_getdouble(scriptfile* sf)
 {
 	skipoverws(sf);
 	if (sf->textptr >= sf->eof)
@@ -229,7 +229,7 @@ std::optional<double> scriptfile_getdouble(std::unique_ptr<scriptfile>& sf)
 	return num;
 }
 
-int scriptfile_getsymbol(std::unique_ptr<scriptfile>& sf, int *num)
+int scriptfile_getsymbol(scriptfile* sf, int *num)
 {
 	auto t = scriptfile_gettoken(sf);
 
@@ -252,7 +252,7 @@ int scriptfile_getsymbol(std::unique_ptr<scriptfile>& sf, int *num)
 	return 0;
 }
 
-int scriptfile_getbraces(std::unique_ptr<scriptfile>& sf, char **braceend)
+int scriptfile_getbraces(scriptfile* sf, char **braceend)
 {
 	skipoverws(sf);
 
@@ -293,7 +293,7 @@ int scriptfile_getbraces(std::unique_ptr<scriptfile>& sf, char **braceend)
 	return 0;
 }
 
-int scriptfile_getlinum (std::unique_ptr<scriptfile>& sf, char *ptr)
+int scriptfile_getlinum (scriptfile* sf, char *ptr)
 {
 	//for(i=0;i<sf->lineoffs.size();i++) if (sf->lineoffs[i] >= ind) return(i+1); //brute force algo
 
@@ -312,7 +312,7 @@ int scriptfile_getlinum (std::unique_ptr<scriptfile>& sf, char *ptr)
 
 namespace {
 
-void scriptfile_preparse(std::unique_ptr<scriptfile>& sf, std::string tx, size_t flen)
+void scriptfile_preparse(scriptfile* sf, std::string tx, size_t flen)
 {
 	//Count number of lines
 	int numcr{1};
@@ -453,7 +453,7 @@ std::unique_ptr<scriptfile> scriptfile_fromfile(const std::string& fn)
 
 	kclose(fp);
 
-	scriptfile_preparse(sf, tx, flen);
+	scriptfile_preparse(sf.get(), tx, flen);
 	sf->filename = fn;
 
 	return sf;
@@ -480,13 +480,13 @@ std::unique_ptr<scriptfile> scriptfile_fromstring(const std::string& str)
 	tx[flen] = 0;
 	tx[flen + 1] = 0;
 
-	scriptfile_preparse(sf, tx, flen);
+	scriptfile_preparse(sf.get(), tx, flen);
 	sf->filename.clear();
 
 	return sf;
 }
 
-int scriptfile_eof(std::unique_ptr<scriptfile>& sf)
+int scriptfile_eof(scriptfile* sf)
 {
 	skipoverws(sf);
 

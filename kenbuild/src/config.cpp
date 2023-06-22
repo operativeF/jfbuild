@@ -210,41 +210,41 @@ int loadsetup(const std::string& fn)
 	scriptfile_clearsymbols();
 
 	while (1) {
-		token = scriptfile_gettoken(cfg);
+		token = scriptfile_gettoken(cfg.get());
 		if (!token.has_value())
 			break;	//EOF
 
 		for (item = 0; configspec[item].name; item++) {
 			if (IsSameAsNoCase(token.value(), configspec[item].name)) {
 				// Seek past any = symbol.
-				token = scriptfile_peektoken(cfg);
+				token = scriptfile_peektoken(cfg.get());
 				if(!token.has_value())
 					break;
 				if (token.value() == "=") {
-					scriptfile_gettoken(cfg);
+					scriptfile_gettoken(cfg.get());
 				}
 
 				switch (configspec[item].type) {
 					case type_bool: {
-						auto value = scriptfile_getbool(cfg);
+						auto value = scriptfile_getbool(cfg.get());
 						if (!value.has_value()) break;
 						*(bool*)configspec[item].store = value.value();
 						break;
 					}
 					case type_int: {
-						auto value = scriptfile_getnumber(cfg);
+						auto value = scriptfile_getnumber(cfg.get());
 						if (!value.has_value()) break;
 						*(int*)configspec[item].store = value.value();
 						break;
 					}
 					case type_hex: {
-						auto value = scriptfile_gethex(cfg);
+						auto value = scriptfile_gethex(cfg.get());
 						if (!value.has_value()) break;
 						*(int*)configspec[item].store = value.value();
 						break;
 					}
 					case type_double: {
-						auto value = scriptfile_getdouble(cfg);
+						auto value = scriptfile_getdouble(cfg.get());
 						if (!value.has_value()) break;
 						*(double*)configspec[item].store = value.value();
 						break;
@@ -258,7 +258,7 @@ int loadsetup(const std::string& fn)
 			}
 		}
 		if (!configspec[item].name) {
-			buildprintf("loadsetup: error on line {}\n", scriptfile_getlinum(cfg, cfg->ltextptr));
+			buildprintf("loadsetup: error on line {}\n", scriptfile_getlinum(cfg.get(), cfg->ltextptr));
 			continue;
 		}
 	}
