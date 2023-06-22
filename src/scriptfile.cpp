@@ -48,15 +48,17 @@ char *scriptfile_peektoken(const scriptfile *sf)
 	return dupe.textptr;
 }
 
-int scriptfile_getstring(scriptfile *sf, std::string& retst)
+std::optional<std::string_view> scriptfile_getstring(scriptfile *sf)
 {
-	retst = scriptfile_gettoken(sf);
+	std::string_view retst = scriptfile_gettoken(sf);
+
 	if (retst.empty())
 	{
 		buildprintf("Error on line {}:{}: unexpected eof\n", sf->filename, scriptfile_getlinum(sf,sf->textptr));
-		return(-2);
+		return std::nullopt;
 	}
-	return(0);
+	
+	return retst;
 }
 
 namespace {

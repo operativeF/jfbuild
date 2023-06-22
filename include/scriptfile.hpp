@@ -22,7 +22,7 @@ std::optional<int> scriptfile_getnumber(scriptfile *sf);
 std::optional<bool> scriptfile_getbool(scriptfile* sf);
 std::optional<int> scriptfile_gethex(scriptfile *sf);    // For reading specifically hex without requiring an 0x prefix
 std::optional<double> scriptfile_getdouble(scriptfile *sf);
-int scriptfile_getstring(scriptfile *sf, std::string& st);
+std::optional<std::string_view> scriptfile_getstring(scriptfile *sf);
 int scriptfile_getsymbol(scriptfile *sf, int *num);
 int scriptfile_getlinum(scriptfile *sf, char *ptr);
 int scriptfile_getbraces(scriptfile *sf, char **braceend);
