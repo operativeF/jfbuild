@@ -16,20 +16,20 @@ struct scriptfile {
     std::vector<int> lineoffs;
 };
 
-char *scriptfile_gettoken(scriptfile *sf);
-char *scriptfile_peektoken(const scriptfile *sf);
-std::optional<int> scriptfile_getnumber(scriptfile *sf);
-std::optional<bool> scriptfile_getbool(scriptfile* sf);
-std::optional<int> scriptfile_gethex(scriptfile *sf);    // For reading specifically hex without requiring an 0x prefix
-std::optional<double> scriptfile_getdouble(scriptfile *sf);
-std::optional<std::string_view> scriptfile_getstring(scriptfile *sf);
-int scriptfile_getsymbol(scriptfile *sf, int *num);
-int scriptfile_getlinum(scriptfile *sf, char *ptr);
-int scriptfile_getbraces(scriptfile *sf, char **braceend);
+char *scriptfile_gettoken(std::unique_ptr<scriptfile>& sf);
+char *scriptfile_peektoken(const std::unique_ptr<scriptfile>& sf);
+std::optional<int> scriptfile_getnumber(std::unique_ptr<scriptfile>& sf);
+std::optional<bool> scriptfile_getbool(std::unique_ptr<scriptfile>& sf);
+std::optional<int> scriptfile_gethex(std::unique_ptr<scriptfile>& sf);    // For reading specifically hex without requiring an 0x prefix
+std::optional<double> scriptfile_getdouble(std::unique_ptr<scriptfile>& sf);
+std::optional<std::string_view> scriptfile_getstring(std::unique_ptr<scriptfile>& sf);
+int scriptfile_getsymbol(std::unique_ptr<scriptfile>& sf, int *num);
+int scriptfile_getlinum(std::unique_ptr<scriptfile>& sf, char *ptr);
+int scriptfile_getbraces(std::unique_ptr<scriptfile>& sf, char **braceend);
 
 std::unique_ptr<scriptfile> scriptfile_fromfile(const std::string& fn);
 std::unique_ptr<scriptfile> scriptfile_fromstring(const std::string& str);
-int scriptfile_eof(scriptfile *sf);
+int scriptfile_eof(std::unique_ptr<scriptfile>& sf);
 
 int scriptfile_getsymbolvalue(const char *name, int *val);
 int scriptfile_addsymbolvalue(const char *name, int val);

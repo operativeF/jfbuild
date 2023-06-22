@@ -178,7 +178,7 @@ int loadsetup(const std::string& fn)
 {
 	auto cfg = scriptfile_fromfile(fn);
 	
-	if (!cfg) {
+	if (!cfg.get()) {
 		return -1;
 	}
 
@@ -190,7 +190,7 @@ int loadsetup(const std::string& fn)
 	option[5] = 0;
 
 	while (1) {
-		char* token = scriptfile_gettoken(cfg.get());
+		char* token = scriptfile_gettoken(cfg);
 
 		if (!token) {
 			break;	//EOF
@@ -201,39 +201,39 @@ int loadsetup(const std::string& fn)
 		for (item = 0; configspec[item].name; item++) {
 			if (IsSameAsNoCase(token, configspec[item].name)) {
 				// Seek past any = symbol.
-				token = scriptfile_peektoken(cfg.get());
+				token = scriptfile_peektoken(cfg);
 				if (IsSameAsNoCase(token, "=")) {
-					scriptfile_gettoken(cfg.get());
+					scriptfile_gettoken(cfg);
 				}
 
 				switch (configspec[item].type) {
 					case type_bool: {
-						auto value = scriptfile_getbool(cfg.get());
+						auto value = scriptfile_getbool(cfg);
 						if (!value.has_value()) break;
 						*(bool*)configspec[item].store = value.value();
 						break;
 					}
 					case type_int: {
-						auto value = scriptfile_getnumber(cfg.get());
+						auto value = scriptfile_getnumber(cfg);
 						if (!value.has_value()) break;
 						*(int*)configspec[item].store = value.value();
 						break;
 					}
 					case type_hex: {
-						auto value = scriptfile_gethex(cfg.get());
+						auto value = scriptfile_gethex(cfg);
 						if (!value.has_value()) break;
 						*(int*)configspec[item].store = value.value();
 						break;
 					}
 					case type_fixed16: {
-						auto value = scriptfile_getdouble(cfg.get());
+						auto value = scriptfile_getdouble(cfg);
 						if (!value.has_value())
 							break;
 						*(int*)configspec[item].store = (int)(value.value() * 65536.0);
 						break;
 					}
 					case type_double: {
-						auto value = scriptfile_getdouble(cfg.get());
+						auto value = scriptfile_getdouble(cfg);
 						if (!value.has_value())
 							break;
 						*(double*)configspec[item].store = value.value();
@@ -249,7 +249,7 @@ int loadsetup(const std::string& fn)
 		}
 
 		if (!configspec[item].name) {
-			buildprintf("loadsetup: error on line {}\n", scriptfile_getlinum(cfg.get(), cfg->ltextptr));
+			buildprintf("loadsetup: error on line {}\n", scriptfile_getlinum(cfg, cfg->ltextptr));
 			continue;
 		}
 	}

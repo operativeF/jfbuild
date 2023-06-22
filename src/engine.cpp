@@ -8456,7 +8456,7 @@ int loadmaphack(const std::string& filename)
 	std::ranges::fill(spriteext, spriteexttype{});
 
 	while (1) {
-		const auto* tok = scriptfile_gettoken(script.get());
+		const auto* tok = scriptfile_gettoken(script);
 
 		if (!tok)
 			break;
@@ -8471,13 +8471,13 @@ int loadmaphack(const std::string& filename)
 
 		switch (legaltokens[i].tokenid) {
 			case 0:		// sprite <xx>
-				whichsprite = scriptfile_getnumber(script.get());
+				whichsprite = scriptfile_getnumber(script);
 				if (!whichsprite.has_value()) break;
 
 				if ((unsigned)whichsprite.value() >= (unsigned)MAXSPRITES) {
 					// sprite number out of range
 					buildprintf("Sprite number out of range 0-{} on line {}:{}\n",
-							MAXSPRITES-1,script->filename, scriptfile_getlinum(script.get(), cmdtokptr));
+							MAXSPRITES-1,script->filename, scriptfile_getlinum(script, cmdtokptr));
 					whichsprite = std::nullopt;
 					break;
 				}
@@ -8485,13 +8485,13 @@ int loadmaphack(const std::string& filename)
 				break;
 			case 1:		// angoff <xx>
 				{
-					auto ang = scriptfile_getnumber(script.get());
+					auto ang = scriptfile_getnumber(script);
 					if (!ang.has_value()) break;
 
 					if (!whichsprite.has_value()) {
 						// no sprite directive preceeding
 						buildprintf("Ignoring angle offset directive because of absent/invalid sprite number on line {}:{}\n",
-							script->filename, scriptfile_getlinum(script.get(), cmdtokptr));
+							script->filename, scriptfile_getlinum(script, cmdtokptr));
 						break;
 					}
 					spriteext[whichsprite.value()].angoff = (short) ang.value();
@@ -8501,7 +8501,7 @@ int loadmaphack(const std::string& filename)
 				if (!whichsprite.has_value()) {
 					// no sprite directive preceeding
 					buildprintf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line {}:{}\n",
-							script->filename, scriptfile_getlinum(script.get(), cmdtokptr));
+							script->filename, scriptfile_getlinum(script, cmdtokptr));
 					break;
 				}
 				spriteext[whichsprite.value()].flags |= SPREXT_NOTMD;
@@ -8510,7 +8510,7 @@ int loadmaphack(const std::string& filename)
 				if (!whichsprite.has_value()) {
 					// no sprite directive preceeding
 					buildprintf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line {}:{}\n",
-							script->filename, scriptfile_getlinum(script.get(), cmdtokptr));
+							script->filename, scriptfile_getlinum(script, cmdtokptr));
 					break;
 				}
 				spriteext[whichsprite.value()].flags |= SPREXT_NOMDANIM;
