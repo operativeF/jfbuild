@@ -8445,7 +8445,7 @@ int loadmaphack(const std::string& filename)
 		{ nullptr, -1 }
 	};
 
-	int whichsprite = -1;
+	std::optional<int> whichsprite{std::nullopt};
 
 	auto script = scriptfile_fromfile(filename);
 	
@@ -8471,48 +8471,49 @@ int loadmaphack(const std::string& filename)
 
 		switch (legaltokens[i].tokenid) {
 			case 0:		// sprite <xx>
-				if (scriptfile_getnumber(script.get(), &whichsprite)) break;
+				whichsprite = scriptfile_getnumber(script.get());
+				if (!whichsprite.has_value()) break;
 
-				if ((unsigned)whichsprite >= (unsigned)MAXSPRITES) {
+				if ((unsigned)whichsprite.value() >= (unsigned)MAXSPRITES) {
 					// sprite number out of range
 					buildprintf("Sprite number out of range 0-{} on line {}:{}\n",
 							MAXSPRITES-1,script->filename, scriptfile_getlinum(script.get(), cmdtokptr));
-					whichsprite = -1;
+					whichsprite = std::nullopt;
 					break;
 				}
 
 				break;
 			case 1:		// angoff <xx>
 				{
-					int ang;
-					if (scriptfile_getnumber(script.get(), &ang)) break;
+					auto ang = scriptfile_getnumber(script.get());
+					if (!ang.has_value()) break;
 
-					if (whichsprite < 0) {
+					if (!whichsprite.has_value()) {
 						// no sprite directive preceeding
 						buildprintf("Ignoring angle offset directive because of absent/invalid sprite number on line {}:{}\n",
 							script->filename, scriptfile_getlinum(script.get(), cmdtokptr));
 						break;
 					}
-					spriteext[whichsprite].angoff = (short)ang;
+					spriteext[whichsprite.value()].angoff = (short) ang.value();
 				}
 				break;
 			case 2:      // notmd
-				if (whichsprite < 0) {
+				if (!whichsprite.has_value()) {
 					// no sprite directive preceeding
 					buildprintf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line {}:{}\n",
 							script->filename, scriptfile_getlinum(script.get(), cmdtokptr));
 					break;
 				}
-				spriteext[whichsprite].flags |= SPREXT_NOTMD;
+				spriteext[whichsprite.value()].flags |= SPREXT_NOTMD;
 				break;
 			case 3:      // nomdanim
-				if (whichsprite < 0) {
+				if (!whichsprite.has_value()) {
 					// no sprite directive preceeding
 					buildprintf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line {}:{}\n",
 							script->filename, scriptfile_getlinum(script.get(), cmdtokptr));
 					break;
 				}
-				spriteext[whichsprite].flags |= SPREXT_NOMDANIM;
+				spriteext[whichsprite.value()].flags |= SPREXT_NOMDANIM;
 				break;
 			default:
 				// unrecognised token

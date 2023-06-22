@@ -229,15 +229,15 @@ int loadsetup(const std::string& fn)
 						break;
 					}
 					case type_int: {
-						int value = 0;
-						if (scriptfile_getnumber(cfg.get(), &value)) break;
-						*(int*)configspec[item].store = value;
+						auto value = scriptfile_getnumber(cfg.get());
+						if (!value.has_value()) break;
+						*(int*)configspec[item].store = value.value();
 						break;
 					}
 					case type_hex: {
-						int value = 0;
-						if (scriptfile_gethex(cfg.get(), &value)) break;
-						*(int*)configspec[item].store = value;
+						auto value = scriptfile_gethex(cfg.get());
+						if (!value.has_value()) break;
+						*(int*)configspec[item].store = value.value();
 						break;
 					}
 					case type_double: {

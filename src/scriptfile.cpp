@@ -61,13 +61,13 @@ int scriptfile_getstring(scriptfile *sf, std::string& retst)
 
 namespace {
 
-int scriptfile_getnumber_radix(scriptfile *sf, int *num, int radix)
+std::optional<int> scriptfile_getnumber_radix(scriptfile *sf, int radix)
 {
 	skipoverws(sf);
 	if (sf->textptr >= sf->eof)
 	{
 		buildprintf("Error on line {}:{}: unexpected eof\n", sf->filename, scriptfile_getlinum(sf,sf->textptr));
-		return -1;
+		return std::nullopt;
 	}
 
 	while ((sf->textptr[0] == '0') && (sf->textptr[1] >= '0') && (sf->textptr[1] <= '9'))
@@ -81,29 +81,30 @@ int scriptfile_getnumber_radix(scriptfile *sf, int *num, int radix)
 
 	std::string_view txtv{(sf->textptr)};
 
-	auto [ptr, ec] = std::from_chars(txtv.data(), txtv.data() + txtv.size(), *num, radix);
+	int num{0};
+	auto [ptr, ec] = std::from_chars(txtv.data(), txtv.data() + txtv.size(), num, radix);
 	sf->textptr = sf->textptr + txtv.size();
 	
 	if (!is_whitespace(*sf->textptr) && *sf->textptr || (ec != std::errc{})) {
 		const char *p = sf->textptr;
 		skipovertoken(sf);
 		buildprintf("Error on line {}:{}: expecting int, got \"{}\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr), txtv);
-		return -2;
+		return std::nullopt;
 	}
 
-	return 0;
+	return num;
 }
 
 } // namespace
 
-int scriptfile_getnumber(scriptfile *sf, int *num)
+std::optional<int> scriptfile_getnumber(scriptfile *sf)
 {
-	return scriptfile_getnumber_radix(sf, num, 0);
+	return scriptfile_getnumber_radix(sf, 0);
 }
 
-int scriptfile_gethex(scriptfile *sf, int *num)
+std::optional<int> scriptfile_gethex(scriptfile *sf)
 {
-	return scriptfile_getnumber_radix(sf, num, 16);
+	return scriptfile_getnumber_radix(sf, 16);
 }
 
 std::optional<bool> scriptfile_getbool(scriptfile* sf)

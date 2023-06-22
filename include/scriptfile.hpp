@@ -18,9 +18,9 @@ struct scriptfile {
 
 char *scriptfile_gettoken(scriptfile *sf);
 char *scriptfile_peektoken(const scriptfile *sf);
-int scriptfile_getnumber(scriptfile *sf, int *num);
+std::optional<int> scriptfile_getnumber(scriptfile *sf);
 std::optional<bool> scriptfile_getbool(scriptfile* sf);
-int scriptfile_gethex(scriptfile *sf, int *num);    // For reading specifically hex without requiring an 0x prefix
+std::optional<int> scriptfile_gethex(scriptfile *sf);    // For reading specifically hex without requiring an 0x prefix
 std::optional<double> scriptfile_getdouble(scriptfile *sf);
 int scriptfile_getstring(scriptfile *sf, std::string& st);
 int scriptfile_getsymbol(scriptfile *sf, int *num);

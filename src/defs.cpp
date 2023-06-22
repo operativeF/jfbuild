@@ -291,39 +291,44 @@ int defsparser(scriptfile *script)
 			case TokenType::T_DEFINETINT:
 				{
 					int pal;
-					int r;
-					int g;
-					int b;
-					int f;
 
 					if (scriptfile_getsymbol(script,&pal)) break;
-					if (scriptfile_getnumber(script,&r)) break;
-					if (scriptfile_getnumber(script,&g)) break;
-					if (scriptfile_getnumber(script,&b)) break;
-					if (scriptfile_getnumber(script,&f)) break; //effects
+
+					auto r = scriptfile_getnumber(script);
+					if (!r.has_value())
+						break;
+					auto g = scriptfile_getnumber(script);
+					if (!g.has_value())
+						break;
+					auto b = scriptfile_getnumber(script);
+					if (!b.has_value())
+						break;
+					auto f = scriptfile_getnumber(script); // effects
+					if (!f.has_value())
+						break;
 #if USE_POLYMOST && USE_OPENGL
-					hicsetpalettetint(pal,r,g,b,f);
+					hicsetpalettetint(pal, r.value(), g.value(), b.value(), f.value());
 #endif
 				}
 				break;
 			case TokenType::T_DEFINEMODEL:
 				{
 					std::string modelfn;
-					int shadeoffs;
 
 					if (scriptfile_getstring(script, modelfn)) break;
 					auto scale = scriptfile_getdouble(script);
 					if(!scale.has_value())
 						break;
-					if (scriptfile_getnumber(script,&shadeoffs)) break;
-
+					auto shadeoffs = scriptfile_getnumber(script);
+					if (!shadeoffs.has_value())
+						break;
 #if USE_POLYMOST && USE_OPENGL
 					lastmodelid = md_loadmodel(modelfn.c_str());
 					if (lastmodelid < 0) {
 						buildprintf("Failure loading MD2/MD3 model \"{}\"\n", modelfn);
 						break;
 					}
-					md_setmisc(lastmodelid,static_cast<float>(scale.value()), shadeoffs,0.0); // FIXME: Narrowing.
+					md_setmisc(lastmodelid, static_cast<float>(scale.value()), shadeoffs.value(), 0.0); // FIXME: Narrowing.
 #endif
 					modelskin = 0;
 					lastmodelskin = 0;
@@ -333,18 +338,18 @@ int defsparser(scriptfile *script)
 			case TokenType::T_DEFINEMODELFRAME:
 				{
 					std::string framename;
-					int ftilenume;
-					int ltilenume;
-					int tilex;
 
 					if (scriptfile_getstring(script, framename)) break;
-					if (scriptfile_getnumber(script,&ftilenume)) break; //first tile number
-					if (scriptfile_getnumber(script,&ltilenume)) break; //last tile number (inclusive)
-					if (ltilenume < ftilenume) {
+					auto ftilenume = scriptfile_getnumber(script); // first tile number
+					if (!ftilenume.has_value())
+						break;
+					auto ltilenume = scriptfile_getnumber(script); // last tile number (inclusive)
+					if (!ltilenume.has_value())
+						break;
+
+					if (ltilenume.value() < ftilenume.value()) {
 						buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
-						tilex = ftilenume;
-						ftilenume = ltilenume;
-						ltilenume = tilex;
+						std::swap(ftilenume, ltilenume);
 					}
 
 					if (lastmodelid < 0) {
@@ -353,7 +358,8 @@ int defsparser(scriptfile *script)
 					}
 #if USE_POLYMOST && USE_OPENGL
 					bool happy{true};
-					for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
+					int tilex{0};
+					for (tilex = ftilenume.value(); tilex <= ltilenume.value() && happy; tilex++) {
 						switch (md_defineframe(lastmodelid, framename.c_str(), tilex, std::max(0, modelskin))) {
 							case 0: break;
 							case -1: happy = false; break; // invalid model id!?
@@ -375,7 +381,6 @@ int defsparser(scriptfile *script)
 				{
 					std::string startframe;
 					std::string endframe;
-					int flags;
 					
 
 					if (scriptfile_getstring(script, startframe)) break;
@@ -383,14 +388,16 @@ int defsparser(scriptfile *script)
 					auto dfps = scriptfile_getdouble(script);  //animation frame rate
 					if(!dfps.has_value())
 						break;
-					if (scriptfile_getnumber(script,&flags)) break;
+					auto flags = scriptfile_getnumber(script);
+					if (!flags.has_value())
+						break;
 
 					if (lastmodelid < 0) {
 						buildputs("Warning: Ignoring animation definition.\n");
 						break;
 					}
 #if USE_POLYMOST && USE_OPENGL
-					switch (md_defineanimation(lastmodelid, startframe.c_str(), endframe.c_str(), (int)(dfps.value() * (65536.0*.001)), flags)) {
+					switch (md_defineanimation(lastmodelid, startframe.c_str(), endframe.c_str(), (int)(dfps.value() * (65536.0*.001)), flags.value())) {
 						case 0: break;
 						case -1: break; // invalid model id!?
 						case -2: buildprintf("Invalid starting frame name on line {}:{}\n",
@@ -472,21 +479,20 @@ int defsparser(scriptfile *script)
 				break;
 			case TokenType::T_DEFINEVOXELTILES:
 				{
-					int ftilenume;
-					int ltilenume;
-					int tilex;
+					auto ftilenume = scriptfile_getnumber(script); // 1st tile #
+					if (!ftilenume.has_value())
+						break;
 
-					if (scriptfile_getnumber(script,&ftilenume)) break; //1st tile #
-					if (scriptfile_getnumber(script,&ltilenume)) break; //last tile #
+					auto ltilenume = scriptfile_getnumber(script); //last tile #
+					if (!ltilenume.has_value())
+						break;
 
-					if (ltilenume < ftilenume) {
+					if (ltilenume.value() < ftilenume.value()) {
 						buildprintf("Warning: backwards tile range on line {}:{}\n",
 								script->filename, scriptfile_getlinum(script,cmdtokptr));
-						tilex = ftilenume;
-						ftilenume = ltilenume;
-						ltilenume = tilex;
+						std::swap(ftilenume, ltilenume);
 					}
-					if (ltilenume < 0 || ftilenume >= MAXTILES) {
+					if (ltilenume.value() < 0 || ftilenume.value() >= MAXTILES) {
 						buildprintf("Invalid tile range on line {}:{}\n",
 								script->filename, scriptfile_getlinum(script,cmdtokptr));
 						break;
@@ -497,7 +503,8 @@ int defsparser(scriptfile *script)
 						break;
 					}
 
-					for (tilex = ftilenume; tilex <= ltilenume; tilex++) {
+					int tilex;
+					for (tilex = ftilenume.value(); tilex <= ltilenume.value(); tilex++) {
 						tiletovox[tilex] = lastvoxid;
 					}
 				}
@@ -532,7 +539,9 @@ int defsparser(scriptfile *script)
 							case TokenType::T_SCALE:
 								scale = scriptfile_getdouble(script).value_or(1.0);
 								break;
-							case TokenType::T_SHADE: scriptfile_getnumber(script,&shadeoffs); break;
+							case TokenType::T_SHADE:
+								shadeoffs = scriptfile_getnumber(script).value_or(0);
+								break;
 							case TokenType::T_ZADD:
 								mzadd = scriptfile_getdouble(script).value_or(0.0);
 								break;
@@ -664,7 +673,7 @@ int defsparser(scriptfile *script)
 									switch(getatoken(script, modelskintokens)) {
 										case TokenType::T_PAL: scriptfile_getsymbol(script,&palnum); break;
 										case TokenType::T_FILE: scriptfile_getstring(script, skinfn); break; //skin filename
-										case TokenType::T_SURF: scriptfile_getnumber(script,&surfnum); break;
+										case TokenType::T_SURF: surfnum = scriptfile_getnumber(script).value_or(0); break;
 									}
 								}
 
@@ -868,9 +877,9 @@ int defsparser(scriptfile *script)
 			case TokenType::T_TINT:
 				{
 					char *tinttokptr = script->ltextptr;
-					int red=255;
-					int green=255;
-					int blue=255;
+					int red{255};
+					int green{255};
+					int blue{255};
 					int pal=-1;
 					int flags=0;
 					char *tintend;
@@ -879,9 +888,9 @@ int defsparser(scriptfile *script)
 					while (script->textptr < tintend) {
 						switch (getatoken(script, tinttokens)) {
 							case TokenType::T_PAL:   scriptfile_getsymbol(script,&pal);   break;
-							case TokenType::T_RED:   scriptfile_getnumber(script,&red);   red   = std::min(255, std::max(0, red));   break;
-							case TokenType::T_GREEN: scriptfile_getnumber(script,&green); green = std::min(255, std::max(0, green)); break;
-							case TokenType::T_BLUE:  scriptfile_getnumber(script,&blue);  blue  = std::min(255, std::max(0, blue));  break;
+							case TokenType::T_RED:   red   = scriptfile_getnumber(script).value_or(255);   red   = std::min(255, std::max(0, red));   break;
+							case TokenType::T_GREEN: green = scriptfile_getnumber(script).value_or(255);   green = std::min(255, std::max(0, green)); break;
+							case TokenType::T_BLUE:  blue  = scriptfile_getnumber(script).value_or(255);   blue  = std::min(255, std::max(0, blue));  break;
 							case TokenType::T_FLAGS: scriptfile_getsymbol(script,&flags); break;
 						}
 					}
