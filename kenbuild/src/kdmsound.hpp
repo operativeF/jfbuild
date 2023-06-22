@@ -25,7 +25,7 @@ void refreshaudio();
 void setears(int daposx, int daposy, int daxvect, int dayvect);
 void wsayfollow(const char* dafilename, int dafreq, int davol, int* daxplc, int* dayplc, char followstat);
 void wsay(const char* dafilename, int dafreq, int volume1, int volume2);
-void loadwaves(char *wavename);
+void loadwaves(const char *wavename);
 int loadsong(const char* songname);
 void musicon();
 void musicoff();

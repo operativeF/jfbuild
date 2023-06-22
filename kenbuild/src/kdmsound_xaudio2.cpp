@@ -14,6 +14,10 @@
 #define KDMSOUND_INTERNAL
 #include "kdmsound.hpp"
 
+#include "build.hpp"
+
+#include <algorithm>
+
 static IXAudio2 *xaudio;
 static IXAudio2MasteringVoice *mastervoice;
 static IXAudio2SourceVoice *sourcevoice;
@@ -58,17 +62,21 @@ void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeake
 }
 
     hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    if(!SUCCEEDED(hr))
+        buildprintf("failed to initialise COM ({:08x})\n", hr);
     INITSB_CHECK(SUCCEEDED(hr), "failed to initialise COM (%08x)\n", hr);
 
     hr = XAudio2Create(&xaudio, 0, XAUDIO2_USE_DEFAULT_PROCESSOR);
-    INITSB_CHECK(SUCCEEDED(hr), "failed to create XAudio2 (%08x)\n", hr);
+    if(!SUCCEEDED(hr))
+        buildprintf("failed to create XAudio2 ({:08x})\n", hr);
 
     hr = xaudio->CreateMasteringVoice(&mastervoice);
-    INITSB_CHECK(SUCCEEDED(hr), "failed to create mastering voice (%08x)\n", hr);
+    if(!SUCCEEDED(hr))
+        buildprintf("failed to create mastering voice ({:08x})\n", hr);
 
     WAVEFORMATEX sourcefmt = {0};
     sourcefmt.wFormatTag = WAVE_FORMAT_PCM;
-    sourcefmt.nChannels = std::max(1, std::min(2, danumspeakers)); // FIXME: Don't use char for indexes.
+    sourcefmt.nChannels = std::max(1, std::min(2, static_cast<int>(danumspeakers))); // FIXME: Don't use char for indexes.
     sourcefmt.nSamplesPerSec = dasamplerate;
     sourcefmt.wBitsPerSample = dabytespersample * 8;
     sourcefmt.nBlockAlign = sourcefmt.nChannels * dabytespersample;

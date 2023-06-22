@@ -292,7 +292,7 @@ void wsay(const char* dafilename, int dafreq, int volume1, int volume2)
     } while (i >= 0);
 }
 
-void loadwaves(char *wavename)
+void loadwaves(const char *wavename)
 {
     int fil;
     int i;

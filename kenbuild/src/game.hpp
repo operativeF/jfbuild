@@ -1,9 +1,6 @@
 // game.h
 
-constexpr auto NUMOPTIONS{8};
 constexpr auto NUMKEYS{20};
-
-extern std::array<char, NUMOPTIONS> option;
 
 inline std::array<int, NUMKEYS> keys =
 {

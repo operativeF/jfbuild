@@ -6,9 +6,9 @@ set(KENBUILD_GAME_SRCS
   ${CMAKE_CURRENT_LIST_DIR}/src/config.cpp
   ${CMAKE_CURRENT_LIST_DIR}/src/game.cpp
   ${CMAKE_CURRENT_LIST_DIR}/src/kdmsound.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/src/kdmsound_stub.cpp
+  # ${CMAKE_CURRENT_LIST_DIR}/src/kdmsound_stub.cpp
   # ${CMAKE_CURRENT_LIST_DIR}/src/kdmsound_sdl2.cpp
-  # ${CMAKE_CURRENT_LIST_DIR}/src/kdmsound_xaudio2.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/src/kdmsound_xaudio2.cpp
 )
 
 set(KENBUILD_GAME_WIN_SRCS
@@ -79,4 +79,6 @@ add_dependencies(test_game build_engine)
 target_link_libraries(test_game
     PUBLIC
       build_engine
+      Microsoft::XApoBase
+      Microsoft::XAudio2Redist
 )

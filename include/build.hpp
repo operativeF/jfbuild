@@ -238,10 +238,7 @@ inline std::array<spritetype, MAXSPRITES> sprite{};
 inline std::array<spriteexttype, MAXSPRITES + MAXUNIQHUDID> spriteext{};
 inline constexpr auto NUMOPTIONS{9};
 
-inline std::array<unsigned char, NUMOPTIONS> option = {
-	0, 0, 0, 0,
-	0, 0, 1, 0, 0
-};
+inline std::array<unsigned char, NUMOPTIONS> option = {1, 1, 1, 0, 0, 0, 1, (4 << 4) | 1 | 2 | 4};
 
 inline int guniqhudid{0};
 

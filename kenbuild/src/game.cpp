@@ -114,8 +114,6 @@ static int screentilt = 0, oscreentilt = 0;
 static int fvel, svel, avel;
 static int fvel2, svel2, avel2;
 
-std::array<char, NUMOPTIONS> option = {1, 1, 1, 0, 0, 0, 1, (4 << 4) | 1 | 2 | 4};
-
 int ydimgame = 480, bppgame = 8;
 int forcesetup = 1;
 
