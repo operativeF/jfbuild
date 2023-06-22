@@ -200,14 +200,14 @@ TokenType getatoken(std::unique_ptr<scriptfile>& sf, std::span<const tokenlist> 
 		return TokenType::T_ERROR;
 	}
 
-	const char* tok = scriptfile_gettoken(sf);
+	const auto tok = scriptfile_gettoken(sf);
 
-	if (!tok) {
+	if (!tok.has_value()) {
 		return TokenType::T_EOF;
 	}
 
 	for(const auto& token : tl) {
-		if (IsSameAsNoCase(tok, token.text))
+		if (tok.value() == token.text)
 			return token.tokenid;
 	}
 

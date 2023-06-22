@@ -190,19 +190,19 @@ int loadsetup(const std::string& fn)
 	option[5] = 0;
 
 	while (1) {
-		char* token = scriptfile_gettoken(cfg);
+		auto token = scriptfile_gettoken(cfg);
 
-		if (!token) {
+		if (!token.has_value()) {
 			break;	//EOF
 		}
 		
 		int item;
 
 		for (item = 0; configspec[item].name; item++) {
-			if (IsSameAsNoCase(token, configspec[item].name)) {
+			if (IsSameAsNoCase(token.value(), configspec[item].name)) {
 				// Seek past any = symbol.
 				token = scriptfile_peektoken(cfg);
-				if (IsSameAsNoCase(token, "=")) {
+				if (token.value() == "=") {
 					scriptfile_gettoken(cfg);
 				}
 

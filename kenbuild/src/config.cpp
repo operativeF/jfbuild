@@ -198,7 +198,7 @@ struct {
 
 int loadsetup(const std::string& fn)
 {
-	char *token;
+	std::optional<std::string_view> token;
 	int item;
 
 	auto cfg = scriptfile_fromfile(fn);
@@ -211,13 +211,14 @@ int loadsetup(const std::string& fn)
 
 	while (1) {
 		token = scriptfile_gettoken(cfg);
-		if (!token) break;	//EOF
+		if (!token.has_value())
+			break;	//EOF
 
 		for (item = 0; configspec[item].name; item++) {
-			if (IsSameAsNoCase(token, configspec[item].name)) {
+			if (IsSameAsNoCase(token.value(), configspec[item].name)) {
 				// Seek past any = symbol.
 				token = scriptfile_peektoken(cfg);
-				if (IsSameAsNoCase(token, "=")) {
+				if (token.value() == "=") {
 					scriptfile_gettoken(cfg);
 				}
 

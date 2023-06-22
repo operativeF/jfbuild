@@ -16,8 +16,8 @@ struct scriptfile {
     std::vector<int> lineoffs;
 };
 
-char *scriptfile_gettoken(std::unique_ptr<scriptfile>& sf);
-char *scriptfile_peektoken(const std::unique_ptr<scriptfile>& sf);
+std::optional<std::string_view> scriptfile_gettoken(std::unique_ptr<scriptfile>& sf);
+std::optional<std::string_view> scriptfile_peektoken(const std::unique_ptr<scriptfile>& sf);
 std::optional<int> scriptfile_getnumber(std::unique_ptr<scriptfile>& sf);
 std::optional<bool> scriptfile_getbool(std::unique_ptr<scriptfile>& sf);
 std::optional<int> scriptfile_gethex(std::unique_ptr<scriptfile>& sf);    // For reading specifically hex without requiring an 0x prefix

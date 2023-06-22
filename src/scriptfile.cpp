@@ -21,18 +21,25 @@ constexpr bool is_whitespace(auto ch) {
 	return (ch == ' ') || (ch == '\t') || (ch == '\r') || (ch == '\n');
 };
 
-void skipoverws(scriptfile* sf) { if ((sf->textptr < sf->eof) && (!sf->textptr[0])) sf->textptr++; }
+char* skipoverwspeek(const std::unique_ptr<scriptfile>& sf) {
+	if ((sf->textptr < sf->eof) && (!sf->textptr[0])) {
+		auto peekptr = sf->textptr;
+		return ++peekptr;
+	}
+
+	return nullptr;
+}
 void skipoverws(std::unique_ptr<scriptfile>& sf) { if ((sf->textptr < sf->eof) && (!sf->textptr[0])) sf->textptr++; }
 void skipovertoken(std::unique_ptr<scriptfile>& sf) { while ((sf->textptr < sf->eof) && (sf->textptr[0])) sf->textptr++; }
 
 } // namespace
 
-char *scriptfile_gettoken(std::unique_ptr<scriptfile>& sf)
+std::optional<std::string_view> scriptfile_gettoken(std::unique_ptr<scriptfile>& sf)
 {
 	skipoverws(sf);
 
 	if (sf->textptr >= sf->eof) {
-		return nullptr;
+		return std::nullopt;
 	}
 
 	char* start = sf->ltextptr = sf->textptr;
@@ -40,23 +47,23 @@ char *scriptfile_gettoken(std::unique_ptr<scriptfile>& sf)
 	return start;
 }
 
-// FIXME: I fucking hate this function.
-char *scriptfile_peektoken(const std::unique_ptr<scriptfile>& sf)
+std::optional<std::string_view> scriptfile_peektoken(const std::unique_ptr<scriptfile>& sf)
 {
-	scriptfile dupe = *sf;
+	auto peekptr = skipoverwspeek(sf);
 
-	skipoverws(&dupe);
-	if (dupe.textptr >= dupe.eof) return nullptr;
-	return dupe.textptr;
+	if (peekptr >= sf->eof)
+		return std::nullopt;
+
+	return peekptr;
 }
 
 std::optional<std::string_view> scriptfile_getstring(std::unique_ptr<scriptfile>& sf)
 {
-	std::string_view retst = scriptfile_gettoken(sf);
+	auto retst = scriptfile_gettoken(sf);
 
-	if (retst.empty())
+	if (!retst.has_value())
 	{
-		buildprintf("Error on line {}:{}: unexpected eof\n", sf->filename, scriptfile_getlinum(sf,sf->textptr));
+		buildprintf("Error on line {}:{}: unexpected eof\n", sf->filename, scriptfile_getlinum(sf, sf->textptr));
 		return std::nullopt;
 	}
 	
@@ -113,15 +120,15 @@ std::optional<int> scriptfile_gethex(std::unique_ptr<scriptfile>& sf)
 
 std::optional<bool> scriptfile_getbool(std::unique_ptr<scriptfile>& sf)
 {
-	const auto* boolean_val = scriptfile_gettoken(sf);
+	const auto boolean_val = scriptfile_gettoken(sf);
 
-	if (boolean_val == nullptr)
+	if (!boolean_val.has_value())
 	{
 		buildprintf("Error on line {}:{}: unexpected eof\n",sf->filename,scriptfile_getlinum(sf, sf->textptr));
 		return std::nullopt;
 	}
 
-	std::string_view boolean_strv{boolean_val};
+	std::string_view boolean_strv{boolean_val.value()};
 
 	if(boolean_strv == "true")
 		return true;
@@ -224,19 +231,19 @@ std::optional<double> scriptfile_getdouble(std::unique_ptr<scriptfile>& sf)
 
 int scriptfile_getsymbol(std::unique_ptr<scriptfile>& sf, int *num)
 {
-	char* t = scriptfile_gettoken(sf);
+	auto t = scriptfile_gettoken(sf);
 
-	if (!t)
+	if (!t.has_value())
 		return -1;
 
-	const std::string_view tok{t};
+	const std::string_view tok{t.value()};
 	int val{0};
 	auto [ptr, ec] = std::from_chars(tok.data(), tok.data() + tok.size(), val);
 
 	if (ec != std::errc{}) {
 		// looks like a string, so find it in the symbol table
-		if (scriptfile_getsymbolvalue(t, num)) return 0;
-		buildprintf("Error on line {}:{}: expecting symbol, got \"{}\"\n",sf->filename, scriptfile_getlinum(sf,sf->ltextptr),t);
+		if (scriptfile_getsymbolvalue(t.value().data(), num)) return 0;
+		buildprintf("Error on line {}:{}: expecting symbol, got \"{}\"\n",sf->filename, scriptfile_getlinum(sf, sf->ltextptr), t.value());
 		return -2;   // not found
 	}
 

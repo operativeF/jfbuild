@@ -8456,15 +8456,15 @@ int loadmaphack(const std::string& filename)
 	std::ranges::fill(spriteext, spriteexttype{});
 
 	while (1) {
-		const auto* tok = scriptfile_gettoken(script);
+		const auto tok = scriptfile_gettoken(script);
 
-		if (!tok)
+		if (!tok.has_value())
 			break;
 		
 		int i{0};
 
 		for (; legaltokens[i].text; ++i)
-			if (IsSameAsNoCase(tok, legaltokens[i].text))
+			if (IsSameAsNoCase(tok.value(), legaltokens[i].text))
 				break;
 
 		char* cmdtokptr = script->ltextptr;
