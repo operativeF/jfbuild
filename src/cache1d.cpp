@@ -1189,7 +1189,7 @@ unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
 	
 	int kgoal = lzwuncompress(lzwbuf5,(int)leng,lzwbuf4);
 
-	auto* ptr = (unsigned char *)buffer;
+	auto* ptr = static_cast<unsigned char *>(buffer);
 	copybufbyte(lzwbuf4, ptr, (int)dasizeof);
 	
 	int k = (int)dasizeof;
@@ -1228,12 +1228,6 @@ unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
 
 unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil)
 {
-	size_t i;
-	size_t j;
-	int k;
-	int kgoal;
-	unsigned short leng;
-
 	lzwallocate();
 
 	if (dasizeof > LZWSIZE) {
@@ -1242,121 +1236,200 @@ unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil)
 	}
 	
 	auto* ptr = (unsigned char *)buffer;
+	unsigned short leng{0};
+	if (std::fread(&leng,2,1,fil) != 1) {
+		lzwrelease();
+		return -1;
+	}
 
-	if (std::fread(&leng,2,1,fil) != 1) { lzwrelease(); return -1; }
 	leng = B_LITTLE16(leng);
-	if (std::fread(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return -1; }
-	k = 0; kgoal = lzwuncompress(lzwbuf5,(int)leng,lzwbuf4);
+	
+	if (std::fread(lzwbuf5,(int)leng, 1, fil) != 1) {
+		lzwrelease();
+		return -1;
+	}
 
-	copybufbyte(lzwbuf4,ptr,(int)dasizeof);
-	k += (int)dasizeof;
+	int kgoal = lzwuncompress(lzwbuf5,(int)leng,lzwbuf4);
 
-	for(i=1;i<count;i++)
+	copybufbyte(lzwbuf4, ptr, (int)dasizeof);
+	int k = static_cast<int>(dasizeof);
+
+	for(std::size_t i{1}; i < count; ++i)
 	{
 		if (k >= kgoal)
 		{
-			if (std::fread(&leng,2,1,fil) != 1) { lzwrelease(); return -1; }
+			if (std::fread(&leng, 2, 1, fil) != 1) {
+				lzwrelease();
+				return -1;
+			}
+
 			leng = B_LITTLE16(leng);
-			if (std::fread(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return -1; }
-			k = 0; kgoal = lzwuncompress(lzwbuf5,(int)leng,lzwbuf4);
+			
+			if (std::fread(lzwbuf5,(int)leng, 1, fil) != 1) {
+				lzwrelease();
+				return -1;
+			}
+
+			k = 0;
+			kgoal = lzwuncompress(lzwbuf5, (int)leng, lzwbuf4);
 		}
-		for(j=0;j<dasizeof;j++) ptr[j+dasizeof] = ((ptr[j]+lzwbuf4[j+k])&255);
+		
+		for(std::size_t j{0}; j < dasizeof; ++j) {
+			ptr[j + dasizeof] = ((ptr[j] + lzwbuf4[j + k]) & 255);
+		}
+
 		k += dasizeof;
 		ptr += dasizeof;
 	}
+
 	lzwrelease();
+	
 	return count;
 }
 
 unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil)
-{
-	unsigned i;
-	unsigned j;
-	unsigned k;
-	unsigned short leng;
-	unsigned short swleng;
-	unsigned char *ptr;
-	
+{	
 	lzwallocate();
 	
 	if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
-	ptr = (unsigned char *)buffer;
+	auto* ptr = static_cast<unsigned char *>(buffer);
 	
 	copybufbyte(ptr,lzwbuf4,(int)dasizeof);
-	k = dasizeof;
+	unsigned int k{dasizeof};
 	
 	if (k > LZWSIZE-dasizeof)
 	{
-		leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5); k = 0; swleng = B_LITTLE16(leng);
-		if (Bwrite(fil,&swleng,2) != 2) { lzwrelease(); return 0; }
-		if (Bwrite(fil,lzwbuf5,(int)leng) != leng) { lzwrelease(); return 0; }
+		auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
+		k = 0;
+		auto swleng = B_LITTLE16(leng);
+		if (Bwrite(fil, &swleng, 2) != 2) {
+			lzwrelease();
+			return 0;
+		}
+
+		if (Bwrite(fil, lzwbuf5, (int)leng) != leng) {
+			lzwrelease();
+			return 0;
+		}
 	}
 	
-	for(i=1;i<count;i++)
+	for(std::size_t i{1}; i < count; ++i)
 	{
-		for(j=0;j<dasizeof;j++) lzwbuf4[j+k] = ((ptr[j+dasizeof]-ptr[j])&255);
+		for(std::size_t j{0}; j < dasizeof; ++j) {
+			lzwbuf4[j + k] = ((ptr[j + dasizeof] - ptr[j]) & 255);
+		}
+		
 		k += dasizeof;
+		
 		if (k > LZWSIZE-dasizeof)
 		{
-			leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5); k = 0; swleng = B_LITTLE16(leng);
+			auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
+			k = 0;
+			auto swleng = B_LITTLE16(leng);
 			if (Bwrite(fil,&swleng,2) != 2) { lzwrelease(); return 0; }
 			if (Bwrite(fil,lzwbuf5,(int)leng) != leng) { lzwrelease(); return 0; }
 		}
+
 		ptr += dasizeof;
 	}
+
 	if (k > 0)
 	{
-		leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5); swleng = B_LITTLE16(leng);
-		if (Bwrite(fil,&swleng,2) != 2) { lzwrelease(); return 0; }
-		if (Bwrite(fil,lzwbuf5,(int)leng) != leng) { lzwrelease(); return 0; }
+		auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
+		auto swleng = B_LITTLE16(leng);
+		if (Bwrite(fil, &swleng, 2) != 2) {
+			lzwrelease();
+			return 0;
+		}
+
+		if (Bwrite(fil, lzwbuf5, (int)leng) != leng) {
+			lzwrelease();
+			return 0;
+		}
 	}
+
 	lzwrelease();
+	
 	return count;
 }
 
 unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil)
 {
-	unsigned i;
-	unsigned j;
-	unsigned k;
-	unsigned short leng;
-	unsigned short swleng;
-	unsigned char *ptr;
-
 	lzwallocate();
 
-	if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
-	ptr = (unsigned char *)buffer;
+	if (dasizeof > LZWSIZE) {
+		count *= dasizeof;
+		dasizeof = 1;
+	}
 
-	copybufbyte(ptr,lzwbuf4,(int)dasizeof);
-	k = dasizeof;
+	auto* ptr = static_cast<unsigned char *>(buffer);
+
+	copybufbyte(ptr, lzwbuf4, (int)dasizeof);
+	unsigned int k{dasizeof};
 
 	if (k > LZWSIZE-dasizeof)
 	{
-		leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5); k = 0; swleng = B_LITTLE16(leng);
-		if (std::fwrite(&swleng,2,1,fil) != 1) { lzwrelease(); return 0; }
-		if (std::fwrite(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return 0; }
+		auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
+		k = 0;
+		auto swleng = B_LITTLE16(leng);
+
+		if (std::fwrite(&swleng, 2, 1, fil) != 1) {
+			lzwrelease();
+			return 0;
+		}
+		
+		if (std::fwrite(lzwbuf5,(int)leng, 1, fil) != 1) {
+			lzwrelease();
+			return 0;
+		}
 	}
 
-	for(i=1;i<count;i++)
+	for(std::size_t i{1}; i < count; ++i)
 	{
-		for(j=0;j<dasizeof;j++) lzwbuf4[j+k] = ((ptr[j+dasizeof]-ptr[j])&255);
+		for(std::size_t j{0}; j < dasizeof; ++j) {
+			lzwbuf4[j + k] = ((ptr[j + dasizeof] - ptr[j]) & 255);
+		}
+
 		k += dasizeof;
+
 		if (k > LZWSIZE-dasizeof)
 		{
-			leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5); k = 0; swleng = B_LITTLE16(leng);
-			if (std::fwrite(&swleng,2,1,fil) != 1) { lzwrelease(); return 0; }
-			if (std::fwrite(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return 0; }
+			auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
+			k = 0;
+			auto swleng = B_LITTLE16(leng);
+
+			if (std::fwrite(&swleng, 2, 1, fil) != 1) {
+				lzwrelease();
+				return 0;
+			}
+
+			if (std::fwrite(lzwbuf5, (int)leng, 1, fil) != 1) {
+				lzwrelease();
+				return 0;
+			}
 		}
+
 		ptr += dasizeof;
 	}
+
 	if (k > 0)
 	{
-		leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5); swleng = B_LITTLE16(leng);
-		if (std::fwrite(&swleng,2,1,fil) != 1) { lzwrelease(); return 0; }
-		if (std::fwrite(lzwbuf5,(int)leng,1,fil) != 1) { lzwrelease(); return 0; }
+		auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
+		auto swleng = B_LITTLE16(leng);
+		
+		if (std::fwrite(&swleng, 2, 1, fil) != 1) {
+			lzwrelease();
+			return 0;
+		}
+
+		if (std::fwrite(lzwbuf5, (int)leng, 1, fil) != 1) {
+			lzwrelease();
+			return 0;
+		}
 	}
+
 	lzwrelease();
+
 	return count;
 }
 
