@@ -28,7 +28,6 @@ int scriptfile_getbraces(scriptfile *sf, char **braceend);
 
 std::unique_ptr<scriptfile> scriptfile_fromfile(const std::string& fn);
 std::unique_ptr<scriptfile> scriptfile_fromstring(const std::string& str);
-void scriptfile_close(scriptfile *sf);
 int scriptfile_eof(scriptfile *sf);
 
 int scriptfile_getsymbolvalue(const char *name, int *val);

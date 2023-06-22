@@ -8520,7 +8520,6 @@ int loadmaphack(const std::string& filename)
 		}
 	}
 
-	scriptfile_close(script.get());
 #else
 	(void)filename;
 #endif //USE_POLYMOST && USE_OPENGL

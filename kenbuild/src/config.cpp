@@ -290,7 +290,6 @@ int loadsetup(const std::string& fn)
 	}
 	OSD_CaptureKey(keys[19]);
 
-	scriptfile_close(cfg.get());
 	scriptfile_clearsymbols();
 
 	return 0;

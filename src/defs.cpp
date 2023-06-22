@@ -249,7 +249,6 @@ int defsparser(scriptfile *script)
 									fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
 						} else {
 							defsparser(included.get());
-							scriptfile_close(included.get());
 						}
 					}
 					break;
@@ -1107,7 +1106,6 @@ int loaddefinitionsfile(const char *fn)
 
 	defsparser(script.get());
 
-	scriptfile_close(script.get());
 	scriptfile_clearsymbols();
 
 	return 0;

@@ -474,12 +474,6 @@ std::unique_ptr<scriptfile> scriptfile_fromstring(const std::string& str)
 	return sf;
 }
 
-void scriptfile_close(scriptfile* sf)
-{
-	if (!sf)
-		return;
-}
-
 int scriptfile_eof(scriptfile *sf)
 {
 	skipoverws(sf);
