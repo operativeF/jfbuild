@@ -1155,24 +1155,21 @@ int OSD_RegisterFunction(std::string_view name, std::string_view help, int (*fun
     }
 
 	if (name.empty()) {
-		buildputs("OSD_RegisterFunction(): may not register a function with a null name\n");
-		return -1;
-	}
-	if (!name[0]) {
 		buildputs("OSD_RegisterFunction(): may not register a function with no name\n");
 		return -1;
 	}
 
 	// check for illegal characters in name
-	for (const auto* cp = name.data(); *cp; cp++) {
-		if ((cp == name) && (*cp >= '0') && (*cp <= '9')) {
-			buildprintf("OSD_RegisterFunction(): first character of function name \"{}\" must not be a numeral\n", name);
-			return -1;
-		}
-		if ((*cp < '0') ||
-		    (*cp > '9' && *cp < 'A') ||
-		    (*cp > 'Z' && *cp < 'a' && *cp != '_') ||
-		    (*cp > 'z')) {
+	if ((name.front() >= '0') && (name.front() <= '9')) {
+		buildprintf("OSD_RegisterFunction(): first character of function name \"{}\" must not be a numeral\n", name);
+		return -1;
+	}
+
+	for (const auto cp : name) {
+		if ((cp < '0') ||
+		    (cp > '9' && cp < 'A') ||
+		    (cp > 'Z' && cp < 'a' && cp != '_') ||
+		    (cp > 'z')) {
 			buildprintf("OSD_RegisterFunction(): illegal character in function name \"{}\"\n", name);
 			return -1;
 		}
