@@ -7378,24 +7378,14 @@ void printext16(int xpos, int ypos, short col, short backcol, std::string_view n
 
 void printcoords16(int posxe, int posye, short ange)
 {
+	setstatusbarviewport();
+
+	auto currpos = fmt::format("x={} y={} ang={}", posxe, posye, ange);
+	printext16(8, 128, 11, 6, currpos, 0);
+
 	int maxsect{0};
 	int maxwall{0};
 	int maxspri{0};
-
-	setstatusbarviewport();
-
-	std::array<char, 80> snotbuf{};
-	fmt::format_to(&snotbuf[0], "x={} y={} ang={}", posxe, posye, ange);
-
-	int i{0};
-	while ((snotbuf[i] != 0) && (i < 30))
-		i++;
-	while (i < 30)
-	{
-		snotbuf[i] = 32;
-		i++;
-	}
-	snotbuf[30] = 0;
 
 	switch (mapversion) {
 		case 5:
@@ -7420,24 +7410,13 @@ void printcoords16(int posxe, int posye, short ange)
 			break;
 	}
 
-	printext16(8, 128, 11, 6, &snotbuf[0], 0);
-
-	fmt::format_to(&snotbuf[0], "v{} {}/{} sect {}/{} wall {}/{} spri",
+	auto mapvals = fmt::format("v{} {}/{} sect {}/{} wall {}/{} spri",
 					mapversion,
 					numsectors, maxsect,
 					numwalls,   maxwall,
 					numsprites, maxspri);
-	i = 0;
-	while ((snotbuf[i] != 0) && (i < 46))
-		i++;
-	while (i < 46)
-	{
-		snotbuf[i] = 32;
-		i++;
-	}
-	snotbuf[46] = 0;
 
-	printext16(264, 128, 14, 6, &snotbuf[0], 0);
+	printext16(264, 128, 14, 6, mapvals, 0);
 
 	restoreviewport();
 }
@@ -7840,7 +7819,7 @@ void initcrc()
 
 namespace {
 
-std::array<char, 8192> visited;
+std::array<bool, 8192> visited;
 
 } // namespace
 
@@ -7899,8 +7878,8 @@ void AutoAlignWalls(int nWall0, int ply)
 	if (ply == 0)
 	{
 			//clear visited bits
-	    std::ranges::fill(visited, 0);
-		visited[nWall0] = 1;
+	    std::ranges::fill(visited, false);
+		visited[nWall0] = true;
 	}
 
 	int z0 = GetWallZPeg(nWall0);
@@ -7914,7 +7893,7 @@ void AutoAlignWalls(int nWall0, int ply)
 		if (visited[nWall1])
 			break;
 
-		visited[nWall1] = 1;
+		visited[nWall1] = true;
 
 			//break if reached back of left wall
 		if (wall[nWall1].nextwall == nWall0)
