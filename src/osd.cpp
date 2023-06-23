@@ -10,7 +10,10 @@
 #include <algorithm>
 #include <array>
 #include <charconv>
+#include <deque>
+#include <ranges>
 #include <string_view>
+#include <vector>
 #include <utility>
 
 extern int getclosestcol(int r, int g, int b);	// engine.c
@@ -19,17 +22,20 @@ extern int qsetmode;	// engine.c
 namespace {
 
 struct symbol_t {
-	const char *name;
-	symbol_t *next;
-
-	const char *help;
+	std::string name;
+	std::string help;
 	int (*func)(const osdfuncparm_t *);
 };
 
-symbol_t *symbols = nullptr;
-symbol_t *addnewsymbol(const char *name);
-symbol_t *findsymbol(const char *name, symbol_t *startingat);
-symbol_t *findexactsymbol(const char *name);
+using symbol_cont = std::vector<symbol_t>;
+using symbol_iter = std::vector<symbol_t>::iterator;
+using symbol_const_iter = std::vector<symbol_t>::const_iterator;
+
+symbol_cont symbols;
+
+symbol_iter addnewsymbol(std::string_view name);
+symbol_iter findsymbol(std::string_view name, symbol_iter startingat);
+symbol_iter findexactsymbol(std::string_view name);
 
 // Map of palette value to colour index for drawing: black, white, light grey, light blue.
 std::array<int, 4> palmap256 = { -1, -1, -1, -1 };
@@ -80,7 +86,7 @@ constexpr auto HISTORYDEPTH{16};
 int  osdhistorypos=-1;		// position we are at in the history buffer
 char osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];	// history strings
 int  osdhistorysize=0;		// number of entries in history
-symbol_t *lastmatch = nullptr;
+symbol_iter lastmatch{};
 
 // execution buffer
 // the execution buffer works from the command history
@@ -240,8 +246,8 @@ int osdcmd_listsymbols(const osdfuncparm_t *parm)
 	std::ignore = parm;
 
 	OSD_Printf("Symbol listing:\n");
-	for (symbol_t* i{symbols}; i != nullptr; i = i->next)
-		OSD_Printf("     %s\n", i->name);
+	for (const auto& symb : symbols)
+		OSD_Printf("     %s\n", symb.name);
 
 	return OSDCMD_OK;
 }
@@ -251,9 +257,9 @@ int osdcmd_help(const osdfuncparm_t *parm)
 	if (parm->parms.size() != 1)
 		return OSDCMD_SHOWHELP;
 
-	const symbol_t* symb = findexactsymbol(parm->parms[0].data());
+	const auto symb = findexactsymbol(parm->parms[0].data());
 	
-	if (!symb) {
+	if (symb == symbols.end()) {
 		OSD_Printf("Help Error: \"%s\" is not a defined variable or function\n", parm->parms[0]);
 	} else {
 		OSD_Printf("%s\n", symb->help);
@@ -302,13 +308,7 @@ int osdcmd_echo(const osdfuncparm_t *parm)
 //
 void OSD_Cleanup()
 {
-	symbol_t *s;
-
-	for (; symbols; symbols=s) {
-		s=symbols->next;
-		std::free(symbols);
-	}
-
+	symbols.clear();
 	osdinited = false;
 }
 
@@ -430,7 +430,7 @@ enum {
 void OSD_Manipulate(int op) {
 	int i;
 	int j;
-	symbol_t *tabc = nullptr;
+	symbol_iter tabc{};
 
 	switch (op) {
 		case OSDOP_START:
@@ -550,21 +550,21 @@ void OSD_Manipulate(int op) {
 			osdeditwinend=editlinewidth;
 			break;
 		case OSDOP_COMPLETE:
-			if (!lastmatch) {
+			if (lastmatch == symbols.end()) {
 				for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
 				for (j=0;osdeditbuf[i] != ' ' && i < osdeditlen;j++,i++)
 					osdedittmp[j] = osdeditbuf[i];
 				osdedittmp[j] = 0;
 
 				if (j > 0)
-					tabc = findsymbol(osdedittmp, nullptr);
+					tabc = findsymbol(osdedittmp, symbols.end());
 			} else {
-				tabc = findsymbol(osdedittmp, lastmatch->next);
-				if (!tabc && lastmatch)
-					tabc = findsymbol(osdedittmp, nullptr);	// wrap
+				tabc = findsymbol(osdedittmp, std::ranges::next(lastmatch));
+				if ((tabc == symbols.end()) && (lastmatch != symbols.end()))
+					tabc = findsymbol(osdedittmp, symbols.end());	// wrap
 			}
 
-			if (tabc) {
+			if (tabc != symbols.end()) {
 				for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
 				osdeditlen = i;
 				for (j=0;tabc->name[j] && osdeditlen <= EDITLENGTH;i++,j++,osdeditlen++)
@@ -765,7 +765,8 @@ int OSD_HandleKey(int sc, int press)
 
 	keytime = gettime();
 
-	if (sc != 15) lastmatch = nullptr;		// reset tab-completion cycle
+	if (sc != 15)
+		lastmatch = {};		// reset tab-completion cycle
 
 	switch (sc) {
 		case 1:		// escape
@@ -1113,8 +1114,8 @@ int OSD_Dispatch(const char *cmd)
 			continue;
 		}
 
-		const symbol_t* symb = findexactsymbol(wp);
-		if (!symb) {
+		const auto symb = findexactsymbol(wp);
+		if (symb == symbols.end()) {
 			OSD_Printf("Error: \"%s\" is not defined\n", wp);
 			std::free(workbuf);
 			return -1;
@@ -1147,17 +1148,14 @@ int OSD_Dispatch(const char *cmd)
 //
 // OSD_RegisterFunction() -- Registers a new function
 //
-int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const osdfuncparm_t*))
+int OSD_RegisterFunction(std::string_view name, std::string_view help, int (*func)(const osdfuncparm_t*))
 {
-	symbol_t *symb;
-	const char *cp;
-
 	if (!osdinited) {
         buildputs("OSD_RegisterFunction(): OSD not initialised\n");
         return -1;
     }
 
-	if (!name) {
+	if (name.empty()) {
 		buildputs("OSD_RegisterFunction(): may not register a function with a null name\n");
 		return -1;
 	}
@@ -1167,7 +1165,7 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 	}
 
 	// check for illegal characters in name
-	for (cp = name; *cp; cp++) {
+	for (const auto* cp = name.data(); *cp; cp++) {
 		if ((cp == name) && (*cp >= '0') && (*cp <= '9')) {
 			buildprintf("OSD_RegisterFunction(): first character of function name \"{}\" must not be a numeral\n", name);
 			return -1;
@@ -1181,23 +1179,24 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 		}
 	}
 
-	if (!help) help = "(no description for this function)";
+	if (help.empty())
+		help = "(no description for this function)";
 	if (!func) {
 		buildputs("OSD_RegisterFunction(): may not register a null function\n");
 		return -1;
 	}
 
-	symb = findexactsymbol(name);
-	if (symb && symb->func == func) {
+	auto symb = findexactsymbol(name);
+	if ((symb != symbols.end()) && symb->func == func) {
 		// Same function being defined a second time, so we'll quietly ignore it.
 		return 0;
-	} else if (symb) {
+	} else if (symb != symbols.end()) {
 		buildprintf("OSD_RegisterFunction(): \"{}\" is already defined\n", name);
 		return -1;
 	}
 
 	symb = addnewsymbol(name);
-	if (!symb) {
+	if (symb == symbols.end()) {
 		buildprintf("OSD_RegisterFunction(): Failed registering function \"{}\"\n", name);
 		return -1;
 	}
@@ -1216,71 +1215,39 @@ namespace {
 // addnewsymbol() -- Allocates space for a new symbol and attaches it
 //   appropriately to the lists, sorted.
 //
-symbol_t *addnewsymbol(const char *name)
+symbol_iter addnewsymbol(std::string_view name)
 {
-	symbol_t *newsymb;
-	symbol_t *s;
-	symbol_t *t;
-
-	newsymb = (symbol_t *)std::malloc(sizeof(symbol_t));
-	if (!newsymb) { return nullptr; }
-	std::memset(newsymb, 0, sizeof(symbol_t));
-
-	// link it to the main chain
-	if (!symbols) {
-		symbols = newsymb;
-	} else {
-		if (CmpNoCase(name, symbols->name) <= 0) {
-			t = symbols;
-			symbols = newsymb;
-			symbols->next = t;
-		} else {
-			s = symbols;
-			while (s->next) {
-				if (CmpNoCase(s->next->name, name) > 0) break;
-				s=s->next;
-			}
-			t = s->next;
-			s->next = newsymb;
-			newsymb->next = t;
-		}
+	if(symbols.empty()) {
+		symbols.push_back(symbol_t{});
+		return symbols.begin();
 	}
+	else {
+		auto syminsertion = std::ranges::find_if(symbols, [name](const auto& symname) {
+			return CmpNoCase(symname, name) < 0; }, &symbol_t::name);
 
-	return newsymb;
+		return symbols.insert(syminsertion, symbol_t{});
+	}
 }
 
 
 //
-// findsymbol() -- Finds a symbol, possibly partially named
+// findsymbol() -- Finds a symbol, possibly partially named;
+//                 starting at "startingat" in the symbols vector.
 //
-symbol_t *findsymbol(const char *name, symbol_t *startingat)
+symbol_iter findsymbol(std::string_view name, symbol_iter startingat)
 {
-	if (!startingat) startingat = symbols;
-	if (!startingat) return nullptr;
-
-	for (; startingat; startingat=startingat->next)
-		if (!Bstrncasecmp(name, startingat->name, std::strlen(name))) return startingat;
-
-	return nullptr;
+	std::ranges::subrange symrange = {startingat, symbols.end()};
+	return std::ranges::find_if(symrange, [name](const auto& startname) {
+		return !CmpNoCaseN(name.data(), startname.c_str(), name.length()); }, &symbol_t::name);
 }
 
 
 //
 // findexactsymbol() -- Finds a symbol, complete named
 //
-symbol_t *findexactsymbol(const char *name)
+symbol_iter findexactsymbol(std::string_view name)
 {
-	symbol_t *startingat;
-	if (!symbols) return nullptr;
-
-	startingat = symbols;
-
-	for (; startingat; startingat=startingat->next) {
-		if (IsSameAsNoCase(name, startingat->name))
-			return startingat;
-	}
-
-	return nullptr;
+	return std::ranges::find(symbols, name, &symbol_t::name);
 }
 
 } // namespace

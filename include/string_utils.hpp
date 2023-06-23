@@ -237,6 +237,20 @@ inline std::string JoinStringsEsc(std::span<const std::string> strSpan, char del
     return str;
 }
 
+inline int CmpNoCaseN(std::string_view strViewA, std::string_view strViewB, std::size_t count)
+{
+    const auto nA = strViewA.size();
+    const auto nB = strViewB.size();
+
+    std::string strA(nA, '0');
+    std::string strB(nB, '0');
+
+    std::ranges::transform(strViewA, strA.begin(), [](auto c) noexcept { return ToLowerCh(c); });
+    std::ranges::transform(strViewB, strB.begin(), [](auto c) noexcept { return ToLowerCh(c); });
+
+    return strA.compare(0, count, strB);
+}
+
 inline int CmpNoCase(std::string_view strViewA, std::string_view strViewB)
 {
     const auto nA = strViewA.size();

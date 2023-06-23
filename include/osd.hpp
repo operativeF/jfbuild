@@ -76,7 +76,7 @@ int OSD_Dispatch(const char *cmd);
 //   name = name of the function
 //   help = a short help string
 //   func = the entry point to the function
-int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const osdfuncparm_t*));
+int OSD_RegisterFunction(std::string_view name, std::string_view help, int (*func)(const osdfuncparm_t*));
 
 #endif // __osd_h__
 
