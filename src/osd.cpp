@@ -53,7 +53,7 @@ void _internal_onshowosd(int);
 constexpr auto TEXTSIZE{16384};
 
 // history display
-char osdtext[TEXTSIZE];
+std::array<char, TEXTSIZE> osdtext;
 int  osdpos=0;			// position next character will be written at
 int  osdlines=1;			// # lines of text in the buffer
 int  osdrows=20;			// # lines of the buffer that are visible
@@ -851,14 +851,14 @@ void OSD_ResizeDisplay(int w, int h)
 	const int j = std::min(newmaxlines, osdmaxlines);
 	const int k = std::min(newcols, osdcols);
 
-	char newtext[TEXTSIZE];
-	std::memset(newtext, 0, TEXTSIZE);
+	std::vector<char> newtext;
+	newtext.resize(TEXTSIZE);
 
 	for(int i{0}; i < j; ++i) {
-		std::memcpy(newtext + newcols * i, osdtext + osdcols * i, k);
+		std::memcpy(&newtext[0] + newcols * i, &osdtext[0] + osdcols * i, k);
 	}
 
-	std::memcpy(osdtext, newtext, TEXTSIZE);
+	std::memcpy(&osdtext[0], &newtext[0], TEXTSIZE);
 
 	osdcols = newcols;
 	osdmaxlines = newmaxlines;
@@ -919,7 +919,7 @@ void OSD_Draw()
 	clearbackground(osdcols, osdrows + 1);
 
 	for (; lines > 0; --lines, --row) {
-		drawosdstr(0, row, osdtext + topoffs, osdcols, osdtextshade, osdtextpal);
+		drawosdstr(0, row, &osdtext[0] + topoffs, osdcols, osdtextshade, osdtextpal);
 		topoffs += osdcols;
 	}
 
@@ -938,8 +938,8 @@ namespace {
 
 inline void linefeed()
 {
-	std::memmove(osdtext + osdcols, osdtext, TEXTSIZE - osdcols);
-	std::memset(osdtext, 0, osdcols);
+	std::memmove(&osdtext[0] + osdcols, &osdtext[0], TEXTSIZE - osdcols);
+	std::memset(&osdtext[0], 0, osdcols);
 
 	if (osdlines < osdmaxlines)
 		osdlines++;
