@@ -229,12 +229,12 @@ std::optional<double> scriptfile_getdouble(scriptfile* sf)
 	return num;
 }
 
-int scriptfile_getsymbol(scriptfile* sf, int *num)
+std::optional<int> scriptfile_getsymbol(scriptfile* sf)
 {
 	auto t = scriptfile_gettoken(sf);
 
 	if (!t.has_value())
-		return -1;
+		return std::nullopt;
 
 	const std::string_view tok{t.value()};
 	int val{0};
@@ -242,14 +242,12 @@ int scriptfile_getsymbol(scriptfile* sf, int *num)
 
 	if (ec != std::errc{}) {
 		// looks like a string, so find it in the symbol table
-		if (scriptfile_getsymbolvalue(t.value().data(), num)) return 0;
+		if (scriptfile_getsymbolvalue(t.value().data(), &val)) return 0;
 		buildprintf("Error on line {}:{}: expecting symbol, got \"{}\"\n",sf->filename, scriptfile_getlinum(sf, sf->ltextptr), t.value());
-		return -2;   // not found
+		return std::nullopt;   // not found
 	}
 
-	*num = val;
-
-	return 0;
+	return val;
 }
 
 int scriptfile_getbraces(scriptfile* sf, char **braceend)

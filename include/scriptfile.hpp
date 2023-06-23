@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 struct scriptfile {
@@ -23,7 +24,7 @@ std::optional<bool> scriptfile_getbool(scriptfile* sf);
 std::optional<int> scriptfile_gethex(scriptfile* sf);    // For reading specifically hex without requiring an 0x prefix
 std::optional<double> scriptfile_getdouble(scriptfile* sf);
 std::optional<std::string_view> scriptfile_getstring(scriptfile* sf);
-int scriptfile_getsymbol(scriptfile* sf, int *num);
+std::optional<int> scriptfile_getsymbol(scriptfile* sf);
 int scriptfile_getlinum(scriptfile* sf, char *ptr);
 int scriptfile_getbraces(scriptfile* sf, char **braceend);
 

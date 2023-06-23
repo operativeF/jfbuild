@@ -263,43 +263,46 @@ int defsparser(scriptfile* script)
 				{
 					auto name = scriptfile_getstring(script);
 					if (!name.has_value()) break;
-					int number{0};
-					if (scriptfile_getsymbol(script, &number))
+					auto number = scriptfile_getsymbol(script);
+					if (!number.has_value())
 						break;
 
-					if (scriptfile_addsymbolvalue(name.value().data(), number) < 0)
+					if (scriptfile_addsymbolvalue(name.value().data(), number.value()) < 0)
 						buildprintf("Warning: Symbol {} was NOT redefined to {} on line {}:{}\n",
-								name.value(), number, script->filename,scriptfile_getlinum(script,cmdtokptr));
+								name.value(), number.value(), script->filename,scriptfile_getlinum(script,cmdtokptr));
 				}
 				break;
 			case TokenType::T_DEFINESKYBOX:
 				{
-					int tile;
-					int pal;
-					int i;
 					std::array<std::string, 6> fn;
-
-					if (scriptfile_getsymbol(script, &tile)) break;
-					if (scriptfile_getsymbol(script, &pal)) break;
-					if (scriptfile_getsymbol(script, &i)) break; //future expansion
-					for (i=0;i<6;i++) { //grab the 6 faces
+					auto tile = scriptfile_getsymbol(script);
+					if (!tile.has_value())
+						break;
+					auto pal = scriptfile_getsymbol(script);
+					if (!pal.has_value())
+						break;
+					auto i = scriptfile_getsymbol(script);
+					if (!i.has_value())
+						break; //future expansion
+					int idx{0};
+					for (; idx < 6; ++idx) { //grab the 6 faces
 						auto fno = scriptfile_getstring(script);
 						if (!fno.has_value())
 							break;
-						fn[i] = fno.value();
+						fn[idx] = fno.value();
 					}
-					if (i < 6) break;
+					if (idx < 6)
+						break;
 #if USE_POLYMOST && USE_OPENGL
-					hicsetskybox(tile, pal, fn);
+					hicsetskybox(tile.value(), pal.value(), fn);
 #endif
 				}
 				break;
 			case TokenType::T_DEFINETINT:
 				{
-					int pal;
-
-					if (scriptfile_getsymbol(script,&pal)) break;
-
+					auto pal = scriptfile_getsymbol(script);
+					if (!pal.has_value())
+						break;
 					auto r = scriptfile_getnumber(script);
 					if (!r.has_value())
 						break;
@@ -313,7 +316,7 @@ int defsparser(scriptfile* script)
 					if (!f.has_value())
 						break;
 #if USE_POLYMOST && USE_OPENGL
-					hicsetpalettetint(pal, r.value(), g.value(), b.value(), f.value());
+					hicsetpalettetint(pal.value(), r.value(), g.value(), b.value(), f.value());
 #endif
 				}
 				break;
@@ -421,9 +424,9 @@ int defsparser(scriptfile* script)
 				break;
 			case TokenType::T_DEFINEMODELSKIN:
 				{
-					int palnum;
-
-					if (scriptfile_getsymbol(script, &palnum)) break;
+					auto palnum = scriptfile_getsymbol(script);
+					if(!palnum.has_value())
+						break;
 					auto skinfn = scriptfile_getstring(script); //skin filename
 					if (!skinfn.has_value())
 						break; 
@@ -444,7 +447,7 @@ int defsparser(scriptfile* script)
 					seenframe = false;
 
 #if USE_POLYMOST && USE_OPENGL
-					switch (md_defineskin(lastmodelid, skinfn.value().data(), palnum, std::max(0, modelskin), 0)) {
+					switch (md_defineskin(lastmodelid, skinfn.value().data(), palnum.value(), std::max(0, modelskin), 0)) {
 						case 0: break;
 						case -1: break; // invalid model id!?
 						case -2: buildprintf("Invalid skin filename on line {}:{}\n",
@@ -462,7 +465,10 @@ int defsparser(scriptfile* script)
 				break;
 			case TokenType::T_SELECTMODELSKIN:
 				{
-					if (scriptfile_getsymbol(script,&modelskin)) break;
+					auto possiblemodelskin = scriptfile_getsymbol(script);
+					if (!possiblemodelskin.has_value())
+						break;
+					modelskin = possiblemodelskin.value();
 				}
 				break;
 			case TokenType::T_DEFINEVOXEL:
@@ -560,17 +566,17 @@ int defsparser(scriptfile* script)
 								char *frameend;
 								std::string framename;
 								bool happy{true};
-								int ftilenume = -1;
-								int ltilenume = -1;
+								int ftilenume{-1};
+								int ltilenume{-1};
 								int tilex = 0;
 
 								if (scriptfile_getbraces(script,&frameend)) break;
 								while (script->textptr < frameend) {
 									switch(getatoken(script, modelframetokens)) {
 										case TokenType::T_FRAME: framename = scriptfile_getstring(script).value_or(""); break; // FIXME: Default name?
-										case TokenType::T_TILE:  scriptfile_getsymbol(script,&ftilenume); ltilenume = ftilenume; break;
-										case TokenType::T_TILE0: scriptfile_getsymbol(script,&ftilenume); break; //first tile number
-										case TokenType::T_TILE1: scriptfile_getsymbol(script,&ltilenume); break; //last tile number (inclusive)
+										case TokenType::T_TILE:  ftilenume = scriptfile_getsymbol(script).value_or(-1); ltilenume = ftilenume; break;
+										case TokenType::T_TILE0: ftilenume = scriptfile_getsymbol(script).value_or(-1); break; //first tile number
+										case TokenType::T_TILE1: ltilenume = scriptfile_getsymbol(script).value_or(-1); break; //last tile number (inclusive)
 									}
 								}
 
@@ -599,7 +605,7 @@ int defsparser(scriptfile* script)
 									break;
 								}
 #if USE_POLYMOST && USE_OPENGL
-								for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
+								for (tilex = ftilenume; tilex <= ltilenume && happy; ++tilex) {
 									switch (md_defineframe(lastmodelid, framename.c_str(), tilex, std::max(0, modelskin))) {
 										case 0: break;
 										case -1: happy = false; break; // invalid model id!?
@@ -635,7 +641,7 @@ int defsparser(scriptfile* script)
 										case TokenType::T_FPS:
 											dfps = scriptfile_getdouble(script).value_or(1.0);
 											break; //animation frame rate
-										case TokenType::T_FLAGS: scriptfile_getsymbol(script,&flags); break;
+										case TokenType::T_FLAGS: flags = scriptfile_getsymbol(script).value_or(0); break;
 									}
 								}
 
@@ -677,11 +683,11 @@ int defsparser(scriptfile* script)
 								int palnum{0};
 								int surfnum{0};
 
-								if (scriptfile_getbraces(script,&skinend)) break;
+								if (scriptfile_getbraces(script, &skinend)) break;
 								while (script->textptr < skinend) {
 									switch(getatoken(script, modelskintokens)) {
-										case TokenType::T_PAL: scriptfile_getsymbol(script,&palnum); break;
-										case TokenType::T_FILE: skinfn = scriptfile_getstring(script).value_or(""); break; //skin filename // FIXME: Default skin name?
+										case TokenType::T_PAL: palnum   = scriptfile_getsymbol(script).value_or(0); break;
+										case TokenType::T_FILE: skinfn  = scriptfile_getstring(script).value_or(""); break; //skin filename // FIXME: Default skin name?
 										case TokenType::T_SURF: surfnum = scriptfile_getnumber(script).value_or(0); break;
 									}
 								}
@@ -718,8 +724,8 @@ int defsparser(scriptfile* script)
 								char *hudtokptr = script->ltextptr;
 								char happy{true};
 								char *frameend;
-								int ftilenume = -1;
-								int ltilenume = -1;
+								int ftilenume{-1};
+								int ltilenume{-1};
 								int tilex = 0;
 								int flags = 0;
 								double xadd{0.0};
@@ -730,9 +736,9 @@ int defsparser(scriptfile* script)
 								if (scriptfile_getbraces(script,&frameend)) break;
 								while (script->textptr < frameend) {
 									switch(getatoken(script, modelhudtokens)) {
-										case TokenType::T_TILE:  scriptfile_getsymbol(script,&ftilenume); ltilenume = ftilenume; break;
-										case TokenType::T_TILE0: scriptfile_getsymbol(script,&ftilenume); break; //first tile number
-										case TokenType::T_TILE1: scriptfile_getsymbol(script,&ltilenume); break; //last tile number (inclusive)
+										case TokenType::T_TILE:  ftilenume = scriptfile_getsymbol(script).value_or(-1); ltilenume = ftilenume; break;
+										case TokenType::T_TILE0: ftilenume = scriptfile_getsymbol(script).value_or(-1); break; //first tile number
+										case TokenType::T_TILE1: ltilenume = scriptfile_getsymbol(script).value_or(-1); break; //last tile number (inclusive)
 										case TokenType::T_XADD:  xadd = scriptfile_getdouble(script).value_or(0.0); break;
 										case TokenType::T_YADD:  yadd = scriptfile_getdouble(script).value_or(0.0); break;
 										case TokenType::T_ZADD:  zadd = scriptfile_getdouble(script).value_or(0.0); break;
@@ -798,9 +804,9 @@ int defsparser(scriptfile* script)
 				{
 					char *voxeltokptr = script->ltextptr;
 					char *modelend;
-					int tile0 = MAXTILES;
-					int tile1 = -1;
-					int tilex = -1;
+					int tile0{MAXTILES};
+					int tile1{-1};
+					int tilex{-1};
 					auto fn = scriptfile_getstring(script);
 					if (!fn.has_value()) break; //voxel filename
 					if (nextvoxid == MAXVOXELS) { buildputs("Maximum number of voxels already defined.\n"); break; }
@@ -813,18 +819,19 @@ int defsparser(scriptfile* script)
 						switch (getatoken(script, voxeltokens)) {
 							//case TokenType::T_ERROR: buildprintf("Error on line {}:{} in voxel tokens\n", script->filename,linenum); break;
 							case TokenType::T_TILE:
-								scriptfile_getsymbol(script,&tilex);
+								tilex = scriptfile_getsymbol(script).value_or(-1);
 								if ((unsigned int)tilex < MAXTILES) tiletovox[tilex] = lastvoxid;
 								else buildprintf("Invalid tile number on line {}:{}\n",script->filename, scriptfile_getlinum(script,voxeltokptr));
 								break;
 							case TokenType::T_TILE0:
-								scriptfile_getsymbol(script,&tile0); break; //1st tile #
+								tile0 = scriptfile_getsymbol(script).value_or(MAXTILES);
+									break; //1st tile #
 							case TokenType::T_TILE1:
-								scriptfile_getsymbol(script,&tile1);
+								tile1 = scriptfile_getsymbol(script).value_or(-1);
 								if (tile0 > tile1)
 								{
 									buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,voxeltokptr));
-									tilex = tile0; tile0 = tile1; tile1 = tilex;
+									std::swap(tile0, tile1);
 								}
 								if ((tile1 < 0) || (tile0 >= MAXTILES))
 									{ buildprintf("Invalid tile range on line {}:{}\n",script->filename, scriptfile_getlinum(script,voxeltokptr)); break; }
@@ -847,15 +854,15 @@ int defsparser(scriptfile* script)
 					char *modelend;
 					bool happy{true};
 					int i;
-					int tile = -1;
-					int pal = 0;
+					int tile{-1};
+					int pal{0};
 
 					if (scriptfile_getbraces(script,&modelend)) break;
 					while (script->textptr < modelend) {
 						switch (getatoken(script, skyboxtokens)) {
 							//case TokenType::T_ERROR: buildprintf("Error on line {}:{} in skybox tokens\n",script->filename,linenum); break;
-							case TokenType::T_TILE:  scriptfile_getsymbol(script,&tile ); break;
-							case TokenType::T_PAL:   scriptfile_getsymbol(script,&pal  ); break;
+							case TokenType::T_TILE:  tile  = scriptfile_getsymbol(script).value_or(-1); break;
+							case TokenType::T_PAL:   pal   = scriptfile_getsymbol(script).value_or(0); break;
 							case TokenType::T_FRONT: fn[0] = scriptfile_getstring(script).value_or(""); break; // FIXME: Default names?
 							case TokenType::T_RIGHT: fn[1] = scriptfile_getstring(script).value_or(""); break;
 							case TokenType::T_BACK:  fn[2] = scriptfile_getstring(script).value_or(""); break;
@@ -889,18 +896,18 @@ int defsparser(scriptfile* script)
 					int red{255};
 					int green{255};
 					int blue{255};
-					int pal=-1;
-					int flags=0;
+					int pal{-1};
+					int flags{0};
 					char *tintend;
 
 					if (scriptfile_getbraces(script,&tintend)) break;
 					while (script->textptr < tintend) {
 						switch (getatoken(script, tinttokens)) {
-							case TokenType::T_PAL:   scriptfile_getsymbol(script,&pal);   break;
+							case TokenType::T_PAL:   pal   = scriptfile_getsymbol(script).value_or(-1);   break;
 							case TokenType::T_RED:   red   = scriptfile_getnumber(script).value_or(255);   red   = std::min(255, std::max(0, red));   break;
 							case TokenType::T_GREEN: green = scriptfile_getnumber(script).value_or(255);   green = std::min(255, std::max(0, green)); break;
 							case TokenType::T_BLUE:  blue  = scriptfile_getnumber(script).value_or(255);   blue  = std::min(255, std::max(0, blue));  break;
-							case TokenType::T_FLAGS: scriptfile_getsymbol(script,&flags); break;
+							case TokenType::T_FLAGS: flags = scriptfile_getsymbol(script).value_or(0); break;
 						}
 					}
 
@@ -918,21 +925,21 @@ int defsparser(scriptfile* script)
 				{
 					char *texturetokptr = script->ltextptr;
 					char *textureend;
-					int tile=-1;
-
-					if (scriptfile_getsymbol(script,&tile)) break;
+					auto tile = scriptfile_getsymbol(script);
+					if (!tile.has_value())
+						break;
 					if (scriptfile_getbraces(script,&textureend)) break;
 					while (script->textptr < textureend) {
 						switch (getatoken(script, texturetokens)) {
 							case TokenType::T_PAL: {
 								char *paltokptr = script->ltextptr;
 								char *palend;
-								int pal=-1;
 								std::string fn;
 								double alphacut{-1.0};
 								char flags = 0;
-
-								if (scriptfile_getsymbol(script,&pal)) break;
+								auto pal = scriptfile_getsymbol(script);
+								if (!pal.has_value())
+									break;
 								if (scriptfile_getbraces(script,&palend)) break;
 								while (script->textptr < palend) {
 									switch (getatoken(script, texturetokens_pal)) {
@@ -943,8 +950,9 @@ int defsparser(scriptfile* script)
 									}
 								}
 
-								if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
-								if ((unsigned)pal > (unsigned)MAXPALOOKUPS) {
+								if ((unsigned)tile.value() > (unsigned)MAXTILES)
+									break;	// message is printed later
+								if ((unsigned)pal.value() > (unsigned)MAXPALOOKUPS) {
 									buildprintf("Error: missing or invalid 'palette number' for texture definition near "
 												"line {}:{}\n", script->filename, scriptfile_getlinum(script,paltokptr));
 									break;
@@ -955,7 +963,7 @@ int defsparser(scriptfile* script)
 									break;
 								}
 #if USE_POLYMOST && USE_OPENGL
-								hicsetsubsttex(tile, pal, fn, alphacut, flags);
+								hicsetsubsttex(tile.value(), pal.value(), fn, alphacut, flags);
 #endif
 							} break;
 
@@ -970,7 +978,7 @@ int defsparser(scriptfile* script)
 						}
 					}
 
-					if ((unsigned)tile >= (unsigned)MAXTILES) {
+					if ((unsigned)tile.value() >= (unsigned)MAXTILES) {
 						buildprintf("Error: missing or invalid 'tile number' for texture definition near line {}:{}\n",
 									script->filename, scriptfile_getlinum(script,texturetokptr));
 						break;
@@ -982,72 +990,72 @@ int defsparser(scriptfile* script)
 			case TokenType::T_TILEFROMTEXTURE:
 				{
 				    char *textureend;
-				    int tile=-1;
-				    if (scriptfile_getsymbol(script,&tile)) break;
+				    if (!scriptfile_getsymbol(script).has_value()) // tile
+						break;
 				    if (scriptfile_getbraces(script,&textureend)) break;
 				    script->textptr = textureend+1;
 				}
 				break;
 			case TokenType::T_SETUPTILERANGE:
 				{
-				    int t;
-				    if (scriptfile_getsymbol(script,&t)) break;
-				    if (scriptfile_getsymbol(script,&t)) break;
-				    if (scriptfile_getsymbol(script,&t)) break;
-				    if (scriptfile_getsymbol(script,&t)) break;
-				    if (scriptfile_getsymbol(script,&t)) break;
-				    if (scriptfile_getsymbol(script,&t)) break;
+					for(int i{0}; i < 6; ++i) {
+						if(!scriptfile_getsymbol(script).has_value()) // tile
+							break;
+					}
 				}
 				break;
 
 			case TokenType::T_UNDEFMODEL:
 			case TokenType::T_UNDEFMODELRANGE:
 				{
-					int r0;
-					int r1;
-
-					if (scriptfile_getsymbol(script,&r0)) break;
+					auto r0 = scriptfile_getsymbol(script);
+					if (!r0.has_value())
+						break;
+					
+					std::optional<int> r1{};
 					if (tokn == TokenType::T_UNDEFMODELRANGE) {
-						if (scriptfile_getsymbol(script,&r1)) break;
-						if (r1 < r0) {
-							const int t{ r1 };
-							r1 = r0;
-							r0 = t;
+						r1 = scriptfile_getsymbol(script);
+						if (!r1.has_value())
+							break;
+						if (r1.value() < r0.value()) {
+							std::swap(r0, r1);
 							buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 						}
-						if (r0 < 0 || r1 >= MAXTILES) {
+						if (r0.value() < 0 || r1.value() >= MAXTILES) {
 							buildprintf("Error: invalid tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 							break;
 						}
 					} else {
 						r1 = r0;
-						if ((unsigned)r0 >= (unsigned)MAXTILES) {
+						if ((unsigned)r0.value() >= (unsigned)MAXTILES) {
 							buildprintf("Error: invalid tile number on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 							break;
 						}
 					}
 #if USE_POLYMOST && USE_OPENGL
-					for (; r0 <= r1; r0++) md_undefinetile(r0);
+					for (; r0 <= r1; ++r0.value()) {
+						md_undefinetile(r0.value());
+					}
 #endif
 				}
 				break;
 
 			case TokenType::T_UNDEFMODELOF:
 				{
-					int r0;
-
-					if (scriptfile_getsymbol(script, &r0)) {
+					auto r0 = scriptfile_getsymbol(script);
+					if (!r0.has_value()) {
 						break;
 					}
 
-					if ((unsigned)r0 >= (unsigned)MAXTILES) {
+					if ((unsigned)r0.value() >= (unsigned)MAXTILES) {
 						buildprintf("Error: invalid tile number on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 						break;
 					}
 
 #if USE_POLYMOST && USE_OPENGL
-					const int mid = md_tilehasmodel(r0);
-					if (mid < 0) break;
+					const int mid = md_tilehasmodel(r0.value());
+					if (mid < 0)
+						break;
 
 					md_undefinemodel(mid);
 #endif
@@ -1057,34 +1065,33 @@ int defsparser(scriptfile* script)
 			case TokenType::T_UNDEFTEXTURE:
 			case TokenType::T_UNDEFTEXTURERANGE:
 				{
-					int r0;
-					int r1;
-
-					if (scriptfile_getsymbol(script,&r0)) break;
+					std::optional<int> r1;
+					auto r0 = scriptfile_getsymbol(script);
+					if (!r0.has_value()) break;
 					if (tokn == TokenType::T_UNDEFTEXTURERANGE) {
-						if (scriptfile_getsymbol(script, &r1)) break;
+						r1 = scriptfile_getsymbol(script);
+						if (!r1.has_value())
+							break;
 						if (r1 < r0) {
-							const int t{ r1 };
-							r1 = r0;
-							r0 = t;
+							std::swap(r0, r1);
 							buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 						}
-						if (r0 < 0 || r1 >= MAXTILES) {
+						if (r0.value() < 0 || r1.value() >= MAXTILES) {
 							buildprintf("Error: invalid tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 							break;
 						}
 					} else {
 						r1 = r0;
-						if ((unsigned)r0 >= (unsigned)MAXTILES) {
+						if ((unsigned)r0.value() >= (unsigned)MAXTILES) {
 							buildprintf("Error: invalid tile number on line {}:{}\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
 							break;
 						}
 					}
 
 #if USE_POLYMOST && USE_OPENGL
-					for (; r0 <= r1; r0++)
+					for (; r0 <= r1; ++r0.value())
 						for (int i=MAXPALOOKUPS-1; i>=0; i--)
-							hicclearsubst(r0,i);
+							hicclearsubst(r0.value(), i);
 #endif
 				}
 				break;
