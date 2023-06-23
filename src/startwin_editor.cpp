@@ -41,7 +41,7 @@ void populate_video_modes(BOOL firstTime)
     bool fullscreen{false};
     int xdim2d = 0, ydim2d = 0;
     char modestr[64];
-    int cd[] = { 32, 24, 16, 15, 8, 0 };
+    const int cd[] = { 32, 24, 16, 15, 8, 0 };
     HWND hwnd, hwnd2d;
 
     hwnd = GetDlgItem(pages[TAB_CONFIG], IDC_VMODE3D);
@@ -122,7 +122,7 @@ void set_settings(struct startwin_settings *thesettings)
 void set_page(int n)
 {
     HWND tab = GetDlgItem(startupdlg, IDC_STARTWIN_TABCTL);
-    int cur = (int)SendMessage(tab, TCM_GETCURSEL,0,0);
+    const int cur = (int)SendMessage(tab, TCM_GETCURSEL,0,0);
 
     ShowWindow(pages[cur], SW_HIDE);
     SendMessage(tab, TCM_SETCURSEL, n, 0);

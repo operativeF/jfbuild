@@ -1222,7 +1222,7 @@ symbol_iter addnewsymbol(std::string_view name)
 		return symbols.begin();
 	}
 	else {
-		auto syminsertion = std::ranges::find_if(symbols, [name](const auto& symname) {
+		const auto syminsertion = std::ranges::find_if(symbols, [name](const auto& symname) {
 			return CmpNoCase(symname, name) < 0; }, &symbol_t::name);
 
 		return symbols.insert(syminsertion, symbol_t{});
