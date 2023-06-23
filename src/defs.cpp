@@ -281,7 +281,7 @@ int defsparser(scriptfile* script)
 					auto pal = scriptfile_getsymbol(script);
 					if (!pal.has_value())
 						break;
-					auto i = scriptfile_getsymbol(script);
+					const auto i = scriptfile_getsymbol(script);
 					if (!i.has_value())
 						break; //future expansion
 					int idx{0};
@@ -580,12 +580,12 @@ int defsparser(scriptfile* script)
 									}
 								}
 
-								if (ftilenume < 0) {
+								if (!ftilenume.has_value()) {
 									buildprintf("Error: missing 'first tile number' for frame definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,frametokptr));
 									happy = false;
 								}
 
-								if (ltilenume < 0) {
+								if (!ltilenume.has_value()) {
 									buildprintf("Error: missing 'last tile number' for frame definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,frametokptr));
 									happy = false;
 								}
@@ -843,10 +843,10 @@ int defsparser(scriptfile* script)
 									buildprintf("Warning: backwards tile range on line {}:{}\n", script->filename, scriptfile_getlinum(script,voxeltokptr));
 									std::swap(tile0, tile1);
 								}
-								if (!tile1.has_value() || (tile0 >= MAXTILES))
+								if (!tile1.has_value() || !tile0.has_value() || (tile0 >= MAXTILES))
 									{ buildprintf("Invalid tile range on line {}:{}\n",script->filename, scriptfile_getlinum(script,voxeltokptr)); break; }
-								for(tilex = tile0; tilex <= tile1; ++tilex.value()) {
-									tiletovox[tilex.value()] = lastvoxid;
+								for(auto tmptile = tile0; tmptile <= tile1; ++tmptile.value()) {
+									tiletovox[tmptile.value()] = lastvoxid;
 								}
 								break; //last tile number (inclusive)
 							case TokenType::T_SCALE: {
