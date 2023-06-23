@@ -177,7 +177,7 @@ void ExtUnInit()
 //static int daviewingrange, daaspect, horizval1, horizval2;
 void ExtPreCheckKeys()
 {
-	int /*cosang, sinang, dx, dy, mindx,*/ i, j, k;
+	int /*cosang, sinang, dx, dy, mindx,*/ j, k;
 
 	if (keystatus[0x3e])  //F4 - screen re-size
 	{
