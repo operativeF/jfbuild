@@ -22,8 +22,8 @@ extern int qsetmode;	// engine.c
 namespace {
 
 struct symbol_t {
-	std::string name;
-	std::string help;
+	std::string_view name;
+	std::string_view help;
 	int (*func)(const osdfuncparm_t *);
 };
 
@@ -1238,7 +1238,7 @@ symbol_iter findsymbol(std::string_view name, symbol_iter startingat)
 {
 	std::ranges::subrange symrange = {startingat, symbols.end()};
 	return std::ranges::find_if(symrange, [name](const auto& startname) {
-		return !CmpNoCaseN(name.data(), startname.c_str(), name.length()); }, &symbol_t::name);
+		return !CmpNoCaseN(name, startname, name.length()); }, &symbol_t::name);
 }
 
 

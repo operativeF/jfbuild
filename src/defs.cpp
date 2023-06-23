@@ -888,7 +888,7 @@ int defsparser(scriptfile* script)
 						buildprintf("Error: missing 'tile number' for skybox definition near line {}:{}\n", script->filename, scriptfile_getlinum(script,skyboxtokptr));
 						happy = false;
 					}
-					for (const auto& name : fn) {
+					for (std::string_view name : fn) {
 						if (name.empty()) {
 							buildprintf("Error: missing '{} filename' for skybox definition near line {}:{}\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr));
 							happy = false;
