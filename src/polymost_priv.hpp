@@ -69,7 +69,7 @@ extern int gfogpalnum;
 extern float gfogdensity;
 
 struct glfiltermode {
-	const char* name;
+	std::string_view name;
 	int min;
     int mag;
 };

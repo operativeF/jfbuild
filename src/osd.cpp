@@ -246,8 +246,7 @@ int osdcmd_listsymbols(const osdfuncparm_t *parm)
 	std::ignore = parm;
 
 	OSD_Printf("Symbol listing:\n");
-	for (const auto& symb : symbols)
-		OSD_Printf("     %s\n", symb.name);
+	std::ranges::for_each(symbols, [](std::string_view symbname) { OSD_Printf("     %s\n", symbname); }, &symbol_t::name);
 
 	return OSDCMD_OK;
 }
@@ -1222,7 +1221,7 @@ symbol_iter addnewsymbol(std::string_view name)
 		return symbols.begin();
 	}
 	else {
-		const auto syminsertion = std::ranges::find_if(symbols, [name](const auto& symname) {
+		const auto syminsertion = std::ranges::find_if(symbols, [name](std::string_view symname) {
 			return CmpNoCase(symname, name) < 0; }, &symbol_t::name);
 
 		return symbols.insert(syminsertion, symbol_t{});
@@ -1237,7 +1236,7 @@ symbol_iter addnewsymbol(std::string_view name)
 symbol_iter findsymbol(std::string_view name, symbol_iter startingat)
 {
 	std::ranges::subrange symrange = {startingat, symbols.end()};
-	return std::ranges::find_if(symrange, [name](const auto& startname) {
+	return std::ranges::find_if(symrange, [name](std::string_view startname) {
 		return !CmpNoCaseN(name, startname, name.length()); }, &symbol_t::name);
 }
 

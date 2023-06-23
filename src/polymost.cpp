@@ -5325,7 +5325,7 @@ int osdcmd_gltexturemode(const osdfuncparm_t *parm)
 	if (parm->parms.size() != 1) {
 		buildprintf("Current texturing mode is {}\n", glfiltermodes[gltexfiltermode].name);
 		buildprintf("  Vaild modes are:\n");
-		std::ranges::for_each(glfiltermodes, [mode_cnt = 0](const auto& aModeName) mutable {
+		std::ranges::for_each(glfiltermodes, [mode_cnt = 0](std::string_view aModeName) mutable {
 			buildprintf("     {} - {}\n", (mode_cnt++), aModeName);
 		}, &glfiltermode::name);			
 
