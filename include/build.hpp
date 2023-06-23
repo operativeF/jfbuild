@@ -489,7 +489,7 @@ int    preinitengine();	// a partial setup of the engine used for launch windows
 bool   initengine();
 void   uninitengine();
 void   initspritelists();
-int   loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
+int   loadboard(const std::string& filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
 int   loadmaphack(const std::string& filename);
 int   saveboard(const std::string& filename, const int *daposx, const int *daposy, const int *daposz, const short *daang, const short *dacursectnum);
 int   saveoldboard(const char *filename, const int *daposx, const int *daposy, const int *daposz, const short *daang, const short *dacursectnum);
@@ -640,7 +640,7 @@ int loaddefinitionsfile(const char *fn);
 
 inline int mapversion{7L};	// JBF 20040211: default mapversion to 7;
                             // if loadboard() fails with -2 return, try loadoldboard(). if it fails with -2, board is dodgy
-int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
+int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
 
 template<typename... Args>
 void buildprintf(std::string_view form, Args&&... args)

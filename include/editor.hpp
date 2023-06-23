@@ -66,7 +66,7 @@ extern void ExtPreCheckKeys();
 extern void ExtAnalyzeSprites();
 extern void ExtCheckKeys();
 extern void ExtPreLoadMap();
-extern void ExtLoadMap(const char *mapname);
+extern void ExtLoadMap(const std::string& mapname);
 extern void ExtPreSaveMap();
 extern void ExtSaveMap(const char *mapname);
 extern const char *ExtGetSectorCaption(short sectnum);

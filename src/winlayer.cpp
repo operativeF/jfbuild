@@ -355,12 +355,9 @@ void wm_setapptitle(const char *name)
 //
 // wm_setwindowtitle() -- changes the rendering window title
 //
-void wm_setwindowtitle(const char *name)
+void wm_setwindowtitle(const std::string& name)
 {
-	if (name) {
-		std::strncpy(wintitle, name, sizeof(wintitle)-1);
-		wintitle[ sizeof(wintitle)-1 ] = 0;
-	}
+	name.copy(wintitle, sizeof(wintitle));
 
 	UpdateAppWindowTitle();
 }

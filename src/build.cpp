@@ -372,9 +372,8 @@ int app_main(int argc, char const * const argv[])
 #endif
 			continue;
 		}
-		if (!boardfilename[0]) {
-			strncpy(&boardfilename[0], argv[i], BMAX_PATH - 4 - 1);
-			boardfilename[BMAX_PATH - 4 - 1] = 0;
+		if (boardfilename.empty()) {
+			boardfilename = argv[i];
 		}
 	}
 	if (boardfilename.empty()) {
@@ -483,7 +482,7 @@ int app_main(int argc, char const * const argv[])
 	}
 	else
 	{
-		ExtLoadMap(&boardfilename[0]);
+		ExtLoadMap(boardfilename);
 	}
 
 	updatenumsprites();
@@ -560,7 +559,7 @@ int app_main(int argc, char const * const argv[])
 
 				keystatus[0x15] = 0;
 
-				std::string filename = &boardfilename[0];
+				std::string filename{boardfilename};
 				if (pathsearchmode == PATHSEARCH_GAME) {
 					filename = findfilename(filename);
 				}
@@ -5433,15 +5432,15 @@ void overheadeditor()
 
 						ExtPreLoadMap();
 						j = pathsearchmode == PATHSEARCH_GAME && grponlymode ? KOPEN4LOAD_ANYGRP : KOPEN4LOAD_ANY;
-						i = loadboard(&boardfilename[0], j, &posx, &posy, &posz, &ang, &cursectnum);
-						if (i == -2) i = loadoldboard(&boardfilename[0], j, &posx, &posy, &posz, &ang, &cursectnum);
+						i = loadboard(boardfilename, j, &posx, &posy, &posz, &ang, &cursectnum);
+						if (i == -2) i = loadoldboard(boardfilename, j, &posx, &posy, &posz, &ang, &cursectnum);
 						if (i < 0)
 						{
 							printmessage16("Invalid map format.");
 						}
 						else
 						{
-							ExtLoadMap(&boardfilename[0]);
+							ExtLoadMap(boardfilename);
 
 							if (highlightsectorcnt >= 0)
 							{

@@ -381,7 +381,7 @@ void ExtPreLoadMap()
 {
 }
 
-void ExtLoadMap(const char *mapname)
+void ExtLoadMap(const std::string& mapname)
 {
 	wm_setwindowtitle(mapname);
 }

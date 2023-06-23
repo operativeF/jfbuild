@@ -124,7 +124,7 @@ int wm_filechooser(const std::string& initialdir, const char *initialfile, const
 
 int wm_idle(void *);
 void wm_setapptitle(const char *name);
-void wm_setwindowtitle(const char *name);
+void wm_setwindowtitle(const std::string& name);
 
 // baselayer.c
 void makeasmwriteable();

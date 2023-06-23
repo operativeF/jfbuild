@@ -7253,7 +7253,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 //
 // loadboard
 //
-int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz,
+int loadboard(const std::string& filename, char fromwhere, int *daposx, int *daposy, int *daposz,
 			 short *daang, short *dacursectnum)
 {
 	short fil;
@@ -7262,14 +7262,7 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 	short maxwalls;
 	short maxsprites;
 
-	short i = std::strlen(filename) - 1;
-
-	if ((unsigned char)filename[i] == 255) {
-		filename[i] = 0;
-		fromwhere = 1;
-	}	// JBF 20040119: "compatibility"
-
-	if ((fil = kopen4load(filename,fromwhere)) == -1) {
+	if ((fil = kopen4load(filename.c_str(), fromwhere)) == -1) {
 		mapversion = 7L;
 		return -1;
 	}
@@ -7321,7 +7314,7 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 
 	kread(fil, &sector[0], sizeof(sectortype) * numsectors);
 
-	for (i=numsectors-1; i>=0; i--) {
+	for (int i = numsectors-1; i >= 0; --i) {
 		sector[i].wallptr       = B_LITTLE16(sector[i].wallptr);
 		sector[i].wallnum       = B_LITTLE16(sector[i].wallnum);
 		sector[i].ceilingz      = B_LITTLE32(sector[i].ceilingz);
@@ -7340,7 +7333,7 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 	kread(fil,&numwalls,2); numwalls = B_LITTLE16(numwalls);
 	if (numwalls > maxwalls) { kclose(fil); return(-2); }
 	kread(fil,&wall[0],sizeof(walltype)*numwalls);
-	for (i=numwalls-1; i>=0; i--) {
+	for (int i = numwalls - 1; i >= 0; --i) {
 		wall[i].x          = B_LITTLE32(wall[i].x);
 		wall[i].y          = B_LITTLE32(wall[i].y);
 		wall[i].point2     = B_LITTLE16(wall[i].point2);
@@ -7363,7 +7356,7 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 
 	kread(fil, &sprite[0], sizeof(spritetype) * numsprites);
 
-	for (i=numsprites-1; i>=0; i--) {
+	for (int i = numsprites - 1; i >= 0; --i) {
 		sprite[i].x       = B_LITTLE32(sprite[i].x);
 		sprite[i].y       = B_LITTLE32(sprite[i].y);
 		sprite[i].z       = B_LITTLE32(sprite[i].z);
@@ -7381,9 +7374,11 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 		sprite[i].extra   = B_LITTLE16(sprite[i].extra);
 	}
 
-	for(i=0;i<numsprites;i++) {
-		if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
-		insertsprite(sprite[i].sectnum,sprite[i].statnum);
+	for(int i{0}; i < numsprites; ++i) {
+		if ((sprite[i].cstat & 48) == 48)
+			sprite[i].cstat &= ~48;
+
+		insertsprite(sprite[i].sectnum, sprite[i].statnum);
 	}
 
 		//Must be after loading sectors, etc!
@@ -8283,7 +8278,7 @@ void convertv7sprv6(const spritetype *from, struct spritetypev6 *to)
 
 // Powerslave uses v6
 // Witchaven 1 and TekWar use v5
-int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz,
+int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *daposy, int *daposz,
 			 short *daang, short *dacursectnum)
 {
 	short fil;
@@ -8295,14 +8290,7 @@ int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *
 	struct walltypev6   v6wall;
 	struct spritetypev6 v6spr;
 
-	short i = std::strlen(filename) - 1;
-
-	if ((unsigned char)filename[i] == 255) {
-		filename[i] = 0;
-		fromwhere = 1;
-	}	// JBF 20040119: "compatibility"
-	
-	if ((fil = kopen4load(filename,fromwhere)) == -1) {
+	if ((fil = kopen4load(filename.c_str(), fromwhere)) == -1) {
 		mapversion = 5L;
 		return -1;
 	}
@@ -8341,7 +8329,7 @@ int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *
 		return(-1);
 	}
 
-	for (i=0; i<numsectors; i++) {
+	for (int i{0}; i < numsectors; ++i) {
 		switch (mapversion) {
 			case 5:
 				if (readv5sect(fil,&v5sect)) goto readerror;
@@ -8362,7 +8350,7 @@ int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *
 		return(-1);
 	}
 
-	for (i=0; i<numwalls; i++) {
+	for (int i{0}; i < numwalls; ++i) {
 		switch (mapversion) {
 			case 5:
 				if (readv5wall(fil,&v5wall)) goto readerror;
@@ -8383,7 +8371,7 @@ int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *
 		return(-1);
 	}
 
-	for (i=0; i<numsprites; i++) {
+	for (int i{0}; i < numsprites; ++i) {
 		switch (mapversion) {
 			case 5:
 				if (readv5sprite(fil,&v5spr)) goto readerror;
@@ -8397,7 +8385,7 @@ int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *
 		}
 	}
 
-	for(i=0;i<numsprites;i++) {
+	for(int i{0}; i < numsprites; ++i) {
 		if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
 		insertsprite(sprite[i].sectnum,sprite[i].statnum);
 	}
