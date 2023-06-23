@@ -404,41 +404,41 @@ int OSD_CaptureKey(int sc)
 
 namespace {
 
-enum {
-	OSDOP_START,
-	OSDOP_END,
-	OSDOP_LEFT,
-	OSDOP_LEFT_WORD,
-	OSDOP_RIGHT,
-	OSDOP_RIGHT_WORD,
-	OSDOP_BACKSPACE,
-	OSDOP_DELETE,
-	OSDOP_DELETE_START,
-	OSDOP_DELETE_END,
-	OSDOP_DELETE_WORD,
-	OSDOP_CANCEL,
-	OSDOP_COMPLETE,
-	OSDOP_SUBMIT,
-	OSDOP_HISTORY_UP,
-	OSDOP_HISTORY_DOWN,
-	OSDOP_SCROLL_TOP,
-	OSDOP_SCROLL_BOTTOM,
-	OSDOP_PAGE_UP,
-	OSDOP_PAGE_DOWN,
+enum class OSDOP {
+	START,
+	END,
+	LEFT,
+	LEFT_WORD,
+	RIGHT,
+	RIGHT_WORD,
+	BACKSPACE,
+	DELETE,
+	DELETE_START,
+	DELETE_END,
+	DELETE_WORD,
+	CANCEL,
+	COMPLETE,
+	SUBMIT,
+	HISTORY_UP,
+	HISTORY_DOWN,
+	SCROLL_TOP,
+	SCROLL_BOTTOM,
+	PAGE_UP,
+	PAGE_DOWN,
 };
 
-void OSD_Manipulate(int op) {
+void OSD_Manipulate(OSDOP op) {
 	int i;
 	int j;
 	symbol_iter tabc{};
 
 	switch (op) {
-		case OSDOP_START:
+		case OSDOP::START:
 			osdeditcursor = 0;
 			osdeditwinstart = osdeditcursor;
 			osdeditwinend = osdeditwinstart+editlinewidth;
 			break;
-		case OSDOP_END:
+		case OSDOP::END:
 			osdeditcursor = osdeditlen;
 			osdeditwinend = osdeditcursor;
 			osdeditwinstart = osdeditwinend-editlinewidth;
@@ -447,7 +447,7 @@ void OSD_Manipulate(int op) {
 				osdeditwinend = editlinewidth;
 			}
 			break;
-		case OSDOP_LEFT:
+		case OSDOP::LEFT:
 			if (osdeditcursor>0) {
 				osdeditcursor--;
 			}
@@ -456,7 +456,7 @@ void OSD_Manipulate(int op) {
 				osdeditwinstart-=(osdeditwinstart-osdeditcursor);
 			}
 			break;
-		case OSDOP_LEFT_WORD:
+		case OSDOP::LEFT_WORD:
 			if (osdeditcursor>0) {
 				while (osdeditcursor>0) {
 					if (osdeditbuf[osdeditcursor-1] != 32) break;
@@ -472,7 +472,7 @@ void OSD_Manipulate(int op) {
 				osdeditwinstart-=(osdeditwinstart-osdeditcursor);
 			}
 			break;
-		case OSDOP_RIGHT:
+		case OSDOP::RIGHT:
 			if (osdeditcursor<osdeditlen) {
 				osdeditcursor++;
 			}
@@ -481,7 +481,7 @@ void OSD_Manipulate(int op) {
 				osdeditwinend+=(osdeditcursor-osdeditwinend);
 			}
 			break;
-		case OSDOP_RIGHT_WORD:
+		case OSDOP::RIGHT_WORD:
 			if (osdeditcursor<osdeditlen) {
 				while (osdeditcursor<osdeditlen) {
 					if (osdeditbuf[osdeditcursor] == 32) break;
@@ -497,7 +497,7 @@ void OSD_Manipulate(int op) {
 				osdeditwinend+=(osdeditcursor-osdeditwinend);
 			}
 			break;
-		case OSDOP_BACKSPACE:
+		case OSDOP::BACKSPACE:
 			if (!osdeditcursor || !osdeditlen) return;
 			if (!osdovertype) {
 				if (osdeditcursor < osdeditlen)
@@ -510,12 +510,12 @@ void OSD_Manipulate(int op) {
 				osdeditwinend--;
 			}
 			break;
-		case OSDOP_DELETE:
+		case OSDOP::DELETE:
 			if (osdeditcursor == osdeditlen || !osdeditlen) return;
 			if (osdeditcursor <= osdeditlen-1) std::memmove(osdeditbuf+osdeditcursor, osdeditbuf+osdeditcursor+1, osdeditlen-osdeditcursor-1);
 			osdeditlen--;
 			break;
-		case OSDOP_DELETE_START:
+		case OSDOP::DELETE_START:
 			if (osdeditcursor>0 && osdeditlen) {
 				if (osdeditcursor<osdeditlen)
 					std::memmove(osdeditbuf, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
@@ -525,10 +525,10 @@ void OSD_Manipulate(int op) {
 				osdeditwinend = editlinewidth;
 			}
 			break;
-		case OSDOP_DELETE_END:
+		case OSDOP::DELETE_END:
 			osdeditlen = osdeditcursor;
 			break;
-		case OSDOP_DELETE_WORD:
+		case OSDOP::DELETE_WORD:
 			if (osdeditcursor>0 && osdeditlen>0) {
 				i=osdeditcursor;
 				while (i>0 && osdeditbuf[i-1]==32) i--;
@@ -543,13 +543,13 @@ void OSD_Manipulate(int op) {
 				}
 			}
 			break;
-		case OSDOP_CANCEL:
+		case OSDOP::CANCEL:
 			osdeditlen=0;
 			osdeditcursor=0;
 			osdeditwinstart=0;
 			osdeditwinend=editlinewidth;
 			break;
-		case OSDOP_COMPLETE:
+		case OSDOP::COMPLETE:
 			if (lastmatch == symbols.end()) {
 				for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
 				for (j=0;osdeditbuf[i] != ' ' && i < osdeditlen;j++,i++)
@@ -580,7 +580,7 @@ void OSD_Manipulate(int op) {
 				lastmatch = tabc;
 			}
 			break;
-		case OSDOP_SUBMIT:
+		case OSDOP::SUBMIT:
 			if (osdeditlen>0) {
 				osdeditbuf[osdeditlen] = 0;
 				std::memmove(osdhistorybuf[1], osdhistorybuf[0], (HISTORYDEPTH-1)*(EDITLENGTH+1));
@@ -599,7 +599,7 @@ void OSD_Manipulate(int op) {
 			osdeditwinstart=0;
 			osdeditwinend=editlinewidth;
 			break;
-		case OSDOP_HISTORY_UP:
+		case OSDOP::HISTORY_UP:
 			if (osdhistorypos < osdhistorysize-1) {
 				osdhistorypos++;
 				std::memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
@@ -622,7 +622,7 @@ void OSD_Manipulate(int op) {
 				}
 			}
 			break;
-		case OSDOP_HISTORY_DOWN:
+		case OSDOP::HISTORY_DOWN:
 			if (osdhistorypos >= 0) {
 				if (osdhistorypos == 0) {
 					osdeditlen=0;
@@ -653,17 +653,17 @@ void OSD_Manipulate(int op) {
 				}
 			}
 			break;
-		case OSDOP_SCROLL_TOP:
+		case OSDOP::SCROLL_TOP:
 			osdhead = osdlines-1;
 			break;
-		case OSDOP_SCROLL_BOTTOM:
+		case OSDOP::SCROLL_BOTTOM:
 			osdhead = 0;
 			break;
-		case OSDOP_PAGE_UP:
+		case OSDOP::PAGE_UP:
 			if (osdhead < osdlines-1)
 				osdhead++;
 			break;
-		case OSDOP_PAGE_DOWN:
+		case OSDOP::PAGE_DOWN:
 			if (osdhead > 0)
 				osdhead--;
 			break;
@@ -706,35 +706,35 @@ int OSD_HandleChar(int ch)
 	if (ch < 32 || ch == 127) {
 		switch (ch) {
 			case 1:		// control a. jump to beginning of line
-				OSD_Manipulate(OSDOP_START); break;
+				OSD_Manipulate(OSDOP::START); break;
 			case 2:		// control b, move one character left
-				OSD_Manipulate(OSDOP_LEFT); break;
+				OSD_Manipulate(OSDOP::LEFT); break;
 			case 3:		// control c, cancel
-				OSD_Manipulate(OSDOP_CANCEL); break;
+				OSD_Manipulate(OSDOP::CANCEL); break;
 			case 5:		// control e, jump to end of line
-				OSD_Manipulate(OSDOP_END); break;
+				OSD_Manipulate(OSDOP::END); break;
 			case 6:		// control f, move one character right
-				OSD_Manipulate(OSDOP_RIGHT); break;
+				OSD_Manipulate(OSDOP::RIGHT); break;
 			case 8:
 			case 127:	// control h, backspace
-				OSD_Manipulate(OSDOP_BACKSPACE); break;
+				OSD_Manipulate(OSDOP::BACKSPACE); break;
 			case 9:		// tab
-				OSD_Manipulate(OSDOP_COMPLETE); break;
+				OSD_Manipulate(OSDOP::COMPLETE); break;
 			case 11:	// control k, delete all to end of line
-				OSD_Manipulate(OSDOP_DELETE_END); break;
+				OSD_Manipulate(OSDOP::DELETE_END); break;
 			case 12:	// control l, clear screen
 				break;
 			case 13:	// control m, enter
-				OSD_Manipulate(OSDOP_SUBMIT); break;
+				OSD_Manipulate(OSDOP::SUBMIT); break;
 			case 16:	// control p, previous (ie. up arrow)
-				OSD_Manipulate(OSDOP_HISTORY_UP); break;
+				OSD_Manipulate(OSDOP::HISTORY_UP); break;
 				break;
 			case 20:	// control t, swap previous two chars
 				break;
 			case 21:	// control u, delete all to beginning
-				OSD_Manipulate(OSDOP_DELETE_START); break;
+				OSD_Manipulate(OSDOP::DELETE_START); break;
 			case 23:	// control w, delete one word back
-				OSD_Manipulate(OSDOP_DELETE_WORD); break;
+				OSD_Manipulate(OSDOP::DELETE_WORD); break;
 		}
 	} else {	// text char
 		OSD_InsertChar(ch);
@@ -772,51 +772,51 @@ int OSD_HandleKey(int sc, int press)
 		case 1:		// escape
 			OSD_ShowDisplay(0); break;
 		case 211:	// delete
-			OSD_Manipulate(OSDOP_DELETE); break;
+			OSD_Manipulate(OSDOP::DELETE); break;
 		case 199:	// home
 			if (osdeditcontrol) {
-				OSD_Manipulate(OSDOP_SCROLL_TOP);
+				OSD_Manipulate(OSDOP::SCROLL_TOP);
 			} else {
-				OSD_Manipulate(OSDOP_START);
+				OSD_Manipulate(OSDOP::START);
 			}
 			break;
 		case 207:	// end
 			if (osdeditcontrol) {
-				OSD_Manipulate(OSDOP_SCROLL_BOTTOM);
+				OSD_Manipulate(OSDOP::SCROLL_BOTTOM);
 			} else {
-				OSD_Manipulate(OSDOP_END);
+				OSD_Manipulate(OSDOP::END);
 			}
 			break;
 		case 201:	// page up
-			OSD_Manipulate(OSDOP_PAGE_UP); break;
+			OSD_Manipulate(OSDOP::PAGE_UP); break;
 		case 209:	// page down
-			OSD_Manipulate(OSDOP_PAGE_DOWN); break;
+			OSD_Manipulate(OSDOP::PAGE_DOWN); break;
 		case 200:	// up
-			OSD_Manipulate(OSDOP_HISTORY_UP); break;
+			OSD_Manipulate(OSDOP::HISTORY_UP); break;
 		case 208:	// down
-			OSD_Manipulate(OSDOP_HISTORY_DOWN); break;
+			OSD_Manipulate(OSDOP::HISTORY_DOWN); break;
 		case 203:	// left
 			if (osdeditcontrol) {
-				OSD_Manipulate(OSDOP_LEFT_WORD);
+				OSD_Manipulate(OSDOP::LEFT_WORD);
 			} else {
-				OSD_Manipulate(OSDOP_LEFT);
+				OSD_Manipulate(OSDOP::LEFT);
 			}
 			break;
 		case 205:	// right
 			if (osdeditcontrol) {
-				OSD_Manipulate(OSDOP_RIGHT_WORD);
+				OSD_Manipulate(OSDOP::RIGHT_WORD);
 			} else {
-				OSD_Manipulate(OSDOP_RIGHT);
+				OSD_Manipulate(OSDOP::RIGHT);
 			}
 			break;
 		case 33:	// f
 			if (osdeditalt) {
-				OSD_Manipulate(OSDOP_RIGHT_WORD);
+				OSD_Manipulate(OSDOP::RIGHT_WORD);
 			}
 			break;
 		case 48:	// b
 			if (osdeditalt) {
-				OSD_Manipulate(OSDOP_LEFT_WORD);
+				OSD_Manipulate(OSDOP::LEFT_WORD);
 			}
 			break;
 		case 210:	// insert

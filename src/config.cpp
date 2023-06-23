@@ -54,15 +54,16 @@ extern std::array<int, NUMBUILDKEYS> keys;
  * 18     = Chat (0xf)
  */
 
-enum {
-	type_bool = 0,	//int
-	type_double = 1,
-	type_int = 2,
-	type_hex = 3,
+namespace {
+
+
+enum class config_t {
+	type_bool,	//int
+	type_double,
+	type_int,
+	type_hex,
 	type_fixed16,	//int
 };
-
-namespace {
 
 #if USE_POLYMOST
 int tmprenderer = -1;
@@ -73,59 +74,59 @@ unsigned tmpmaxrefreshfreq = -1;
 #endif
 
 struct configspec_t {
-	const char *name;
-	int type;
+	std::string_view name;
+	config_t type;
 	void *store;
-	const char *doc;
+	std::string_view doc;
 };
 
 const auto configspec = std::to_array<configspec_t>({
-	{ "forcesetup", type_bool, &forcesetup,
+	{ "forcesetup", config_t::type_bool, &forcesetup,
 		"; Always show configuration options on startup\n"
 		";   0 - No\n"
 		";   1 - Yes\n"
 	},
-	{ "fullscreen", type_bool, &fullscreen,
+	{ "fullscreen", config_t::type_bool, &fullscreen,
 		"; Video mode selection\n"
 		";   0 - Windowed\n"
 		";   1 - Fullscreen\n"
 	},
-	{ "xdim2d", type_int, &xdim2d,
+	{ "xdim2d", config_t::type_int, &xdim2d,
 		"; Video resolution\n"
 	},
-	{ "ydim2d", type_int, &ydim2d, nullptr },
-	{ "xdim3d", type_int, &xdimgame, nullptr },
-	{ "ydim3d", type_int, &ydimgame, nullptr },
-	{ "bpp",    type_int, &bppgame,
+	{ "ydim2d", config_t::type_int, &ydim2d, {} },
+	{ "xdim3d", config_t::type_int, &xdimgame, {} },
+	{ "ydim3d", config_t::type_int, &ydimgame, {} },
+	{ "bpp",    config_t::type_int, &bppgame,
 		"; 3D-mode colour depth\n"
 	},
 #if USE_POLYMOST
-	{ "renderer", type_int, &tmprenderer,
+	{ "renderer", config_t::type_int, &tmprenderer,
 		"; 3D-mode renderer type\n"
 		";   0  - classic\n"
 		";   2  - software Polymost\n"
 		";   3  - OpenGL Polymost\n"
 	},
 #endif
-	{ "brightness", type_int, &tmpbrightness,
+	{ "brightness", config_t::type_int, &tmpbrightness,
 		"; 3D mode brightness setting\n"
 		";   0  - lowest\n"
 		";   15 - highest\n"
 	},
 #if USE_POLYMOST && USE_OPENGL
-	{ "glusetexcache", type_bool, &glusetexcache,
+	{ "glusetexcache", config_t::type_bool, &glusetexcache,
 		"; OpenGL mode options\n"
 	},
 #endif
 #ifdef RENDERTYPEWIN
-	{ "maxrefreshfreq", type_int, &tmpmaxrefreshfreq,
+	{ "maxrefreshfreq", config_t::type_int, &tmpmaxrefreshfreq,
 		"; Maximum OpenGL mode refresh rate (Windows only, in Hertz)\n"
 	},
 #endif
-	{ "mousesensitivity", type_fixed16, &msens,
+	{ "mousesensitivity", config_t::type_fixed16, &msens,
 		"; Mouse sensitivity\n"
 	},
-	{ "keyforward", type_hex, &keys[0],
+	{ "keyforward", config_t::type_hex, &keys[0],
 		"; Key Settings\n"
 		";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
 		"; +---------------------------------------------------------------------------------------------+\n"
@@ -148,26 +149,26 @@ const auto configspec = std::to_array<configspec_t>({
 		"; |LCTRL  LALT           SPACE                RALT   RCTRL   LEFT DOWN RIGHT    KP0    KP.      |\n"
 		"; +---------------------------------------------------------------------------------------------+\n"
 	},
-	{ "keybackward", type_hex, &keys[1], nullptr },
-	{ "keyturnleft", type_hex, &keys[2], nullptr },
-	{ "keyturnright", type_hex, &keys[3], nullptr },
-	{ "keyrun", type_hex, &keys[4], nullptr },
-	{ "keystrafe", type_hex, &keys[5], nullptr },
-	{ "keyfire", type_hex, &keys[6], nullptr },
-	{ "keyuse", type_hex, &keys[7], nullptr },
-	{ "keystandhigh", type_hex, &keys[8], nullptr },
-	{ "keystandlow", type_hex, &keys[9], nullptr },
-	{ "keylookup", type_hex, &keys[10], nullptr },
-	{ "keylookdown", type_hex, &keys[11], nullptr },
-	{ "keystrafeleft", type_hex, &keys[12], nullptr },
-	{ "keystraferight", type_hex, &keys[13], nullptr },
-	{ "key2dmode", type_hex, &keys[14], nullptr },
-	{ "keyviewcycle", type_hex, &keys[15], nullptr },
-	{ "key2dzoomin", type_hex, &keys[16], nullptr },
-	{ "key2dzoomout", type_hex, &keys[17], nullptr },
-	{ "keychat", type_hex, &keys[18], nullptr },
-	{ "keyconsole", type_hex, &keys[19], nullptr },
-	{ nullptr, 0, nullptr, nullptr }
+	{ "keybackward", config_t::type_hex, &keys[1], {} },
+	{ "keyturnleft", config_t::type_hex, &keys[2], {} },
+	{ "keyturnright", config_t::type_hex, &keys[3], {} },
+	{ "keyrun", config_t::type_hex, &keys[4], {} },
+	{ "keystrafe", config_t::type_hex, &keys[5], {} },
+	{ "keyfire", config_t::type_hex, &keys[6], {} },
+	{ "keyuse", config_t::type_hex, &keys[7], {} },
+	{ "keystandhigh", config_t::type_hex, &keys[8], {} },
+	{ "keystandlow", config_t::type_hex, &keys[9], {} },
+	{ "keylookup", config_t::type_hex, &keys[10], {} },
+	{ "keylookdown", config_t::type_hex, &keys[11], {} },
+	{ "keystrafeleft", config_t::type_hex, &keys[12], {} },
+	{ "keystraferight", config_t::type_hex, &keys[13], {} },
+	{ "key2dmode", config_t::type_hex, &keys[14], {} },
+	{ "keyviewcycle", config_t::type_hex, &keys[15], {} },
+	{ "key2dzoomin", config_t::type_hex, &keys[16], {} },
+	{ "key2dzoomout", config_t::type_hex, &keys[17], {} },
+	{ "keychat", config_t::type_hex, &keys[18], {} },
+	{ "keyconsole", config_t::type_hex, &keys[19], {} },
+	{ {}, config_t::type_bool, nullptr, {} }
 });
 
 } // namespace
@@ -197,7 +198,7 @@ int loadsetup(const std::string& fn)
 		
 		int item;
 
-		for (item = 0; configspec[item].name; item++) {
+		for (item = 0; !configspec[item].name.empty(); item++) {
 			if (IsSameAsNoCase(token.value(), configspec[item].name)) {
 				// Seek past any = symbol.
 				token = scriptfile_peektoken(cfg.get());
@@ -210,32 +211,32 @@ int loadsetup(const std::string& fn)
 				}
 
 				switch (configspec[item].type) {
-					case type_bool: {
+					case config_t::type_bool: {
 						auto value = scriptfile_getbool(cfg.get());
 						if (!value.has_value()) break;
 						*(bool*)configspec[item].store = value.value();
 						break;
 					}
-					case type_int: {
+					case config_t::type_int: {
 						auto value = scriptfile_getnumber(cfg.get());
 						if (!value.has_value()) break;
 						*(int*)configspec[item].store = value.value();
 						break;
 					}
-					case type_hex: {
+					case config_t::type_hex: {
 						auto value = scriptfile_gethex(cfg.get());
 						if (!value.has_value()) break;
 						*(int*)configspec[item].store = value.value();
 						break;
 					}
-					case type_fixed16: {
+					case config_t::type_fixed16: {
 						auto value = scriptfile_getdouble(cfg.get());
 						if (!value.has_value())
 							break;
 						*(int*)configspec[item].store = (int)(value.value() * 65536.0);
 						break;
 					}
-					case type_double: {
+					case config_t::type_double: {
 						auto value = scriptfile_getdouble(cfg.get());
 						if (!value.has_value())
 							break;
@@ -251,7 +252,7 @@ int loadsetup(const std::string& fn)
 			}
 		}
 
-		if (!configspec[item].name) {
+		if (configspec[item].name.empty()) {
 			buildprintf("loadsetup: error on line {}\n", scriptfile_getlinum(cfg.get(), cfg->ltextptr));
 			continue;
 		}
@@ -293,8 +294,8 @@ int writesetup(const std::string& fn)
 	tmpmaxrefreshfreq = win_getmaxrefreshfreq();
 #endif
 
-	for (int item{0}; configspec[item].name; ++item) {
-		if (configspec[item].doc) {
+	for (int item{0}; !configspec[item].name.empty(); ++item) {
+		if (!configspec[item].doc.empty()) {
 			if (item > 0) {
 				fmt::print(fp, "\n");
 			}
@@ -305,23 +306,23 @@ int writesetup(const std::string& fn)
 		fmt::print(fp, "{} = ", configspec[item].name);
 		
 		switch (configspec[item].type) {
-			case type_bool: {
+			case config_t::type_bool: {
 				fmt::print(fp, "{}\n", (*(int*)configspec[item].store != 0));
 				break;
 			}
-			case type_int: {
+			case config_t::type_int: {
 				fmt::print(fp, "{}\n", *(int*)configspec[item].store);
 				break;
 			}
-			case type_hex: {
+			case config_t::type_hex: {
 				fmt::print(fp, "{:X}\n", *(int*)configspec[item].store);
 				break;
 			}
-			case type_fixed16: {
+			case config_t::type_fixed16: {
 				fmt::print(fp, "{}\n", (double)(*(int*)configspec[item].store) / 65536.0);
 				break;
 			}
-			case type_double: {
+			case config_t::type_double: {
 				fmt::print(fp, "{}\n", *(double*)configspec[item].store);
 				break;
 			}
