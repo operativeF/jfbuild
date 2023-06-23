@@ -35,7 +35,7 @@ struct hicreplctyp {
 	unsigned char filler;
 	std::string filename;
 	float alphacut;
-	std::unique_ptr<hicskybox_t> skybox;
+	hicskybox_t skybox;
 };
 
 inline std::array<palette_t, MAXPALOOKUPS> hictinting{};

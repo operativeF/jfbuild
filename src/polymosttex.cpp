@@ -770,7 +770,7 @@ int pt_load_hightile(PTHead * pth)
 
 	if (!pth->repldef) {
 		return 0;
-	} else if ((pth->flags & PTH_SKYBOX) && (pth->repldef->skybox == nullptr || pth->repldef->skybox->ignore)) {
+	} else if ((pth->flags & PTH_SKYBOX) && pth->repldef->skybox.ignore) {
 		return 0;
 	} else if (pth->repldef->ignore) {
 		return 0;
@@ -789,7 +789,7 @@ int pt_load_hightile(PTHead * pth)
 				texture = PTHPIC_SIZE;
 				continue;
 			}
-			filename = pth->repldef->skybox->face[texture];
+			filename = pth->repldef->skybox.face[texture];
 		} else {
 			switch (texture) {
 				case PTHPIC_BASE:

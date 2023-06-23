@@ -37,7 +37,7 @@ hicreplctyp* hicfindsubst(int picnum, int palnum, int skybox)
 		for (hicreplctyp* hr = hicreplc[picnum]; hr; hr = hr->next) {
 			if (hr->palnum == palnum) {
 				if (skybox) {
-					if (hr->skybox && !hr->skybox->ignore)
+					if (!hr->skybox.ignore)
 						return hr;
 				} else {
 					if (!hr->ignore)
@@ -140,7 +140,7 @@ int hicsetsubsttex(int picnum, int palnum, const std::string& filen, float alpha
 	hrn->filename = filen;
 
 	if (hrn->filename.empty()) {
-		if (hrn->skybox)
+		if (hrn->skybox.face.empty())
 			return -1;	// don't free the base structure if there's a skybox defined
 		
 		if (hr == nullptr)
@@ -196,22 +196,10 @@ int hicsetskybox(int picnum, int palnum, std::span<const std::string> faces)
 	else
 		hrn = hr;
 
-	if (!hrn->skybox) {
-		hrn->skybox = std::make_unique<hicskybox_t>();
-		if (!hrn->skybox) {
-			if (hr == nullptr)
-				std::free(hrn);	// not yet a link in the chain
-
-			return -1;
-		}
-	} else {
-		std::ranges::fill(hrn->skybox->face, "");
-	}
-
 	// store each face's filename
-	std::ranges::copy(faces.begin(), faces.end(), hrn->skybox->face.data());
+	std::ranges::copy(faces.begin(), faces.end(), hrn->skybox.face.data());
 
-	hrn->skybox->ignore = false;
+	hrn->skybox.ignore = false;
 	if (hr == nullptr) {
 		hrn->next = hicreplc[picnum];
 		hicreplc[picnum] = hrn;
