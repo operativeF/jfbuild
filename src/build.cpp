@@ -106,7 +106,7 @@ unsigned char somethingintab{255};
 namespace {
 
 std::array<int, 256> crctable;
-std::array<char, 24> kensig;
+std::string kensig;
 
 int bakydim16;
 int bakytop16;
@@ -429,7 +429,7 @@ int app_main(int argc, char const * const argv[])
 	loadpics("tiles000.art",1048576);
 	loadnames();
 
-	std::strcpy(&kensig[0],"BUILD by Ken Silverman");
+	kensig = "BUILD by Ken Silverman";
 	initcrc(); 
 
 	if (!loaddefinitionsfile(defsfilename)) buildputs("Definitions file loaded.\n");
@@ -585,7 +585,7 @@ int app_main(int argc, char const * const argv[])
 	uninitengine();
 
 	buildprintf("Memory status: {}({}) bytes\n", cachesize, artsize);
-	buildprintf("{}\n", &kensig[0]);
+	buildprintf("{}\n", kensig);
 	return(0);
 }
 
@@ -2494,7 +2494,6 @@ unsigned char changechar(unsigned char dachar, int dadir, unsigned char smooshya
 
 int gettile(int tilenum)
 {
-	std::array<char, 80> snotbuf;
 	int i;
 	int j;
 	int temp;
@@ -2650,8 +2649,8 @@ int gettile(int tilenum)
 				const auto ch = bgetchar();
 
 				//drawtilescreen(topleft,tilenum);
-				fmt::format_to(&snotbuf[0], "Goto tile: {}_ ", j);
-				printext256(0,0,whitecol,blackcol, &snotbuf[0], 0);
+				auto snotbuf = fmt::format("Goto tile: {}_ ", j);
+				printext256(0,0,whitecol,blackcol, snotbuf, 0);
 				showframe();
 
 				if (ch >= '0' && ch <= '9') {
@@ -2709,7 +2708,6 @@ void drawtilescreen(int pictopleft, int picbox)
 	int day;
 	int scaledown;
 	unsigned char *picptr;
-	std::array<char, 80> snotbuf;
 
 	const int xtiles = xdim >> 6;
 	const int ytiles = ydim >> 6;
@@ -2779,8 +2777,8 @@ void drawtilescreen(int pictopleft, int picbox)
 				{
 					dax = ((cnt%(xtiles<<gettilezoom))<<(6-gettilezoom));
 					day = ((cnt/(xtiles<<gettilezoom))<<(6-gettilezoom));
-					fmt::format_to(&snotbuf[0], "{}", localartfreq[cnt+pictopleft]);
-					printext256(dax,day,whitecol,-1, &snotbuf[0], 1);
+					auto snotbuf = fmt::format("{}", localartfreq[cnt + pictopleft]);
+					printext256(dax,day,whitecol,-1, snotbuf, 1);
 				}
 			}
 		}
@@ -2797,12 +2795,12 @@ void drawtilescreen(int pictopleft, int picbox)
 	drawline256((dax  )<<12, (day+i)<<12, (dax  )<<12, (day  )<<12, whitecol);
 
 	i = localartlookup[picbox];
-	fmt::format_to(&snotbuf[0], "{}", i);
-	printext256(0L, ydim - 8, whitecol, -1, &snotbuf[0], 0);
+	auto artlook = fmt::format("{}", i);
+	printext256(0L, ydim - 8, whitecol, -1, artlook, 0);
 	printext256(xdim-((int)std::strlen(names[i])<<3),ydim-8,whitecol,-1,names[i],0);
 
-	fmt::format_to(&snotbuf[0], "{}x{}", tilesizx[i], tilesizy[i]);
-	printext256(xdim >> 2, ydim - 8, whitecol, -1, &snotbuf[0], 0);
+	auto tilesizes = fmt::format("{}x{}", tilesizx[i], tilesizy[i]);
+	printext256(xdim >> 2, ydim - 8, whitecol, -1, tilesizes, 0);
 }
 
 void overheadeditor()
@@ -2893,8 +2891,8 @@ void overheadeditor()
 	drawline16(xdim-1,0,xdim-1,ydim16-1,7);
 	drawline16(0,24,xdim-1,24,7);
 	drawline16(192,0,192,24,7);
-	printext16(9L,9L,4,-1, &kensig[0],0);
-	printext16(8L,8L,12,-1, &kensig[0], 0);
+	printext16(9L,9L,4,-1, kensig, 0);
+	printext16(8L,8L,12,-1, kensig, 0);
 	fmt::format_to(buffer, "Version: {}", build_version);
 	printmessage16(buffer);
 	drawline16(0,ydim16-1-24,xdim-1,ydim16-1-24,7);
@@ -5720,7 +5718,7 @@ void overheadeditor()
 							ExtUnInit();
 							uninitengine();
 							fmt::print("Memory status: {}({}) bytes\n", cachesize, artsize);
-							fmt::print("{}\n", &kensig[0]);
+							fmt::print("{}\n", kensig);
 							std::exit(0);
 						} else if (ch == 'n' || ch == 'N' || ch == 13 || ch == ' ') {
 							break;
