@@ -70,7 +70,14 @@ void *pic{nullptr};
 int lastageclock;
 std::array<int, MAXTILES> tilefileoffs;
 
-std::array<int, 2048> reciptable;
+static constexpr std::array<int, 2048> reciptable = []() {
+	std::array<int, 2048> rectable;
+	std::ranges::generate(rectable, [n = 0]() mutable {
+				return divscalen<30>(2048L, (n++) + 2048);
+			});
+	return rectable;
+}();
+
 int fpuasm;
 
 std::array<short, MAXXDIM> umost;
@@ -146,7 +153,17 @@ int totalclocklock;
 
 namespace {
 
-std::array<int, 1024> lowrecip;
+constexpr std::array<int, 1024> lowrecip = [](){
+	std::array<int, 1024> lowreciparr{};
+	// Skip over first term, a zero.
+	std::ranges::subrange afterfirst = {std::ranges::next(lowreciparr.begin()), lowreciparr.end()};
+	std::ranges::generate(afterfirst, [n = 1] () mutable {
+		return ((1 << 24) - 1) / n++;
+	});
+
+	return lowreciparr;
+}();
+
 int nytooclose;
 int nytoofar;
 std::array<unsigned int, 65536> distrecip;
@@ -167,8 +184,65 @@ std::array<unsigned char, MAXWALLS> tempbuf;
 std::array<unsigned char, MAXTILES> tilefilenum;
 std::array<short, 1280> radarang;
 std::array<short, MAXXDIM> radarang2;
-std::array<unsigned short, 4096> sqrtable;
-std::array<unsigned short, 4096 + 256> shlookup;
+
+constexpr int msqrtasm(unsigned int c)
+{
+	unsigned int a{0x40000000L};    // mov eax, 0x40000000
+	unsigned int b{0x20000000L};	// mov ebx, 0x20000000
+	
+	do {				// begit:
+		if (c >= a) {		// cmp ecx, eax	 /  jl skip
+			c -= a;		// sub ecx, eax
+			a += b*4;	// lea eax, [eax+ebx*4]
+		}			// skip:
+		a -= b;			// sub eax, ebx
+		a >>= 1;		// shr eax, 1
+		b >>= 2;		// shr ebx, 2
+	} while (b);			// jnz begit
+
+	if (c >= a)			// cmp ecx, eax
+		a++;			// sbb eax, -1
+	a >>= 1;			// shr eax, 1
+	
+	return a;
+}
+
+constexpr std::array<unsigned short, 4096> sqrtable = [](){
+	std::array<unsigned short, 4096> sqrtarr;
+	std::ranges::generate(sqrtarr, [i = 0]() mutable {
+		return static_cast<unsigned short>(msqrtasm(((i++) << 18) + 131072) << 1);
+	});
+
+	return sqrtarr; 
+}();
+
+constexpr std::array<int, 4096 + 256> shlookup = [](){
+    std::array<int, 4096 + 256> shtable{};
+    std::ranges::generate_n(shtable.begin(), 4096, [j = 1, i = 0, k = 0]() mutable {
+        if (i >= j) {
+			j <<= 2;
+			++k;
+		}
+
+        ++i;
+
+		return (k << 1) + ((10 - k) << 8);
+    });
+
+    std::ranges::subrange shtableafter4k = {std::ranges::next(shtable.begin(), 4096), shtable.end()};
+    std::ranges::generate(shtableafter4k, [j = 1, i = 0, k = 0]() mutable {
+        if (i >= j) {
+			j <<= 2;
+			++k;
+		}
+
+        ++i;
+
+        return ((k + 6) << 1)+((10 - (k + 6)) << 8);
+    });
+
+    return shtable;
+}();
 
 std::array<char, 128> kensmessage;
 
@@ -448,28 +522,6 @@ inline unsigned int nsqrtasm(unsigned int a)
 	a = (a & 0xFFFF0000) | (sqrtable[a]);	// mov ax, word ptr sqrtable[eax*2]
 	a >>= ((c & 0xFF00) >> 8);		        // mov cl, ch
 						                    // shr eax, cl
-	return a;
-}
-
-inline int msqrtasm(unsigned int c)
-{
-	unsigned int a{0x40000000L};    // mov eax, 0x40000000
-	unsigned int b{0x20000000L};	// mov ebx, 0x20000000
-	
-	do {				// begit:
-		if (c >= a) {		// cmp ecx, eax	 /  jl skip
-			c -= a;		// sub ecx, eax
-			a += b*4;	// lea eax, [eax+ebx*4]
-		}			// skip:
-		a -= b;			// sub eax, ebx
-		a >>= 1;		// shr eax, 1
-		b >>= 2;		// shr ebx, 2
-	} while (b);			// jnz begit
-
-	if (c >= a)			// cmp ecx, eax
-		a++;			// sbb eax, -1
-	a >>= 1;			// shr eax, 1
-	
 	return a;
 }
 
@@ -5678,30 +5730,6 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 #endif
 }
 
-
-//
-// initksqrt (internal)
-//
-void initksqrt()
-{
-	int j{1};
-	int k{0};
-	for(int i{0}; i < 4096; ++i)
-	{
-		if (i >= j) {
-			j <<= 2;
-			++k;
-		}
-
-		sqrtable[i] = static_cast<unsigned short>(msqrtasm((i << 18) + 131072) << 1);
-		shlookup[i] = (k << 1) + ((10 - k) << 8);
-
-		if (i < 256)
-			shlookup[i + 4096] = ((k + 6) << 1)+((10 - (k + 6)) << 8);
-	}
-}
-
-
 //
 // dosetaspect
 //
@@ -5766,14 +5794,8 @@ void calcbritable()
 
 bool loadtables()
 {
-	initksqrt();
-
 	std::ranges::generate(sintable, [n = 0]() mutable {
         	return static_cast<short>(16384 * std::sin(static_cast<double>(n++) * std::numbers::pi_v<double> / 1024));
-		});
-
-	std::ranges::generate(reciptable, [n = 0]() mutable {
-			return divscalen<30>(2048L, (n++) + 2048);
 		});
 
 	// TODO: Make this table as a constexpr array.
@@ -5810,8 +5832,6 @@ void initfastcolorlookup(int rscale, int gscale, int bscale)
 		j += 129 - (i << 1);
 	}
 
-	//clearbufbyte(colhere,sizeof(colhere),0L);
-	//clearbufbyte(colhead,sizeof(colhead),0L);
 	std::ranges::fill(colhere, 0);
 	std::ranges::fill(colhead, 0);
 
@@ -6407,10 +6427,6 @@ bool initengine()
 	parallaxyoffs = 0L;
 	parallaxyscale = 65536;
 	showinvisibility = 0;
-
-	std::generate(std::next(lowrecip.begin()), lowrecip.end(), [n = 1] () mutable {
-		return ((1 << 24) - 1) / n++;
-	});
 
 	std::ranges::fill(&voxlock[0][0], &voxlock[0][0] + sizeof(voxlock) / sizeof(voxlock[0][0]), 200);
 	
