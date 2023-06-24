@@ -146,8 +146,6 @@ int totalclocklock;
 
 namespace {
 
-std::array<int, MAXXSIZ + 1> ggxinc;
-std::array<int, MAXXSIZ + 1> ggyinc;
 std::array<int, 1024> lowrecip;
 int nytooclose;
 int nytoofar;
@@ -3365,13 +3363,21 @@ void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	gystart = x*cosang + y*sinang;
 	gxinc = dmulscalen<10>(sprsinang,cosang,sprcosang,-sinang);
 	gyinc = dmulscalen<10>(sprcosang,cosang,sprsinang,sinang);
+	
+	j = std::max(daxsiz, daysiz);
 
-	x = 0; y = 0; j = std::max(daxsiz, daysiz);
-	for(i=0;i<=j;i++)
-	{
-		ggxinc[i] = x; x += gxinc;
-		ggyinc[i] = y; y += gyinc;
-	}
+	const auto gg_gen = [](auto cnt, auto ginc){
+		std::array<int, MAXXSIZ + 1> gg_arr{};
+		std::ranges::generate_n(gg_arr.begin(), cnt + 1, [ginc, n = 0]() mutable {
+			return (n++) * ginc;
+		});
+
+		return gg_arr;
+	};
+
+	const std::array<int, MAXXSIZ + 1> ggxinc = gg_gen(j, gxinc);
+	const std::array<int, MAXYSIZ + 1> ggyinc = gg_gen(j, gyinc);
+
 
 	if ((std::abs(globalposz-dasprz)>>10) >= std::abs(odayscale)) return;
 	syoff = divscalen<21>(globalposz-dasprz,odayscale) + (dazpivot<<7);
