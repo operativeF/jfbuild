@@ -4274,8 +4274,8 @@ void drawsprite(int snum)
 
 		if (ryi[0] < 0)   //If ceilsprite is above you, reverse order of points
 		{
-			i = rxi[1]; rxi[1] = rxi[3]; rxi[3] = i;
-			i = rzi[1]; rzi[1] = rzi[3]; rzi[3] = i;
+			std::swap(rxi[1], rxi[3]);
+			std::swap(rzi[1], rzi[3]);
 		}
 
 
@@ -4291,7 +4291,9 @@ void drawsprite(int snum)
 			zsgn = zzsgn; zzsgn = rxi[zz]+rzi[zz];
 			if (zsgn >= 0)
 			{
-				rxi2[npoints2] = rxi[z]; ryi2[npoints2] = ryi[z]; rzi2[npoints2] = rzi[z];
+				rxi2[npoints2] = rxi[z];
+				ryi2[npoints2] = ryi[z];
+				rzi2[npoints2] = rzi[z];
 				npoints2++;
 			}
 			if ((zsgn^zzsgn) < 0)
@@ -4310,8 +4312,11 @@ void drawsprite(int snum)
 		zzsgn = rxi2[0]-rzi2[0];
 		for(z=0;z<npoints2;z++)
 		{
-			zz = z+1; if (zz == npoints2) zz = 0;
-			zsgn = zzsgn; zzsgn = rxi2[zz]-rzi2[zz];
+			zz = z+1;
+			if (zz == npoints2)
+				zz = 0;
+			zsgn = zzsgn;
+			zzsgn = rxi2[zz] - rzi2[zz];
 			if (zsgn <= 0)
 			{
 				rxi[npoints] = rxi2[z]; ryi[npoints] = ryi2[z]; rzi[npoints] = rzi2[z];
@@ -4333,8 +4338,11 @@ void drawsprite(int snum)
 		zzsgn = ryi[0]*halfxdimen + (rzi[0]*(globalhoriz-0));
 		for(z=0;z<npoints;z++)
 		{
-			zz = z+1; if (zz == npoints) zz = 0;
-			zsgn = zzsgn; zzsgn = ryi[zz]*halfxdimen + (rzi[zz]*(globalhoriz-0));
+			zz = z+1;
+			if (zz == npoints)
+				zz = 0;
+			zsgn = zzsgn;
+			zzsgn = ryi[zz]*halfxdimen + (rzi[zz]*(globalhoriz-0));
 			if (zsgn >= 0)
 			{
 				rxi2[npoints2] = rxi[z];
@@ -4379,8 +4387,11 @@ void drawsprite(int snum)
 		if (npoints <= 2) return;
 
 			//Project onto screen
-		lpoint = -1; lmax = 0x7fffffff;
-		rpoint = -1; rmax = 0x80000000;
+		lpoint = -1;
+		lmax = 0x7fffffff;
+		rpoint = -1;
+		rmax = 0x80000000;
+		
 		for(z=0;z<npoints;z++)
 		{
 			xsi[z] = scale(rxi[z],xdimen<<15,rzi[z]) + (xdimen<<15);
