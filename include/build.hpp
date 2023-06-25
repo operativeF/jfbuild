@@ -227,7 +227,7 @@ struct spriteexttype {
 	short mdanimcur;
 	short angoff;
 	unsigned char flags;
-	char filler[3];
+	std::array<char, 3> filler;
 };
 #define SPREXT_NOTMD 1
 #define SPREXT_NOMDANIM 2
@@ -265,7 +265,7 @@ struct validmode_t {
 	int ydim;
 	unsigned char bpp;
 	bool fs;	// bit 0 = fullscreen flag
-	char filler[2];
+	std::array<char, 2> filler;
 	int extra;	// internal use
 };
 

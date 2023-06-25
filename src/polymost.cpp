@@ -1087,11 +1087,11 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 	double ox2;
 	double oy2;
 	double oz2;
-	double dd[16];
-	double uu[16];
-	double vv[16];
-	double px[16];
-	double py[16];
+	std::array<double, 16> dd;
+	std::array<double, 16> uu;
+	std::array<double, 16> vv;
+	std::array<double, 16> px;
+	std::array<double, 16> py;
 	int i;
 	int j;
 	int k;

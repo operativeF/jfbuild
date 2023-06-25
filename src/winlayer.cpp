@@ -266,27 +266,27 @@ unsigned win_getmaxrefreshfreq()
 // wm_msgbox/wm_ynbox() -- window-manager-provided message boxes
 //
 int wm_msgbox(const char *name, const char *fmt, ...) {
-	char buf[1000];
+	std::array<char, 1000> buf;
 	va_list va;
 
 	va_start(va,fmt);
-	vsprintf(buf,fmt,va);
+	vsprintf(buf.data(),fmt,va);
 	va_end(va);
 
-	::MessageBox(hWindow, buf, name, MB_OK | MB_TASKMODAL);
+	::MessageBox(hWindow, buf.data(), name, MB_OK | MB_TASKMODAL);
 
 	return 0;
 }
 
 int wm_ynbox(const char *name, const char *fmt, ...) {
-	char buf[1000];
+	std::array<char, 1000> buf;
 	va_list va;
 
 	va_start(va,fmt);
-	vsprintf(buf,fmt,va);
+	vsprintf(buf.data(),fmt,va);
 	va_end(va);
 
-	const int r = ::MessageBox((HWND)win_gethwnd(), buf, name, MB_YESNO | MB_TASKMODAL);
+	const int r = ::MessageBox((HWND)win_gethwnd(), buf.data(), name, MB_YESNO | MB_TASKMODAL);
 
 	if (r==IDYES) {
 		return 1;
@@ -300,8 +300,8 @@ int wm_ynbox(const char *name, const char *fmt, ...) {
 //
 int wm_filechooser(const std::string& initialdir, const char *initialfile, const char *type, int foropen, std::string& choice)
 {
-	char filter[100];
-	char* filterp = filter;
+	std::array<char, 100> filter{};
+	char* filterp = filter.data();
 	char filename[BMAX_PATH + 1] = "";
 
 	choice.clear();
@@ -311,7 +311,6 @@ int wm_filechooser(const std::string& initialdir, const char *initialfile, const
 	}
 
 	// ext Files\0*.ext\0\0
-	std::memset(filter, 0, sizeof(filter));
 	fmt::format_to(filterp, "{} Files", type);
 	filterp += std::strlen(filterp) + 1;
 	fmt::format_to(filterp, "*.{}", type);
@@ -321,7 +320,7 @@ int wm_filechooser(const std::string& initialdir, const char *initialfile, const
 	::ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = hWindow;
-	ofn.lpstrFilter = filter;
+	ofn.lpstrFilter = filter.data();
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFile = filename;
 	ofn.nMaxFile = sizeof(filename);
@@ -1039,12 +1038,12 @@ namespace {
 // fetchkeynames() -- retrieves the names for all the keys on the keyboard
 //
 void putkeyname(int vsc, int ex, int scan) {
-	TCHAR tbuf[24];
+	std::array<TCHAR, 24> tbuf;
 
 	vsc <<= 16;
 	vsc |= ex << 24;
-	if (::GetKeyNameText(vsc, tbuf, 24) == 0) return;
-	::CharToOemBuff(tbuf, keynames[scan], 24-1);
+	if (::GetKeyNameText(vsc, tbuf.data(), 24) == 0) return;
+	::CharToOemBuff(tbuf.data(), keynames[scan], 24-1);
 
 	//buildprintf("VSC %8x scan %-2x = {}\n", vsc, scan, keynames[scan]);
 }
@@ -1561,7 +1560,7 @@ int setpalette(int start, int num, const unsigned char* dapal)
 	}
 #endif
 	if (hDCSection) {
-		RGBQUAD rgb[256];
+		std::array<RGBQUAD, 256> rgb;
 		int i;
 
 		for (i = 0; i < 256; i++) {
@@ -1571,7 +1570,7 @@ int setpalette(int start, int num, const unsigned char* dapal)
 			rgb[i].rgbReserved = 0;
 		}
 
-		::SetDIBColorTable(hDCSection, 0, 256, rgb);
+		::SetDIBColorTable(hDCSection, 0, 256, rgb.data());
 	}
 
 	return 0;

@@ -769,8 +769,8 @@ int md2draw (md2model *m, spritetype *tspr, int method)
 	float k5;
 	float k6;
 	float k7;
-	float mat[16];
-	float pc[4];
+	std::array<float, 16> mat;
+	std::array<float, 4> pc;
 	PTMHead *ptmh = nullptr;
 	struct polymostdrawpolycall draw;
 
@@ -951,7 +951,7 @@ int md2draw (md2model *m, spritetype *tspr, int method)
 		draw.projection = &gdrawroomsprojmat[0][0];
 	}
 
-	draw.modelview = mat;
+	draw.modelview = mat.data();
 
 	draw.indexcount = 3 * m->numtris;
 	draw.indexbuffer = 0;
@@ -2044,8 +2044,8 @@ int loadvox (const char *filnam)
 	int x;
 	int y;
 	int z;
-	int pal[256];
-	unsigned char c[3];
+	std::array<int, 256> pal;
+	std::array<unsigned char, 3> c;
 	unsigned char *tbuf;
 
 	const int fil = kopen4load(filnam, 0);
@@ -2067,7 +2067,7 @@ int loadvox (const char *filnam)
 
 	klseek(fil,-768,SEEK_END);
 	for(i=0;i<256;i++)
-		{ kread(fil,c,3); pal[i] = (((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24); }
+		{ kread(fil, c.data(), 3); pal[i] = (((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24); }
 	pal[255] = -1;
 
 	vcolhashsizm1 = 8192-1;
@@ -2121,14 +2121,14 @@ int loadkvx (const char *filnam)
 	int x;
 	int y;
 	int z;
-	int pal[256];
+	std::array<int, 256> pal;
 	int z0;
 	int z1;
 	int mip1leng;
 	int ysizp1;
 	int fil;
 	unsigned short *xyoffs;
-	unsigned char c[3];
+	std::array<unsigned char, 3> c;
 	unsigned char *tbuf;
 	unsigned char *cptr;
 
@@ -2148,7 +2148,7 @@ int loadkvx (const char *filnam)
 
 	klseek(fil,-768,SEEK_END);
 	for(i=0;i<256;i++)
-		{ kread(fil,c,3); pal[i] = B_LITTLE32((((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24)); }
+		{ kread(fil, c.data(), 3); pal[i] = B_LITTLE32((((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24)); }
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
 	vbit = (int *)std::malloc(i); if (!vbit) { std::free(xyoffs); kclose(fil); return(-1); }
@@ -2195,7 +2195,7 @@ int loadkv6 (const char *filnam)
 	int z1;
 	float f;
 	unsigned short *ylen;
-	unsigned char c[8];
+	std::array<unsigned char, 8> c;
 
 	const int fil = kopen4load(filnam, 0);
 
@@ -2234,7 +2234,7 @@ int loadkv6 (const char *filnam)
 			z1 = zsiz;
 			for(i=ylen[x*ysiz+y];i>0;i--)
 			{
-				kread(fil,c,8); //b,g,r,a,z_lo,z_hi,vis,dir
+				kread(fil, c.data(), 8); //b,g,r,a,z_lo,z_hi,vis,dir
 				z0 = B_LITTLE16(*(unsigned short *)&c[4]);
 				if (!(c[6]&16)) setzrange1(vbit,j+z1,j+z0);
 				vbit[(j+z0)>>5] |= (1<<SHIFTMOD32(j+z0));

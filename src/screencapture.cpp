@@ -250,14 +250,12 @@ void screencapture_writepcxline(unsigned char *buf, int bytes, int elements, std
 
 int screencapture_pcx(char mode)
 {
-	unsigned char head[128];
+	std::array<unsigned char, 128> head{};
 	std::FILE* fil;
 
 	if ((fil = screencapture_openfile("pcx")) == nullptr) {
 		return -1;
 	}
-
-	std::memset(head, 0, 128);
 
 	head[0] = 10;
 	head[1] = 5;
@@ -286,7 +284,7 @@ int screencapture_pcx(char mode)
 	head[66] = bpl & 0xff;
 	head[67] = (bpl >> 8) & 0xff;
 
-	std::fwrite(head, 128, 1, fil);
+	std::fwrite(&head[0], 128, 1, fil);
 
 	// PCX renders top to bottom, from left to right.
 	// 24-bit images have each scan line written as deinterleaved RGB.
@@ -313,7 +311,7 @@ int screencapture_pcx(char mode)
 
 void screencapture_writepngline(unsigned char *buf, int bytes, int elements, std::FILE* fp, void *v)
 {
-	unsigned char header[6];
+	std::array<unsigned char, 6> header;
 	auto* sums = static_cast<struct pngsums *>(v);
 
 	unsigned short blklen = static_cast<unsigned short>(B_LITTLE16(1 + bytes * elements));	// One extra for the filter type.
@@ -324,8 +322,8 @@ void screencapture_writepngline(unsigned char *buf, int bytes, int elements, std
 
 	header[5] = 0;	// No filter.
 	sums->adlers2 = (sums->adlers2 + sums->adlers1) % 65521;
-	crc32block(&sums->crc, header, sizeof(header));
-	std::fwrite(header, sizeof(header), 1, fp);
+	crc32block(&sums->crc, header.data(), sizeof(header));
+	std::fwrite(header.data(), sizeof(header), 1, fp);
 
 	for (int i{0}; i < bytes * elements; ++i) {
 		sums->adlers1 = (sums->adlers1 + buf[i]) % 65521;
@@ -356,10 +354,10 @@ int screencapture_png(char mode)
 	const unsigned int crc = B_BIG32(ccrc); \
 	std::memcpy(&buf[acclen], &crc, 4); \
 	acclen += 4; \
-	std::fwrite(buf, acclen, 1, fil); \
+	std::fwrite(buf.data(), acclen, 1, fil); \
 }
 
-	unsigned char buf[1024];
+	std::array<unsigned char, 1024> buf;
 	int length;
 	int i;
 	int acclen;
@@ -421,7 +419,7 @@ int screencapture_png(char mode)
 	SET_PNG_CHUNK_LEN(length);
 
 	crc32block(&sums.crc, &buf[4], acclen - 4);
-	std::fwrite(buf, acclen, 1, fil);	// Write header and start of Zlib stream.
+	std::fwrite(buf.data(), acclen, 1, fil);	// Write header and start of Zlib stream.
 
 	sums.adlers1 = 1;
 	sums.adlers2 = 0;
@@ -434,7 +432,7 @@ int screencapture_png(char mode)
 	s = B_BIG16(sums.adlers1); std::memcpy(&buf[acclen], &s, 2); acclen += 2;
 
 	// Finalise the Image Data chunk and write what remains out.
-	crc32block(&sums.crc, buf, acclen);
+	crc32block(&sums.crc, buf.data(), acclen);
 	crc32finish(&sums.crc);
 	END_PNG_CHUNK(sums.crc);
 

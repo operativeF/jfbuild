@@ -40,8 +40,8 @@ void populate_video_modes(BOOL firstTime)
     int bpp{0};
     bool fullscreen{false};
     int xdim2d = 0, ydim2d = 0;
-    char modestr[64];
-    const int cd[] = { 32, 24, 16, 15, 8, 0 };
+    std::array<char, 64> modestr;
+    const std::array<int, 6> cd = { 32, 24, 16, 15, 8, 0 };
     HWND hwnd, hwnd2d;
 
     hwnd = GetDlgItem(pages[TAB_CONFIG], IDC_VMODE3D);
@@ -94,16 +94,16 @@ void populate_video_modes(BOOL firstTime)
     for (int i{0}; const auto& vmode : validmode) {
         if (vmode.fs != fullscreen) continue;
 
-        std::sprintf(modestr, "%d x %d %d-bpp", vmode.xdim, vmode.ydim, vmode.bpp);
-        j = ComboBox_AddString(hwnd, modestr);
+        std::sprintf(modestr.data(), "%d x %d %d-bpp", vmode.xdim, vmode.ydim, vmode.bpp);
+        j = ComboBox_AddString(hwnd, modestr.data());
         ComboBox_SetItemData(hwnd, j, i);
         if (i == mode3d) {
             ComboBox_SetCurSel(hwnd, j);
         }
 
         if (vmode.bpp == 8 && vmode.xdim >= 640 && vmode.ydim >= 480) {
-            std::sprintf(modestr, "%d x %d", vmode.xdim, vmode.ydim);
-            j = ComboBox_AddString(hwnd2d, modestr);
+            std::sprintf(modestr.data(), "%d x %d", vmode.xdim, vmode.ydim);
+            j = ComboBox_AddString(hwnd2d, modestr.data());
             ComboBox_SetItemData(hwnd2d, j, i);
             if (i == mode2d) {
                 ComboBox_SetCurSel(hwnd2d, j);
@@ -374,8 +374,9 @@ int startwin_close()
 
 int startwin_puts(const char *buf)
 {
-    const char *p = nullptr, *q = nullptr;
-    char workbuf[1024];
+    const char *p = nullptr;
+    const char *q = nullptr;
+    std::array<char, 1024> workbuf;
     static int newline = 0;
     int curlen, linesbefore, linesafter;
     HWND edctl;
@@ -400,7 +401,7 @@ int startwin_puts(const char *buf)
         }
         q = p;
         while (*q && *q != '\n') q++;
-        std::memcpy(workbuf, p, q-p);
+        std::memcpy(workbuf.data(), p, q-p);
         if (*q == '\n') {
             if (!q[1]) {
                 newline = 1;
@@ -415,11 +416,12 @@ int startwin_puts(const char *buf)
             workbuf[q-p] = 0;
             p = q;
         }
-        SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)workbuf);
+        ::SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)workbuf.data());
     }
-    linesafter = SendMessage(edctl, EM_GETLINECOUNT, 0,0);
-    SendMessage(edctl, EM_LINESCROLL, 0, linesafter-linesbefore);
-    if (vis) SendMessage(edctl, WM_SETREDRAW, TRUE,0);
+    linesafter = ::SendMessage(edctl, EM_GETLINECOUNT, 0,0);
+    ::SendMessage(edctl, EM_LINESCROLL, 0, linesafter-linesbefore);
+    if (vis)
+        ::SendMessage(edctl, WM_SETREDRAW, TRUE,0);
     return 0;
 }
 

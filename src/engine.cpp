@@ -111,14 +111,24 @@ int asm4;
 intptr_t asm3;
 std::array<int, 4> vplce;
 std::array<int, 4> vince;
-intptr_t palookupoffse[4], bufplce[4];
-unsigned char globalxshift, globalyshift;
-int globalxpanning, globalypanning;
+std::array<intptr_t, 4> palookupoffse;
+std::array<intptr_t, 4> bufplce;
+unsigned char globalxshift;
+unsigned char globalyshift;
+int globalxpanning;
+int globalypanning;
 short globalshiftval;
-int globalzd, globalyscale;
+int globalzd;
+int globalyscale;
 intptr_t globalbufplc;
-int globaly1, globalx2, globalx3, globaly3, globalzx;
-int globalx, globaly, globalz;
+int globaly1;
+int globalx2;
+int globalx3;
+int globaly3;
+int globalzx;
+int globalx;
+int globaly;
+int globalz;
 
 short pointhighlight{-1};
 short linehighlight{-1};
@@ -176,11 +186,11 @@ int oxyaspect{-1};
 
 	//Textured Map variables
 unsigned char globalpolytype;
+
 std::array<short*, MAXYDIM> dotp1;
 std::array<short*, MAXYDIM> dotp2;
 
 std::array<unsigned char, MAXWALLS> tempbuf;
-
 std::array<unsigned char, MAXTILES> tilefilenum;
 std::array<short, 1280> radarang;
 std::array<short, MAXXDIM> radarang2;
@@ -643,7 +653,7 @@ constexpr std::array<unsigned char, 4 * 256> vgapal16 = {
 	63,63,63,00
 };
 
-char artfilename[20];
+std::array<char, 20> artfilename;
 int numtilefiles;
 int artfil{-1};
 int artfilnum;
@@ -2139,8 +2149,8 @@ void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short
 	int ynice;
 	intptr_t i;
 	intptr_t fpalookup;
-	int y1ve[4];
-	int y2ve[4];
+	std::array<int, 4> y1ve;
+	std::array<int, 4> y2ve;
 	int u4;
 	int d4;
 	int z;
@@ -2341,7 +2351,8 @@ void transmaskvline2(int x)
 {
 	intptr_t i;
 	int y1, y2, x2;
-	short y1ve[2], y2ve[2];
+	std::array<short, 2> y1ve;
+	std::array<short, 2> y2ve;
 
 	if ((x < 0) || (x >= xdimen)) return;
 	if (x == xdimen-1) { transmaskvline(x); return; }
@@ -2920,8 +2931,8 @@ void drawalls(int bunch)
 	int x;
 	int x1;
 	int x2;
-	int cz[5];
-	int fz[5];
+	std::array<int, 5> cz;
+	std::array<int, 5> fz;
 	int wallnum;
 	int nextsectnum;
 	int startsmostwallcnt;
@@ -5355,8 +5366,8 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 	int xx;
 	int xend;
 	int qlinemode{0};
-	int y1ve[4];
-	int y2ve[4];
+	std::array<int, 4> y1ve;
+	std::array<int, 4> y2ve;
 	int u4;
 	int d4;
 	char bad;
@@ -8988,7 +8999,7 @@ void nextpage()
 // TODO: Maybe consider a strict file format type for filename.
 int loadpics(const std::string& filename, int askedsize)
 {
-	std::ranges::copy(filename, artfilename);
+	std::ranges::copy(filename, &artfilename[0]);
 
 	std::ranges::fill(tilesizx, 0);
 	std::ranges::fill(tilesizy, 0);
@@ -9010,14 +9021,14 @@ int loadpics(const std::string& filename, int askedsize)
 
 		short fil{0};
 
-		if ((fil = kopen4load(artfilename, 0)) != -1)
+		if ((fil = kopen4load(artfilename.data(), 0)) != -1)
 		{
 			int localtilestart{0};
 			int localtileend{0};
 			kread(fil,&artversion,4); artversion = B_LITTLE32(artversion);
 			
 			if (artversion != 1) {
-				buildprintf("loadpics(): Invalid art file version in {}\n", artfilename);
+				buildprintf("loadpics(): Invalid art file version in {}\n", artfilename.data());
 				return(-1);
 			}
 			
@@ -9122,7 +9133,7 @@ void loadtile(short tilenume)
 		artfilename[7] = (i % 10) + 48;
 		artfilename[6] = ((i / 10) % 10) + 48;
 		artfilename[5] = ((i / 100) % 10) + 48;
-		artfil = kopen4load(artfilename, 0);
+		artfil = kopen4load(artfilename.data(), 0);
 
 		faketimerhandler();
 	}
