@@ -537,7 +537,7 @@ bool  cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short 
 void   updatesector(int x, int y, short *sectnum);
 void   updatesectorz(int x, int y, int z, short *sectnum);
 int   inside(int x, int y, short sectnum);
-void   dragpoint(short pointhighlight, int dax, int day);
+void   dragpoint(short pt_highlight, int dax, int day);
 void   setfirstwall(short sectnum, short newfirstwall);
 
 void   getmousevalues(int *mousx, int *mousy, int *bstatus);

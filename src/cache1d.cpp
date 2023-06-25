@@ -89,7 +89,14 @@ namespace {
 
 size_t cache1dsize{0};
 
-std::array<int, 200> lockrecip;
+constexpr std::array<int, 200> lockrecip = []() {
+	std::array<int, 200> locktable{};
+	std::generate(std::next(locktable.begin()), locktable.end(), [n = 1] () mutable {
+		return (1 << 28) / (200 - (n++));
+	});
+
+	return locktable;
+}();
 
 unsigned char toupperlookup[256] =
 {
@@ -117,10 +124,6 @@ void reportandexit(std::string_view errormessage);
 
 void initcache(void *dacachestart, size_t dacachesize)
 {
-	std::generate(std::next(lockrecip.begin()), lockrecip.end(), [n = 1] () mutable {
-		return (1 << 28) / (200 - (n++));
-	});
-
 	cachestart = ((intptr_t)dacachestart + 15) & ~15;
 	cache1dsize = (dacachesize - ((-(intptr_t)dacachestart) & 15)) & ~15;
 

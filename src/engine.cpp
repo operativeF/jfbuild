@@ -120,12 +120,12 @@ intptr_t globalbufplc;
 int globaly1, globalx2, globalx3, globaly3, globalzx;
 int globalx, globaly, globalz;
 
-short pointhighlight;
+short pointhighlight{-1};
 short linehighlight;
 short highlightcnt;
 
-int hitscangoalx = (1 << 29) - 1;
-int hitscangoaly = (1 << 29) - 1;
+constexpr int hitscangoalx = (1 << 29) - 1;
+constexpr int hitscangoaly = (1 << 29) - 1;
 
 constexpr auto FASTPALGRIDSIZ{8};
 
@@ -5920,6 +5920,7 @@ bool loadpalette()
 	kread(fil, transluc, 65536);
 	kclose(fil);
 
+	// FIXME: Make constexpr initialization.
 	initfastcolorlookup(30L,59L,11L);
 
 	return true;
@@ -6428,6 +6429,7 @@ bool initengine()
 	parallaxyscale = 65536;
 	showinvisibility = 0;
 
+	// FIXME: Initialize with constexpr.
 	std::ranges::fill(&voxlock[0][0], &voxlock[0][0] + sizeof(voxlock) / sizeof(voxlock[0][0]), 200);
 	
 	std::ranges::fill(tiletovox, -1);
@@ -6446,7 +6448,6 @@ bool initengine()
 
 	automapping = false;
 
-	pointhighlight = -1;
 	linehighlight = -1;
 	highlightcnt = 0;
 
@@ -6537,9 +6538,11 @@ void uninitengine()
 void initspritelists()
 {
 	//Init doubly-linked sprite sector lists
+	// FIXME: Initialize with constexpr.
 	std::ranges::fill(headspritesect, -1);
 	headspritesect[MAXSECTORS] = 0;
 
+	// FIXME: Initialize with constexpr.
 	std::iota(prevspritesect.begin(), prevspritesect.end(), -1);
 	std::iota(nextspritesect.begin(), nextspritesect.end(), 1);
 
@@ -10392,13 +10395,13 @@ int neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsec
 //
 // dragpoint
 //
-void dragpoint(short pointhighlight, int dax, int day)
+void dragpoint(short pt_highlight, int dax, int day)
 {
-	wall[pointhighlight].x = dax;
-	wall[pointhighlight].y = day;
+	wall[pt_highlight].x = dax;
+	wall[pt_highlight].y = day;
 
 	short cnt{MAXWALLS};
-	short tempshort{pointhighlight};    //search points CCW
+	short tempshort{pt_highlight};    //search points CCW
 	
 	do
 	{
@@ -10410,7 +10413,7 @@ void dragpoint(short pointhighlight, int dax, int day)
 		}
 		else
 		{
-			tempshort = pointhighlight;    //search points CW if not searched all the way around
+			tempshort = pt_highlight;    //search points CW if not searched all the way around
 			do
 			{
 				if (wall[lastwall(tempshort)].nextwall >= 0)
@@ -10424,13 +10427,13 @@ void dragpoint(short pointhighlight, int dax, int day)
 					break;
 				}
 				cnt--;
-			} while ((tempshort != pointhighlight) && (cnt > 0));
+			} while ((tempshort != pt_highlight) && (cnt > 0));
 			
 			break;
 		}
 
 		cnt--;
-	} while ((tempshort != pointhighlight) && (cnt > 0));
+	} while ((tempshort != pt_highlight) && (cnt > 0));
 }
 
 
