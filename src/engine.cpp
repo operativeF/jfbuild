@@ -121,8 +121,8 @@ int globaly1, globalx2, globalx3, globaly3, globalzx;
 int globalx, globaly, globalz;
 
 short pointhighlight{-1};
-short linehighlight;
-short highlightcnt;
+short linehighlight{-1};
+short highlightcnt{0};
 
 constexpr int hitscangoalx = (1 << 29) - 1;
 constexpr int hitscangoaly = (1 << 29) - 1;
@@ -6402,9 +6402,6 @@ int preinitengine()
 //
 bool initengine()
 {
-	int i;
-	int j;
-
 #if !defined _WIN32 && defined DEBUGGINGAIDS
 	struct sigaction sigact, oldact;
 	std::memset(&sigact, 0, sizeof(sigact));
@@ -6413,47 +6410,19 @@ bool initengine()
 	sigaction(SIGFPE, &sigact, &oldact);
 #endif
 	if (!preinitcalled) {
-		i = preinitengine();
+		int i = preinitengine();
 
 		if (i != 0)
 			return false;
 	}
 
-	xyaspect = -1;
-
 	pskyoff[0] = 0;
-	pskybits = 0;
 
-	parallaxtype = 2;
-	parallaxyoffs = 0L;
-	parallaxyscale = 65536;
-	showinvisibility = 0;
-
-	// FIXME: Initialize with constexpr.
 	std::ranges::fill(&voxlock[0][0], &voxlock[0][0] + sizeof(voxlock) / sizeof(voxlock[0][0]), 200);
-	
 	std::ranges::fill(tiletovox, -1);
-
 	std::ranges::fill(voxscale, 65536L);
 
-	searchit = 0;
-	searchstat = -1;
-
-	std::ranges::fill(palookup, nullptr);
-	std::ranges::fill(waloff, 0);
-
-	std::ranges::fill(show2dsector, 0);
-	std::ranges::fill(show2dsprite, 0);
-	std::ranges::fill(show2dwall, 0);
-
-	automapping = false;
-
-	linehighlight = -1;
-	highlightcnt = 0;
-
-	totalclock = 0;
 	visibility = 512;
-	parallaxvisibility = 512;
 
 	captureformat = 2;  // PNG
 
