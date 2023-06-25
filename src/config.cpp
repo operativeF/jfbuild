@@ -13,6 +13,7 @@
 #include "baselayer.hpp"
 
 #include <array>
+#include <variant>
 
 extern std::array<int, NUMBUILDKEYS> keys;
 
@@ -76,7 +77,7 @@ unsigned tmpmaxrefreshfreq = -1;
 struct configspec_t {
 	std::string_view name;
 	config_t type;
-	void *store;
+	std::variant<bool*, int*, double*, std::string*> store;
 	std::string_view doc;
 };
 
@@ -167,8 +168,7 @@ const auto configspec = std::to_array<configspec_t>({
 	{ "key2dzoomin", config_t::type_hex, &keys[16], {} },
 	{ "key2dzoomout", config_t::type_hex, &keys[17], {} },
 	{ "keychat", config_t::type_hex, &keys[18], {} },
-	{ "keyconsole", config_t::type_hex, &keys[19], {} },
-	{ {}, config_t::type_bool, nullptr, {} }
+	{ "keyconsole", config_t::type_hex, &keys[19], {} }
 });
 
 } // namespace
@@ -214,33 +214,33 @@ int loadsetup(const std::string& fn)
 					case config_t::type_bool: {
 						auto value = scriptfile_getbool(cfg.get());
 						if (!value.has_value()) break;
-						*(bool*)configspec[item].store = value.value();
+						*std::get<bool*>(configspec[item].store) = value.value();
 						break;
 					}
 					case config_t::type_int: {
 						auto value = scriptfile_getnumber(cfg.get());
 						if (!value.has_value()) break;
-						*(int*)configspec[item].store = value.value();
+						*std::get<int*>(configspec[item].store) = value.value();
 						break;
 					}
 					case config_t::type_hex: {
 						auto value = scriptfile_gethex(cfg.get());
 						if (!value.has_value()) break;
-						*(int*)configspec[item].store = value.value();
+						*std::get<int*>(configspec[item].store) = value.value();
 						break;
 					}
 					case config_t::type_fixed16: {
 						auto value = scriptfile_getdouble(cfg.get());
 						if (!value.has_value())
 							break;
-						*(int*)configspec[item].store = (int)(value.value() * 65536.0);
+						*std::get<int*>(configspec[item].store) = (int)(value.value() * 65536.0);
 						break;
 					}
 					case config_t::type_double: {
 						auto value = scriptfile_getdouble(cfg.get());
 						if (!value.has_value())
 							break;
-						*(double*)configspec[item].store = value.value();
+						*std::get<double*>(configspec[item].store) = value.value();
 						break;
 					}
 					default: {
@@ -307,23 +307,23 @@ int writesetup(const std::string& fn)
 		
 		switch (configspec[item].type) {
 			case config_t::type_bool: {
-				fmt::print(fp, "{}\n", (*(int*)configspec[item].store != 0));
+				fmt::print(fp, "{}\n", *std::get<bool*>(configspec[item].store));
 				break;
 			}
 			case config_t::type_int: {
-				fmt::print(fp, "{}\n", *(int*)configspec[item].store);
+				fmt::print(fp, "{}\n", *std::get<int*>(configspec[item].store));
 				break;
 			}
 			case config_t::type_hex: {
-				fmt::print(fp, "{:X}\n", *(int*)configspec[item].store);
+				fmt::print(fp, "{:X}\n", *std::get<int*>(configspec[item].store));
 				break;
 			}
 			case config_t::type_fixed16: {
-				fmt::print(fp, "{}\n", (double)(*(int*)configspec[item].store) / 65536.0);
+				fmt::print(fp, "{}\n", static_cast<double>(*std::get<int*>(configspec[item].store)) / 65536.0);
 				break;
 			}
 			case config_t::type_double: {
-				fmt::print(fp, "{}\n", *(double*)configspec[item].store);
+				fmt::print(fp, "{}\n", *std::get<double*>(configspec[item].store));
 				break;
 			}
 			default: {
