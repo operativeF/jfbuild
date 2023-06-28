@@ -22,6 +22,8 @@
 #include "baselayer.hpp"
 #include "baselayer_priv.hpp"
 
+#include "algo_utils.hpp"
+
 #include "engine_priv.hpp"
 #if USE_POLYMOST
 # include "polymost_priv.hpp"
@@ -3043,11 +3045,11 @@ void drawalls(int bunch)
 				else
 				{
 					wallmost(dwall,z,nextsectnum,(char)0);
-					if ((cz[2] > fz[0]) || (cz[3] > fz[1])) {
-						for(int i{x1}; i <= x2; ++i) {
-							if (dwall[i] > dplc[i])
-								dwall[i] = dplc[i];
-						}
+					
+                    if ((cz[2] > fz[0]) || (cz[3] > fz[1])) {
+						std::ranges::subrange dplcrange{std::next(dplc.begin(), x1), std::next(dplc.begin(), x2 + 1)};
+						std::ranges::subrange dwallstart{std::next(dwall.begin(), x1), std::next(dwall.begin(), x2 + 1)};
+						ReplaceIfComp(dplcrange.begin(), dplcrange.end(), dwallstart.begin(), std::less<int>());
 					}
 
 					if ((searchit == 2) && (searchx >= x1) && (searchx <= x2)) {
@@ -3856,7 +3858,7 @@ void drawsprite(int snum)
 		if ((cstat&8) > 0)
 		{
 			yinc = -yinc;
-			i = y1; y1 = y2; y2 = i;
+			std::swap(y1, y2);
 		}
 
 		for(x=lx;x<=rx;x++)
@@ -3881,22 +3883,31 @@ void drawsprite(int snum)
 				case 0:
 					if (dalx2 <= darx2)
 					{
-						if ((dalx2 == lx) && (darx2 == rx)) return;
-						//clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
-						for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
+						if ((dalx2 == lx) && (darx2 == rx))
+							return;
+
+						std::fill_n(std::next(dwall.begin(), dalx2), darx2 + 1, 0);
 					}
 					break;
 				case 1:
 					k = smoststart[i] - xb1[j];
-					for(x=dalx2;x<=darx2;x++)
-						if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
-					if ((dalx2 == lx) && (darx2 == rx)) daclip |= 1;
+					for(x=dalx2;x<=darx2;x++) {
+						if (smost[k+x] > uwall[x])
+							uwall[x] = smost[k+x];
+					}
+
+					if ((dalx2 == lx) && (darx2 == rx))
+						daclip |= 1;
 					break;
 				case 2:
 					k = smoststart[i] - xb1[j];
-					for(x=dalx2;x<=darx2;x++)
-						if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
-					if ((dalx2 == lx) && (darx2 == rx)) daclip |= 2;
+					for(x=dalx2;x<=darx2;x++) {
+						if (smost[k+x] < dwall[x])
+							dwall[x] = smost[k+x];
+					}
+
+					if ((dalx2 == lx) && (darx2 == rx))
+						daclip |= 2;
 					break;
 			}
 		}
@@ -3974,19 +3985,24 @@ void drawsprite(int snum)
 		swapped = 0;
 		if (dmulscalen<32>(xp1,yp2,-xp2,yp1) >= 0)  //If wall's NOT facing you
 		{
-			if ((cstat&64) != 0) return;
-			i = xp1, xp1 = xp2, xp2 = i;
-			i = yp1, yp1 = yp2, yp2 = i;
-			i = x1, x1 = x2, x2 = i;
-			i = y1, y1 = y2, y2 = i;
+			if ((cstat&64) != 0)
+				return;
+			
+			std::swap(xp1, xp2);
+			std::swap(yp1, yp2);
+			std::swap(x1, x2);
+			std::swap(y1, y2);
 			swapped = 1;
 		}
 
 		if (xp1 >= -yp1)
 		{
-			if (xp1 > yp1) return;
+			if (xp1 > yp1)
+				return;
 
-			if (yp1 == 0) return;
+			if (yp1 == 0)
+				return;
+
 			xb1.back() = halfxdimen + scale(xp1,halfxdimen,yp1);
 			if (xp1 >= 0) xb1.back()++;   //Fix for SIGNED divide
 			if (xb1.back() >= xdimen) xb1.back() = xdimen-1;
@@ -3994,17 +4010,22 @@ void drawsprite(int snum)
 		}
 		else
 		{
-			if (xp2 < -yp2) return;
+			if (xp2 < -yp2)
+				return;
 			xb1.back() = 0;
 			i = yp1-yp2+xp1-xp2;
 			if (i == 0) return;
 			yb1.back() = yp1 + scale(yp2-yp1,xp1+yp1,i);
 		}
+
 		if (xp2 <= yp2)
 		{
-			if (xp2 < -yp2) return;
+			if (xp2 < -yp2)
+				return;
 
-			if (yp2 == 0) return;
+			if (yp2 == 0)
+				return;
+
 			xb2.back() = halfxdimen + scale(xp2,halfxdimen,yp2) - 1;
 			if (xp2 >= 0) xb2.back()++;   //Fix for SIGNED divide
 			if (xb2.back() >= xdimen) xb2.back() = xdimen-1;
@@ -4012,11 +4033,14 @@ void drawsprite(int snum)
 		}
 		else
 		{
-			if (xp1 > yp1) return;
+			if (xp1 > yp1)
+				return;
 
 			xb2.back() = xdimen-1;
 			i = xp2-xp1+yp1-yp2;
-			if (i == 0) return;
+			if (i == 0)
+				return;
+
 			yb2.back() = yp1 + scale(yp2-yp1,yp1-xp1,i);
 		}
 
@@ -4114,11 +4138,16 @@ void drawsprite(int snum)
 				}
 				else
 				{
-					x = thewall[j]; xp1 = wall[x].x; yp1 = wall[x].y;
-					x = wall[x].point2; xp2 = wall[x].x; yp2 = wall[x].y;
+					x = thewall[j];
+					xp1 = wall[x].x;
+					yp1 = wall[x].y;
+					x = wall[x].point2;
+					xp2 = wall[x].x;
+					yp2 = wall[x].y;
 
 					z1 = (xp2-xp1)*(y1-yp1) - (yp2-yp1)*(x1-xp1);
 					z2 = (xp2-xp1)*(y2-yp1) - (yp2-yp1)*(x2-xp1);
+
 					if ((z1^z2) >= 0)
 						x = (z1+z2);
 					else
@@ -4142,7 +4171,8 @@ void drawsprite(int snum)
 								x = (xp1-globalposx) + scale(xp2-xp1,z1,z1-z2);
 								y = (yp1-globalposy) + scale(yp2-yp1,z1,z1-z2);
 
-								yp1 = dmulscalen<14>(x,cosglobalang,y,singlobalang);
+								yp1 = dmulscalen<14>(x, cosglobalang, y, singlobalang);
+
 								if (yp1 > 0)
 								{
 									xp1 = dmulscalen<14>(y,cosglobalang,-x,singlobalang);
@@ -4164,16 +4194,21 @@ void drawsprite(int snum)
 				}
 				if (x < 0)
 				{
-					if (dalx2 < xb1.back()) dalx2 = xb1.back();
-					if (darx2 > xb2.back()) darx2 = xb2.back();
+					if (dalx2 < xb1.back())
+						dalx2 = xb1.back();
+
+					if (darx2 > xb2.back())
+						darx2 = xb2.back();
+
 					switch(smostwalltype[i])
 					{
 						case 0:
 							if (dalx2 <= darx2)
 							{
-								if ((dalx2 == xb1.back()) && (darx2 == xb2.back())) return;
-								//clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
-								for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
+								if ((dalx2 == xb1.back()) && (darx2 == xb2.back()))
+									return;
+
+								std::fill_n(std::next(dwall.begin(), dalx2), darx2 + 1, 0);
 							}
 							break;
 						case 1:
@@ -4195,8 +4230,10 @@ void drawsprite(int snum)
 		if ((searchit >= 1) && (searchx >= xb1.back()) && (searchx <= xb2.back()))
 			if ((searchy >= uwall[searchx]) && (searchy <= dwall[searchx]))
 			{
-				searchsector = sectnum; searchwall = spritenum;
-				searchstat = 3; searchit = 1;
+				searchsector = sectnum;
+				searchwall = spritenum;
+				searchstat = 3;
+				searchit = 1;
 			}
 
 		if ((cstat&2) == 0) {
@@ -4211,8 +4248,12 @@ void drawsprite(int snum)
 			if ((globalposz > tspr->z) == ((cstat&8)==0))
 				return;
 
-		if ((cstat&4) > 0) xoff = -xoff;
-		if ((cstat&8) > 0) yoff = -yoff;
+		if ((cstat&4) > 0)
+			xoff = -xoff;
+
+		if ((cstat&8) > 0)
+			yoff = -yoff;
+		
 		xspan = tilesizx[tilenum];
 		yspan = tilesizy[tilenum];
 
@@ -4237,8 +4278,10 @@ void drawsprite(int snum)
 		rxi[1] = rxi[0]+mulscalen<12>(cosang,dax);
 		dax = -mulscalen<12>(cosang,day);
 		day = -mulscalen<12>(sinang,day);
-		rzi[2] = rzi[1]+dax; rxi[2] = rxi[1]+day;
-		rzi[3] = rzi[0]+dax; rxi[3] = rxi[0]+day;
+		rzi[2] = rzi[1]+dax;
+		rxi[2] = rxi[1]+day;
+		rzi[3] = rzi[0]+dax;
+		rxi[3] = rxi[0]+day;
 
 			//Put all points on same z
 		ryi[0] = scale((tspr->z-globalposz),yxaspect,320<<8);
@@ -4284,7 +4327,8 @@ void drawsprite(int snum)
 
 			//Clip edge 1
 		npoints2 = 0;
-		zzsgn = rxi[0]+rzi[0];
+		zzsgn = rxi[0] + rzi[0];
+
 		for(z=0;z<npoints;z++)
 		{
 			zz = z+1; if (zz == npoints) zz = 0;
@@ -4465,9 +4509,10 @@ void drawsprite(int snum)
 				case 0:
 					if (dalx2 <= darx2)
 					{
-						if ((dalx2 == lx) && (darx2 == rx)) return;
-						//clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
-						for (x=dalx2; x<=darx2; x++) dwall[x] = 0;
+						if ((dalx2 == lx) && (darx2 == rx))
+							return;
+
+						std::fill_n(std::next(dwall.begin(), dalx2), darx2 + 1, 0);
 					}
 					break;
 				case 1:
@@ -4511,7 +4556,8 @@ void drawsprite(int snum)
 			globalx2 = mulscale(globalx2,xspan,x);
 		}
 
-		dax = globalxpanning; day = globalypanning;
+		dax = globalxpanning;
+		day = globalypanning;
 		globalxpanning = -dmulscalen<6>(globalx1,day,globalx2,dax);
 		globalypanning = -dmulscalen<6>(globaly1,day,globaly2,dax);
 
@@ -4556,9 +4602,10 @@ void drawsprite(int snum)
 				case 0:
 					if (dalx2 <= darx2)
 					{
-						if ((dalx2 == lx) && (darx2 == rx)) return;
-							//clearbufbyte(&swall[dalx2],(darx2-dalx2+1)*sizeof(swall[0]),0L);
-						for (x=dalx2; x<=darx2; x++) swall[x] = 0;
+						if ((dalx2 == lx) && (darx2 == rx))
+							return;
+
+						std::fill_n(std::next(swall.begin(), dalx2), darx2 + 1, 0);
 					}
 					break;
 				case 1:
@@ -4581,12 +4628,13 @@ void drawsprite(int snum)
 			if (x == rx) return;
 		}
 
-		for(i=0;i<MAXVOXMIPS;i++)
+		for(i=0;i<MAXVOXMIPS;i++) {
 			if (!voxoff[vtilenum][i])
 			{
 				kloadvoxel(vtilenum);
 				break;
 			}
+		}
 
 		longptr = (int *)voxoff[vtilenum][0];
 
@@ -4746,7 +4794,9 @@ void drawmaskwall(short damaskwallcnt)
 				{
 					if ((lx == xb1[z]) && (rx == xb2[z])) return;
 					//clearbufbyte(&dwall[lx],(rx-lx+1)*sizeof(dwall[0]),0L);
-					for (x=lx; x<=rx; x++) dwall[x] = 0;
+					std::ranges::fill(std::ranges::next(dwall.begin(), lx),
+					                  std::ranges::next(dwall.begin(), rx + 1),
+									  0);
 				}
 				break;
 			case 1:
@@ -12079,12 +12129,12 @@ void setviewtotile(short tilenume, int xsiz, int ysiz)
 	offscreenrendering = 1;
 	setview(0,0,ysiz-1,xsiz-1);
 	setaspect(65536,65536);
-	int j{0};
-	for(int i{0}; i <= xsiz; ++i) {
-		ylookup[i] = j;
-		j += ysiz;
-	}
-	
+
+	std::generate_n(ylookup.begin(), xsiz + 1,
+		[n = 0, ysiz]() mutable {
+			return ysiz * (n++);
+		});
+
 	setvlinebpl(ysiz);
 }
 
@@ -12124,11 +12174,7 @@ void setviewback()
 	else
 		k = std::max(bakxsiz[setviewcnt - 1], bakxsiz[setviewcnt]);
 
-	int j{0};
-	for(int i{0}; i <= k; ++i) {
-		ylookup[i] = j;
-		j += bytesperline;
-	}
+	std::generate_n(ylookup.begin(), k + 1, [n = 0]() mutable { return bytesperline * (n++); });
 
 	setvlinebpl(bytesperline);
 	modechange = true;
@@ -12485,9 +12531,7 @@ void setfirstwall(short sectnum, short newfirstwall)
 			newfirstwall -= danumwalls;
 	}
 
-	for(int i{0}; i < numwallsofloop; ++i) {
-		std::memcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
-	}
+	std::copy_n(std::next(wall.begin(), startwall), numwallsofloop, std::next(wall.begin(), numwalls));
 
 	for(int i{0}; i < numwallsofloop; ++i)
 	{
