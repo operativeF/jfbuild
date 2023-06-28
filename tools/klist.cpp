@@ -119,8 +119,6 @@ int main(int argc, char **argv)
         return(0);
     }
 
-    initcrc32table();
-
     for(i=0;i<numfiles;i++)
     {
         if (marked4listing[i] == 0 && argc > 2) continue;

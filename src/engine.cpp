@@ -6634,8 +6634,6 @@ int preinitengine()
 
 	getvalidmodes();
 
-	initcrc32table();
-
 	preinitcalled = 1;
 	return 0;
 }

@@ -62,25 +62,23 @@ static unsigned int crc32table[256] = {
 
 namespace {
 
-std::array<unsigned int, 256> crc32table;
+constexpr std::array<unsigned int, 256> crc32table = []() {
+  std::array<unsigned int, 256> crc32tbl;
+	unsigned int k;
+	// algorithm and polynomial same as that used by infozip's zip
+	for (unsigned int i{0}; i < 256; ++i) {
+		unsigned int j{i};
+		for (unsigned int k{8}; k != 0; --k) {
+			j = (j & 1) ? (0xedb88320L ^ (j >> 1)) : (j >> 1);
+    }
+
+		crc32tbl[i] = j;
+	}
+
+  return crc32tbl;
+}();
 
 } // namespace
-
-void initcrc32table()
-{
-	unsigned int i;
-	unsigned int j;
-	unsigned int k;
-	
-	// algorithm and polynomial same as that used by infozip's zip
-	for (i=0; i<256; i++) {
-		j = i;
-		for (k=8; k; k--)
-			j = (j&1) ? (0xedb88320L ^ (j>>1)) : (j>>1);
-		crc32table[i] = j;
-	}
-}
-
 
 unsigned int crc32once(unsigned char *blk, unsigned int len)
 {
