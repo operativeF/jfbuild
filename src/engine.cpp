@@ -1737,16 +1737,6 @@ namespace {
 //
 void ceilscan(int x1, int x2, int sectnum)
 {
-	int i;
-	int j;
-	int ox;
-	int oy;
-	int x;
-	int y1;
-	int y2;
-	int twall;
-	int bwall;
-
 	const sectortype* sec = &sector[sectnum];
 	
 	if (palookup[sec->ceilingpal] != globalpalwritten)
@@ -1787,31 +1777,40 @@ void ceilscan(int x1, int x2, int sectnum)
 
 	globalorientation = (int)sec->ceilingstat;
 
-
 	if ((globalorientation&64) == 0)
 	{
-		globalx1 = singlobalang; globalx2 = singlobalang;
-		globaly1 = cosglobalang; globaly2 = cosglobalang;
+		globalx1 = singlobalang;
+		globalx2 = singlobalang;
+		globaly1 = cosglobalang;
+		globaly2 = cosglobalang;
 		globalxpanning = (globalposx<<20);
 		globalypanning = -(globalposy<<20);
 	}
 	else
 	{
-		j = sec->wallptr;
-		ox = wall[wall[j].point2].x - wall[j].x;
-		oy = wall[wall[j].point2].y - wall[j].y;
-		i = nsqrtasm(ox*ox+oy*oy); if (i == 0) i = 1024; else i = 1048576/i;
+		int j = sec->wallptr;
+		int ox = wall[wall[j].point2].x - wall[j].x;
+		int oy = wall[wall[j].point2].y - wall[j].y;
+		int i = nsqrtasm(ox*ox+oy*oy);
+		
+		if (i == 0)
+			i = 1024;
+		else
+			i = 1048576 / i;
+
 		globalx1 = mulscalen<10>(dmulscalen<10>(ox,singlobalang,-oy,cosglobalang),i);
 		globaly1 = mulscalen<10>(dmulscalen<10>(ox,cosglobalang,oy,singlobalang),i);
 		globalx2 = -globalx1;
 		globaly2 = -globaly1;
 
-		ox = ((wall[j].x-globalposx)<<6); oy = ((wall[j].y-globalposy)<<6);
-		i = dmulscalen<14>(oy,cosglobalang,-ox,singlobalang);
-		j = dmulscalen<14>(ox,cosglobalang,oy,singlobalang);
-		ox = i; oy = j;
-		globalxpanning = globalx1*ox - globaly1*oy;
-		globalypanning = globaly2*ox + globalx2*oy;
+		ox = ((wall[j].x-globalposx)<<6);
+		oy = ((wall[j].y-globalposy)<<6);
+		i = dmulscalen<14>(oy, cosglobalang,-ox, singlobalang);
+		j = dmulscalen<14>(ox, cosglobalang, oy, singlobalang);
+		ox = i;
+		oy = j;
+		globalxpanning = globalx1 * ox - globaly1 * oy;
+		globalypanning = globaly2 * ox + globalx2 * oy;
 	}
 
 	globalx2 = mulscalen<16>(globalx2,viewingrangerecip);
@@ -1826,15 +1825,33 @@ void ceilscan(int x1, int x2, int sectnum)
 
 	if ((globalorientation&0x4) > 0)
 	{
-		i = globalxpanning; globalxpanning = globalypanning; globalypanning = i;
-		i = globalx2; globalx2 = -globaly1; globaly1 = -i;
-		i = globalx1; globalx1 = globaly2; globaly2 = i;
+		std::swap(globalxpanning, globalypanning);
+
+		int i = globalx2;
+		globalx2 = -globaly1;
+		globaly1 = -i;
+
+		std::swap(globalx1, globaly2);
 	}
-	if ((globalorientation&0x10) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalxpanning = -globalxpanning;
-	if ((globalorientation&0x20) > 0) globalx2 = -globalx2, globaly2 = -globaly2, globalypanning = -globalypanning;
-	globalx1 <<= globalxshift; globaly1 <<= globalxshift;
-	globalx2 <<= globalyshift;  globaly2 <<= globalyshift;
-	globalxpanning <<= globalxshift; globalypanning <<= globalyshift;
+
+	if ((globalorientation&0x10) > 0) {
+		globalx1 = -globalx1;
+		globaly1 = -globaly1;
+		globalxpanning = -globalxpanning;
+	}
+
+	if ((globalorientation&0x20) > 0) {
+		globalx2 = -globalx2;
+		globaly2 = -globaly2;
+		globalypanning = -globalypanning;
+	}
+
+	globalx1 <<= globalxshift;
+	globaly1 <<= globalxshift;
+	globalx2 <<= globalyshift;
+	globaly2 <<= globalyshift;
+	globalxpanning <<= globalxshift;
+	globalypanning <<= globalyshift;
 	globalxpanning += (((int)sec->ceilingxpanning)<<24);
 	globalypanning += (((int)sec->ceilingypanning)<<24);
 	globaly1 = (-globalx1-globaly1)*halfxdimen;
@@ -1852,35 +1869,61 @@ void ceilscan(int x1, int x2, int sectnum)
 
 	if (!(globalorientation&0x180))
 	{
-		y1 = umost[x1]; y2 = y1;
-		for(x=x1;x<=x2;x++)
+		int y1 = umost[x1];
+		int y2 = y1;
+
+		for(int x{x1}; x <= x2; ++x)
 		{
-			twall = umost[x]-1; bwall = std::min(uplc[x], dmost[x]);
+			const int twall = umost[x]-1;
+			const int bwall = std::min(uplc[x], dmost[x]);
+
 			if (twall < bwall-1)
 			{
-				if (twall >= y2)
-				{
-					while (y1 < y2-1) hline(x-1,++y1);
+				if (twall >= y2) {
+					while (y1 < y2-1) {
+						hline(x - 1, ++y1);
+					}
+
 					y1 = twall;
 				}
-				else
-				{
+				else {
 					while (y1 < twall) hline(x-1,++y1);
 					while (y1 > twall) lastx[y1--] = x;
 				}
-				while (y2 > bwall) hline(x-1,--y2);
-				while (y2 < bwall) lastx[y2++] = x;
+
+				while (y2 > bwall) {
+					hline(x-1,--y2);
+				}
+
+				while (y2 < bwall) {
+					lastx[y2++] = x;
+				}
 			}
 			else
 			{
-				while (y1 < y2-1) hline(x-1,++y1);
-				if (x == x2) { globalx2 += globaly2; globaly1 += globalx1; break; }
-				y1 = umost[x+1]; y2 = y1;
+				while (y1 < y2-1) {
+					hline(x-1,++y1);
+				}
+
+				if (x == x2) {
+					globalx2 += globaly2;
+					globaly1 += globalx1;
+					break;
+				}
+
+				y1 = umost[x+1];
+				y2 = y1;
 			}
-			globalx2 += globaly2; globaly1 += globalx1;
+			
+			globalx2 += globaly2;
+			globaly1 += globalx1;
 		}
-		while (y1 < y2-1) hline(x2,++y1);
+		while (y1 < y2-1) {
+			hline(x2, ++y1);
+		}
+
 		faketimerhandler();
+
 		return;
 	}
 
@@ -1899,35 +1942,60 @@ void ceilscan(int x1, int x2, int sectnum)
 			break;
 	}
 
-	y1 = umost[x1]; y2 = y1;
-	for(x=x1;x<=x2;x++)
+	int y1 = umost[x1];
+	int y2 = y1;
+	for(int x{x1}; x <= x2; ++x)
 	{
-		twall = umost[x]-1;
-		bwall = std::min(uplc[x], dmost[x]);
-		if (twall < bwall-1)
-		{
-			if (twall >= y2)
-			{
+		const int twall = umost[x]-1;
+		const int bwall = std::min(uplc[x], dmost[x]);
+		
+		if (twall < bwall-1) {
+			if (twall >= y2) {
 				while (y1 < y2-1) slowhline(x-1,++y1);
 				y1 = twall;
 			}
-			else
-			{
-				while (y1 < twall) slowhline(x-1,++y1);
-				while (y1 > twall) lastx[y1--] = x;
+			else {
+				while (y1 < twall) {
+					slowhline(x - 1, ++y1);
+				}
+				
+				while (y1 > twall) {
+					lastx[y1--] = x;
+				}
 			}
-			while (y2 > bwall) slowhline(x-1,--y2);
-			while (y2 < bwall) lastx[y2++] = x;
+
+			while (y2 > bwall) {
+				slowhline(x - 1, --y2);
+			}
+
+			while (y2 < bwall) {
+				lastx[y2++] = x;
+			}
 		}
 		else
 		{
-			while (y1 < y2-1) slowhline(x-1,++y1);
-			if (x == x2) { globalx2 += globaly2; globaly1 += globalx1; break; }
-			y1 = umost[x+1]; y2 = y1;
+			while (y1 < y2 - 1) {
+				slowhline(x - 1, ++y1);
+			}
+
+			if (x == x2) {
+				globalx2 += globaly2;
+				globaly1 += globalx1;
+				break;
+			}
+
+			y1 = umost[x + 1];
+			y2 = y1;
 		}
-		globalx2 += globaly2; globaly1 += globalx1;
+
+		globalx2 += globaly2;
+		globaly1 += globalx1;
 	}
-	while (y1 < y2-1) slowhline(x2,++y1);
+
+	while (y1 < y2-1) {
+		slowhline(x2, ++y1);
+	}
+
 	faketimerhandler();
 }
 
@@ -4363,7 +4431,9 @@ void drawsprite(int snum)
 			zzsgn = rxi2[zz] - rzi2[zz];
 			if (zsgn <= 0)
 			{
-				rxi[npoints] = rxi2[z]; ryi[npoints] = ryi2[z]; rzi[npoints] = rzi2[z];
+				rxi[npoints] = rxi2[z];
+				ryi[npoints] = ryi2[z];
+				rzi[npoints] = rzi2[z];
 				npoints++;
 			}
 			if ((zsgn^zzsgn) < 0)
@@ -4725,15 +4795,6 @@ void drawmaskwall(short damaskwallcnt)
 	int j;
 	int k;
 	int x;
-	int z;
-	int sectnum;
-	int z1;
-	int z2;
-	int lx;
-	int rx;
-	sectortype* sec;
-	sectortype* nsec;
-	walltype* wal;
 
 	//============================================================================= //POLYMOST BEGINS
 #if USE_POLYMOST
@@ -4741,19 +4802,30 @@ void drawmaskwall(short damaskwallcnt)
 #endif
 	//============================================================================= //POLYMOST ENDS
 
-	z = maskwall[damaskwallcnt];
-	wal = &wall[thewall[z]];
-	sectnum = thesector[z]; sec = &sector[sectnum];
-	nsec = &sector[wal->nextsector];
-	z1 = std::max(nsec->ceilingz, sec->ceilingz);
-	z2 = std::min(nsec->floorz, sec->floorz);
+	int z = maskwall[damaskwallcnt];
+	auto* wal = &wall[thewall[z]];
+	int sectnum = thesector[z];
+	auto* sec = &sector[sectnum];
+	auto* nsec = &sector[wal->nextsector];
+	int z1 = std::max(nsec->ceilingz, sec->ceilingz);
+	int z2 = std::min(nsec->floorz, sec->floorz);
 
 	wallmost(uwall,z,sectnum,(char)0);
 	wallmost(uplc,z,(int)wal->nextsector,(char)0);
-	for(x=xb1[z];x<=xb2[z];x++) if (uplc[x] > uwall[x]) uwall[x] = uplc[x];
+
+	for(x=xb1[z];x<=xb2[z];x++) {
+		if (uplc[x] > uwall[x])
+			uwall[x] = uplc[x];
+	}
+
 	wallmost(dwall,z,sectnum,(char)1);
 	wallmost(dplc,z,(int)wal->nextsector,(char)1);
-	for(x=xb1[z];x<=xb2[z];x++) if (dplc[x] < dwall[x]) dwall[x] = dplc[x];
+
+	for(x=xb1[z];x<=xb2[z];x++) {
+		if (dplc[x] < dwall[x])
+			dwall[x] = dplc[x];
+	}
+
 	prepwall(z,wal);
 
 	globalorientation = (int)wal->cstat;
@@ -4784,8 +4856,8 @@ void drawmaskwall(short damaskwallcnt)
 		if ((xb1[j] > xb2[z]) || (xb2[j] < xb1[z])) continue;
 		if (wallfront(j,z)) continue;
 
-		lx = std::max(xb1[j], xb1[z]);
-		rx = std::min(xb2[j], xb2[z]);
+		int lx = std::max(xb1[j], xb1[z]);
+		int rx = std::min(xb2[j], xb2[z]);
 
 		switch(smostwalltype[i])
 		{
@@ -4816,8 +4888,10 @@ void drawmaskwall(short damaskwallcnt)
 	if ((searchit >= 1) && (searchx >= xb1[z]) && (searchx <= xb2[z]))
 		if ((searchy >= uwall[searchx]) && (searchy <= dwall[searchx]))
 		{
-			searchsector = sectnum; searchwall = thewall[z];
-			searchstat = 4; searchit = 1;
+			searchsector = sectnum;
+			searchwall = thewall[z];
+			searchstat = 4;
+			searchit = 1;
 		}
 
 	if ((globalorientation&128) == 0)
@@ -4826,8 +4900,12 @@ void drawmaskwall(short damaskwallcnt)
 	{
 		if (globalorientation&128)
 		{
-			if (globalorientation&512) settransreverse(); else settransnormal();
+			if (globalorientation&512)
+				settransreverse();
+			else
+				settransnormal();
 		}
+
 		transmaskwallscan(xb1[z],xb2[z]);
 	}
 }
@@ -4844,7 +4922,7 @@ void fillpolygon(int npoints)
 		return;
 	}
 #endif
-
+	
 	int miny{0x7fffffff};
 	int maxy{static_cast<int>(0x80000000)}; // TODO: Correct to cast to int here?
 	
@@ -5007,8 +5085,11 @@ int clippoly(int npoints, int clipstat)
 			s2 = cx1-rx1[z];
 			do
 			{
-				zz = xb1[z]; xb1[z] = -1;
-				s1 = s2; s2 = cx1-rx1[zz];
+				zz = xb1[z];
+				xb1[z] = -1;
+				s1 = s2;
+				s2 = cx1-rx1[zz];
+
 				if (s1 < 0)
 				{
 					rx2[npoints2] = rx1[z]; ry2[npoints2] = ry1[z];
@@ -5034,7 +5115,7 @@ int clippoly(int npoints, int clipstat)
 			while ((z < npoints) && (xb1[z] < 0)) z++;
 		} while (z < npoints);
 		if (npoints2 <= 2) return(0);
-
+		
 		for(z=1;z<splitcnt;z++)
 			for(zz=0;zz<z;zz++)
 			{
@@ -5045,7 +5126,7 @@ int clippoly(int npoints, int clipstat)
 				s2 += std::abs(rx2[z3]-rx2[z2])+std::abs(ry2[z3]-ry2[z2]);
 				if (s2 < s1)
 					{ t = xb2[p2[z]]; xb2[p2[z]] = xb2[p2[zz]]; xb2[p2[zz]] = t; }
-			}
+		}
 
 
 		npoints = 0; start2 = 0; z = 0; splitcnt = 0;
@@ -5131,7 +5212,7 @@ int clippoly(int npoints, int clipstat)
 			while ((z < npoints) && (xb1[z] < 0)) z++;
 		} while (z < npoints);
 		if (npoints2 <= 2) return(0);
-
+		
 		for(z=1;z<splitcnt;z++)
 			for(zz=0;zz<z;zz++)
 			{
@@ -5142,7 +5223,7 @@ int clippoly(int npoints, int clipstat)
 				s2 += std::abs(rx2[z3]-rx2[z2])+std::abs(ry2[z3]-ry2[z2]);
 				if (s2 < s1)
 					{ t = xb2[p2[z]]; xb2[p2[z]] = xb2[p2[zz]]; xb2[p2[zz]] = t; }
-			}
+		}
 
 
 		npoints = 0; start2 = 0; z = 0; splitcnt = 0;
@@ -5189,8 +5270,8 @@ int clippoly(int npoints, int clipstat)
 				s2 += std::abs(rx1[z3]-rx1[z2])+std::abs(ry1[z3]-ry1[z2]);
 				if (s2 < s1)
 					{ t = xb1[p2[z]]; xb1[p2[z]] = xb1[p2[zz]]; xb1[p2[zz]] = t; }
+				}
 			}
-	}
 	return(npoints);
 }
 
@@ -8679,15 +8760,10 @@ int loadmaphack(const std::string& filename)
 int saveboard(const std::string& filename, const int *daposx, const int *daposy, const int *daposz,
 			 const short *daang, const short *dacursectnum)
 {
-	short fil;
 	short i;
 	short j;
-	short ts;
-	int tl;
-	sectortype tsect;
-	walltype   twall;
-	spritetype tspri;
 
+	short fil{};
 	if ((fil = Bopen(filename.c_str(), BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
 		return(-1);
 
@@ -8707,7 +8783,11 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 		mapversion = 8;
 	else
 		mapversion = 7;
-	tl = B_LITTLE32(mapversion);    if (Bwrite(fil,&tl,4) != 4) goto writeerror;
+	
+	auto tl = B_LITTLE32(mapversion);
+	int ts{0};
+
+	if (Bwrite(fil,&tl,4) != 4) goto writeerror;
 
 	tl = B_LITTLE32(*daposx);       if (Bwrite(fil,&tl,4) != 4) goto writeerror;
 	tl = B_LITTLE32(*daposy);       if (Bwrite(fil,&tl,4) != 4) goto writeerror;
@@ -8717,7 +8797,7 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 
 	ts = B_LITTLE16(numsectors);    if (Bwrite(fil,&ts,2) != 2) goto writeerror;
 	for (i=0; i<numsectors; i++) {
-		tsect = sector[i];
+		auto tsect = sector[i];
 		tsect.wallptr       = B_LITTLE16(tsect.wallptr);
 		tsect.wallnum       = B_LITTLE16(tsect.wallnum);
 		tsect.ceilingz      = B_LITTLE32(tsect.ceilingz);
@@ -8736,7 +8816,7 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 
 	ts = B_LITTLE16(numwalls);      if (Bwrite(fil,&ts,2) != 2) goto writeerror;
 	for (i=0; i<numwalls; i++) {
-		twall = wall[i];
+		auto twall = wall[i];
 		twall.x          = B_LITTLE32(twall.x);
 		twall.y          = B_LITTLE32(twall.y);
 		twall.point2     = B_LITTLE16(twall.point2);
@@ -8761,7 +8841,7 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 		i = headspritestat[j];
 		while (i != -1)
 		{
-			tspri = sprite[i];
+			auto tspri = sprite[i];
 			tspri.x       = B_LITTLE32(tspri.x);
 			tspri.y       = B_LITTLE32(tspri.y);
 			tspri.z       = B_LITTLE32(tspri.z);
@@ -9042,9 +9122,6 @@ int setgamemode(bool davidoption, int daxdim, int daydim, int dabpp)
 //
 void nextpage()
 {
-	int i;
-	permfifotype *per;
-
 	//char snotbuf[32];
 	//j = 0; k = 0;
 	//for(i=0;i<4096;i++)
@@ -9061,9 +9138,9 @@ void nextpage()
 	switch(qsetmode)
 	{
 		case 200:
-			for(i=permtail;i!=permhead;i=((i+1)&(MAXPERMS-1)))
+			for(int i{permtail}; i != permhead; i = ((i + 1) & (MAXPERMS - 1)))
 			{
-				per = &permfifo[i];
+				auto* per = &permfifo[i];
 				if ((per->pagesleft > 0) && (per->pagesleft <= numpages))
 					dorotatesprite(per->sx,per->sy,per->z,per->a,per->picnum,
 							per->dashade,per->dapalnum,per->dastat,
@@ -9107,9 +9184,9 @@ void nextpage()
 			}
 			*/
 
-			for(i=permtail;i!=permhead;i=((i+1)&(MAXPERMS-1)))
+			for(int i{permtail}; i != permhead; i = ((i + 1) & (MAXPERMS - 1)))
 			{
-				per = &permfifo[i];
+				auto* per = &permfifo[i];
 				if (per->pagesleft >= 130)
 					dorotatesprite(per->sx,per->sy,per->z,per->a,per->picnum,
 										per->dashade,per->dapalnum,per->dastat,
@@ -9141,7 +9218,7 @@ void nextpage()
 #endif
 
 	beforedrawrooms = true;
-	numframes++;
+	++numframes;
 }
 
 
@@ -9962,57 +10039,6 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 	short *hitsect, short *hitwall, short *hitsprite,
 	int *hitx, int *hity, int *hitz, unsigned int cliptype)
 {
-	sectortype* sec;
-	walltype* wal;
-	walltype* wal2;
-	spritetype* spr;
-	int z;
-	int zz;
-	int x1;
-	int y1{0};
-	int z1{0};
-	int x2;
-	int y2;
-	int x3;
-	int y3;
-	int x4;
-	int y4;
-	int intx;
-	int inty;
-	int intz;
-	int topt;
-	int topu;
-	int bot;
-	int dist;
-	int offx;
-	int offy;
-	int cstat;
-	int i;
-	int j;
-	int k;
-	int l;
-	int tilenum;
-	int xoff;
-	int yoff;
-	int dax;
-	int day;
-	int daz;
-	int daz2;
-	int ang;
-	int cosang;
-	int sinang;
-	int xspan;
-	int yspan;
-	int xrepeat;
-	int yrepeat;
-	short tempshortcnt;
-	short tempshortnum;
-	short dasector;
-	short startwall;
-	short endwall;
-	short nextsector;
-	unsigned char clipyou;
-
 	*hitsect = -1;
 	*hitwall = -1;
 	*hitsprite = -1;
@@ -10023,27 +10049,30 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 	*hitx = hitscangoalx;
 	*hity = hitscangoaly;
 
-	const int dawalclipmask = cliptype & 65535;
-	const int dasprclipmask = cliptype >> 16;
+	const auto dawalclipmask = cliptype & 65535;
+	const auto dasprclipmask = cliptype >> 16;
 
 	clipsectorlist[0] = sectnum;
-	tempshortcnt = 0;
-	tempshortnum = 1;
+	short tempshortcnt{0};
+	short tempshortnum{1};
+	
+	int y1{0};
+	int z1{0};
 	
 	do
 	{
-		dasector = clipsectorlist[tempshortcnt];
-		sec = &sector[dasector];
+		const auto dasector = clipsectorlist[tempshortcnt];
+		auto* sec = &sector[dasector];
 
-		x1 = 0x7fffffff;
+		int x1 = 0x7fffffff;
 
 		if (sec->ceilingstat&2)
 		{
-			wal = &wall[sec->wallptr];
-			wal2 = &wall[wal->point2];
-			dax = wal2->x-wal->x;
-			day = wal2->y-wal->y;
-			i = nsqrtasm(dax * dax + day * day); 
+			const auto* wal = &wall[sec->wallptr];
+			const auto* wal2 = &wall[wal->point2];
+			auto dax = wal2->x-wal->x;
+			auto day = wal2->y-wal->y;
+			int i = nsqrtasm(dax * dax + day * day); 
 			
 			if (i == 0) {
 				continue;
@@ -10054,13 +10083,12 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			dax *= i;
 			day *= i;
 
-			j = (vz << 8) - dmulscalen<15>(dax, vy, -day, vx);
+			const int j = (vz << 8) - dmulscalen<15>(dax, vy, -day, vx);
 			
 			if (j != 0)
 			{
 				i = ((sec->ceilingz-zs)<<8)+dmulscalen<15>(dax,ys-wal->y,-day,xs-wal->x);
-				if (((i^j) >= 0) && ((std::abs(i)>>1) < std::abs(j)))
-				{
+				if (((i^j) >= 0) && ((std::abs(i)>>1) < std::abs(j))) {
 					i = divscalen<30>(i,j);
 					x1 = xs + mulscalen<30>(vx,i);
 					y1 = ys + mulscalen<30>(vy,i);
@@ -10070,39 +10098,45 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 		}
 		else if ((vz < 0) && (zs >= sec->ceilingz))
 		{
-			z1 = sec->ceilingz; i = z1-zs;
-			if ((std::abs(i)>>1) < -vz)
-			{
+			z1 = sec->ceilingz;
+			int i = z1 - zs;
+			
+			if ((std::abs(i)>>1) < -vz) {
 				i = divscalen<30>(i,vz);
 				x1 = xs + mulscalen<30>(vx,i);
 				y1 = ys + mulscalen<30>(vy,i);
 			}
 		}
+
 		if ((x1 != 0x7fffffff) && (std::abs(x1-xs)+std::abs(y1-ys) < std::abs((*hitx)-xs)+std::abs((*hity)-ys)))
-			if (inside(x1,y1,dasector) != 0)
-			{
-				*hitsect = dasector; *hitwall = -1; *hitsprite = -1;
-				*hitx = x1; *hity = y1; *hitz = z1;
+			if (inside(x1,y1,dasector) != 0) {
+				*hitsect = dasector;
+				*hitwall = -1;
+				*hitsprite = -1;
+				*hitx = x1;
+				*hity = y1;
+				*hitz = z1;
 			}
 
 		x1 = 0x7fffffff;
 		
 		if (sec->floorstat & 2)
 		{
-			wal = &wall[sec->wallptr];
-			wal2 = &wall[wal->point2];
-			dax = wal2->x-wal->x;
-			day = wal2->y-wal->y;
-			i = nsqrtasm(dax*dax+day*day);
+			const auto* wal = &wall[sec->wallptr];
+			const auto* wal2 = &wall[wal->point2];
+			int dax = wal2->x-wal->x;
+			int day = wal2->y-wal->y;
+			int i = nsqrtasm(dax*dax+day*day);
 			
 			if (i == 0) {
 				continue;
 			}
 			
 			i = divscalen<15>(sec->floorheinum,i);
-			dax *= i; day *= i;
+			dax *= i;
+			day *= i;
 
-			j = (vz<<8)-dmulscalen<15>(dax,vy,-day,vx);
+			const int j = (vz<<8) - dmulscalen<15>(dax, vy, -day, vx);
 			if (j != 0)
 			{
 				i = ((sec->floorz-zs)<<8)+dmulscalen<15>(dax,ys-wal->y,-day,xs-wal->x);
@@ -10118,7 +10152,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 		else if ((vz > 0) && (zs <= sec->floorz))
 		{
 			z1 = sec->floorz;
-			i = z1 - zs;
+			int i = z1 - zs;
 
 			if ((std::abs(i) >> 1) < vz)
 			{
@@ -10131,37 +10165,52 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 		if ((x1 != 0x7fffffff) && (std::abs(x1-xs)+std::abs(y1-ys) < std::abs((*hitx)-xs)+std::abs((*hity)-ys)))
 			if (inside(x1,y1,dasector) != 0)
 			{
-				*hitsect = dasector; *hitwall = -1; *hitsprite = -1;
-				*hitx = x1; *hity = y1; *hitz = z1;
+				*hitsect = dasector;
+				*hitwall = -1;
+				*hitsprite = -1;
+				*hitx = x1;
+				*hity = y1;
+				*hitz = z1;
 			}
 
-		startwall = sec->wallptr;
-		endwall = startwall + sec->wallnum;
+		const auto startwall = sec->wallptr;
+		const auto endwall = startwall + sec->wallnum;
 
-		for(z=startwall,wal=&wall[startwall];z<endwall;z++,wal++)
+		const auto* wal = &wall[startwall];
+		for(int z{startwall}; z < endwall; ++z, ++wal)
 		{
-			wal2 = &wall[wal->point2];
+			const auto* wal2 = &wall[wal->point2];
 			x1 = wal->x;
 			y1 = wal->y;
-			x2 = wal2->x;
-			y2 = wal2->y;
+			const int x2 = wal2->x;
+			const int y2 = wal2->y;
 
 			if ((x1-xs)*(y2-ys) < (x2-xs)*(y1-ys)) continue;
+
+			int intx{0};
+			int inty{0};
+			int intz{0};
 			if (!rintersect(xs,ys,zs,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz))
 				continue;
 
 			if (std::abs(intx-xs)+std::abs(inty-ys) >= std::abs((*hitx)-xs)+std::abs((*hity)-ys)) continue;
 
-			nextsector = wal->nextsector;
+			const auto nextsector = wal->nextsector;
 			
 			if ((nextsector < 0) || (wal->cstat&dawalclipmask))
 			{
-				*hitsect = dasector; *hitwall = z; *hitsprite = -1;
-				*hitx = intx; *hity = inty; *hitz = intz;
+				*hitsect = dasector;
+				*hitwall = z;
+				*hitsprite = -1;
+				*hitx = intx;
+				*hity = inty;
+				*hitz = intz;
 				continue;
 			}
 			
-			getzsofslope(nextsector,intx,inty,&daz,&daz2);
+			int daz{0};
+			int daz2{0};
+			getzsofslope(nextsector, intx, inty, &daz, &daz2);
 			
 			if ((intz <= daz) || (intz >= daz2))
 			{
@@ -10170,15 +10219,20 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 				continue;
 			}
 
-			for(zz=tempshortnum-1;zz>=0;zz--)
-				if (clipsectorlist[zz] == nextsector) break;
-			if (zz < 0) clipsectorlist[tempshortnum++] = nextsector;
+			int zz{0};
+			for(zz = tempshortnum - 1; zz >= 0; --zz) {
+				if (clipsectorlist[zz] == nextsector)
+					break;
+			}
+
+			if (zz < 0)
+				clipsectorlist[tempshortnum++] = nextsector;
 		}
 
-		for(z=headspritesect[dasector];z>=0;z=nextspritesect[z])
+		for(auto z = headspritesect[dasector]; z >= 0; z = nextspritesect[z])
 		{
-			spr = &sprite[z];
-			cstat = spr->cstat;
+			const auto* spr = &sprite[z];
+			const auto cstat = spr->cstat;
 #if USE_POLYMOST
 			// TODO: Is the scope of this the entirety of what's below it?
 			if (!hitallsprites)
@@ -10192,56 +10246,82 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			
 			switch(cstat & 48)
 			{
-				case 0:
-					topt = vx*(x1-xs) + vy*(y1-ys); if (topt <= 0) continue;
-					bot = vx*vx + vy*vy; if (bot == 0) continue;
+				case 0: {
+					const int topt = vx*(x1-xs) + vy*(y1-ys);
+					
+					if (topt <= 0)
+						continue;
+					
+					const int bot = vx*vx + vy*vy;
+					
+					if (bot == 0)
+						continue;
 
-					intz = zs+scale(vz,topt,bot);
+					const int intz = zs+scale(vz, topt, bot);
 
-					i = (tilesizy[spr->picnum]*spr->yrepeat<<2);
-					if (cstat&128) z1 += (i>>1);
-					if (picanm[spr->picnum]&0x00ff0000) z1 -= ((int)((signed char)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
-					if ((intz > z1) || (intz < z1-i)) continue;
-					topu = vx*(y1-ys) - vy*(x1-xs);
+					int i = (tilesizy[spr->picnum]*spr->yrepeat<<2);
+					
+					if (cstat & 128)
+						z1 += (i>>1);
 
-					offx = scale(vx,topu,bot);
-					offy = scale(vy,topu,bot);
-					dist = offx*offx + offy*offy;
-					i = tilesizx[spr->picnum]*spr->xrepeat; i *= i;
-					if (dist > (i>>7)) continue;
-					intx = xs + scale(vx,topt,bot);
-					inty = ys + scale(vy,topt,bot);
+					if (picanm[spr->picnum]&0x00ff0000)
+						z1 -= ((int)((signed char)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+					
+					if ((intz > z1) || (intz < z1-i))
+						continue;
+					
+					const int topu = vx*(y1-ys) - vy*(x1-xs);
 
-					if (std::abs(intx-xs)+std::abs(inty-ys) > std::abs((*hitx)-xs)+std::abs((*hity)-ys)) continue;
+					const int offx = scale(vx, topu, bot);
+					const int offy = scale(vy, topu, bot);
+					const int dist = offx * offx + offy * offy;
+					i = tilesizx[spr->picnum]*spr->xrepeat;
+					i *= i;
+					
+					if (dist > (i>>7))
+						continue;
 
-					*hitsect = dasector; *hitwall = -1; *hitsprite = z;
-					*hitx = intx; *hity = inty; *hitz = intz;
+					const int intx = xs + scale(vx,topt,bot);
+					const int inty = ys + scale(vy,topt,bot);
+
+					if (std::abs(intx - xs) + std::abs(inty - ys) > std::abs((*hitx) - xs) + std::abs((*hity) - ys)) continue;
+
+					*hitsect = dasector;
+					*hitwall = -1;
+					*hitsprite = z;
+					*hitx = intx;
+					*hity = inty;
+					*hitz = intz;
 					break;
-				case 16:
+				}
+				case 16: {
 						//These lines get the 2 points of the rotated sprite
 						//Given: (x1, y1) starts out as the center point
-					tilenum = spr->picnum;
+					const auto tilenum = spr->picnum;
 
-					xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
+					int xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
 
 					if ((cstat&4) > 0)
 						xoff = -xoff;
 
-					k = spr->ang;
-					l = spr->xrepeat;
-					dax = sintable[k&2047]*l;
-					day = sintable[(k+1536)&2047]*l;
+					int k = spr->ang;
+					int l = spr->xrepeat;
+					const int dax = sintable[k & 2047] * l;
+					const int day = sintable[(k + 1536) & 2047] * l;
 					l = tilesizx[tilenum];
 					k = (l>>1)+xoff;
-					x1 -= mulscalen<16>(dax,k);
-					x2 = x1+mulscalen<16>(dax,l);
-					y1 -= mulscalen<16>(day,k);
-					y2 = y1+mulscalen<16>(day,l);
+					x1 -= mulscalen<16>(dax, k);
+					const int x2 = x1 + mulscalen<16>(dax, l);
+					y1 -= mulscalen<16>(day, k);
+					const int y2 = y1 + mulscalen<16>(day, l);
 
 					if ((cstat&64) != 0)   //back side of 1-way sprite
 						if ((x1-xs)*(y2-ys) < (x2-xs)*(y1-ys))
 							continue;
 
+					int intx{0};
+					int inty{0};
+					int intz{0};
 					if (!rintersect(xs,ys,zs,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz))
 						continue;
 
@@ -10250,6 +10330,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 
 					k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
 
+					int daz{0};
 					if (cstat&128)
 						daz = spr->z+(k>>1);
 					else
@@ -10269,12 +10350,12 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 					}
 
 					break;
-
-				case 32:
+				}
+				case 32: {
 					if (vz == 0)
 						continue;
 					
-					intz = z1;
+					const int intz{z1};
 					
 					if (((intz-zs)^vz) < 0)
 						continue;
@@ -10283,34 +10364,46 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 						if ((zs > intz) == ((cstat&8)==0))
 							continue;
 
-					intx = xs+scale(intz - zs, vx, vz);
-					inty = ys+scale(intz - zs, vy, vz);
+					const int intx = xs+scale(intz - zs, vx, vz);
+					const int inty = ys+scale(intz - zs, vy, vz);
 
 					if (std::abs(intx-xs)+std::abs(inty-ys) > std::abs((*hitx)-xs)+std::abs((*hity)-ys))
 						continue;
 
-					tilenum = spr->picnum;
-					xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
-					yoff = (int)((signed char)((picanm[tilenum]>>16)&255))+((int)spr->yoffset);
-					if ((cstat&4) > 0) xoff = -xoff;
-					if ((cstat&8) > 0) yoff = -yoff;
+					const auto tilenum = spr->picnum;
+					int xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
+					int yoff = (int)((signed char)((picanm[tilenum]>>16)&255))+((int)spr->yoffset);
+					
+					if ((cstat&4) > 0)
+						xoff = -xoff;
 
-					ang = spr->ang;
-					cosang = sintable[(ang+512)&2047]; sinang = sintable[ang];
-					xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
-					yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
+					if ((cstat&8) > 0)
+						yoff = -yoff;
 
-					dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
-					x1 += dmulscalen<16>(sinang,dax,cosang,day)-intx;
-					y1 += dmulscalen<16>(sinang,day,-cosang,dax)-inty;
-					l = xspan*xrepeat;
-					x2 = x1 - mulscalen<16>(sinang,l);
-					y2 = y1 + mulscalen<16>(cosang,l);
-					l = yspan*yrepeat;
-					k = -mulscalen<16>(cosang,l); x3 = x2+k; x4 = x1+k;
-					k = -mulscalen<16>(sinang,l); y3 = y2+k; y4 = y1+k;
+					const auto ang = spr->ang;
+					const auto cosang = sintable[(ang+512)&2047];
+					const auto sinang = sintable[ang];
+					const auto xspan = tilesizx[tilenum];
+					const auto xrepeat = spr->xrepeat;
+					const auto yspan = tilesizy[tilenum];
+					const auto yrepeat = spr->yrepeat;
 
-					clipyou = 0;
+					const int dax = ((xspan>>1)+xoff) * xrepeat;
+					const int day = ((yspan>>1)+yoff) * yrepeat;
+					x1 += dmulscalen<16>(sinang, dax, cosang, day)-intx;
+					y1 += dmulscalen<16>(sinang, day, -cosang, dax)-inty;
+					int l = xspan * xrepeat;
+					const int x2 = x1 - mulscalen<16>(sinang,l);
+					const int y2 = y1 + mulscalen<16>(cosang,l);
+					l = yspan * yrepeat;
+					int k = -mulscalen<16>(cosang,l);
+					const int x3 = x2 + k;
+					const int x4 = x1 + k;
+					k = -mulscalen<16>(sinang, l);
+					const int y3 = y2 + k;
+					const int y4 = y1 + k;
+
+					unsigned char clipyou{0}; // TODO: Switch to bool
 					if ((y1^y2) < 0)
 					{
 						if ((x1^x2) < 0) clipyou ^= (x1*y2<x2*y1)^(y1<y2);
@@ -10339,6 +10432,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 					}
 
 					break;
+				}
 			}
 		}
 
