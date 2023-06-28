@@ -11731,20 +11731,20 @@ void setview(int x1, int y1, int x2, int y2)
 
 	setaspect((int)(65536.F * xfov), pixelaspect);
 
-	for(int i{0}; i < windowx1; i++) {
-		startumost[i] = 1;
-		startdmost[i] = 0;
-	}
+	std::ranges::subrange startumostr{startumost.begin(), std::next(startumost.begin(), windowx1)};
+	std::ranges::subrange startdmostr{startdmost.begin(), std::next(startdmost.begin(), windowx1)};
+	std::ranges::fill(startumostr, 1);
+	std::ranges::fill(startdmostr, 0);
 
-	for(int i{windowx1}; i <= windowx2; i++) {
-		startumost[i] = windowy1,
-		startdmost[i] = windowy2 + 1;
-	}
+	std::ranges::subrange winumost{startumostr.end(), std::next(startumostr.end(), windowx2 + 1)};
+	std::ranges::subrange windmost{startdmostr.end(), std::next(startdmostr.end(), windowx2 + 1)};
+	std::ranges::fill(winumost, windowy1);
+	std::ranges::fill(windmost, windowy2 + 1);
 
-	for(int i = windowx2 + 1; i < xdim; i++) {
-		startumost[i] = 1,
-		startdmost[i] = 0;
-	}
+	std::ranges::subrange win2uxdim{winumost.end(), std::next(winumost.end(), xdim)};
+	std::ranges::subrange win2dxdim{windmost.end(), std::next(windmost.end(), xdim)};
+	std::ranges::fill(win2uxdim, 1);
+	std::ranges::fill(win2dxdim, 0);
 
 #if USE_POLYMOST && USE_OPENGL
 	polymost_setview();
