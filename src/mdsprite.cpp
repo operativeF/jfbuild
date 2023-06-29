@@ -1987,8 +1987,7 @@ skindidntfit:;
 			gvox->quad = (voxrect_t *)std::malloc(gvox->qcnt*sizeof(voxrect_t));
 			if (!gvox->quad) { return {}; }
 
-			gvox->mytex = (int *)std::malloc(gvox->mytexx*gvox->mytexy*sizeof(int));
-			if (!gvox->mytex) { std::free(gvox->quad); return {}; }
+			gvox->mytex.resize(gvox->mytexx * gvox->mytexy);
 		}
 	}
 
@@ -2269,7 +2268,6 @@ void voxfree (voxmodel *m)
 {
 	if (!m)
 		return;
-	if (m->mytex) std::free(m->mytex);
 	if (m->quad) std::free(m->quad);
 	if (m->texid) std::free(m->texid);
 }
@@ -2520,7 +2518,7 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 	mat[15] = 1.0F;
 
 	if (!m->texid[globalpal]) {
-		m->texid[globalpal] = gloadtex(m->mytex,m->mytexx,m->mytexy,m->is8bit,globalpal);
+		m->texid[globalpal] = gloadtex(m->mytex.data(), m->mytexx, m->mytexy, m->is8bit, globalpal);
 	}
 
 	draw.texture0 = m->texid[globalpal];

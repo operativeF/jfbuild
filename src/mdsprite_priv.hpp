@@ -323,7 +323,7 @@ struct voxmodel
 	voxrect_t *quad;
 	int qcnt;
 	std::array<int, 7> qfacind;
-	int *mytex;
+	std::vector<int> mytex;
 	int mytexx;
 	int mytexy;
 	int xsiz;
