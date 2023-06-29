@@ -5234,17 +5234,23 @@ int clippoly(int npoints, int clipstat)
 			s2 = rx1[z]-cx2;
 			do
 			{
-				zz = xb1[z]; xb1[z] = -1;
-				s1 = s2; s2 = rx1[zz]-cx2;
+				zz = xb1[z];
+				xb1[z] = -1;
+				s1 = s2;
+				s2 = rx1[zz]-cx2;
+				
 				if (s1 < 0)
 				{
-					rx2[npoints2] = rx1[z]; ry2[npoints2] = ry1[z];
-					xb2[npoints2] = npoints2+1; npoints2++;
+					rx2[npoints2] = rx1[z];
+					ry2[npoints2] = ry1[z];
+					xb2[npoints2] = npoints2 + 1;
+					++npoints2;
 				}
+
 				if ((s1^s2) < 0)
 				{
-					rx2[npoints2] = rx1[z]+scale(rx1[zz]-rx1[z],s1,s1-s2);
-					ry2[npoints2] = ry1[z]+scale(ry1[zz]-ry1[z],s1,s1-s2);
+					rx2[npoints2] = rx1[z] + scale(rx1[zz]-rx1[z], s1, s1-s2);
+					ry2[npoints2] = ry1[z] + scale(ry1[zz]-ry1[z], s1, s1-s2);
 					if (s1 < 0)
 						p2[splitcnt++] = npoints2;
 					xb2[npoints2] = npoints2+1;
@@ -5253,20 +5259,22 @@ int clippoly(int npoints, int clipstat)
 				z = zz;
 			} while (xb1[z] >= 0);
 
-			if (npoints2 >= start2+3)
-				xb2[npoints2-1] = start2, start2 = npoints2;
+			if (npoints2 >= start2+3) {
+				xb2[npoints2-1] = start2;
+				start2 = npoints2;
+			}
 			else
 				npoints2 = start2;
 
 			z = 1;
 			while ((z < npoints) && (xb1[z] < 0)) z++;
 		} while (z < npoints);
+		
 		if (npoints2 <= 2)
 			return 0;
 		
-		for(z=1;z<splitcnt;z++)
-			for(zz=0;zz<z;zz++)
-			{
+		for(z=1;z<splitcnt;z++) {
+			for(zz=0;zz<z;zz++) {
 				z1 = p2[z];
 				z2 = xb2[z1];
 				z3 = p2[zz];
@@ -5278,6 +5286,7 @@ int clippoly(int npoints, int clipstat)
 				if (s2 < s1) {
 					std::swap(xb2[p2[z]], xb2[p2[zz]]);
 				}
+			}
 		}
 
 
@@ -5335,7 +5344,8 @@ int clippoly(int npoints, int clipstat)
 			}
 		}
 	}
-	return(npoints);
+
+	return npoints;
 }
 
 
@@ -5552,7 +5562,7 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 	nry1[0] = sy - (yv * xoff + xv * yoff);
 	nry1[1] = nry1[0] + yv * xsiz;
 	nry1[3] = nry1[0] + xv * ysiz;
-	nry1[2] = nry1[1]+nry1[3]-nry1[0];
+	nry1[2] = nry1[1] + nry1[3] - nry1[0];
 	i = (cy1<<16);
 	
 	if ((nry1[0]<i) && (nry1[1]<i) && (nry1[2]<i) && (nry1[3]<i))
@@ -5642,7 +5652,8 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 		xv2 = yv;
 	}
 
-	x1 = (lx>>16); x2 = (rx>>16);
+	x1 = (lx>>16);
+	x2 = (rx>>16);
 
 	int oy{0};
 	x = (x1 << 16) - 1 - gx1;
@@ -5672,11 +5683,17 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 	{
 		if (((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
 		{
-			if (dastat&64) setupvlineasm(24L); else setupmvlineasm(24L);
-			by <<= 8; yv <<= 8; yv2 <<= 8;
+			if (dastat&64)
+				setupvlineasm(24L);
+			else
+				setupmvlineasm(24L);
 
-			palookupoffse[0] = palookupoffse[1] = palookupoffse[2] = palookupoffse[3] = palookupoffs;
-			vince[0] = vince[1] = vince[2] = vince[3] = yv;
+			by <<= 8;
+			yv <<= 8;
+			yv2 <<= 8;
+
+			std::ranges::fill(palookupoffse, palookupoffs);
+			std::ranges::fill(vince, yv);
 
 			for(x=x1;x<x2;x+=4)
 			{
@@ -5802,8 +5819,11 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 				
 				if ((dastat&8) == 0)
 				{
-					if (startumost[x]-1 > ny1) ny1 = startumost[x]-1;
-					if (startdmost[x] < ny2) ny2 = startdmost[x];
+					if (startumost[x]-1 > ny1)
+						ny1 = startumost[x]-1;
+
+					if (startdmost[x] < ny2)
+						ny2 = startdmost[x];
 				}
 
 				if (ny1 < ny2-1)
@@ -5812,7 +5832,7 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 					{
 						while (y1 < y2-1)
 						{
-							y1++;
+							++y1;
 							if ((y1 & 31) == 0)
 								faketimerhandler();
 
@@ -5864,7 +5884,7 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 
 					while (y2 > ny2)
 					{
-						y2--;
+						--y2;
 						
 						if ((y2&31) == 0)
 							faketimerhandler();
@@ -5896,7 +5916,13 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 							else rhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x+frameplace));
 						} else rmhlineasm4(x-lastx[y1],(void *)((bx>>16)*ysiz+(by>>16)+bufplc),0L,bx<<16,by<<16,(void *)(ylookup[y1]+x+frameplace));
 					}
-					if (x == x2-1) { bx += xv2; by += yv2; break; }
+					
+					if (x == x2-1) {
+						bx += xv2;
+						by += yv2;
+						break;
+					}
+
 					y1 = uplc[x+1];
 					if (((dastat&8) == 0) && (startumost[x+1] > y1)) y1 = startumost[x+1];
 					y2 = y1;
@@ -5937,11 +5963,16 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 		else
 		{
 			tsetupspritevline((void *)palookupoffs,(xv>>16)*ysiz,xv<<16,ysiz,yv,0L);
-			if (dastat&32) settransreverse(); else settransnormal();
+			
+			if (dastat&32)
+				settransreverse();
+			else
+				settransnormal();
 		}
 		for(x=x1;x<x2;x++)
 		{
-			bx += xv2; by += yv2;
+			bx += xv2;
+			by += yv2;
 
 			y1 = uplc[x];
 			y2 = dplc[x];
@@ -5999,15 +6030,22 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 	}
 	for(x=x1;x<x2;x++)
 	{
-		bx += xv2; by += yv2;
+		bx += xv2;
+		by += yv2;
 
-		y1 = uplc[x]; y2 = dplc[x];
-		if ((dastat&8) == 0)
-		{
-			if (startumost[x] > y1) y1 = startumost[x];
-			if (startdmost[x] < y2) y2 = startdmost[x];
+		y1 = uplc[x];
+		y2 = dplc[x];
+
+		if ((dastat&8) == 0) {
+			if (startumost[x] > y1)
+				y1 = startumost[x];
+			
+			if (startdmost[x] < y2)
+				y2 = startdmost[x];
 		}
-		if (y2 <= y1) continue;
+
+		if (y2 <= y1)
+			continue;
 
 		switch(y1-oy)
 		{
@@ -6857,10 +6895,14 @@ void drawrooms(int daposx, int daposy, int daposz,
 	short *shortptr1, *shortptr2;
 
 #if defined(DEBUGGINGAIDS)
-	if (numscans > MAXWALLSB) debugprintf("damage report: numscans {} exceeded {}\n", numscans, MAXWALLSB);
-	if (numbunches > MAXWALLSB) debugprintf("damage report: numbunches {} exceeded {}\n", numbunches, MAXWALLSB);
-	if (maskwallcnt > MAXWALLSB) debugprintf("damage report: maskwallcnt {} exceeded {}\n", maskwallcnt, MAXWALLSB);
-	if (smostwallcnt > MAXWALLSB) debugprintf("damage report: smostwallcnt {} exceeded {}\n", smostwallcnt, MAXWALLSB);
+	if (numscans > MAXWALLSB)
+		debugprintf("damage report: numscans {} exceeded {}\n", numscans, MAXWALLSB);
+	if (numbunches > MAXWALLSB)
+		debugprintf("damage report: numbunches {} exceeded {}\n", numbunches, MAXWALLSB);
+	if (maskwallcnt > MAXWALLSB)
+		debugprintf("damage report: maskwallcnt {} exceeded {}\n", maskwallcnt, MAXWALLSB);
+	if (smostwallcnt > MAXWALLSB)
+		debugprintf("damage report: smostwallcnt {} exceeded {}\n", smostwallcnt, MAXWALLSB);
 #endif
 
 	beforedrawrooms = false;
@@ -6935,20 +6977,30 @@ void drawrooms(int daposx, int daposy, int daposz,
 	globparaflorclip = 1;
 
 	getzsofslope(globalcursectnum,globalposx,globalposy,&cz,&fz);
-	if (globalposz < cz) globparaceilclip = 0;
-	if (globalposz > fz) globparaflorclip = 0;
+	if (globalposz < cz)
+		globparaceilclip = 0;
+
+	if (globalposz > fz)
+		globparaflorclip = 0;
 
 	scansector(globalcursectnum);
 
 	if (inpreparemirror)
 	{
 		inpreparemirror = 0;
-		mirrorsx1 = xdimen-1; mirrorsx2 = 0;
+		mirrorsx1 = xdimen-1;
+		mirrorsx2 = 0;
+
 		for(i=numscans-1;i>=0;i--)
 		{
-			if (wall[thewall[i]].nextsector < 0) continue;
-			if (xb1[i] < mirrorsx1) mirrorsx1 = xb1[i];
-			if (xb2[i] > mirrorsx2) mirrorsx2 = xb2[i];
+			if (wall[thewall[i]].nextsector < 0)
+				continue;
+			
+			if (xb1[i] < mirrorsx1)
+				mirrorsx1 = xb1[i];
+			
+			if (xb2[i] > mirrorsx2)
+				mirrorsx2 = xb2[i];
 		}
 
 		for(i=0;i<mirrorsx1;i++)
@@ -7019,19 +7071,20 @@ void drawmasks()
 	int yoff;
 	int yspan;
 
-	for(i=spritesortcnt-1;i>=0;i--) tspriteptr[i] = &tsprite[i];
 	for(i=spritesortcnt-1;i>=0;i--)
-	{
-		xs = tspriteptr[i]->x-globalposx; ys = tspriteptr[i]->y-globalposy;
+		tspriteptr[i] = &tsprite[i];
+	
+	for(i=spritesortcnt-1;i>=0;i--) {
+		xs = tspriteptr[i]->x-globalposx;
+		ys = tspriteptr[i]->y-globalposy;
 		yp = dmulscalen<6>(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
-		if (yp > (4<<8))
-		{
+		
+		if (yp > (4<<8)) {
 			xp = dmulscalen<6>(ys,cosglobalang,-xs,singlobalang);
 			if (mulscalen<24>(abs(xp+yp),xdimen) >= yp) goto killsprite;
 			spritesx[i] = scale(xp+yp,xdimen<<7,yp);
 		}
-		else if ((tspriteptr[i]->cstat&48) == 0)
-		{
+		else if ((tspriteptr[i]->cstat&48) == 0) {
 killsprite:
 			spritesortcnt--;  //Delete face sprite if on wrong side!
 			if (i != spritesortcnt)
@@ -7050,7 +7103,9 @@ killsprite:
 		for(i=0;i<spritesortcnt-gap;i++)
 			for(l=i;l>=0;l-=gap)
 			{
-				if (spritesy[l] <= spritesy[l+gap]) break;
+				if (spritesy[l] <= spritesy[l+gap])
+					break;
+				
 				std::swap(tspriteptr[l], tspriteptr[l + gap]);
 				std::swap(spritesx[l], spritesx[l + gap]);
 				std::swap(spritesy[l], spritesy[l + gap]);
@@ -7062,12 +7117,13 @@ killsprite:
 	ys = spritesy[0]; i = 0;
 	for(j=1;j<=spritesortcnt;j++)
 	{
-		if (spritesy[j] == ys) continue;
+		if (spritesy[j] == ys)
+			continue;
+		
 		ys = spritesy[j];
-		if (j > i+1)
-		{
-			for(k=i;k<j;k++)
-			{
+		
+		if (j > i+1) {
+			for(k=i;k<j;k++) {
 				spritesz[k] = tspriteptr[k]->z;
 				if ((tspriteptr[k]->cstat&48) != 32)
 				{
@@ -7132,13 +7188,16 @@ killsprite:
 				{ drawsprite(i); tspriteptr[i] = nullptr; } //draw only if it is fully opaque
 		for(i=j=0;i<spritesortcnt;i++)
 		{
-			if (!tspriteptr[i]) continue;
+			if (!tspriteptr[i])
+				continue;
+			
 			tspriteptr[j] = tspriteptr[i];
 			spritesx[j] = spritesx[i];
-			spritesy[j] = spritesy[i]; j++;
+			spritesy[j] = spritesy[i];
+			j++;
 		}
-		spritesortcnt = j;
 
+		spritesortcnt = j;
 
 		for(i=maskwallcnt-1;i>=0;i--)
 		{
@@ -7408,8 +7467,18 @@ void drawmapview(int dax, int day, int zoome, short ang)
 				globalx1 = -globaly2;
 				globaly2 = -i;
 			}
-			if ((globalorientation&0x10) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalposx = -globalposx;
-			if ((globalorientation&0x20) > 0) globalx2 = -globalx2, globaly2 = -globaly2, globalposy = -globalposy;
+			if ((globalorientation&0x10) > 0) {
+				globalx1 = -globalx1;
+				globaly1 = -globaly1;
+				globalposx = -globalposx;
+			}
+
+			if ((globalorientation&0x20) > 0) {
+				globalx2 = -globalx2;
+				globaly2 = -globaly2;
+				globalposy = -globalposy;
+			}
+
 			asm1 = (globaly1<<globalxshift);
 			asm2 = (globalx2<<globalyshift);
 			globalx1 <<= globalxshift;
@@ -7427,13 +7496,16 @@ void drawmapview(int dax, int day, int zoome, short ang)
 		gap = (gap << 1) + 1;
 	}
 
-	for(gap>>=1;gap>0;gap>>=1)
-		for(i=0;i<sortnum-gap;i++)
-			for(j=i;j>=0;j-=gap)
-			{
-				if (sprite[tsprite[j].owner].z <= sprite[tsprite[j+gap].owner].z) break;
+	for(gap>>=1;gap>0;gap>>=1) {
+		for(i=0;i<sortnum-gap;i++) {
+			for(j=i;j>=0;j-=gap) {
+				if (sprite[tsprite[j].owner].z <= sprite[tsprite[j+gap].owner].z)
+					break;
+				
 				std::swap(tsprite[j].owner, tsprite[j + gap].owner);
 			}
+		}
+	}
 
 	for(s=sortnum-1;s>=0;s--)
 	{
@@ -7492,41 +7564,65 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			x = dmulscalen<16>(ox,xvect,-oy,yvect) + (xdim<<11);
 			y = dmulscalen<16>(oy,xvect2,ox,yvect2) + (ydim<<11);
 			i |= getclipmask(x-cx1,cx2-x,y-cy1,cy2-y);
-			rx1[2] = x; ry1[2] = y;
+			rx1[2] = x;
+			ry1[2] = y;
 
 			x = rx1[0]+rx1[2]-rx1[1];
 			y = ry1[0]+ry1[2]-ry1[1];
 			i |= getclipmask(x-cx1,cx2-x,y-cy1,cy2-y);
-			rx1[3] = x; ry1[3] = y;
+			rx1[3] = x;
+			ry1[3] = y;
 
 			if ((i&0xf0) != 0xf0) continue;
-			bakx1 = rx1[0]; baky1 = mulscalen<16>(ry1[0]-(ydim<<11),xyaspect)+(ydim<<11);
+			bakx1 = rx1[0];
+			baky1 = mulscalen<16>(ry1[0]-(ydim<<11),xyaspect)+(ydim<<11);
+			
 			if (i&0x0f)
 			{
 				npoints = clippoly(npoints,i);
-				if (npoints < 3) continue;
+				
+				if (npoints < 3)
+					continue;
 			}
 
 			globalpicnum = spr->picnum;
 			if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
 			setgotpic(globalpicnum);
-			if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) continue;
-			if ((picanm[globalpicnum]&192) != 0) globalpicnum += animateoffs((short)globalpicnum,s);
-			if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+			if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0))
+				continue;
+
+			if ((picanm[globalpicnum]&192) != 0)
+				globalpicnum += animateoffs((short)globalpicnum,s);
+
+			if (waloff[globalpicnum] == 0)
+				loadtile(globalpicnum);
+
 			globalbufplc = waloff[globalpicnum];
+
 			if ((sector[spr->sectnum].ceilingstat&1) > 0)
 				globalshade = ((int)sector[spr->sectnum].ceilingshade);
 			else
 				globalshade = ((int)sector[spr->sectnum].floorshade);
+
 			globalshade = std::max(std::min(globalshade + spr->shade + 6, static_cast<int>(numpalookups) - 1), 0);
 			asm3 = (intptr_t)palookup[spr->pal]+(globalshade<<8);
 			globvis = globalhisibility;
-			if (sec->visibility != 0) globvis = mulscalen<4>(globvis,(int)((unsigned char)(sec->visibility+16)));
+
+			if (sec->visibility != 0)
+				globvis = mulscalen<4>(globvis,(int)((unsigned char)(sec->visibility+16)));
+
 			globalpolytype = ((spr->cstat&2)>>1)+1;
 
 				//relative alignment stuff
-			ox = x2-x1; oy = y2-y1;
-			i = ox*ox+oy*oy; if (i == 0) continue; i = (65536*16384)/i;
+			ox = x2 - x1;
+			oy = y2 - y1;
+			i = ox*ox+oy*oy;
+			
+			if (i == 0)
+				continue;
+			
+			i = (65536*16384)/i;
+
 			globalx1 = mulscalen<10>(dmulscalen<10>(ox,bakgxvect,oy,bakgyvect),i);
 			globaly1 = mulscalen<10>(dmulscalen<10>(ox,bakgyvect,-oy,bakgxvect),i);
 			ox = y1-y4; oy = x4-x1;
@@ -7534,7 +7630,10 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			globalx2 = mulscalen<10>(dmulscalen<10>(ox,bakgxvect,oy,bakgyvect),i);
 			globaly2 = mulscalen<10>(dmulscalen<10>(ox,bakgyvect,-oy,bakgxvect),i);
 
-			ox = picsiz[globalpicnum]; oy = ((ox>>4)&15); ox &= 15;
+			ox = picsiz[globalpicnum];
+			oy = ((ox>>4)&15);
+			ox &= 15;
+			
 			if (pow2long[ox] != xspan)
 			{
 				ox++;
@@ -7559,8 +7658,12 @@ void drawmapview(int dax, int day, int zoome, short ang)
 				globalposx = -globalposx;
 			}
 
-			asm1 = (globaly1<<2); globalx1 <<= 2; globalposx <<= (20+2);
-			asm2 = (globalx2<<2); globaly2 <<= 2; globalposy <<= (20+2);
+			asm1 = (globaly1<<2);
+			globalx1 <<= 2;
+			globalposx <<= (20+2);
+			asm2 = (globalx2<<2);
+			globaly2 <<= 2;
+			globalposy <<= (20+2);
 
 			globalorientation = ((spr->cstat&2)<<7) | ((spr->cstat&512)>>2);	// so polymost can get the translucency. ignored in software mode.
 			fillpolygon(npoints);

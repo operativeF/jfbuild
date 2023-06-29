@@ -3124,6 +3124,7 @@ void polymost_drawalls (int bunch)
 						//ceiling of skybox
 
 					drawingskybox = 5; //ceiling/5th texture/index 4 of skybox
+					// FIXME: Just say 32?
 					ft[0] = 512/16; ft[1] = -512/-16;
 					ft[2] = ((float)cosglobalang)*(1.F/2147483648.F);
 					ft[3] = ((float)singlobalang)*(1.F/2147483648.F);
