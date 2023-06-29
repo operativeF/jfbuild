@@ -609,8 +609,7 @@ GLuint polymost_load_shader(GLuint shadertype, const std::string& defaultsrc, co
 		auto shadersrclen = ftell(shaderfh);
 		std::fseek(shaderfh, 0, SEEK_SET);
 
-		std::string fileshadersrc;
-		fileshadersrc.resize(shadersrclen + 1);
+		std::string fileshadersrc(shadersrclen + 1, 0);
 		shadersrclen = std::fread(&fileshadersrc[0], 1, shadersrclen, shaderfh);
 		fileshadersrc[shadersrclen] = 0;
 
@@ -630,8 +629,7 @@ void checkindexbuffer(unsigned int size)
 	if (size <= elementindexbuffersize)
 		return;
 
-	std::vector<GLushort> indexes;
-	indexes.resize(size);
+	std::vector<GLushort> indexes(size);
 
 	std::iota(indexes.begin(), indexes.end(), 0);
 
@@ -5384,8 +5382,7 @@ int polymost_preparetext()
 	if (!texttexture)
 		return -1;
 
-	std::vector<unsigned int> tbuf;
-	tbuf.resize(256 * 256);
+	std::vector<unsigned int> tbuf(256 * 256);
 
 	// 8x8 - lines 0 to 63, 8 lines per row
 	// 4x6 - lines 64 to 127, 8 lines per row

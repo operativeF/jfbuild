@@ -850,8 +850,7 @@ void OSD_ResizeDisplay(int w, int h)
 	const int j = std::min(newmaxlines, osdmaxlines);
 	const int k = std::min(newcols, osdcols);
 
-	std::vector<char> newtext;
-	newtext.resize(TEXTSIZE);
+	std::vector<char> newtext(TEXTSIZE);
 
 	for(int i{0}; i < j; ++i) {
 		std::memcpy(&newtext[0] + newcols * i, &osdtext[0] + osdcols * i, k);

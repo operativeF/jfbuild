@@ -440,8 +440,7 @@ std::unique_ptr<scriptfile> scriptfile_fromfile(const std::string& fn)
 		return nullptr;
 
 	const unsigned int flen = kfilelength(fp);
-	std::string tx;
-	tx.resize(flen + 2);
+	std::string tx(flen + 2, 0);
 
 	auto sf = std::make_unique<scriptfile>();
 
@@ -464,8 +463,7 @@ std::unique_ptr<scriptfile> scriptfile_fromstring(const std::string& str)
 
 	const auto flen = str.length();
 
-	std::string tx;
-	tx.resize(flen + 2);
+	std::string tx(flen + 2, 0);
 
 	auto sf = std::make_unique<scriptfile>();
 

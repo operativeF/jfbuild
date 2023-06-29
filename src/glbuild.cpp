@@ -582,8 +582,7 @@ GLuint glbuild_compile_shader(GLuint type, const GLchar *source)
 		GLint loglen{0};
 		glfunc.glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &loglen);
 
-		std::vector<GLchar> logtext;
-		logtext.resize(loglen);
+		std::vector<GLchar> logtext(loglen);
 
 		glfunc.glGetShaderInfoLog(shader, loglen, &loglen, logtext.data());
 		buildprintf("GL shader compile error: {}\n", logtext.data());
@@ -619,8 +618,7 @@ GLuint glbuild_link_program(int shadercount, const GLuint *shaders)
 
 		glfunc.glGetProgramiv(program, GL_INFO_LOG_LENGTH, &loglen);
 
-		std::vector<GLchar> logtext;
-		logtext.resize(loglen);		
+		std::vector<GLchar> logtext(loglen);
 
 		glfunc.glGetProgramInfoLog(program, loglen, &loglen, logtext.data());
 		buildprintf("glbuild_link_program: link error: {}\n", logtext.data());

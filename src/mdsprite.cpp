@@ -2697,12 +2697,8 @@ int voxloadbufs(voxmodel *m)
 	const int numindexes = 6 * m->qcnt;
 	const int numvertexes = 4 * m->qcnt;
 
-	// WARNING: Implicit conversions in vector constructors.
-	std::vector<GLushort> indexes;
-	indexes.resize(numindexes);
-
-	std::vector<polymostvboitem> vertexes;
-	vertexes.resize(numvertexes);
+	std::vector<GLushort> indexes(numindexes);
+	std::vector<polymostvboitem> vertexes(numvertexes);
 
 	for(i=0,vxi=0,ixi=0;i<m->qcnt;i++)
 	{

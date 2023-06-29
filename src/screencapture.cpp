@@ -76,8 +76,7 @@ int screencapture_writeframe(std::FILE *fil, char mode, void *v,
 			yend = -1;
 			yinc = -1;
 		}
-		std::vector<unsigned char> buf;
-		buf.resize(xdim * ydim * 3);
+		std::vector<unsigned char> buf(xdim * ydim * 3);
 		glfunc.glReadPixels(0, 0, xdim, ydim, GL_RGB,GL_UNSIGNED_BYTE, &buf[0]);
 		if (bgr) {
 			for (j=(xdim * ydim-1) * 3; j >= 0; j -= 3) {
@@ -105,8 +104,7 @@ int screencapture_writeframe(std::FILE *fil, char mode, void *v,
 	}
 
 	if (inverseit && qsetmode != 200) {
-		std::vector<unsigned char> buf;
-		buf.resize(bytesperline);
+		std::vector<unsigned char> buf(bytesperline);
 		for (y = ystart; y != yend; y += yinc) {
 			copybuf(ptr + y * bytesperline, &buf[0], xdim >> 2);
 			for (j=(bytesperline>>2)-1; j>=0; j--)

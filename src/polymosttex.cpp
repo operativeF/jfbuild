@@ -325,8 +325,7 @@ int PTM_LoadTextureFile(const std::string& filename, PTMHead* ptmh, int flags, i
 	
 	const int picdatalen = kfilelength(filh);
 
-	std::vector<char> picdata;
-	picdata.resize(picdatalen);
+	std::vector<char> picdata(picdatalen);
 
 	if (kread(filh, &picdata[0], picdatalen) != picdatalen) {
 		kclose(filh);
