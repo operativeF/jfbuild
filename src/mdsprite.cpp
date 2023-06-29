@@ -106,7 +106,6 @@ void clearskins ()
 			v->indexbuf = 0;
 		} else if (m->mdnum == 2 || m->mdnum == 3) {
 			md2model *m2 = (md2model*)m;
-			mdskinmap_t *sk;
 			for(j=0;j<m2->numskins*(HICEFFECTMASK+1);j++)
 			{
 				if (m2->tex[j] && m2->tex[j]->glpic) {
@@ -115,13 +114,13 @@ void clearskins ()
 				}
 			}
 
-			for(sk=m2->skinmap;sk;sk=sk->next)
+			for(auto& sk : m2->skinmap)
 			{
 				for(j=0;j<(HICEFFECTMASK+1);j++)
 				{
-					if (sk->tex[j] && sk->tex[j]->glpic) {
-						glfunc.glDeleteTextures(1, &sk->tex[j]->glpic);
-						sk->tex[j]->glpic = 0;
+					if (sk.tex[j] && sk.tex[j]->glpic) {
+						glfunc.glDeleteTextures(1, &sk.tex[j]->glpic);
+						sk.tex[j]->glpic = 0;
 					}
 				}
 			}
@@ -283,16 +282,8 @@ int md_defineanimation (int modelid, std::string_view framestart, std::string_vi
 	ma.endframe = i;
 	ma.fpssc = fpssc;
 	ma.flags = flags;
-
-	auto* map = (mdanim_t*) std::calloc(1, sizeof(mdanim_t));
-
-	if (!map)
-		return(-4);
 	
-	std::memcpy(map, &ma, sizeof(ma));
-
-	map->next = m->animations;
-	m->animations = map;
+	m->animations.push_back(ma);
 
 	return 0;
 }
@@ -319,24 +310,22 @@ int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int
 	if (m->mdnum == 2)
 		surfnum = 0;
 
-	mdskinmap_t* skl{nullptr};
-	mdskinmap_t *sk = m->skinmap;
+	auto sk = std::find_if(m->skinmap.begin(), m->skinmap.end(), [palnum, skinnum, surfnum](const auto& aSkin) {
+			if(aSkin.palette == static_cast<unsigned char>(palnum) &&
+			   aSkin.skinnum == skinnum &&
+			   aSkin.surfnum == surfnum)
+			   return true;
+			
+			return false;
+		});
 
-	for (; sk; skl = sk, sk = sk->next)
-		if (sk->palette == (unsigned char)palnum && skinnum == sk->skinnum && surfnum == sk->surfnum)
-			break;
-
-	if (!sk) {
-		sk = (mdskinmap_t *)std::calloc(1,sizeof(mdskinmap_t));
-		if (!sk)
-			return -4;
-
-		if (!skl)
-			m->skinmap = sk;
-		else 
-			skl->next = sk;
-	} else if (sk->fn)
+	if(sk == m->skinmap.end()) {
+		m->skinmap.push_back(mdskinmap_t{});
+		sk = m->skinmap.end() - 1;
+	}
+	else if(sk->fn) {
 		std::free(sk->fn);
+	}
 
 	sk->palette = (unsigned char)palnum;
 	sk->skinnum = skinnum;
@@ -425,8 +414,8 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 	char* skinfile{ nullptr };
 	std::array<char, BMAX_PATH> fn;
 	PTMHead** tex{ nullptr };
-	mdskinmap_t* sk;
-	mdskinmap_t* skzero{ nullptr };
+	std::vector<mdskinmap_t>::iterator skzero{};
+	std::vector<mdskinmap_t>::iterator sk{};
     PTMIdent id;
 
 	if (m->mdnum == 2) {
@@ -438,7 +427,8 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 	}
 
 	i = -1;
-	for (sk = m->skinmap; sk; sk = sk->next) {
+	// TODO: Clean this up, so we don't use bare iterators.
+	for (sk = m->skinmap.begin(); sk != m->skinmap.end(); ++sk) {
 		if ((int)sk->palette == pal && sk->skinnum == number && sk->surfnum == surf) {
 			tex = &sk->tex[ hictinting[pal].f ];
 			skinfile = sk->fn;
@@ -454,8 +444,8 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 		else if (((int)sk->palette == pal) && (sk->skinnum ==      0) && (i < 1)) { i = 1; skzero = sk; }
 		else if (((int)sk->palette ==   0) && (sk->skinnum ==      0) && (i < 0)) { i = 0; skzero = sk; }
 	}
-	if (!sk) {
-		if (skzero) {
+	if (sk == m->skinmap.end()) {
+		if (skzero != std::vector<mdskinmap_t>::iterator{}) {
 			tex = &skzero->tex[ hictinting[pal].f ];
 			skinfile = skzero->fn;
 			std::strcpy(&fn[0], skinfile);
@@ -548,17 +538,14 @@ namespace {
 	//Note: even though it says md2model, it works for both md2model&md3model
 void updateanimation (md2model *m, spritetype *tspr)
 {
-	mdanim_t *anim;
 	int i;
 	int j;
 
 	m->cframe = m->nframe = tile2model[tspr->picnum].framenum;
 
-	for (anim = m->animations;
-		 anim && anim->startframe != m->cframe;
-		 anim = anim->next);
+	auto anim = std::find_if(m->animations.begin(), m->animations.end(), [m](const auto& anAnim){ return anAnim.startframe == m->cframe; });
 
-	if (!anim) {
+	if (anim == m->animations.end()) {
 		m->interpol = 0;
 		return;
 	}
@@ -599,19 +586,9 @@ void md2free(md2model *m)
 		return;
 	}
 
-	mdanim_t* nanim{nullptr};
-	for(mdanim_t* anim = m->animations; anim; anim = nanim)
+	for(auto& sk : m->skinmap)
 	{
-		nanim = anim->next;
-		std::free(anim);
-	}
-
-	mdskinmap_t* nsk{nullptr};
-	for(mdskinmap_t* sk = m->skinmap; sk; sk = nsk)
-	{
-		nsk = sk->next;
-		std::free(sk->fn);
-		std::free(sk);
+		std::free(sk.fn);
 	}
 
 	if (m->frames)
@@ -1411,23 +1388,14 @@ void md3free (md3model *m)
 {
 	mdanim_t *anim;
 	mdanim_t *nanim = nullptr;
-	mdskinmap_t *sk;
-	mdskinmap_t *nsk = nullptr;
 	md3surf_t *s;
 	int surfi;
 
 	if (!m) return;
 
-	for(anim=m->animations; anim; anim=nanim)
+	for(auto& sk : m->skinmap)
 	{
-		nanim = anim->next;
-		std::free(anim);
-	}
-	for(sk=m->skinmap; sk; sk=nsk)
-	{
-		nsk = sk->next;
-		std::free(sk->fn);
-		std::free(sk);
+		std::free(sk.fn);
 	}
 
 	if (m->head.surfs)
@@ -1945,8 +1913,6 @@ voxmodel *vox2poly ()
 	int y0;
 	int dx;
 	int dy;
-	int *bx0;
-	int *by0;
 	void (*daquad)(int, int, int, int, int, int, int, int, int, int, std::span<const spoint2d>);
 
 	gvox = (voxmodel *)std::malloc(sizeof(voxmodel)); if (!gvox) return(nullptr);
@@ -1976,8 +1942,8 @@ voxmodel *vox2poly ()
 	for(i=0;i<7;i++) gvox->qfacind[i] = -1;
 
 	i = (std::max(ysiz, zsiz) + 1) << 2;
-	bx0 = (int *)std::malloc(i<<1); if (!bx0) { std::free(gvox); return(nullptr); }
-	by0 = (int *)(((intptr_t)bx0)+i);
+	std::vector<int> bx0(i << 1);
+	auto by0 = (int *)(((intptr_t)bx0.data())+i);
 
 	std::vector<spoint2d> shp;
 
@@ -2087,14 +2053,13 @@ skindidntfit:;
 			}
 
 			gvox->quad = (voxrect_t *)std::malloc(gvox->qcnt*sizeof(voxrect_t));
-			if (!gvox->quad) { std::free(bx0); std::free(gvox); return(nullptr); }
+			if (!gvox->quad) { std::free(gvox); return(nullptr); }
 
 			gvox->mytex = (int *)std::malloc(gvox->mytexx*gvox->mytexy*sizeof(int));
-			if (!gvox->mytex) { std::free(gvox->quad); std::free(bx0); std::free(gvox); return(nullptr); }
+			if (!gvox->mytex) { std::free(gvox->quad); std::free(gvox); return(nullptr); }
 		}
 	}
 
-	std::free(bx0);
 	return(gvox);
 }
 
@@ -2108,7 +2073,6 @@ int loadvox (const char *filnam)
 	int z;
 	std::array<int, 256> pal;
 	std::array<unsigned char, 3> c;
-	unsigned char *tbuf;
 
 	const int fil = kopen4load(filnam, 0);
 
@@ -2140,13 +2104,13 @@ int loadvox (const char *filnam)
 	vbit = (int *)std::malloc(i); if (!vbit) { kclose(fil); return(-1); }
 	std::memset(vbit,0,i);
 
-	tbuf = (unsigned char *)std::malloc(zsiz*sizeof(unsigned char)); if (!tbuf) { kclose(fil); return(-1); }
+	std::vector<unsigned char> tbuf(zsiz);
 
 	klseek(fil,12,SEEK_SET);
 	for(x=0;x<xsiz;x++)
 		for(y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
 		{
-			kread(fil,tbuf,zsiz);
+			kread(fil, tbuf.data(), zsiz);
 			for(z=zsiz-1;z>=0;z--)
 				{ if (tbuf[z] != 255) { i = j+z; vbit[i>>5] |= (1<<SHIFTMOD32(i)); } }
 		}
@@ -2155,7 +2119,7 @@ int loadvox (const char *filnam)
 	for(x=0;x<xsiz;x++)
 		for(y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
 		{
-			kread(fil,tbuf,zsiz);
+			kread(fil, tbuf.data(), zsiz);
 			for(z=0;z<zsiz;z++)
 			{
 				if (tbuf[z] == 255) continue;
@@ -2172,7 +2136,8 @@ int loadvox (const char *filnam)
 			}
 		}
 
-	std::free(tbuf); kclose(fil); return(0);
+	kclose(fil);
+	return 0;
 }
 
 int loadkvx (const char *filnam)
@@ -2189,9 +2154,7 @@ int loadkvx (const char *filnam)
 	int mip1leng;
 	int ysizp1;
 	int fil;
-	unsigned short *xyoffs;
 	std::array<unsigned char, 3> c;
-	unsigned char *tbuf;
 	unsigned char *cptr;
 
 	fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
@@ -2205,29 +2168,30 @@ int loadkvx (const char *filnam)
 	klseek(fil,(xsiz+1)<<2,SEEK_CUR);
 	ysizp1 = ysiz+1;
 	i = xsiz*ysizp1*sizeof(short);
-	xyoffs = (unsigned short *)std::malloc(i); if (!xyoffs) { kclose(fil); return(-1); }
-	kread(fil,xyoffs,i); for (i=i/sizeof(short)-1; i>=0; i--) xyoffs[i] = B_LITTLE16(xyoffs[i]);
+	std::vector<unsigned short> xyoffs(i);
+	kread(fil, xyoffs.data(), i);
 
 	klseek(fil,-768,SEEK_END);
 	for(i=0;i<256;i++)
 		{ kread(fil, c.data(), 3); pal[i] = B_LITTLE32((((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24)); }
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-	vbit = (int *)std::malloc(i); if (!vbit) { std::free(xyoffs); kclose(fil); return(-1); }
+	vbit = (int *)std::malloc(i); if (!vbit) { kclose(fil); return(-1); }
 	std::memset(vbit,0,i);
 
 	for(vcolhashsizm1=4096;vcolhashsizm1<(mip1leng>>1);vcolhashsizm1<<=1) ;
 	vcolhashsizm1--; //approx to numvoxs!
-	vcolhashead = (int *)std::malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { std::free(xyoffs); kclose(fil); return(-1); }
+	vcolhashead = (int *)std::malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
 	std::memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
 	klseek(fil,28+((xsiz+1)<<2)+((ysizp1*xsiz)<<1),SEEK_SET);
 
 	i = kfilelength(fil)-ktell(fil);
-	tbuf = (unsigned char *)std::malloc(i); if (!tbuf) { std::free(xyoffs); kclose(fil); return(-1); }
-	kread(fil,tbuf,i); kclose(fil);
+	std::vector<unsigned char> tbuf(i);
+	kread(fil, tbuf.data(), i);
+	kclose(fil);
 
-	cptr = tbuf;
+	cptr = tbuf.data();
 	for(x=0;x<xsiz;x++) //Set surface voxels to 1 else 0
 		for(y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
 		{
@@ -2243,7 +2207,7 @@ int loadkvx (const char *filnam)
 			}
 		}
 
-	std::free(tbuf); std::free(xyoffs); return(0);
+	return(0);
 }
 
 int loadkv6 (const char *filnam)
@@ -2256,7 +2220,6 @@ int loadkv6 (const char *filnam)
 	int z0;
 	int z1;
 	float f;
-	unsigned short *ylen;
 	std::array<unsigned char, 8> c;
 
 	const int fil = kopen4load(filnam, 0);
@@ -2274,23 +2237,22 @@ int loadkv6 (const char *filnam)
     kread(fil, &f, 4);       zpiv = B_LITTLEFLOAT(f);
 	kread(fil, &numvoxs, 4); numvoxs = B_LITTLE32(numvoxs);
 
-	ylen = (unsigned short *)std::malloc(xsiz*ysiz*sizeof(unsigned short));
-	if (!ylen) { kclose(fil); return(-1); }
+	std::vector<unsigned short> ylen(xsiz * ysiz);
 
 	klseek(fil,32+(numvoxs<<3)+(xsiz<<2),SEEK_SET);
-	kread(fil,ylen,xsiz*ysiz*sizeof(short)); for (i=xsiz*ysiz-1; i>=0; i--) ylen[i] = B_LITTLE16(ylen[i]);
+	kread(fil, ylen.data(), xsiz * ysiz);
 	klseek(fil,32,SEEK_SET);
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-	vbit = (int *)std::malloc(i); if (!vbit) { std::free(ylen); kclose(fil); return(-1); }
+	vbit = (int *)std::malloc(i); if (!vbit) { kclose(fil); return(-1); }
 	std::memset(vbit,0,i);
 
 	for(vcolhashsizm1=4096;vcolhashsizm1<numvoxs;vcolhashsizm1<<=1) ;
 	vcolhashsizm1--;
-	vcolhashead = (int *)std::malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { std::free(ylen); kclose(fil); return(-1); }
+	vcolhashead = (int *)std::malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
 	std::memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
-	for(x=0;x<xsiz;x++)
+	for(x=0;x<xsiz;x++) {
 		for(y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
 		{
 			z1 = zsiz;
@@ -2304,7 +2266,10 @@ int loadkv6 (const char *filnam)
 				z1 = z0+1;
 			}
 		}
-	std::free(ylen); kclose(fil); return(0);
+	}
+	
+	kclose(fil);
+	return 0;
 }
 
 #if 0

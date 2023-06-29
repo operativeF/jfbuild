@@ -441,8 +441,6 @@ void gltexapplyprops ()
 	PTIterFree(iter);
 
 	{
-		mdskinmap_t *sk;
-
 		for(int i{0}; i < nextmodelid; i++) {
 			auto* m = (md2model *)models[i]; // FIXME: C-style cast requires conversion
 
@@ -462,8 +460,8 @@ void gltexapplyprops ()
 #endif
 			}
 
-			for (sk=m->skinmap;sk;sk=sk->next)
-				for (const auto& aTex : sk->tex)
+			for (const auto& sk : m->skinmap)
+				for (const auto& aTex : sk.tex)
 				{
 					if (!aTex || !aTex->glpic) continue;
 					glfunc.glBindTexture(GL_TEXTURE_2D, aTex->glpic);

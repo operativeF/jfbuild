@@ -118,8 +118,8 @@ struct md2model
 	float oldtime;
 	float curtime;
 	float interpol;
-	mdanim_t *animations;
-	mdskinmap_t *skinmap;
+	std::vector<mdanim_t> animations;
+	std::vector<mdskinmap_t> skinmap;
 	int numskins, skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
 
 		//MD2 specific stuff:
@@ -257,8 +257,8 @@ struct md3model
 	float oldtime;
 	float curtime;
 	float interpol;
-	mdanim_t *animations;
-	mdskinmap_t *skinmap;
+	std::vector<mdanim_t> animations;
+	std::vector<mdskinmap_t> skinmap;
 	int numskins, skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
 
 		//MD3 specific
