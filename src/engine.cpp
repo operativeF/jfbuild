@@ -2098,9 +2098,13 @@ void florscan(int x1, int x2, int sectnum)
 
 	if ((globalorientation&0x4) > 0)
 	{
-		i = globalxpanning; globalxpanning = globalypanning; globalypanning = i;
-		i = globalx2; globalx2 = -globaly1; globaly1 = -i;
-		i = globalx1; globalx1 = globaly2; globaly2 = i;
+		std::swap(globalxpanning, globalypanning);
+
+		i = globalx2;
+		globalx2 = -globaly1;
+		globaly1 = -i;
+		
+		std::swap(globalx1, globaly2);
 	}
 	if ((globalorientation&0x10) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalxpanning = -globalxpanning;
 	if ((globalorientation&0x20) > 0) globalx2 = -globalx2, globaly2 = -globaly2, globalypanning = -globalypanning;
@@ -2689,9 +2693,14 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 
 	if (globalorientation&0x4)
 	{
-		i = globalx; globalx = -globaly; globaly = -i;
-		i = globalx1; globalx1 = globaly1; globaly1 = i;
-		i = globalx2; globalx2 = -globaly2; globaly2 = -i;
+		i = globalx;
+		globalx = -globaly;
+		globaly = -i;
+		std::swap(globalx1, globaly1);
+
+		i = globalx2;
+		globalx2 = -globaly2;
+		globaly2 = -i;
 	}
 
 	if (globalorientation & 0x10) {
@@ -3563,8 +3572,12 @@ void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	dayscalerecip = (1<<30)/dayscale;
 
 	longptr = (int *)davoxptr;
-	daxsiz = B_LITTLE32(longptr[0]); daysiz = B_LITTLE32(longptr[1]); dazsiz = B_LITTLE32(longptr[2]);
-	daxpivot = B_LITTLE32(longptr[3]); daypivot = B_LITTLE32(longptr[4]); dazpivot = B_LITTLE32(longptr[5]);
+	daxsiz = B_LITTLE32(longptr[0]);
+	daysiz = B_LITTLE32(longptr[1]);
+	dazsiz = B_LITTLE32(longptr[2]);
+	daxpivot = B_LITTLE32(longptr[3]);
+	daypivot = B_LITTLE32(longptr[4]);
+	dazpivot = B_LITTLE32(longptr[5]);
 	davoxptr += (6<<2);
 
 	x = mulscalen<16>(globalposx-dasprx,daxscalerecip);
@@ -3725,7 +3738,12 @@ void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 					{
 						if (z2-z1 >= 1024) yinc = divscalen<16>(voxptr[1],z2-z1);
 						else if (z2 > z1) yinc = (lowrecip[z2 - z1] * voxptr[1] >> 8);
-						if (z1 < daumost[lx]) { yplc = yinc*(daumost[lx]-z1); z1 = daumost[lx]; } else yplc = 0;
+						if (z1 < daumost[lx]) {
+							yplc = yinc * (daumost[lx]-z1);
+							z1 = daumost[lx];
+						}
+						else
+							yplc = 0;
 					}
 					if (z2 > dadmost[lx]) z2 = dadmost[lx];
 					z2 -= z1; if (z2 <= 0) continue;
@@ -4356,12 +4374,19 @@ void drawsprite(int snum)
 		if (ryi[0] == 0) return;
 		ryi[1] = ryi[2] = ryi[3] = ryi[0];
 
-		if ((cstat&4) == 0)
-			{ z = 0; z1 = 1; z2 = 3; }
-		else
-			{ z = 1; z1 = 0; z2 = 2; }
+		if ((cstat&4) == 0) {
+			z = 0;
+			z1 = 1;
+			z2 = 3;
+		}
+		else {
+			z = 1;
+			z1 = 0;
+			z2 = 2;
+		}
 
-		dax = rzi[z1]-rzi[z]; day = rxi[z1]-rxi[z];
+		dax = rzi[z1]-rzi[z];
+		day = rxi[z1]-rxi[z];
 		bot = dmulscalen<8>(dax,dax,day,day);
 		if (((std::abs(dax)>>13) >= bot) || ((std::abs(day)>>13) >= bot)) return;
 		globalx1 = divscalen<18>(dax,bot);
@@ -4565,8 +4590,12 @@ void drawsprite(int snum)
 			if ((yp <= yb1[j]) && (yp <= yb2[j])) continue;
 
 				//if (spritewallfront(tspr,thewall[j]) == 0)
-			x = thewall[j]; xp1 = wall[x].x; yp1 = wall[x].y;
-			x = wall[x].point2; xp2 = wall[x].x; yp2 = wall[x].y;
+			x = thewall[j];
+			xp1 = wall[x].x;
+			yp1 = wall[x].y;
+			x = wall[x].point2;
+			xp2 = wall[x].x;
+			yp2 = wall[x].y;
 			x = (xp2-xp1)*(tspr->y-yp1)-(tspr->x-xp1)*(yp2-yp1);
 			if ((yp > yb1[j]) && (yp > yb2[j])) x = -1;
 			if ((x >= 0) && ((x != 0) || (wall[thewall[j]].nextsector != tspr->sectnum))) continue;
@@ -5079,7 +5108,10 @@ int clippoly(int npoints, int clipstat)
 
 	if (clipstat&0xa)   //Need to clip top or left
 	{
-		npoints2 = 0; start2 = 0; z = 0; splitcnt = 0;
+		npoints2 = 0;
+		start2 = 0;
+		z = 0;
+		splitcnt = 0;
 		do
 		{
 			s2 = cx1-rx1[z];
@@ -5092,8 +5124,10 @@ int clippoly(int npoints, int clipstat)
 
 				if (s1 < 0)
 				{
-					rx2[npoints2] = rx1[z]; ry2[npoints2] = ry1[z];
-					xb2[npoints2] = npoints2+1; npoints2++;
+					rx2[npoints2] = rx1[z];
+					ry2[npoints2] = ry1[z];
+					xb2[npoints2] = npoints2+1;
+					npoints2++;
 				}
 				if ((s1^s2) < 0)
 				{
@@ -5119,17 +5153,25 @@ int clippoly(int npoints, int clipstat)
 		for(z=1;z<splitcnt;z++)
 			for(zz=0;zz<z;zz++)
 			{
-				z1 = p2[z]; z2 = xb2[z1]; z3 = p2[zz]; z4 = xb2[z3];
+				z1 = p2[z];
+				z2 = xb2[z1];
+				z3 = p2[zz];
+				z4 = xb2[z3];
 				s1  = std::abs(rx2[z1]-rx2[z2])+std::abs(ry2[z1]-ry2[z2]);
 				s1 += std::abs(rx2[z3]-rx2[z4])+std::abs(ry2[z3]-ry2[z4]);
 				s2  = std::abs(rx2[z1]-rx2[z4])+std::abs(ry2[z1]-ry2[z4]);
 				s2 += std::abs(rx2[z3]-rx2[z2])+std::abs(ry2[z3]-ry2[z2]);
-				if (s2 < s1)
-					{ t = xb2[p2[z]]; xb2[p2[z]] = xb2[p2[zz]]; xb2[p2[zz]] = t; }
+				if (s2 < s1) {
+					std::swap(xb2[p2[z]], xb2[p2[zz]]);
+				}
 		}
 
 
-		npoints = 0; start2 = 0; z = 0; splitcnt = 0;
+		npoints = 0;
+		start2 = 0;
+		z = 0;
+		splitcnt = 0;
+		
 		do
 		{
 			s2 = cy1-ry2[z];
@@ -5168,18 +5210,25 @@ int clippoly(int npoints, int clipstat)
 		for(z=1;z<splitcnt;z++)
 			for(zz=0;zz<z;zz++)
 			{
-				z1 = p2[z]; z2 = xb1[z1]; z3 = p2[zz]; z4 = xb1[z3];
+				z1 = p2[z];
+				z2 = xb1[z1];
+				z3 = p2[zz];
+				z4 = xb1[z3];
 				s1  = std::abs(rx1[z1]-rx1[z2])+std::abs(ry1[z1]-ry1[z2]);
 				s1 += std::abs(rx1[z3]-rx1[z4])+std::abs(ry1[z3]-ry1[z4]);
 				s2  = std::abs(rx1[z1]-rx1[z4])+std::abs(ry1[z1]-ry1[z4]);
 				s2 += std::abs(rx1[z3]-rx1[z2])+std::abs(ry1[z3]-ry1[z2]);
-				if (s2 < s1)
-					{ t = xb1[p2[z]]; xb1[p2[z]] = xb1[p2[zz]]; xb1[p2[zz]] = t; }
+				if (s2 < s1) {
+					std::swap(xb1[p2[z]], xb1[p2[zz]]);
+				}
 			}
 	}
 	if (clipstat&0x5)   //Need to clip bottom or right
 	{
-		npoints2 = 0; start2 = 0; z = 0; splitcnt = 0;
+		npoints2 = 0;
+		start2 = 0;
+		z = 0;
+		splitcnt = 0;
 		do
 		{
 			s2 = rx1[z]-cx2;
@@ -5196,7 +5245,8 @@ int clippoly(int npoints, int clipstat)
 				{
 					rx2[npoints2] = rx1[z]+scale(rx1[zz]-rx1[z],s1,s1-s2);
 					ry2[npoints2] = ry1[z]+scale(ry1[zz]-ry1[z],s1,s1-s2);
-					if (s1 < 0) p2[splitcnt++] = npoints2;
+					if (s1 < 0)
+						p2[splitcnt++] = npoints2;
 					xb2[npoints2] = npoints2+1;
 					npoints2++;
 				}
@@ -5211,22 +5261,31 @@ int clippoly(int npoints, int clipstat)
 			z = 1;
 			while ((z < npoints) && (xb1[z] < 0)) z++;
 		} while (z < npoints);
-		if (npoints2 <= 2) return(0);
+		if (npoints2 <= 2)
+			return 0;
 		
 		for(z=1;z<splitcnt;z++)
 			for(zz=0;zz<z;zz++)
 			{
-				z1 = p2[z]; z2 = xb2[z1]; z3 = p2[zz]; z4 = xb2[z3];
+				z1 = p2[z];
+				z2 = xb2[z1];
+				z3 = p2[zz];
+				z4 = xb2[z3];
 				s1  = std::abs(rx2[z1]-rx2[z2])+std::abs(ry2[z1]-ry2[z2]);
 				s1 += std::abs(rx2[z3]-rx2[z4])+std::abs(ry2[z3]-ry2[z4]);
 				s2  = std::abs(rx2[z1]-rx2[z4])+std::abs(ry2[z1]-ry2[z4]);
 				s2 += std::abs(rx2[z3]-rx2[z2])+std::abs(ry2[z3]-ry2[z2]);
-				if (s2 < s1)
-					{ t = xb2[p2[z]]; xb2[p2[z]] = xb2[p2[zz]]; xb2[p2[zz]] = t; }
+				if (s2 < s1) {
+					std::swap(xb2[p2[z]], xb2[p2[zz]]);
+				}
 		}
 
 
-		npoints = 0; start2 = 0; z = 0; splitcnt = 0;
+		npoints = 0;
+		start2 = 0;
+		z = 0;
+		splitcnt = 0;
+		
 		do
 		{
 			s2 = ry2[z]-cy2;
@@ -5260,18 +5319,22 @@ int clippoly(int npoints, int clipstat)
 		} while (z < npoints2);
 		if (npoints <= 2) return(0);
 
-		for(z=1;z<splitcnt;z++)
-			for(zz=0;zz<z;zz++)
-			{
-				z1 = p2[z]; z2 = xb1[z1]; z3 = p2[zz]; z4 = xb1[z3];
+		for(z=1;z<splitcnt;z++) {
+			for(zz=0;zz<z;zz++) {
+				z1 = p2[z];
+				z2 = xb1[z1];
+				z3 = p2[zz];
+				z4 = xb1[z3];
 				s1  = std::abs(rx1[z1]-rx1[z2])+std::abs(ry1[z1]-ry1[z2]);
 				s1 += std::abs(rx1[z3]-rx1[z4])+std::abs(ry1[z3]-ry1[z4]);
 				s2  = std::abs(rx1[z1]-rx1[z4])+std::abs(ry1[z1]-ry1[z4]);
 				s2 += std::abs(rx1[z3]-rx1[z2])+std::abs(ry1[z3]-ry1[z2]);
-				if (s2 < s1)
-					{ t = xb1[p2[z]]; xb1[p2[z]] = xb1[p2[zz]]; xb1[p2[zz]] = t; }
+				if (s2 < s1) {
+					std::swap(xb1[p2[z]], xb1[p2[zz]]);
 				}
 			}
+		}
+	}
 	return(npoints);
 }
 
@@ -6802,7 +6865,9 @@ void drawrooms(int daposx, int daposy, int daposz,
 
 	beforedrawrooms = false;
 
-	globalposx = daposx; globalposy = daposy; globalposz = daposz;
+	globalposx = daposx;
+	globalposy = daposy;
+	globalposz = daposz;
 	globalang = (daang&2047);
 
 	globalhoriz = mulscalen<16>(dahoriz-100,xdimenscale)+(ydimen>>1);
@@ -7334,9 +7399,14 @@ void drawmapview(int dax, int day, int zoome, short ang)
 
 			if ((globalorientation&0x4) > 0)
 			{
-				i = globalposx; globalposx = -globalposy; globalposy = -i;
-				i = globalx2; globalx2 = globaly1; globaly1 = i;
-				i = globalx1; globalx1 = -globaly2; globaly2 = -i;
+				i = globalposx;
+				globalposx = -globalposy;
+				globalposy = -i;
+				std::swap(globalx2, globaly1);
+
+				i = globalx1;
+				globalx1 = -globaly2;
+				globaly2 = -i;
 			}
 			if ((globalorientation&0x10) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalposx = -globalposx;
 			if ((globalorientation&0x20) > 0) globalx2 = -globalx2, globaly2 = -globaly2, globalposy = -globalposy;
@@ -7390,15 +7460,23 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			x2 = x1 - mulscalen<16>(sinang,l);
 			y2 = y1 + mulscalen<16>(cosang,l);
 			l = yspan*yrepeat;
-			k = -mulscalen<16>(cosang,l); x3 = x2+k; x4 = x1+k;
-			k = -mulscalen<16>(sinang,l); y3 = y2+k; y4 = y1+k;
+			k = -mulscalen<16>(cosang,l);
+			x3 = x2+k;
+			x4 = x1+k;
+			k = -mulscalen<16>(sinang,l);
+			y3 = y2+k;
+			y4 = y1+k;
 
-			xb1[0] = 1; xb1[1] = 2; xb1[2] = 3; xb1[3] = 0;
+			xb1[0] = 1;
+			xb1[1] = 2;
+			xb1[2] = 3;
+			xb1[3] = 0;
 			npoints = 4;
 
 			i = 0;
 
-			ox = x1 - dax; oy = y1 - day;
+			ox = x1 - dax;
+			oy = y1 - day;
 			x = dmulscalen<16>(ox,xvect,-oy,yvect) + (xdim<<11);
 			y = dmulscalen<16>(oy,xvect2,ox,yvect2) + (ydim<<11);
 			i |= getclipmask(x-cx1,cx2-x,y-cy1,cy2-y);
@@ -7475,7 +7553,12 @@ void drawmapview(int dax, int day, int zoome, short ang)
 				tsethlineshift(ox,oy);
 			}
 
-			if ((spr->cstat&0x4) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalposx = -globalposx;
+			if ((spr->cstat&0x4) > 0) {
+				globalx1 = -globalx1;
+				globaly1 = -globaly1;
+				globalposx = -globalposx;
+			}
+
 			asm1 = (globaly1<<2); globalx1 <<= 2; globalposx <<= (20+2);
 			asm2 = (globalx2<<2); globaly2 <<= 2; globalposy <<= (20+2);
 
@@ -10212,8 +10295,12 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			
 			if ((intz <= daz) || (intz >= daz2))
 			{
-				*hitsect = dasector; *hitwall = z; *hitsprite = -1;
-				*hitx = intx; *hity = inty; *hitz = intz;
+				*hitsect = dasector;
+				*hitwall = z;
+				*hitsprite = -1;
+				*hitx = intx;
+				*hity = inty;
+				*hitz = intz;
 				continue;
 			}
 
@@ -10425,8 +10512,12 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 
 					if (clipyou != 0)
 					{
-						*hitsect = dasector; *hitwall = -1; *hitsprite = z;
-						*hitx = intx; *hity = inty; *hitz = intz;
+						*hitsect = dasector;
+						*hitwall = -1;
+						*hitsprite = z;
+						*hitx = intx;
+						*hity = inty;
+						*hitz = intz;
 					}
 
 					break;
@@ -10570,7 +10661,9 @@ int neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsec
 			if ((tagsearch&2) && spr->hitag) good |= 1;
 			if (good != 0)
 			{
-				x1 = spr->x; y1 = spr->y; z1 = spr->z;
+				x1 = spr->x;
+				y1 = spr->y;
+				z1 = spr->z;
 
 				topt = vx*(x1-xs) + vy*(y1-ys);
 				if (topt > 0)
@@ -10961,8 +11054,12 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 						rxi[1] = rxi[0] - mulscalen<16>(sinang,l);
 						ryi[1] = ryi[0] + mulscalen<16>(cosang,l);
 						l = yspan*yrepeat;
-						k = -mulscalen<16>(cosang,l); rxi[2] = rxi[1]+k; rxi[3] = rxi[0]+k;
-						k = -mulscalen<16>(sinang,l); ryi[2] = ryi[1]+k; ryi[3] = ryi[0]+k;
+						k = -mulscalen<16>(cosang,l);
+						rxi[2] = rxi[1]+k;
+						rxi[3] = rxi[0]+k;
+						k = -mulscalen<16>(sinang,l);
+						ryi[2] = ryi[1]+k;
+						ryi[3] = ryi[0]+k;
 
 						dax = mulscalen<14>(sintable[(spr->ang-256+512)&2047],walldist);
 						day = mulscalen<14>(sintable[(spr->ang-256)&2047],walldist);

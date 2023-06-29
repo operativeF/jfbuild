@@ -817,7 +817,11 @@ int md2draw (md2model *m, spritetype *tspr, int method)
 		k0 -= static_cast<float>((tilesizy[tspr->picnum] * tspr->yrepeat) << 2);
 	}
 
-	if (globalorientation&4) { m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y; } //x-flipping
+	if (globalorientation&4) {
+		m0.y = -m0.y;
+		m1.y = -m1.y;
+		a0.y = -a0.y;
+	} //x-flipping
 
 	f = ((float)tspr->xrepeat)/64*m->bscale;
 	m0.x *= f;
@@ -864,11 +868,22 @@ int md2draw (md2model *m, spritetype *tspr, int method)
 	k2 = k0*(1-k4)+k1*k5;
 	k3 = k1*(1-k4)-k0*k5;
 	k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
-	mat[0] = k4*k6 + k5*k7; mat[4] = gchang*gstang; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
-	k6 = f*gctang + gsinang*gstang; k7 = g*gctang - gcosang*gstang;
-	mat[1] = k4*k6 + k5*k7; mat[5] = gchang*gctang; mat[ 9] = k4*k7 - k5*k6; mat[13] = k2*k6 + k3*k7;
-	k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
-	mat[2] = k4*k6 + k5*k7; mat[6] =-gshang;        mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
+	mat[0] = k4*k6 + k5*k7;
+	mat[4] = gchang*gstang;
+	mat[ 8] = k4*k7 - k5*k6;
+	mat[12] = k2*k6 + k3*k7;
+	k6 = f*gctang + gsinang*gstang;
+	k7 = g*gctang - gcosang*gstang;
+	mat[1] = k4*k6 + k5*k7;
+	mat[5] = gchang*gctang;
+	mat[ 9] = k4*k7 - k5*k6;
+	mat[13] = k2*k6 + k3*k7;
+	k6 =           gcosang2*gchang;
+	k7 =           gsinang2*gchang;
+	mat[2] = k4*k6 + k5*k7;
+	mat[6] =-gshang;
+	mat[10] = k4*k7 - k5*k6;
+	mat[14] = k2*k6 + k3*k7;
 
 	mat[12] += a0.y*mat[0] + a0.z*mat[4] + a0.x*mat[ 8];
 	mat[13] += a0.y*mat[1] + a0.z*mat[5] + a0.x*mat[ 9];
@@ -877,9 +892,15 @@ int md2draw (md2model *m, spritetype *tspr, int method)
 	// floor aligned
 	if((globalorientation & 48) == 32)
 	{
-        f = mat[4]; mat[4] = mat[8]*16.0; mat[8] = -f*(1.0/16.0);
-        f = mat[5]; mat[5] = mat[9]*16.0; mat[9] = -f*(1.0/16.0);
-        f = mat[6]; mat[6] = mat[10]*16.0; mat[10] = -f*(1.0/16.0);
+        f = mat[4];
+		mat[4] = mat[8]*16.0;
+		mat[8] = -f*(1.0/16.0);
+        f = mat[5];
+		mat[5] = mat[9]*16.0;
+		mat[9] = -f*(1.0/16.0);
+        f = mat[6];
+		mat[6] = mat[10]*16.0;
+		mat[10] = -f*(1.0/16.0);
     }
 
 		//Mirrors
@@ -1199,17 +1220,27 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 	k1 = tspr->y;
 	if((globalorientation & 48) == 32)
 	{
-		m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
-		m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y;
-		f = a0.x; a0.x = a0.z; a0.z = f;
+		m0.z = -m0.z;
+		m1.z = -m1.z;
+		a0.z = -a0.z;
+		m0.y = -m0.y;
+		m1.y = -m1.y;
+		a0.y = -a0.y;
+		std::swap(a0.x, a0.z);
 		k1 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)>>3);
 	}
 
 	f = (65536.0*512.0)/((float)xdimen*viewingrange);
 	g = 32.0/((float)xdimen*gxyaspect);
-	m0.y *= f; m1.y *= f; a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
-	m0.x *=-f; m1.x *=-f; a0.x = (((float)(k1     -globalposy))/ -1024.0 + a0.x)*-f;
-	m0.z *= g; m1.z *= g; a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
+	m0.y *= f;
+	m1.y *= f;
+	a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
+	m0.x *=-f;
+	m1.x *=-f;
+	a0.x = (((float)(k1     -globalposy))/ -1024.0 + a0.x)*-f;
+	m0.z *= g;
+	m1.z *= g;
+	a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
 
 	k0 = ((float)(tspr->x-globalposx))*f/1024.0;
 	k1 = ((float)(tspr->y-globalposy))*f/1024.0;
@@ -1220,11 +1251,22 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 	k2 = k0*(1-k4)+k1*k5;
 	k3 = k1*(1-k4)-k0*k5;
 	k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
-	mat[0] = k4*k6 + k5*k7; mat[4] = gchang*gstang; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
-	k6 = f*gctang + gsinang*gstang; k7 = g*gctang - gcosang*gstang;
-	mat[1] = k4*k6 + k5*k7; mat[5] = gchang*gctang; mat[ 9] = k4*k7 - k5*k6; mat[13] = k2*k6 + k3*k7;
-	k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
-	mat[2] = k4*k6 + k5*k7; mat[6] =-gshang;        mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
+	mat[0] = k4*k6 + k5*k7;
+	mat[4] = gchang*gstang;
+	mat[ 8] = k4*k7 - k5*k6;
+	mat[12] = k2*k6 + k3*k7;
+	k6 = f*gctang + gsinang*gstang;
+	k7 = g*gctang - gcosang*gstang;
+	mat[1] = k4*k6 + k5*k7;
+	mat[5] = gchang*gctang;
+	mat[ 9] = k4*k7 - k5*k6;
+	mat[13] = k2*k6 + k3*k7;
+	k6 =           gcosang2*gchang;
+	k7 =           gsinang2*gchang;
+	mat[2] = k4*k6 + k5*k7;
+	mat[6] =-gshang;
+	mat[10] = k4*k7 - k5*k6;
+	mat[14] = k2*k6 + k3*k7;
 
 	mat[12] += a0.y*mat[0] + a0.z*mat[4] + a0.x*mat[ 8];
 	mat[13] += a0.y*mat[1] + a0.z*mat[5] + a0.x*mat[ 9];
@@ -1233,15 +1275,27 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 	// floor aligned
 	if((globalorientation & 48) == 32)
 	{
-		f = mat[4]; mat[4] = mat[8]*16.0; mat[8] = -f*(1.0/16.0);
-		f = mat[5]; mat[5] = mat[9]*16.0; mat[9] = -f*(1.0/16.0);
-		f = mat[6]; mat[6] = mat[10]*16.0; mat[10] = -f*(1.0/16.0);
+		f = mat[4];
+		mat[4] = mat[8]*16.0;
+		mat[8] = -f*(1.0/16.0);
+		f = mat[5];
+		mat[5] = mat[9]*16.0;
+		mat[9] = -f*(1.0/16.0);
+		f = mat[6];
+		mat[6] = mat[10]*16.0;
+		mat[10] = -f*(1.0/16.0);
 	}
 
 	//Mirrors
-	if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
+	if (grhalfxdown10x < 0) {
+		mat[0] = -mat[0];
+		mat[4] = -mat[4];
+		mat[8] = -mat[8];
+		mat[12] = -mat[12];
+	}
 
-	mat[3] = mat[7] = mat[11] = 0.F; mat[15] = 1.F;
+	mat[3] = mat[7] = mat[11] = 0.F;
+	mat[15] = 1.F;
 
 //------------
 	//bit 10 is an ugly hack in game.c\animatesprites telling MD2SPRITE
@@ -1904,9 +1958,20 @@ voxmodel *vox2poly ()
 	std::memset(gvox,0,sizeof(voxmodel));
 
 		//x is largest dimension, y is 2nd largest dimension
-	x = xsiz; y = ysiz; z = zsiz;
-	if ((x < y) && (x < z)) x = z; else if (y < z) y = z;
-	if (x < y) { z = x; x = y; y = z; }
+	x = xsiz;
+	y = ysiz;
+	z = zsiz;
+	if ((x < y) && (x < z))
+		x = z;
+	else if (y < z)
+		y = z;
+	
+	if (x < y) {
+		z = x;
+		x = y;
+		y = z;
+	}
+
 	shcntp = x; i = x*y*sizeof(int);
 	shcntmal = (int *)std::malloc(i); if (!shcntmal) { std::free(gvox); return(nullptr); }
 	std::memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];

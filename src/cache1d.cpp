@@ -185,8 +185,12 @@ void allocache(void **newhandle, size_t newbytes, unsigned char *newlockptr)
 		}
 		if (daval < bestval)
 		{
-			bestval = daval; besto = o1; bestz = z;
-			if (bestval == 0) break;
+			bestval = daval;
+			besto = o1;
+			bestz = z;
+			
+			if (bestval == 0)
+				break;
 		}
 	}
 
@@ -1456,8 +1460,11 @@ int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned char *lz
 	clearbuf(lzwbuf2,256>>1,0xffffffff);
 	clearbuf(lzwoutbuf,((uncompleng+15)+3)>>2,0L);
 
-	addrcnt = 256; bytecnt1 = 0; bitcnt = (4<<3);
-	numbits = 8; oneupnumbits = (1<<8);
+	addrcnt = 256;
+	bytecnt1 = 0;
+	bitcnt = (4<<3);
+	numbits = 8;
+	oneupnumbits = (1<<8);
 	do
 	{
 		addr = lzwinbuf[bytecnt1];
@@ -1529,9 +1536,17 @@ int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *lzwoutbu
 		copybuf(lzwinbuf+4,lzwoutbuf,((compleng-4)+3)>>2);
 		return((int)B_LITTLE16(shortptr[0])); //uncompleng
 	}
-	for(i=255;i>=0;i--) { lzwbuf2[i] = i; lzwbuf3[i] = i; }
-	currstr = 256; bitcnt = (4<<3); outbytecnt = 0;
-	numbits = 8; oneupnumbits = (1<<8);
+	for(i=255;i>=0;i--) {
+		lzwbuf2[i] = i;
+		lzwbuf3[i] = i;
+	}
+	
+	currstr = 256;
+	bitcnt = (4<<3);
+	outbytecnt = 0;
+	numbits = 8;
+	oneupnumbits = (1<<8);
+	
 	do
 	{
 		intptr = (int *)&lzwinbuf[bitcnt>>3];
