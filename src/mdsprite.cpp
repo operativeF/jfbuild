@@ -1499,11 +1499,8 @@ voxmodel* gvox;
 unsigned int gloadtex(int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 {
 	const auto* pic = (coltype *) picbuf; //Correct for GL's RGB order; also apply gamma here..
-	auto* pic2 = (coltype *) std::malloc(xsiz * ysiz * sizeof(coltype));
+	std::vector<coltype> pic2(xsiz * ysiz);
 	
-	if (!pic2)
-		return std::numeric_limits<unsigned int>::max();
-
 	const auto* cptr = (unsigned char*)&britable[gammabrightness ? 0 : curbrightness][0];
 	
 	if (!is8bit)
@@ -1536,8 +1533,7 @@ unsigned int gloadtex(int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 	glfunc.glBindTexture(GL_TEXTURE_2D, rtexid);
 	glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glfunc.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, xsiz, ysiz, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char *)pic2);
-	std::free(pic2);
+	glfunc.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, xsiz, ysiz, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic2.data());
 	
 	return rtexid;
 }
