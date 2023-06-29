@@ -255,33 +255,34 @@ int md_defineframe (int modelid, std::string_view framename, int tilenume, int s
 
 int md_defineanimation (int modelid, std::string_view framestart, std::string_view frameend, int fpssc, int flags)
 {
-	if (!mdinited) mdinit();
+	if (!mdinited)
+		mdinit();
 
 	if ((unsigned int)modelid >= (unsigned int)nextmodelid) return(-1);
 
-	mdanim_t ma;
-	std::memset(&ma, 0, sizeof(ma));
 	auto* m = (md2model *) models[modelid];
 	
 	if (m->mdnum < 2)
 		return 0;
 
 		//find index of start frame
-	int i = framename2index((mdmodel*)m, framestart);
+	const int fstart = framename2index((mdmodel*)m, framestart);
 
-	if (i == m->numframes)
+	if (fstart == m->numframes)
 		return -2;
-	ma.startframe = i;
 
 		//find index of finish frame which must trail start frame
-	i = framename2index((mdmodel*)m, frameend);
+	const int fend = framename2index((mdmodel*)m, frameend);
 	
-	if (i == m->numframes)
+	if (fend == m->numframes)
 		return -3;
 	
-	ma.endframe = i;
-	ma.fpssc = fpssc;
-	ma.flags = flags;
+	mdanim_t ma{
+		.startframe = fstart,
+		.endframe = fend,
+		.fpssc = fpssc,
+		.flags = flags
+	};
 	
 	m->animations.push_back(ma);
 

@@ -35,11 +35,10 @@ struct mdmodel
 
 struct mdanim_t
 {
-	int startframe;
-	int endframe;
-	int fpssc;
-	int flags;
-	mdanim_t* next;
+	int startframe{0};
+	int endframe{0};
+	int fpssc{0};
+	int flags{0};
 };
 
 #define MDANIM_LOOP 0
