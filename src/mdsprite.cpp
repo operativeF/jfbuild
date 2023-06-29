@@ -1478,16 +1478,14 @@ int vmax{0};
 namespace {
 
 struct spoint2d {
-	short x;
-	short y;
+	short x{};
+	short y{};
 };
 
-spoint2d* shp;
 int* shcntmal;
 int* shcnt{nullptr};
 int shcntp;
 int mytexo5;
-int* zbit;
 int gmaxx;
 int gmaxy;
 int garea;
@@ -1593,13 +1591,13 @@ void setzrange1 (int *lptr, int z0, int z1)
 	lptr[z] |=~(-(1 << SHIFTMOD32(z1)));
 }
 
-int isrectfree (int x0, int y0, int dx, int dy)
+int isrectfree (int x0, int y0, int dx, int dy, std::span<const int> rzbit)
 {
 #if 0
 	int i, j, x;
 	i = y0*gvox->mytexx + x0;
 	for(dy=0;dy;dy--,i+=gvox->mytexx)
-		for(x=0;x<dx;x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
+		for(x=0;x<dx;x++) { j = i+x; if (rzbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
 #else
 	int x;
 
@@ -1611,22 +1609,22 @@ int isrectfree (int x0, int y0, int dx, int dy)
 	
 	if(!c) {
 		for(m &= m1; dy; --dy, i += mytexo5) {
-			if (zbit[i] & m)
+			if (rzbit[i] & m)
 				return 0;
 		}
 	}
 	else
 	{  for(; dy; --dy, i += mytexo5)
 		{
-			if (zbit[i] & m)
+			if (rzbit[i] & m)
 				return 0;
 			
 			for(x = 1; x < c; ++x) {
-				if (zbit[i+x])
+				if (rzbit[i+x])
 					return 0;
 			}
 
-			if (zbit[i + x] & m1)
+			if (rzbit[i + x] & m1)
 				return 0;
 		}
 	}
@@ -1635,7 +1633,7 @@ int isrectfree (int x0, int y0, int dx, int dy)
 	return 1;
 }
 
-void setrect(int x0, int y0, int dx, int dy)
+void setrect(int x0, int y0, int dx, int dy, std::span<int> rzbit)
 {
 #if 0
 	int i, j, y;
@@ -1652,31 +1650,32 @@ void setrect(int x0, int y0, int dx, int dy)
 
 	if (c == 0) {
 		for (m &= m1; dy; dy--, i += mytexo5) {
-			zbit[i] |= m;
+			rzbit[i] |= m;
 		}
 	}
 	else
 	{  for(; dy; dy--, i += mytexo5)
 		{
-			zbit[i] |= m;
+			rzbit[i] |= m;
 
 			int x{1};
 			for (; x < c; x++) {
-				zbit[i + x] = -1;
+				rzbit[i + x] = -1;
 			}
 
-			zbit[i + x] |= m1;
+			rzbit[i + x] |= m1;
 		}
 	}
 #endif
 }
 
-void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
+void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face, std::span<const spoint2d> shp)
 {
 	std::ignore = x1;
 	std::ignore = y1;
 	std::ignore = z1;
 	std::ignore = face;
+	std::ignore = shp;
 
 	int x = std::abs(x2 - x0);
 	int y = std::abs(y2 - y0);
@@ -1708,7 +1707,7 @@ void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int
 	gvox->qcnt++;
 }
 
-void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
+void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face, std::span<const spoint2d> shp)
 {
 	int i;
 	int j;
@@ -1948,7 +1947,7 @@ voxmodel *vox2poly ()
 	int dy;
 	int *bx0;
 	int *by0;
-	void (*daquad)(int, int, int, int, int, int, int, int, int, int);
+	void (*daquad)(int, int, int, int, int, int, int, int, int, int, std::span<const spoint2d>);
 
 	gvox = (voxmodel *)std::malloc(sizeof(voxmodel)); if (!gvox) return(nullptr);
 	std::memset(gvox,0,sizeof(voxmodel));
@@ -1980,6 +1979,10 @@ voxmodel *vox2poly ()
 	bx0 = (int *)std::malloc(i<<1); if (!bx0) { std::free(gvox); return(nullptr); }
 	by0 = (int *)(((intptr_t)bx0)+i);
 
+	std::vector<spoint2d> shp;
+
+	// NOTE: First pass uses cntquad, so shp won't be accessed.
+	// Resizing of shp happens after this, so there shouldn't be any OOB.
 	for(cnt=0;cnt<2;cnt++)
 	{
 		if (!cnt) daquad = cntquad;
@@ -1996,7 +1999,7 @@ voxmodel *vox2poly ()
 					{
 						ov = v; v = (isolid(x,y,z) && (!isolid(x,y+i,z)));
 						if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
-							{ daquad(bx0[z],y,by0[z],x,y,by0[z],x,y,z,i>=0); by0[z] = -1; }
+							{ daquad(bx0[z],y,by0[z],x,y,by0[z],x,y,z,i>=0, shp); by0[z] = -1; }
 						if (v > ov) oz = z; else if ((v < ov) && (by0[z] != oz)) { bx0[z] = x; by0[z] = oz; }
 					}
 
@@ -2007,7 +2010,7 @@ voxmodel *vox2poly ()
 					{
 						ov = v; v = (isolid(x,y,z) && (!isolid(x,y,z-i)));
 						if ((by0[y] >= 0) && ((by0[y] != oz) || (v >= ov)))
-							{ daquad(bx0[y],by0[y],z,x,by0[y],z,x,y,z,(i>=0)+2); by0[y] = -1; }
+							{ daquad(bx0[y],by0[y],z,x,by0[y],z,x,y,z,(i>=0)+2, shp); by0[y] = -1; }
 						if (v > ov) oz = y; else if ((v < ov) && (by0[y] != oz)) { bx0[y] = x; by0[y] = oz; }
 					}
 
@@ -2018,15 +2021,13 @@ voxmodel *vox2poly ()
 					{
 						ov = v; v = (isolid(x,y,z) && (!isolid(x-i,y,z)));
 						if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
-							{ daquad(x,bx0[z],by0[z],x,y,by0[z],x,y,z,(i>=0)+4); by0[z] = -1; }
+							{ daquad(x,bx0[z],by0[z],x,y,by0[z],x,y,z,(i>=0)+4, shp); by0[z] = -1; }
 						if (v > ov) oz = z; else if ((v < ov) && (by0[z] != oz)) { bx0[z] = y; by0[z] = oz; }
 					}
 
 		if (!cnt)
 		{
-			shp = (spoint2d *)std::malloc(gvox->qcnt*sizeof(spoint2d));
-			if (!shp) { std::free(bx0); std::free(gvox); return(nullptr); }
-
+			shp.resize(gvox->qcnt);
 			sc = 0;
 			for(y=gmaxy;y;y--)
 				for(x=gmaxx;x>=y;x--)
@@ -2045,8 +2046,7 @@ skindidntfit:;
 			mytexo5 = (gvox->mytexx>>5);
 
 			i = (((gvox->mytexx*gvox->mytexy+31)>>5)<<2);
-			zbit = (int *)std::malloc(i); if (!zbit) { std::free(bx0); std::free(gvox); std::free(shp); return(nullptr); }
-			std::memset(zbit,0,i);
+			std::vector<int> zbit(i, 0);
 
 			v = gvox->mytexx*gvox->mytexy;
 			for(z=0;z<sc;z++)
@@ -2064,8 +2064,6 @@ skindidntfit:;
 					i--;
 					if (i < 0) //Time-out! Very slow if this happens... but at least it still works :P
 					{
-						std::free(zbit);
-
 							//Re-generate shp[].x/y (box sizes) from shcnt (now head indices) for next pass :/
 						j = 0;
 						for(y=gmaxy;y;y--)
@@ -2073,27 +2071,30 @@ skindidntfit:;
 							{
 								i = shcnt[y*shcntp+x];
 								for(;j<i;j++) { shp[j].x = x0; shp[j].y = y0; }
-								x0 = x; y0 = y;
+								x0 = x;
+								y0 = y;
 							}
 						for(;j<sc;j++) { shp[j].x = x0; shp[j].y = y0; }
 
 						goto skindidntfit;
 					}
-				} while (!isrectfree(x0,y0,dx,dy));
-				while ((y0) && (isrectfree(x0,y0-1,dx,1))) y0--;
-				while ((x0) && (isrectfree(x0-1,y0,1,dy))) x0--;
-				setrect(x0,y0,dx,dy);
-				shp[z].x = x0; shp[z].y = y0; //Overwrite size with top-left location
+				} while (!isrectfree(x0, y0, dx, dy, zbit));
+				while ((y0) && (isrectfree(x0, y0-1, dx, 1, zbit))) y0--;
+				while ((x0) && (isrectfree(x0-1, y0, 1, dy, zbit))) x0--;
+				setrect(x0, y0, dx, dy, zbit);
+				shp[z].x = x0;
+				shp[z].y = y0; //Overwrite size with top-left location
 			}
 
 			gvox->quad = (voxrect_t *)std::malloc(gvox->qcnt*sizeof(voxrect_t));
-			if (!gvox->quad) { std::free(zbit); std::free(shp); std::free(bx0); std::free(gvox); return(nullptr); }
+			if (!gvox->quad) { std::free(bx0); std::free(gvox); return(nullptr); }
 
 			gvox->mytex = (int *)std::malloc(gvox->mytexx*gvox->mytexy*sizeof(int));
-			if (!gvox->mytex) { std::free(gvox->quad); std::free(zbit); std::free(shp); std::free(bx0); std::free(gvox); return(nullptr); }
+			if (!gvox->mytex) { std::free(gvox->quad); std::free(bx0); std::free(gvox); return(nullptr); }
 		}
 	}
-	std::free(shp); std::free(zbit); std::free(bx0);
+
+	std::free(bx0);
 	return(gvox);
 }
 

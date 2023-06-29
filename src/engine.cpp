@@ -180,7 +180,7 @@ int nytooclose;
 int nytoofar;
 std::array<unsigned int, 65536> distrecip;
 
-int* lookups{nullptr};
+std::vector<int> lookups;
 
 int oxdimen{-1};
 int oviewingrange{-1};
@@ -6829,11 +6829,6 @@ void uninitengine()
 		pic = nullptr;
 	}
 
-	if (lookups != nullptr) {
-		std::free(lookups);
-		lookups = nullptr;
-	}
-
 	std::ranges::for_each(palookup.begin(), std::next(palookup.begin(), MAXPALOOKUPS),
 		[](auto& plook) {
 			if(plook != nullptr) {
@@ -9248,18 +9243,11 @@ int setgamemode(bool davidoption, int daxdim, int daydim, int dabpp)
 
 	int looktable_size = ydim * 4 * sizeof(int);  // Leave room for horizlookup and horizlookup2
 
-	if (lookups != nullptr) {
-		std::free((void *)lookups);
-		lookups = nullptr;
-	}
+	lookups.clear();
+	lookups.resize(looktable_size << 1);
 
-	if ((lookups = static_cast<int*>(std::malloc(looktable_size << 1))) == nullptr) {
-		engineerrstr = "Failed to allocate lookups memory";
-		return -1;
-	}
-
-	horizlookup = (int *)(lookups);
-	horizlookup2 = (int *)((intptr_t)lookups + looktable_size);
+	horizlookup = lookups.data();
+	horizlookup2 = (int *)((intptr_t)lookups.data() + looktable_size);
 	horizycent = ((ydim * 4) >> 1);
 
 	//Force drawrooms to call dosetaspect & recalculate stuff
