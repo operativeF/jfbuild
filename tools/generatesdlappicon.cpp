@@ -21,7 +21,7 @@ int writeicon(std::FILE* fp, struct icon *ico)
 	for (i=0;i<ico->width*ico->height;i++) {
 		if ((i%6) == 0) std::fprintf(fp,"\t");
 		else std::fprintf(fp," ");
-		std::fprintf(fp, "0x%08x,", B_LITTLE32(ico->pixels[i]));
+		std::fprintf(fp, "0x%08x,", ico->pixels[i]);
 		if ((i%6) == 5) std::fprintf(fp,"\n");
 	}
 	if ((i%16) > 0) std::fprintf(fp, "\n");

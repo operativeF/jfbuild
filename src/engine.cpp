@@ -3572,12 +3572,12 @@ void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	dayscalerecip = (1<<30)/dayscale;
 
 	longptr = (int *)davoxptr;
-	daxsiz = B_LITTLE32(longptr[0]);
-	daysiz = B_LITTLE32(longptr[1]);
-	dazsiz = B_LITTLE32(longptr[2]);
-	daxpivot = B_LITTLE32(longptr[3]);
-	daypivot = B_LITTLE32(longptr[4]);
-	dazpivot = B_LITTLE32(longptr[5]);
+	daxsiz = longptr[0];
+	daysiz = longptr[1];
+	dazsiz = longptr[2];
+	daxpivot = longptr[3];
+	daypivot = longptr[4];
+	dazpivot = longptr[5];
 	davoxptr += (6<<2);
 
 	x = mulscalen<16>(globalposx-dasprx,daxscalerecip);
@@ -3683,7 +3683,7 @@ void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 
 		for(x=xs;x!=xe;x+=xi)
 		{
-			slabxoffs = (intptr_t)&davoxptr[B_LITTLE32(longptr[x])];
+			slabxoffs = (intptr_t)&davoxptr[longptr[x]];
 			shortptr = (short *)&davoxptr[((x*(daysiz+1))<<1)+xyvoxoffs];
 
 			nx = mulscalen<16>(ggxstart+ggxinc[x],viewingrangerecip)+x1;
@@ -3691,8 +3691,8 @@ void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 			for(y=ys;y!=ye;y+=yi,nx+=dagyinc,ny-=dagxinc)
 			{
 				if ((ny <= nytooclose) || (ny >= nytoofar)) continue;
-				voxptr = (unsigned char *)(B_LITTLE16(shortptr[y])+slabxoffs);
-				voxend = (unsigned char *)(B_LITTLE16(shortptr[y+1])+slabxoffs);
+				voxptr = (unsigned char *)(shortptr[y] + slabxoffs);
+				voxend = (unsigned char *)(shortptr[y+1] + slabxoffs);
 				if (voxptr == voxend) continue;
 
 				lx = mulscalen<32>(nx >> 3, distrecip[(ny + y1) >> 14]) + halfxdimen;
@@ -4748,7 +4748,7 @@ void drawsprite(int snum)
 			nyrepeat = ((int)tspr->yrepeat)*voxscale[vtilenum];
 		}
 
-		if (!(cstat&128)) tspr->z -= mulscalen<22>(B_LITTLE32(longptr[5]),nyrepeat);
+		if (!(cstat&128)) tspr->z -= mulscalen<22>(longptr[5], nyrepeat);
 		yoff = (int)((signed char)((picanm[sprite[tspr->owner].picnum]>>16)&255))+((int)tspr->yoffset);
 		tspr->z -= mulscalen<14>(yoff,nyrepeat);
 
@@ -4761,8 +4761,8 @@ void drawsprite(int snum)
 
 			xv = mulscalen<16>(nxrepeat,xyaspect);
 
-			xspan = ((B_LITTLE32(longptr[0])+B_LITTLE32(longptr[1]))>>1);
-			yspan = B_LITTLE32(longptr[2]);
+			xspan = (longptr[0] + longptr[1]) >> 1;
+			yspan = longptr[2];
 			xsiz = mulscalen<30>(siz,xv*xspan);
 			ysiz = mulscalen<30>(siz,nyrepeat*yspan);
 
@@ -6233,8 +6233,8 @@ bool loadpalette()
 			buildputs("loadpalette: read error\n");
 			goto badpalette;
 		}
-		numpalookups = B_LITTLE16(numpalookups);
-	} else if ((flen - 32640 - 768) % 256 == 0) {
+	}
+	else if ((flen - 32640 - 768) % 256 == 0) {
 		// Old format palette.
 		numpalookups = (flen - 32640 - 768) >> 8;
 		buildprintf("loadpalette: old format palette ({} shades)\n",
@@ -7674,7 +7674,7 @@ int loadboard(const std::string& filename, char fromwhere, int *daposx, int *dap
 		return -1;
 	}
 
-	kread(fil,&mapversion,4); mapversion = B_LITTLE32(mapversion);
+	kread(fil,&mapversion,4);
 
 	if (mapversion == 7) {
 		maxsectors = MAXSECTORSV7;
@@ -7705,14 +7705,12 @@ int loadboard(const std::string& filename, char fromwhere, int *daposx, int *dap
 	std::ranges::fill(show2dsprite, 0);
 	std::ranges::fill(show2dwall,   0);
 
-	kread(fil,daposx,4); *daposx = B_LITTLE32(*daposx);
-	kread(fil,daposy,4); *daposy = B_LITTLE32(*daposy);
-	kread(fil,daposz,4); *daposz = B_LITTLE32(*daposz);
-	kread(fil,daang,2);  *daang  = B_LITTLE16(*daang);
-	kread(fil,dacursectnum,2); *dacursectnum = B_LITTLE16(*dacursectnum);
-
+	kread(fil,daposx,4);
+	kread(fil,daposy,4);
+	kread(fil,daposz,4);
+	kread(fil,daang,2); 
+	kread(fil,dacursectnum,2);
 	kread(fil, &numsectors,2);
-	numsectors = B_LITTLE16(numsectors);
 
 	if (numsectors > maxsectors) {
 		kclose(fil);
@@ -7721,40 +7719,11 @@ int loadboard(const std::string& filename, char fromwhere, int *daposx, int *dap
 
 	kread(fil, &sector[0], sizeof(sectortype) * numsectors);
 
-	for (int i = numsectors-1; i >= 0; --i) {
-		sector[i].wallptr       = B_LITTLE16(sector[i].wallptr);
-		sector[i].wallnum       = B_LITTLE16(sector[i].wallnum);
-		sector[i].ceilingz      = B_LITTLE32(sector[i].ceilingz);
-		sector[i].floorz        = B_LITTLE32(sector[i].floorz);
-		sector[i].ceilingstat   = B_LITTLE16(sector[i].ceilingstat);
-		sector[i].floorstat     = B_LITTLE16(sector[i].floorstat);
-		sector[i].ceilingpicnum = B_LITTLE16(sector[i].ceilingpicnum);
-		sector[i].ceilingheinum = B_LITTLE16(sector[i].ceilingheinum);
-		sector[i].floorpicnum   = B_LITTLE16(sector[i].floorpicnum);
-		sector[i].floorheinum   = B_LITTLE16(sector[i].floorheinum);
-		sector[i].lotag         = B_LITTLE16(sector[i].lotag);
-		sector[i].hitag         = B_LITTLE16(sector[i].hitag);
-		sector[i].extra         = B_LITTLE16(sector[i].extra);
-	}
-
-	kread(fil,&numwalls,2); numwalls = B_LITTLE16(numwalls);
+	kread(fil,&numwalls,2);
 	if (numwalls > maxwalls) { kclose(fil); return(-2); }
 	kread(fil,&wall[0],sizeof(walltype)*numwalls);
-	for (int i = numwalls - 1; i >= 0; --i) {
-		wall[i].x          = B_LITTLE32(wall[i].x);
-		wall[i].y          = B_LITTLE32(wall[i].y);
-		wall[i].point2     = B_LITTLE16(wall[i].point2);
-		wall[i].nextwall   = B_LITTLE16(wall[i].nextwall);
-		wall[i].nextsector = B_LITTLE16(wall[i].nextsector);
-		wall[i].cstat      = B_LITTLE16(wall[i].cstat);
-		wall[i].picnum     = B_LITTLE16(wall[i].picnum);
-		wall[i].overpicnum = B_LITTLE16(wall[i].overpicnum);
-		wall[i].lotag      = B_LITTLE16(wall[i].lotag);
-		wall[i].hitag      = B_LITTLE16(wall[i].hitag);
-		wall[i].extra      = B_LITTLE16(wall[i].extra);
-	}
 
-	kread(fil,&numsprites,2); numsprites = B_LITTLE16(numsprites);
+	kread(fil,&numsprites,2);
 
 	if (numsprites > maxsprites) {
 		kclose(fil);
@@ -7762,24 +7731,6 @@ int loadboard(const std::string& filename, char fromwhere, int *daposx, int *dap
 	}
 
 	kread(fil, &sprite[0], sizeof(spritetype) * numsprites);
-
-	for (int i = numsprites - 1; i >= 0; --i) {
-		sprite[i].x       = B_LITTLE32(sprite[i].x);
-		sprite[i].y       = B_LITTLE32(sprite[i].y);
-		sprite[i].z       = B_LITTLE32(sprite[i].z);
-		sprite[i].cstat   = B_LITTLE16(sprite[i].cstat);
-		sprite[i].picnum  = B_LITTLE16(sprite[i].picnum);
-		sprite[i].sectnum = B_LITTLE16(sprite[i].sectnum);
-		sprite[i].statnum = B_LITTLE16(sprite[i].statnum);
-		sprite[i].ang     = B_LITTLE16(sprite[i].ang);
-		sprite[i].owner   = B_LITTLE16(sprite[i].owner);
-		sprite[i].xvel    = B_LITTLE16(sprite[i].xvel);
-		sprite[i].yvel    = B_LITTLE16(sprite[i].yvel);
-		sprite[i].zvel    = B_LITTLE16(sprite[i].zvel);
-		sprite[i].lotag   = B_LITTLE16(sprite[i].lotag);
-		sprite[i].hitag   = B_LITTLE16(sprite[i].hitag);
-		sprite[i].extra   = B_LITTLE16(sprite[i].extra);
-	}
 
 	for(int i{0}; i < numsprites; ++i) {
 		if ((sprite[i].cstat & 48) == 48)
@@ -7996,18 +7947,6 @@ int readv5sect(int fil, struct sectortypev5 *sect)
 	if (kread(fil, &sect->hitag, 2) != 2) return -1;
 	if (kread(fil, &sect->extra, 2) != 2) return -1;
 
-	sect->wallptr = B_LITTLE16(sect->wallptr);
-	sect->wallnum = B_LITTLE16(sect->wallnum);
-	sect->ceilingpicnum = B_LITTLE16(sect->ceilingpicnum);
-	sect->floorpicnum = B_LITTLE16(sect->floorpicnum);
-	sect->ceilingheinum = B_LITTLE16(sect->ceilingheinum);
-	sect->floorheinum = B_LITTLE16(sect->floorheinum);
-	sect->ceilingz = B_LITTLE32(sect->ceilingz);
-	sect->floorz = B_LITTLE32(sect->floorz);
-	sect->lotag = B_LITTLE16(sect->lotag);
-	sect->hitag = B_LITTLE16(sect->hitag);
-	sect->extra = B_LITTLE16(sect->extra);
-
 	return 0;
 }
 
@@ -8016,14 +7955,14 @@ int writev5sect(int fil, struct sectortypev5 const *sect)
 	uint32_t tl;
 	uint16_t ts;
 
-	ts = B_LITTLE16(sect->wallptr); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->wallnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->ceilingpicnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->floorpicnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->ceilingheinum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->floorheinum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	tl = B_LITTLE32(sect->ceilingz); if (Bwrite(fil, &tl, 4) != 4) return -1;
-	tl = B_LITTLE32(sect->floorz); if (Bwrite(fil, &tl, 4) != 4) return -1;
+	ts = sect->wallptr; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->wallnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->ceilingpicnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->floorpicnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->ceilingheinum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->floorheinum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	tl = sect->ceilingz; if (Bwrite(fil, &tl, 4) != 4) return -1;
+	tl = sect->floorz; if (Bwrite(fil, &tl, 4) != 4) return -1;
 	if (Bwrite(fil, &sect->ceilingshade, 1) != 1) return -1;
 	if (Bwrite(fil, &sect->floorshade, 1) != 1) return -1;
 	if (Bwrite(fil, &sect->ceilingxpanning, 1) != 1) return -1;
@@ -8035,9 +7974,9 @@ int writev5sect(int fil, struct sectortypev5 const *sect)
 	if (Bwrite(fil, &sect->ceilingpal, 1) != 1) return -1;
 	if (Bwrite(fil, &sect->floorpal, 1) != 1) return -1;
 	if (Bwrite(fil, &sect->visibility, 1) != 1) return -1;
-	ts = B_LITTLE16(sect->lotag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->hitag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->extra); if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->lotag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->hitag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->extra; if (Bwrite(fil, &ts, 2) != 2) return -1;
 
 	return 0;
 }
@@ -8115,20 +8054,6 @@ int readv5wall(int fil, struct walltypev5 *wall)
 	if (kread(fil, &wall->hitag, 2) != 2) return -1;
 	if (kread(fil, &wall->extra, 2) != 2) return -1;
 
-	wall->x = B_LITTLE32(wall->x);
-	wall->y = B_LITTLE32(wall->y);
-	wall->point2 = B_LITTLE16(wall->point2);
-	wall->picnum = B_LITTLE16(wall->picnum);
-	wall->overpicnum = B_LITTLE16(wall->overpicnum);
-	wall->cstat = B_LITTLE16(wall->cstat);
-	wall->nextsector1 = B_LITTLE16(wall->nextsector1);
-	wall->nextwall1 = B_LITTLE16(wall->nextwall1);
-	wall->nextsector2 = B_LITTLE16(wall->nextsector2);
-	wall->nextwall2 = B_LITTLE16(wall->nextwall2);
-	wall->lotag = B_LITTLE16(wall->lotag);
-	wall->hitag = B_LITTLE16(wall->hitag);
-	wall->extra = B_LITTLE16(wall->extra);
-
 	return 0;
 }
 
@@ -8137,24 +8062,24 @@ int writev5wall(int fil, struct walltypev5 const *wall)
 	uint32_t tl;
 	uint16_t ts;
 
-	tl = B_LITTLE32(wall->x); if (Bwrite(fil, &tl, 4) != 4) return -1;
-	tl = B_LITTLE32(wall->y); if (Bwrite(fil, &tl, 4) != 4) return -1;
-	ts = B_LITTLE16(wall->point2); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->picnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->overpicnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
+	tl = wall->x; if (Bwrite(fil, &tl, 4) != 4) return -1;
+	tl = wall->y; if (Bwrite(fil, &tl, 4) != 4) return -1;
+	ts = wall->point2; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->picnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->overpicnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
 	if (Bwrite(fil, &wall->shade, 1) != 1) return -1;
-	ts = B_LITTLE16(wall->cstat); if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->cstat; if (Bwrite(fil, &ts, 2) != 2) return -1;
 	if (Bwrite(fil, &wall->xrepeat, 1) != 1) return -1;
 	if (Bwrite(fil, &wall->yrepeat, 1) != 1) return -1;
 	if (Bwrite(fil, &wall->xpanning, 1) != 1) return -1;
 	if (Bwrite(fil, &wall->ypanning, 1) != 1) return -1;
-	ts = B_LITTLE16(wall->nextsector1); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->nextwall1); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->nextsector2); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->nextwall2); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->lotag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->hitag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->extra); if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->nextsector1; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->nextwall1; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->nextsector2; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->nextwall2; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->lotag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->hitag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->extra; if (Bwrite(fil, &ts, 2) != 2) return -1;
 
 	return 0;
 }
@@ -8223,21 +8148,6 @@ int readv5sprite(int fil, struct spritetypev5 *spr)
 	if (kread(fil, &spr->hitag, 2) != 2) return -1;
 	if (kread(fil, &spr->extra, 2) != 2) return -1;
 
-	spr->x = B_LITTLE32(spr->x);
-	spr->y = B_LITTLE32(spr->y);
-	spr->z = B_LITTLE32(spr->z);
-	spr->picnum = B_LITTLE16(spr->picnum);
-	spr->ang = B_LITTLE16(spr->ang);
-	spr->xvel = B_LITTLE16(spr->xvel);
-	spr->yvel = B_LITTLE16(spr->yvel);
-	spr->zvel = B_LITTLE16(spr->zvel);
-	spr->owner = B_LITTLE16(spr->owner);
-	spr->sectnum = B_LITTLE16(spr->sectnum);
-	spr->statnum = B_LITTLE16(spr->statnum);
-	spr->lotag = B_LITTLE16(spr->lotag);
-	spr->hitag = B_LITTLE16(spr->hitag);
-	spr->extra = B_LITTLE16(spr->extra);
-
 	return 0;
 }
 
@@ -8246,24 +8156,24 @@ int writev5sprite(int fil, struct spritetypev5 const *spr)
 	uint32_t tl;
 	uint16_t ts;
 
-	tl = B_LITTLE32(spr->x); if (Bwrite(fil, &tl, 4) != 4) return -1;
-	tl = B_LITTLE32(spr->y); if (Bwrite(fil, &tl, 4) != 4) return -1;
-	tl = B_LITTLE32(spr->z); if (Bwrite(fil, &tl, 4) != 4) return -1;
+	tl = spr->x; if (Bwrite(fil, &tl, 4) != 4) return -1;
+	tl = spr->y; if (Bwrite(fil, &tl, 4) != 4) return -1;
+	tl = spr->z; if (Bwrite(fil, &tl, 4) != 4) return -1;
 	if (Bwrite(fil, &spr->cstat, 1) != 1) return -1;
 	if (Bwrite(fil, &spr->shade, 1) != 1) return -1;
 	if (Bwrite(fil, &spr->xrepeat, 1) != 1) return -1;
 	if (Bwrite(fil, &spr->yrepeat, 1) != 1) return -1;
-	ts = B_LITTLE16(spr->picnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->ang); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->xvel); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->yvel); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->zvel); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->owner); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->sectnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->statnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->lotag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->hitag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->extra); if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->picnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->ang; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->xvel; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->yvel; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->zvel; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->owner; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->sectnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->statnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->lotag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->hitag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->extra; if (Bwrite(fil, &ts, 2) != 2) return -1;
 
 	return 0;
 }
@@ -8347,18 +8257,6 @@ int readv6sect(int fil, struct sectortypev6 *sect)
 	if (kread(fil, &sect->hitag, 2) != 2) return -1;
 	if (kread(fil, &sect->extra, 2) != 2) return -1;
 
-	sect->wallptr = B_LITTLE16(sect->wallptr);
-	sect->wallnum = B_LITTLE16(sect->wallnum);
-	sect->ceilingpicnum = B_LITTLE16(sect->ceilingpicnum);
-	sect->floorpicnum = B_LITTLE16(sect->floorpicnum);
-	sect->ceilingheinum = B_LITTLE16(sect->ceilingheinum);
-	sect->floorheinum = B_LITTLE16(sect->floorheinum);
-	sect->ceilingz = B_LITTLE32(sect->ceilingz);
-	sect->floorz = B_LITTLE32(sect->floorz);
-	sect->lotag = B_LITTLE16(sect->lotag);
-	sect->hitag = B_LITTLE16(sect->hitag);
-	sect->extra = B_LITTLE16(sect->extra);
-
 	return 0;
 }
 
@@ -8367,14 +8265,14 @@ int writev6sect(int fil, struct sectortypev6 const *sect)
 	uint32_t tl;
 	uint16_t ts;
 
-	ts = B_LITTLE16(sect->wallptr); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->wallnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->ceilingpicnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->floorpicnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->ceilingheinum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->floorheinum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	tl = B_LITTLE32(sect->ceilingz); if (Bwrite(fil, &tl, 4) != 4) return -1;
-	tl = B_LITTLE32(sect->floorz); if (Bwrite(fil, &tl, 4) != 4) return -1;
+	ts = sect->wallptr; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->wallnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->ceilingpicnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->floorpicnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->ceilingheinum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->floorheinum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	tl = sect->ceilingz; if (Bwrite(fil, &tl, 4) != 4) return -1;
+	tl = sect->floorz; if (Bwrite(fil, &tl, 4) != 4) return -1;
 	if (Bwrite(fil, &sect->ceilingshade, 1) != 1) return -1;
 	if (Bwrite(fil, &sect->floorshade, 1) != 1) return -1;
 	if (Bwrite(fil, &sect->ceilingxpanning, 1) != 1) return -1;
@@ -8386,9 +8284,9 @@ int writev6sect(int fil, struct sectortypev6 const *sect)
 	if (Bwrite(fil, &sect->ceilingpal, 1) != 1) return -1;
 	if (Bwrite(fil, &sect->floorpal, 1) != 1) return -1;
 	if (Bwrite(fil, &sect->visibility, 1) != 1) return -1;
-	ts = B_LITTLE16(sect->lotag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->hitag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(sect->extra); if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->lotag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->hitag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = sect->extra; if (Bwrite(fil, &ts, 2) != 2) return -1;
 
 	return 0;
 }
@@ -8470,18 +8368,6 @@ int readv6wall(int fil, struct walltypev6 *wall)
 	if (kread(fil, &wall->hitag, 2) != 2) return -1;
 	if (kread(fil, &wall->extra, 2) != 2) return -1;
 
-	wall->x = B_LITTLE32(wall->x);
-	wall->y = B_LITTLE32(wall->y);
-	wall->point2 = B_LITTLE16(wall->point2);
-	wall->nextsector = B_LITTLE16(wall->nextsector);
-	wall->nextwall = B_LITTLE16(wall->nextwall);
-	wall->picnum = B_LITTLE16(wall->picnum);
-	wall->overpicnum = B_LITTLE16(wall->overpicnum);
-	wall->cstat = B_LITTLE16(wall->cstat);
-	wall->lotag = B_LITTLE16(wall->lotag);
-	wall->hitag = B_LITTLE16(wall->hitag);
-	wall->extra = B_LITTLE16(wall->extra);
-
 	return 0;
 }
 
@@ -8490,23 +8376,23 @@ int writev6wall(int fil, struct walltypev6 const *wall)
 	uint32_t tl;
 	uint16_t ts;
 
-	tl = B_LITTLE32(wall->x); if (Bwrite(fil, &tl, 4) != 4) return -1;
-	tl = B_LITTLE32(wall->y); if (Bwrite(fil, &tl, 4) != 4) return -1;
-	ts = B_LITTLE16(wall->point2); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->nextsector); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->nextwall); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->picnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->overpicnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
+	tl = wall->x; if (Bwrite(fil, &tl, 4) != 4) return -1;
+	tl = wall->y; if (Bwrite(fil, &tl, 4) != 4) return -1;
+	ts = wall->point2; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->nextsector; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->nextwall; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->picnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->overpicnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
 	if (Bwrite(fil, &wall->shade, 1) != 1) return -1;
 	if (Bwrite(fil, &wall->pal, 1) != 1) return -1;
-	ts = B_LITTLE16(wall->cstat); if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->cstat; if (Bwrite(fil, &ts, 2) != 2) return -1;
 	if (Bwrite(fil, &wall->xrepeat, 1) != 1) return -1;
 	if (Bwrite(fil, &wall->yrepeat, 1) != 1) return -1;
 	if (Bwrite(fil, &wall->xpanning, 1) != 1) return -1;
 	if (Bwrite(fil, &wall->ypanning, 1) != 1) return -1;
-	ts = B_LITTLE16(wall->lotag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->hitag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(wall->extra); if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->lotag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->hitag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = wall->extra; if (Bwrite(fil, &ts, 2) != 2) return -1;
 
 	return 0;
 }
@@ -8578,22 +8464,6 @@ int readv6sprite(int fil, struct spritetypev6 *spr)
 	if (kread(fil, &spr->hitag, 2) != 2) return -1;
 	if (kread(fil, &spr->extra, 2) != 2) return -1;
 
-	spr->x = B_LITTLE32(spr->x);
-	spr->y = B_LITTLE32(spr->y);
-	spr->z = B_LITTLE32(spr->z);
-	spr->cstat = B_LITTLE16(spr->cstat);
-	spr->picnum = B_LITTLE16(spr->picnum);
-	spr->ang = B_LITTLE16(spr->ang);
-	spr->xvel = B_LITTLE16(spr->xvel);
-	spr->yvel = B_LITTLE16(spr->yvel);
-	spr->zvel = B_LITTLE16(spr->zvel);
-	spr->owner = B_LITTLE16(spr->owner);
-	spr->sectnum = B_LITTLE16(spr->sectnum);
-	spr->statnum = B_LITTLE16(spr->statnum);
-	spr->lotag = B_LITTLE16(spr->lotag);
-	spr->hitag = B_LITTLE16(spr->hitag);
-	spr->extra = B_LITTLE16(spr->extra);
-
 	return 0;
 }
 
@@ -8602,10 +8472,10 @@ int writev6sprite(int fil, struct spritetypev6 const *spr)
 	uint32_t tl;
 	uint16_t ts;
 
-	tl = B_LITTLE32(spr->x); if (Bwrite(fil, &tl, 4) != 4) return -1;
-	tl = B_LITTLE32(spr->y); if (Bwrite(fil, &tl, 4) != 4) return -1;
-	tl = B_LITTLE32(spr->z); if (Bwrite(fil, &tl, 4) != 4) return -1;
-	ts = B_LITTLE16(spr->cstat); if (Bwrite(fil, &ts, 2) != 2) return -1;
+	tl = spr->x; if (Bwrite(fil, &tl, 4) != 4) return -1;
+	tl = spr->y; if (Bwrite(fil, &tl, 4) != 4) return -1;
+	tl = spr->z; if (Bwrite(fil, &tl, 4) != 4) return -1;
+	ts = spr->cstat; if (Bwrite(fil, &ts, 2) != 2) return -1;
 	if (Bwrite(fil, &spr->shade, 1) != 1) return -1;
 	if (Bwrite(fil, &spr->pal, 1) != 1) return -1;
 	if (Bwrite(fil, &spr->clipdist, 1) != 1) return -1;
@@ -8613,17 +8483,17 @@ int writev6sprite(int fil, struct spritetypev6 const *spr)
 	if (Bwrite(fil, &spr->yrepeat, 1) != 1) return -1;
 	if (Bwrite(fil, &spr->xoffset, 1) != 1) return -1;
 	if (Bwrite(fil, &spr->yoffset, 1) != 1) return -1;
-	ts = B_LITTLE16(spr->picnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->ang); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->xvel); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->yvel); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->zvel); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->owner); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->sectnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->statnum); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->lotag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->hitag); if (Bwrite(fil, &ts, 2) != 2) return -1;
-	ts = B_LITTLE16(spr->extra); if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->picnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->ang; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->xvel; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->yvel; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->zvel; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->owner; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->sectnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->statnum; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->lotag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->hitag; if (Bwrite(fil, &ts, 2) != 2) return -1;
+	ts = spr->extra; if (Bwrite(fil, &ts, 2) != 2) return -1;
 
 	return 0;
 }
@@ -8704,8 +8574,6 @@ int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *
 
 	if (kread(fil,&mapversion,4) != 4)
 		goto readerror;
-
-	mapversion = B_LITTLE32(mapversion);
 	
 	if (mapversion != 5L && mapversion != 6L) {
 		kclose(fil);
@@ -8723,14 +8591,8 @@ int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *
 	if (kread(fil,daposz,4) != 4) goto readerror;
 	if (kread(fil,daang,2) != 2) goto readerror;
 	if (kread(fil,dacursectnum,2) != 2) goto readerror;
-	*daposx = B_LITTLE32(*daposx);
-	*daposy = B_LITTLE32(*daposy);
-	*daposz = B_LITTLE32(*daposz);
-	*daang  = B_LITTLE16(*daang);
-	*dacursectnum = B_LITTLE16(*dacursectnum);
-
 	if (kread(fil,&numsectors,2) != 2) goto readerror;
-	numsectors = B_LITTLE16(numsectors);
+
 	if (numsectors > MAXSECTORS) {
 		kclose(fil);
 		return(-1);
@@ -8751,7 +8613,6 @@ int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *
 	}
 
 	if (kread(fil,&numwalls,2) != 2) goto readerror;
-	numwalls = B_LITTLE16(numwalls);
 	if (numwalls > MAXWALLS) {
 		kclose(fil);
 		return(-1);
@@ -8772,7 +8633,6 @@ int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *
 	}
 
 	if (kread(fil,&numsprites,2) != 2) goto readerror;
-	numsprites = B_LITTLE16(numsprites);
 	if (numsprites > MAXSPRITES) {
 		kclose(fil);
 		return(-1);
@@ -8953,54 +8813,35 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 	else
 		mapversion = 7;
 	
-	auto tl = B_LITTLE32(mapversion);
+	auto tl = mapversion;
 	int ts{0};
 
 	if (Bwrite(fil,&tl,4) != 4) goto writeerror;
 
-	tl = B_LITTLE32(*daposx);       if (Bwrite(fil,&tl,4) != 4) goto writeerror;
-	tl = B_LITTLE32(*daposy);       if (Bwrite(fil,&tl,4) != 4) goto writeerror;
-	tl = B_LITTLE32(*daposz);       if (Bwrite(fil,&tl,4) != 4) goto writeerror;
-	ts = B_LITTLE16(*daang);        if (Bwrite(fil,&ts,2) != 2) goto writeerror;
-	ts = B_LITTLE16(*dacursectnum); if (Bwrite(fil,&ts,2) != 2) goto writeerror;
+	tl = *daposx;       if (Bwrite(fil,&tl,4) != 4) goto writeerror;
+	tl = *daposy;       if (Bwrite(fil,&tl,4) != 4) goto writeerror;
+	tl = *daposz;       if (Bwrite(fil,&tl,4) != 4) goto writeerror;
+	ts = *daang;        if (Bwrite(fil,&ts,2) != 2) goto writeerror;
+	ts = *dacursectnum; if (Bwrite(fil,&ts,2) != 2) goto writeerror;
 
-	ts = B_LITTLE16(numsectors);    if (Bwrite(fil,&ts,2) != 2) goto writeerror;
+	ts = numsectors;    if (Bwrite(fil,&ts,2) != 2) goto writeerror;
 	for (i=0; i<numsectors; i++) {
 		auto tsect = sector[i];
-		tsect.wallptr       = B_LITTLE16(tsect.wallptr);
-		tsect.wallnum       = B_LITTLE16(tsect.wallnum);
-		tsect.ceilingz      = B_LITTLE32(tsect.ceilingz);
-		tsect.floorz        = B_LITTLE32(tsect.floorz);
-		tsect.ceilingstat   = B_LITTLE16(tsect.ceilingstat);
-		tsect.floorstat     = B_LITTLE16(tsect.floorstat);
-		tsect.ceilingpicnum = B_LITTLE16(tsect.ceilingpicnum);
-		tsect.ceilingheinum = B_LITTLE16(tsect.ceilingheinum);
-		tsect.floorpicnum   = B_LITTLE16(tsect.floorpicnum);
-		tsect.floorheinum   = B_LITTLE16(tsect.floorheinum);
-		tsect.lotag         = B_LITTLE16(tsect.lotag);
-		tsect.hitag         = B_LITTLE16(tsect.hitag);
-		tsect.extra         = B_LITTLE16(tsect.extra);
-		if (Bwrite(fil,&tsect,sizeof(sectortype)) != sizeof(sectortype)) goto writeerror;
+		if (Bwrite(fil,&tsect,sizeof(sectortype)) != sizeof(sectortype))
+			goto writeerror;
 	}
 
-	ts = B_LITTLE16(numwalls);      if (Bwrite(fil,&ts,2) != 2) goto writeerror;
+	ts = numwalls;
+	if (Bwrite(fil,&ts,2) != 2)
+		goto writeerror;
+
 	for (i=0; i<numwalls; i++) {
 		auto twall = wall[i];
-		twall.x          = B_LITTLE32(twall.x);
-		twall.y          = B_LITTLE32(twall.y);
-		twall.point2     = B_LITTLE16(twall.point2);
-		twall.nextwall   = B_LITTLE16(twall.nextwall);
-		twall.nextsector = B_LITTLE16(twall.nextsector);
-		twall.cstat      = B_LITTLE16(twall.cstat);
-		twall.picnum     = B_LITTLE16(twall.picnum);
-		twall.overpicnum = B_LITTLE16(twall.overpicnum);
-		twall.lotag      = B_LITTLE16(twall.lotag);
-		twall.hitag      = B_LITTLE16(twall.hitag);
-		twall.extra      = B_LITTLE16(twall.extra);
-		if (Bwrite(fil,&twall,sizeof(walltype)) != sizeof(walltype)) goto writeerror;
+		if (Bwrite(fil,&twall,sizeof(walltype)) != sizeof(walltype))
+			goto writeerror;
 	}
 
-	ts = B_LITTLE16(numsprites);
+	ts = numsprites;
 	
 	if (Bwrite(fil,&ts,2) != 2)
 		goto writeerror;
@@ -9011,22 +8852,8 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 		while (i != -1)
 		{
 			auto tspri = sprite[i];
-			tspri.x       = B_LITTLE32(tspri.x);
-			tspri.y       = B_LITTLE32(tspri.y);
-			tspri.z       = B_LITTLE32(tspri.z);
-			tspri.cstat   = B_LITTLE16(tspri.cstat);
-			tspri.picnum  = B_LITTLE16(tspri.picnum);
-			tspri.sectnum = B_LITTLE16(tspri.sectnum);
-			tspri.statnum = B_LITTLE16(tspri.statnum);
-			tspri.ang     = B_LITTLE16(tspri.ang);
-			tspri.owner   = B_LITTLE16(tspri.owner);
-			tspri.xvel    = B_LITTLE16(tspri.xvel);
-			tspri.yvel    = B_LITTLE16(tspri.yvel);
-			tspri.zvel    = B_LITTLE16(tspri.zvel);
-			tspri.lotag   = B_LITTLE16(tspri.lotag);
-			tspri.hitag   = B_LITTLE16(tspri.hitag);
-			tspri.extra   = B_LITTLE16(tspri.extra);
-			if (Bwrite(fil,&tspri,sizeof(spritetype)) != sizeof(spritetype)) goto writeerror;
+			if (Bwrite(fil,&tspri,sizeof(spritetype)) != sizeof(spritetype))
+				goto writeerror;
 			i = nextspritestat[i];
 		}
 	}
@@ -9092,21 +8919,21 @@ int saveoldboard(const char *filename, const int *daposx, const int *daposy, con
 	if ((fil = Bopen(filename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
 		return(-1);
 
-	tl = B_LITTLE32(mapversion);
+	tl = mapversion;
 	if (Bwrite(fil,&tl,4) != 4) goto writeerror;
 
-	tl = B_LITTLE32(*daposx);
+	tl = *daposx;
 	if (Bwrite(fil,&tl,4) != 4) goto writeerror;
-	tl = B_LITTLE32(*daposy);
+	tl = *daposy;
 	if (Bwrite(fil,&tl,4) != 4) goto writeerror;
-	tl = B_LITTLE32(*daposz);
+	tl = *daposz;
 	if (Bwrite(fil,&tl,4) != 4) goto writeerror;
-	ts = B_LITTLE16(*daang);
+	ts = *daang;
 	if (Bwrite(fil,&ts,2) != 2) goto writeerror;
-	ts = B_LITTLE16(*dacursectnum);
+	ts = *dacursectnum;
 	if (Bwrite(fil,&ts,2) != 2) goto writeerror;
 
-	ts = B_LITTLE16(numsectors);
+	ts = numsectors;
 	if (Bwrite(fil,&ts,2) != 2) goto writeerror;
 	for (i=0; i<numsectors; i++) {
 		switch (mapversion) {
@@ -9122,7 +8949,7 @@ int saveoldboard(const char *filename, const int *daposx, const int *daposy, con
 		}
 	}
 
-	ts = B_LITTLE16(numwalls);
+	ts = numwalls;
 	if (Bwrite(fil,&ts,2) != 2) goto writeerror;
 	for (i=0; i<numwalls; i++) {
 		switch (mapversion) {
@@ -9138,7 +8965,7 @@ int saveoldboard(const char *filename, const int *daposx, const int *daposy, con
 		}
 	}
 
-	ts = B_LITTLE16(numsprites);
+	ts = numsprites;
 	if (Bwrite(fil,&ts,2) != 2) goto writeerror;
 	for(j=0;j<MAXSTATUS;j++)
 	{
@@ -9416,25 +9243,19 @@ int loadpics(const std::string& filename, int askedsize)
 		{
 			int localtilestart{0};
 			int localtileend{0};
-			kread(fil,&artversion,4); artversion = B_LITTLE32(artversion);
+			kread(fil,&artversion,4);
 			
 			if (artversion != 1) {
 				buildprintf("loadpics(): Invalid art file version in {}\n", artfilename.data());
 				return(-1);
 			}
 			
-			kread(fil,&numtiles,4);       numtiles       = B_LITTLE32(numtiles);
-			kread(fil,&localtilestart,4); localtilestart = B_LITTLE32(localtilestart);
-			kread(fil,&localtileend,4);   localtileend   = B_LITTLE32(localtileend);
+			kread(fil,&numtiles,4);
+			kread(fil,&localtilestart,4);
+			kread(fil,&localtileend,4);
 			kread(fil,&tilesizx[localtilestart],(localtileend-localtilestart+1)<<1);
 			kread(fil,&tilesizy[localtilestart],(localtileend-localtilestart+1)<<1);
 			kread(fil,&picanm[localtilestart],(localtileend-localtilestart+1)<<2);
-			
-			for (int i{localtilestart}; i <= localtileend; ++i) {
-				tilesizx[i] = B_LITTLE16(tilesizx[i]);
-				tilesizy[i] = B_LITTLE16(tilesizy[i]);
-				picanm[i]   = B_LITTLE32(picanm[i]);
-			}
 
 			int offscount = 4 + 4 + 4 + 4 + ((localtileend-localtilestart+1)<<3);
 			
@@ -9661,7 +9482,6 @@ int qloadkvx(int voxindex, const std::string& filename)
 	{
 		int dasiz{0};
 		kread(fil, &dasiz, 4);
-		dasiz = B_LITTLE32(dasiz);
 			//Must store filenames to use cacheing system :(
 		voxlock[voxindex][i] = 200;
 		allocache((void **)&voxoff[voxindex][i],dasiz,&voxlock[voxindex][i]);

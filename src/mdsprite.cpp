@@ -611,15 +611,6 @@ md2model *md2load(int fil, const char *filnam)
 
 	md2head_t head{};
 	kread(fil, (char *)&head, sizeof(md2head_t));
-	head.id = B_LITTLE32(head.id);                 head.vers = B_LITTLE32(head.vers);
-	head.skinxsiz = B_LITTLE32(head.skinxsiz);     head.skinysiz = B_LITTLE32(head.skinysiz);
-	head.framebytes = B_LITTLE32(head.framebytes); head.numskins = B_LITTLE32(head.numskins);
-	head.numverts = B_LITTLE32(head.numverts);     head.numuv = B_LITTLE32(head.numuv);
-	head.numtris = B_LITTLE32(head.numtris);       head.numglcmds = B_LITTLE32(head.numglcmds);
-	head.numframes = B_LITTLE32(head.numframes);   head.ofsskins = B_LITTLE32(head.ofsskins);
-	head.ofsuv = B_LITTLE32(head.ofsuv);           head.ofstris = B_LITTLE32(head.ofstris);
-	head.ofsframes = B_LITTLE32(head.ofsframes);   head.ofsglcmds = B_LITTLE32(head.ofsglcmds);
-	head.ofseof = B_LITTLE32(head.ofseof);
 
 	if ((head.id != 0x32504449) || (head.vers != 8)) { md2free(m); return(nullptr); } //"IDP2"
 
@@ -661,7 +652,6 @@ md2model *md2load(int fil, const char *filnam)
 		for (i = m->numframes-1; i>=0; i--) {
 			fr = (md2frame_t *)f;
 			l = (int *)&fr->mul;
-			for (j=5;j>=0;j--) l[j] = B_LITTLE32(l[j]);
 			f += m->framebytes;
 		}
 	}
@@ -979,18 +969,18 @@ md3model *md3load (int fil)
 
 	md3filehead_t filehead{};
 	kread(fil, &filehead, sizeof(md3filehead_t));
-	m->head.id = B_LITTLE32(filehead.id);
-	m->head.vers = B_LITTLE32(filehead.vers);
+	m->head.id = filehead.id;
+	m->head.vers = filehead.vers;
 	std::memcpy(m->head.nam, filehead.nam, sizeof(filehead.nam));
-	m->head.flags = B_LITTLE32(filehead.flags);
-	m->head.numframes = B_LITTLE32(filehead.numframes);
-	m->head.numtags = B_LITTLE32(filehead.numtags);
-	m->head.numsurfs = B_LITTLE32(filehead.numsurfs);
-	m->head.numskins = B_LITTLE32(filehead.numskins);
-	filehead.frames = B_LITTLE32(filehead.frames);
-	filehead.tags = B_LITTLE32(filehead.tags);
-	filehead.surfs = B_LITTLE32(filehead.surfs);
-	m->head.eof = B_LITTLE32(filehead.eof);
+	m->head.flags = filehead.flags;
+	m->head.numframes = filehead.numframes;
+	m->head.numtags = filehead.numtags;
+	m->head.numsurfs = filehead.numsurfs;
+	m->head.numskins = filehead.numskins;
+	filehead.frames = filehead.frames;
+	filehead.tags = filehead.tags;
+	filehead.surfs = filehead.surfs;
+	m->head.eof = filehead.eof;
 
 	if ((m->head.id != 0x33504449) && (m->head.vers != 15)) {
 		md3free(m);
@@ -1017,22 +1007,6 @@ md3model *md3load (int fil)
 	m->head.surfs = (md3surf_t *)std::calloc(m->head.numsurfs, sizeof(md3surf_t));
 	if (!m->head.surfs) { md3free(m); return(nullptr); }
 
-#if B_BIG_ENDIAN != 0
-	{
-		int i, j, *l;
-
-		for (i = m->head.numframes-1; i>=0; i--) {
-			l = (int *)&m->head.frames[i].min;
-			for (j=3+3+3+1-1;j>=0;j--) l[j] = B_LITTLE32(l[j]);
-		}
-
-		for (i = m->head.numtags-1; i>=0; i--) {
-			l = (int *)&m->head.tags[i].p;
-			for (j=3+3+3+3-1;j>=0;j--) l[j] = B_LITTLE32(l[j]);
-		}
-	}
-#endif
-
 	int ofsurf = filehead.surfs;
 
 	for(int surfi{0}; surfi < m->head.numsurfs; ++surfi)
@@ -1043,18 +1017,18 @@ md3model *md3load (int fil)
 		md3filesurf_t filesurf{};
 		kread(fil, &filesurf, sizeof(md3filesurf_t));
 
-		s->id = B_LITTLE32(filesurf.id);
+		s->id = filesurf.id;
 		std::memcpy(s->nam, filesurf.nam, sizeof(filesurf.nam));
-		s->flags = B_LITTLE32(filesurf.flags);
-		s->numframes = B_LITTLE32(filesurf.numframes);
-		s->numshaders = B_LITTLE32(filesurf.numshaders);
-		s->numverts = B_LITTLE32(filesurf.numverts);
-		s->numtris = B_LITTLE32(filesurf.numtris);
-		filesurf.tris = B_LITTLE32(filesurf.tris);
-		filesurf.shaders = B_LITTLE32(filesurf.shaders);
-		filesurf.uv = B_LITTLE32(filesurf.uv);
-		filesurf.xyzn = B_LITTLE32(filesurf.xyzn);
-		s->ofsend = B_LITTLE32(filesurf.ofsend);
+		s->flags = filesurf.flags;
+		s->numframes = filesurf.numframes;
+		s->numshaders = filesurf.numshaders;
+		s->numverts = filesurf.numverts;
+		s->numtris = filesurf.numtris;
+		filesurf.tris = filesurf.tris;
+		filesurf.shaders = filesurf.shaders;
+		filesurf.uv = filesurf.uv;
+		filesurf.xyzn = filesurf.xyzn;
+		s->ofsend = filesurf.ofsend;
 
 		std::array<int, 4> offs{};
 		std::array<int, 4> leng{};
@@ -1086,29 +1060,6 @@ md3model *md3load (int fil)
 		kread(fil, s->uv, leng[2]);
 		klseek(fil, offs[3], SEEK_SET);
 		kread(fil, s->xyzn, leng[3]);
-
-#if B_BIG_ENDIAN != 0
-		{
-			int *l;
-
-			for (i=s->numtris-1;i>=0;i--) {
-				for (j=2;j>=0;j--) s->tris[i].i[j] = B_LITTLE32(s->tris[i].i[j]);
-			}
-			for (i=s->numshaders-1;i>=0;i--) {
-				s->shaders[i].i = B_LITTLE32(s->shaders[i].i);
-			}
-			for (i=s->numverts-1;i>=0;i--) {
-				l = (int*)&s->uv[i];
-				l[0] = B_LITTLE32(l[0]);
-				l[1] = B_LITTLE32(l[1]);
-			}
-			for (i=s->numframes*s->numverts-1;i>=0;i--) {
-				s->xyzn[i].x = (signed short)B_LITTLE16((unsigned short)s->xyzn[i].x);
-				s->xyzn[i].y = (signed short)B_LITTLE16((unsigned short)s->xyzn[i].y);
-				s->xyzn[i].z = (signed short)B_LITTLE16((unsigned short)s->xyzn[i].z);
-			}
-		}
-#endif
 
 		maxmodelverts = std::max(maxmodelverts, s->numverts);
 		maxelementvbo = std::max(maxelementvbo, s->numtris * 3);
@@ -2063,11 +2014,8 @@ int loadvox (const char *filnam)
 	}
 
 	kread(fil, &xsiz, 4);
-	xsiz = B_LITTLE32(xsiz);
 	kread(fil, &ysiz, 4);
-	ysiz = B_LITTLE32(ysiz);
 	kread(fil, &zsiz, 4);
-	zsiz = B_LITTLE32(zsiz);
 
 	xpiv = ((float)xsiz)*.5;
 	ypiv = ((float)ysiz)*.5;
@@ -2140,13 +2088,16 @@ int loadkvx (const char *filnam)
 	unsigned char *cptr;
 
 	fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
-	kread(fil,&mip1leng,4); mip1leng = B_LITTLE32(mip1leng);
-	kread(fil,&xsiz,4);     xsiz = B_LITTLE32(xsiz);
-	kread(fil,&ysiz,4);     ysiz = B_LITTLE32(ysiz);
-	kread(fil,&zsiz,4);     zsiz = B_LITTLE32(zsiz);
-	kread(fil,&i,4);        xpiv = ((float)B_LITTLE32(i))/256.0;
-	kread(fil,&i,4);        ypiv = ((float)B_LITTLE32(i))/256.0;
-	kread(fil,&i,4);        zpiv = ((float)B_LITTLE32(i))/256.0;
+	kread(fil,&mip1leng,4);
+	kread(fil,&xsiz,4);
+	kread(fil,&ysiz,4);
+	kread(fil,&zsiz,4);
+	kread(fil,&i,4);
+	xpiv = ((float)i)/256.0;
+	kread(fil,&i,4);
+	ypiv = ((float)i)/256.0;
+	kread(fil,&i,4);
+	zpiv = ((float)i)/256.0;
 	klseek(fil,(xsiz+1)<<2,SEEK_CUR);
 	ysizp1 = ysiz+1;
 	i = xsiz*ysizp1*sizeof(short);
@@ -2155,7 +2106,7 @@ int loadkvx (const char *filnam)
 
 	klseek(fil,-768,SEEK_END);
 	for(i=0;i<256;i++)
-		{ kread(fil, c.data(), 3); pal[i] = B_LITTLE32((((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24)); }
+		{ kread(fil, c.data(), 3); pal[i] = (((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24); }
 
 	yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
 	vbit = (int *)std::malloc(i); if (!vbit) { kclose(fil); return(-1); }
@@ -2210,14 +2161,23 @@ int loadkv6 (const char *filnam)
 		return -1;
 	}
 
-	kread(fil, &i, 4); if (B_LITTLE32(i) != 0x6c78764b) { kclose(fil); return(-1); } //Kvxl
-	kread(fil, &xsiz, 4);    xsiz = B_LITTLE32(xsiz);
-	kread(fil, &ysiz, 4);    ysiz = B_LITTLE32(ysiz);
-	kread(fil, &zsiz, 4);    zsiz = B_LITTLE32(zsiz);
-    kread(fil, &f, 4);       xpiv = B_LITTLEFLOAT(f);
-    kread(fil, &f, 4);       ypiv = B_LITTLEFLOAT(f);
-    kread(fil, &f, 4);       zpiv = B_LITTLEFLOAT(f);
-	kread(fil, &numvoxs, 4); numvoxs = B_LITTLE32(numvoxs);
+	kread(fil, &i, 4);
+	
+	if (i != 0x6c78764b) {
+		kclose(fil);
+		return -1; 
+	} //Kvxl
+
+	kread(fil, &xsiz, 4);
+	kread(fil, &ysiz, 4);
+	kread(fil, &zsiz, 4);
+    kread(fil, &f, 4);
+	xpiv = f;
+    kread(fil, &f, 4);
+	ypiv = f;
+    kread(fil, &f, 4);
+	zpiv = f;
+	kread(fil, &numvoxs, 4);
 
 	std::vector<unsigned short> ylen(xsiz * ysiz);
 
@@ -2241,10 +2201,10 @@ int loadkv6 (const char *filnam)
 			for(i=ylen[x*ysiz+y];i>0;i--)
 			{
 				kread(fil, c.data(), 8); //b,g,r,a,z_lo,z_hi,vis,dir
-				z0 = B_LITTLE16(*(unsigned short *)&c[4]);
+				z0 = *(unsigned short *)&c[4];
 				if (!(c[6]&16)) setzrange1(vbit,j+z1,j+z0);
 				vbit[(j+z0)>>5] |= (1<<SHIFTMOD32(j+z0));
-				putvox(x,y,z0,B_LITTLE32(*(int *)&c[0])&0xffffff);
+				putvox(x,y,z0, (*(int *)&c[0]) & 0xffffff);
 				z1 = z0+1;
 			}
 		}
@@ -2709,7 +2669,7 @@ mdmodel *mdload (const char *filnam)
 	kread(fil, &i, 4);
 	klseek(fil, 0, SEEK_SET);
 
-	switch(B_LITTLE32(i))
+	switch(i)
 	{
 		case 0x32504449:
 			vm = (mdmodel*)md2load(fil,filnam);

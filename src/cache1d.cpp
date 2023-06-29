@@ -530,7 +530,7 @@ int initgroupfile(const std::string& filename)
 			groupfil[numgroupfiles] = -1;
 			return(-1);
 		}
-		gnumfiles[numgroupfiles] = B_LITTLE32(*((int *)&buf[12]));
+		gnumfiles[numgroupfiles] = *((int *)&buf[12]);
 
 		if ((gfilelist[numgroupfiles] = (char *)std::malloc(gnumfiles[numgroupfiles]<<4)) == nullptr)
 			{ buildprintf("Not enough memory for file grouping system\n"); std::exit(0); }
@@ -551,7 +551,7 @@ int initgroupfile(const std::string& filename)
 		int j{0};
 		for(int gnum{0}; gnum < gnumfiles[numgroupfiles]; ++gnum)
 		{
-			const int k = B_LITTLE32(*((int *)&gfilelist[numgroupfiles][(gnum << 4) + 12]));
+			const int k = *((int *)&gfilelist[numgroupfiles][(gnum << 4) + 12]);
 			gfilelist[numgroupfiles][(gnum << 4) + 12] = 0;
 			gfileoffs[numgroupfiles][gnum] = j;
 			j += k;
@@ -1187,8 +1187,6 @@ unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
 		return 0;
 	}
 
-	leng = B_LITTLE16(leng);
-
 	if (kread(fil,lzwbuf5,(int)leng) != leng) {
 		lzwrelease();
 		return 0;
@@ -1210,7 +1208,6 @@ unsigned kdfread(void *buffer, unsigned dasizeof, unsigned count, int fil)
 				return -1;
 			}
 
-			leng = B_LITTLE16(leng);
 			if (kread(fil,lzwbuf5,(int)leng) != leng) {
 				lzwrelease();
 				return -1;
@@ -1248,8 +1245,6 @@ unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil)
 		lzwrelease();
 		return -1;
 	}
-
-	leng = B_LITTLE16(leng);
 	
 	if (std::fread(lzwbuf5,(int)leng, 1, fil) != 1) {
 		lzwrelease();
@@ -1269,8 +1264,6 @@ unsigned dfread(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil)
 				lzwrelease();
 				return -1;
 			}
-
-			leng = B_LITTLE16(leng);
 			
 			if (std::fread(lzwbuf5,(int)leng, 1, fil) != 1) {
 				lzwrelease();
@@ -1308,7 +1301,7 @@ unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil)
 	{
 		const auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
 		k = 0;
-		const auto swleng = B_LITTLE16(leng);
+		const auto swleng = leng;
 		if (Bwrite(fil, &swleng, 2) != 2) {
 			lzwrelease();
 			return 0;
@@ -1332,7 +1325,7 @@ unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil)
 		{
 			const auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
 			k = 0;
-			const auto swleng = B_LITTLE16(leng);
+			const auto swleng = leng;
 			if (Bwrite(fil,&swleng,2) != 2) { lzwrelease(); return 0; }
 			if (Bwrite(fil,lzwbuf5,(int)leng) != leng) { lzwrelease(); return 0; }
 		}
@@ -1343,7 +1336,7 @@ unsigned kdfwrite(void *buffer, unsigned dasizeof, unsigned count, int fil)
 	if (k > 0)
 	{
 		const auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
-		const auto swleng = B_LITTLE16(leng);
+		const auto swleng = leng;
 		if (Bwrite(fil, &swleng, 2) != 2) {
 			lzwrelease();
 			return 0;
@@ -1378,7 +1371,7 @@ unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil
 	{
 		const auto leng = (short)lzwcompress(lzwbuf4,k,lzwbuf5);
 		k = 0;
-		const auto swleng = B_LITTLE16(leng);
+		const auto swleng = leng;
 
 		if (std::fwrite(&swleng, 2, 1, fil) != 1) {
 			lzwrelease();
@@ -1403,7 +1396,7 @@ unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil
 		{
 			const auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
 			k = 0;
-			const auto swleng = B_LITTLE16(leng);
+			const auto swleng = leng;
 
 			if (std::fwrite(&swleng, 2, 1, fil) != 1) {
 				lzwrelease();
@@ -1422,7 +1415,7 @@ unsigned dfwrite(void *buffer, unsigned dasizeof, unsigned count, std::FILE *fil
 	if (k > 0)
 	{
 		const auto leng = (short)lzwcompress(lzwbuf4, k, lzwbuf5);
-		const auto swleng = B_LITTLE16(leng);
+		const auto swleng = leng;
 		
 		if (std::fwrite(&swleng, 2, 1, fil) != 1) {
 			lzwrelease();
@@ -1488,7 +1481,7 @@ int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned char *lz
 		lzwbuf3[addrcnt] = -1;
 
 		intptr = (int *)&lzwoutbuf[bitcnt>>3];
-		intptr[0] |= B_LITTLE32(addr<<(bitcnt&7));
+		intptr[0] |= addr<<(bitcnt&7);
 		bitcnt += numbits;
 		if ((addr&((oneupnumbits>>1)-1)) > ((addrcnt-1)&((oneupnumbits>>1)-1)))
 			bitcnt--;
@@ -1498,16 +1491,16 @@ int lzwcompress(const unsigned char *lzwinbuf, int uncompleng, unsigned char *lz
 	} while ((bytecnt1 < uncompleng) && (bitcnt < (uncompleng<<3)));
 
 	intptr = (int *)&lzwoutbuf[bitcnt>>3];
-	intptr[0] |= B_LITTLE32(addr<<(bitcnt&7));
+	intptr[0] |= addr<<(bitcnt&7);
 	bitcnt += numbits;
 	if ((addr&((oneupnumbits>>1)-1)) > ((addrcnt-1)&((oneupnumbits>>1)-1)))
 		bitcnt--;
 
 	shortptr = (short *)lzwoutbuf;
-	shortptr[0] = B_LITTLE16((short)uncompleng);
+	shortptr[0] = (short)uncompleng;
 	if (((bitcnt+7)>>3) < uncompleng)
 	{
-		shortptr[1] = B_LITTLE16((short)addrcnt);
+		shortptr[1] = (short)addrcnt;
 		return((bitcnt+7)>>3);
 	}
 	shortptr[1] = 0;
@@ -1530,11 +1523,11 @@ int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *lzwoutbu
 	short* shortptr;
 
 	shortptr = (short *)lzwinbuf;
-	strtot = (int)B_LITTLE16(shortptr[1]);
+	strtot = (int)shortptr[1];
 	if (strtot == 0)
 	{
 		copybuf(lzwinbuf+4,lzwoutbuf,((compleng-4)+3)>>2);
-		return((int)B_LITTLE16(shortptr[0])); //uncompleng
+		return((int)shortptr[0]); //uncompleng
 	}
 	for(i=255;i>=0;i--) {
 		lzwbuf2[i] = i;
@@ -1550,7 +1543,7 @@ int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *lzwoutbu
 	do
 	{
 		intptr = (int *)&lzwinbuf[bitcnt>>3];
-		dat = ((B_LITTLE32(intptr[0])>>(bitcnt&7)) & (oneupnumbits-1));
+		dat = ((intptr[0])>>(bitcnt&7) & (oneupnumbits-1));
 		bitcnt += numbits;
 		if ((dat&((oneupnumbits>>1)-1)) > ((currstr-1)&((oneupnumbits>>1)-1)))
 			{ dat &= ((oneupnumbits>>1)-1); bitcnt--; }
@@ -1567,7 +1560,7 @@ int lzwuncompress(unsigned char *lzwinbuf, int compleng, unsigned char *lzwoutbu
 		currstr++;
 		if (currstr > oneupnumbits) { numbits++; oneupnumbits <<= 1; }
 	} while (currstr < strtot);
-	return((int)B_LITTLE16(shortptr[0])); //uncompleng
+	return((int)shortptr[0]); //uncompleng
 }
 
 } // namespace

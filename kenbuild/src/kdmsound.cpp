@@ -308,21 +308,20 @@ void loadwaves(const char *wavename)
     numwaves = 0;
 
     kread(fil,&dawaversionum,4);
-    if (B_LITTLE32(dawaversionum) != 0) { kclose(fil); return; }
+    if (dawaversionum != 0) {
+        kclose(fil);
+        return;
+    }
 
     kread(fil,&numwaves,4);
-    numwaves = B_LITTLE32(numwaves);
+
     for(i=0;i<numwaves;i++)
     {
         kread(fil,&instname[i][0],16);
         kread(fil,&wavleng[i],4);
-        wavleng[i] = B_LITTLE32(wavleng[i]);
         kread(fil,&repstart[i],4);
-        repstart[i] = B_LITTLE32(repstart[i]);
         kread(fil,&repleng[i],4);
-        repleng[i] = B_LITTLE32(repleng[i]);
         kread(fil,&finetune[i],4);
-        finetune[i] = B_LITTLE32(finetune[i]);
         wavoffs[i] = totsndbytes;
         totsndbytes += wavleng[i];
     }
@@ -365,22 +364,18 @@ int loadsong(const char* filename)
         return(-1);
     }
     kread(fil,&kdmversionum,4);
-    if (B_LITTLE32(kdmversionum) != 0) {
+    if (kdmversionum != 0) {
         kclose(fil);
         return(-2);
     }
 
     kread(fil,&numnotes,4);
-    numnotes = B_LITTLE32(numnotes);
     kread(fil,&numtracks,4);
-    numtracks = B_LITTLE32(numtracks);
-
     kread(fil,trinst,numtracks);
     kread(fil,trquant,numtracks);
     kread(fil,trvol1,numtracks);
     kread(fil,trvol2,numtracks);
     kread(fil,&nttime[0],numnotes<<2);
-    for (i=numnotes-1; i>=0; i--) nttime[i] = B_LITTLE32(nttime[i]);
     kread(fil,nttrack,numnotes);
     kread(fil,ntfreq,numnotes);
     kread(fil,ntvol1,numnotes);

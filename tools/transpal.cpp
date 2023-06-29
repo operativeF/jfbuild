@@ -208,7 +208,7 @@ int main(int argc, char **argv)
 	}
 
 	r = Bread(fil,&s,2);
-	orignumpalookups = B_LITTLE16(s);
+	orignumpalookups = s;
 	orignumpalookups = std::min(std::max(orignumpalookups, 1), 256);
 	r += Bread(fil,origpalookup,orignumpalookups<<8);
 	Bclose(fil);
@@ -254,13 +254,13 @@ int main(int argc, char **argv)
         { std::printf("Couldn't save file %s",palettefilename); return(0); }
     r = Bwrite(fil,palette,768);
     if (transonly) {
-        s = B_LITTLE16(orignumpalookups);
+        s = orignumpalookups;
         r += Bwrite(fil,&s,2);
         r += Bwrite(fil,origpalookup,orignumpalookups<<8);
         i = orignumpalookups;
         std::printf("Transluscent table updated\n");
     } else {
-        s = B_LITTLE16(numpalookups);
+        s = numpalookups;
         r += Bwrite(fil,&s,2);
         r += Bwrite(fil,palookup,numpalookups<<8);
         i = numpalookups;

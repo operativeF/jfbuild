@@ -230,11 +230,6 @@ void PTCacheLoadIndex()
 			break;
 		}
 
-		effects = B_LITTLE32(effects);
-		flags   = B_LITTLE32(flags);
-		offset  = B_LITTLE32(offset);
-		mtime   = B_LITTLE32(mtime);
-
 		filename[sizeof(filename)-1] = 0;
 		pci = ptcache_findhash(&filename[0], (int) effects, (int) flags);
 		if (pci) {
@@ -317,12 +312,6 @@ std::unique_ptr<PTCacheTile> ptcache_load(off_t offset)
 		goto fail;
 	}
 
-	tsizx = B_LITTLE32(tsizx);
-	tsizy = B_LITTLE32(tsizy);
-	flags = B_LITTLE32(flags);
-	format = B_LITTLE32(format);
-	nmipmaps = B_LITTLE32(nmipmaps);
-
 	tdef = PTCacheAllocNewTile(nmipmaps);
 	tdef->tsizx = tsizx;
 	tdef->tsizy = tsizy;
@@ -336,10 +325,6 @@ std::unique_ptr<PTCacheTile> ptcache_load(off_t offset)
 			// truncated entry, so throw the whole cache away
 			goto fail;
 		}
-
-		sizx = B_LITTLE32(sizx);
-		sizy = B_LITTLE32(sizy);
-		length = B_LITTLE32(length);
 
 		tdef->mipmap[i].sizx = sizx;
 		tdef->mipmap[i].sizy = sizy;
@@ -492,12 +477,11 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 	}
 
 	{
-		const int32_t tsizx = B_LITTLE32(tdef->tsizx);
-		const int32_t tsizy = B_LITTLE32(tdef->tsizy);
+		const int32_t tsizx = tdef->tsizx;
+		const int32_t tsizy = tdef->tsizy;
 		int32_t flags = tdef->flags & (PTH_CLAMPED | PTH_HASALPHA);
-		flags = B_LITTLE32(flags);
-		const int32_t format = B_LITTLE32(tdef->format);
-		const int32_t nmipmaps = B_LITTLE32(tdef->nummipmaps);
+		const int32_t format = tdef->format;
+		const int32_t nmipmaps = tdef->nummipmaps;
 
 		if (std::fwrite(&tsizx, 4, 1, fh) != 1 ||
 		    std::fwrite(&tsizy, 4, 1, fh) != 1 ||
@@ -509,9 +493,9 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 	}
 
 	for (int i{0}; i < tdef->nummipmaps; i++) {
-		const int32_t sizx = B_LITTLE32(tdef->mipmap[i].sizx);
-		const int32_t sizy = B_LITTLE32(tdef->mipmap[i].sizy);
-		const int32_t length = B_LITTLE32(tdef->mipmap[i].length);
+		const int32_t sizx = tdef->mipmap[i].sizx;
+		const int32_t sizy = tdef->mipmap[i].sizy;
+		const int32_t length = tdef->mipmap[i].length;
 
 		if (std::fwrite(&sizx, 4, 1, fh) != 1 ||
 		    std::fwrite(&sizy, 4, 1, fh) != 1 ||
@@ -555,10 +539,9 @@ int PTCacheWriteTile(const PTCacheTile * tdef)
 		tdef->filename.copy(filename, sizeof(filename));
 
 		filename[sizeof(filename)-1] = 0;
-		effects = B_LITTLE32(tdef->effects);
+		effects = tdef->effects;
 		flags   = tdef->flags & (PTH_CLAMPED);	// we don't want the informational flags in the index
-		flags   = B_LITTLE32(flags);
-		offs    = B_LITTLE32((uint32_t)offset);
+		offs    = (uint32_t)offset;
 		mtime = 0;
 
 		if (std::fwrite(filename, sizeof(filename), 1, fh) != 1 ||

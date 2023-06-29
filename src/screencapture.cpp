@@ -312,7 +312,7 @@ void screencapture_writepngline(unsigned char *buf, int bytes, int elements, std
 	std::array<unsigned char, 6> header;
 	auto* sums = static_cast<struct pngsums *>(v);
 
-	unsigned short blklen = static_cast<unsigned short>(B_LITTLE16(1 + bytes * elements));	// One extra for the filter type.
+	unsigned short blklen = static_cast<unsigned short>(1 + bytes * elements);	// One extra for the filter type.
 	header[0] = 0;	// BFINAL = 0, BTYPE = 00.
 	std::memcpy(&header[1], &blklen, 2);
 	blklen = ~blklen;

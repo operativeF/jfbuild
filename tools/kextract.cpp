@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 		std::printf("Error: %s not a valid group file\n",argv[1]);
 		return(1);
 	}
-	numfiles = *((int*)&buf[12]); numfiles = B_LITTLE32(numfiles);
+	numfiles = *((int*)&buf[12]);
 
 	r = Bread(fil,filelist,numfiles<<4);
 	if (r != numfiles<<4)
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 	j = 0;
 	for(i=0;i<numfiles;i++)
 	{
-		k = *((int*)&filelist[i][12]); k = B_LITTLE32(k);
+		k = *((int*)&filelist[i][12]);
 		filelist[i][12] = 0;
 		fileoffs[i] = j;
 		j += k;
