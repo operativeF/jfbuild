@@ -323,19 +323,11 @@ int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int
 		m->skinmap.push_back(mdskinmap_t{});
 		sk = m->skinmap.end() - 1;
 	}
-	else if(sk->fn) {
-		std::free(sk->fn);
-	}
 
 	sk->palette = (unsigned char)palnum;
 	sk->skinnum = skinnum;
 	sk->surfnum = surfnum;
-	sk->fn = (char *)std::malloc(std::strlen(skinfn)+1);
-	
-	if (!sk->fn)
-		return(-4);
-
-	std::strcpy(sk->fn, skinfn);
+	sk->fn = skinfn;
 
 	return 0;
 }
@@ -411,7 +403,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 {
 	int i;
 	int err{ 0 };
-	char* skinfile{ nullptr };
+	std::string skinfile;
 	std::array<char, BMAX_PATH> fn;
 	PTMHead** tex{ nullptr };
 	std::vector<mdskinmap_t>::iterator skzero{};
@@ -432,7 +424,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 		if ((int)sk->palette == pal && sk->skinnum == number && sk->surfnum == surf) {
 			tex = &sk->tex[ hictinting[pal].f ];
 			skinfile = sk->fn;
-			std::strcpy(&fn[0], skinfile);
+			std::strcpy(&fn[0], skinfile.c_str());
 			//buildprintf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
 			break;
 		}
@@ -448,7 +440,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 		if (skzero != std::vector<mdskinmap_t>::iterator{}) {
 			tex = &skzero->tex[ hictinting[pal].f ];
 			skinfile = skzero->fn;
-			std::strcpy(&fn[0], skinfile);
+			std::strcpy(&fn[0], skinfile.c_str());
 			//buildprintf("Using def skin 0,0 as fallback, pal=%d\n", pal);
 		} else {
 			if ((unsigned)number >= (unsigned)m->numskins) {
@@ -457,12 +449,12 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 			tex = &m->tex[ number * (HICEFFECTMASK+1) + hictinting[pal].f ];
 			skinfile = m->skinfn + number*64;
 			std::strcpy(&fn[0], m->basepath);
-			std::strcat(&fn[0], skinfile);
+			std::strcat(&fn[0], skinfile.c_str());
 			//buildprintf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
 		}
 	}
 
-	if (!skinfile[0]) {
+	if (skinfile.empty()) {
 		return nullptr;
 	}
 
@@ -473,7 +465,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 
 	if (!(*tex)) {
 		// no PTMHead referenced yet at *tex
-		md_initident(&id, skinfile, hictinting[pal].f);
+		md_initident(&id, skinfile.c_str(), hictinting[pal].f);
 		*tex = PTM_GetHead(&id);
 		if (!(*tex)) {
 			return nullptr;
@@ -584,11 +576,6 @@ void md2free(md2model *m)
 {
 	if (!m) {
 		return;
-	}
-
-	for(auto& sk : m->skinmap)
-	{
-		std::free(sk.fn);
 	}
 
 	if (m->frames)
@@ -1392,11 +1379,6 @@ void md3free (md3model *m)
 	int surfi;
 
 	if (!m) return;
-
-	for(auto& sk : m->skinmap)
-	{
-		std::free(sk.fn);
-	}
 
 	if (m->head.surfs)
 	{

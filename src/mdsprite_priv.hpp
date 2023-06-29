@@ -16,7 +16,7 @@ struct mdskinmap_t
 	std::array<unsigned char, 3> filler;
 	int skinnum;  // Skin identifier, surface number
 	int surfnum;
-	char* fn;   // Skin filename
+	std::string fn;   // Skin filename
 	std::array<PTMHead*, HICEFFECTMASK + 1> tex;
 	mdskinmap_t* next;
 };
