@@ -196,10 +196,8 @@ int loadsetup(const std::string& fn)
 			break;	//EOF
 		}
 		
-		int item;
-
-		for (item = 0; !configspec[item].name.empty(); item++) {
-			if (IsSameAsNoCase(token.value(), configspec[item].name)) {
+		for (const auto& cfgitem : configspec) {
+			if (IsSameAsNoCase(token.value(), cfgitem.name)) {
 				// Seek past any = symbol.
 				token = scriptfile_peektoken(cfg.get());
 				
@@ -210,37 +208,37 @@ int loadsetup(const std::string& fn)
 					scriptfile_gettoken(cfg.get());
 				}
 
-				switch (configspec[item].type) {
+				switch (cfgitem.type) {
 					case config_t::type_bool: {
 						auto value = scriptfile_getbool(cfg.get());
 						if (!value.has_value()) break;
-						*std::get<bool*>(configspec[item].store) = value.value();
+						*std::get<bool*>(cfgitem.store) = value.value();
 						break;
 					}
 					case config_t::type_int: {
 						auto value = scriptfile_getnumber(cfg.get());
 						if (!value.has_value()) break;
-						*std::get<int*>(configspec[item].store) = value.value();
+						*std::get<int*>(cfgitem.store) = value.value();
 						break;
 					}
 					case config_t::type_hex: {
 						auto value = scriptfile_gethex(cfg.get());
 						if (!value.has_value()) break;
-						*std::get<int*>(configspec[item].store) = value.value();
+						*std::get<int*>(cfgitem.store) = value.value();
 						break;
 					}
 					case config_t::type_fixed16: {
 						auto value = scriptfile_getdouble(cfg.get());
 						if (!value.has_value())
 							break;
-						*std::get<int*>(configspec[item].store) = (int)(value.value() * 65536.0);
+						*std::get<int*>(cfgitem.store) = (int)(value.value() * 65536.0);
 						break;
 					}
 					case config_t::type_double: {
 						auto value = scriptfile_getdouble(cfg.get());
 						if (!value.has_value())
 							break;
-						*std::get<double*>(configspec[item].store) = value.value();
+						*std::get<double*>(cfgitem.store) = value.value();
 						break;
 					}
 					default: {
@@ -248,13 +246,12 @@ int loadsetup(const std::string& fn)
 						break;
 					}
 				}
-				break;
+				
+				if (cfgitem.name.empty()) {
+					buildprintf("loadsetup: error on line {}\n", scriptfile_getlinum(cfg.get(), cfg->ltextptr));
+					continue;
+				}
 			}
-		}
-
-		if (configspec[item].name.empty()) {
-			buildprintf("loadsetup: error on line {}\n", scriptfile_getlinum(cfg.get(), cfg->ltextptr));
-			continue;
 		}
 	}
 
@@ -294,36 +291,32 @@ int writesetup(const std::string& fn)
 	tmpmaxrefreshfreq = win_getmaxrefreshfreq();
 #endif
 
-	for (int item{0}; !configspec[item].name.empty(); ++item) {
-		if (!configspec[item].doc.empty()) {
-			if (item > 0) {
-				fmt::print(fp, "\n");
-			}
-
-			fmt::print(fp, "{}", configspec[item].doc);
+	for (const auto& cfgitem : configspec) {
+		if (!cfgitem.doc.empty()) {
+			fmt::print(fp, "\n{}", cfgitem.doc);
 		}
 
-		fmt::print(fp, "{} = ", configspec[item].name);
+		fmt::print(fp, "{} = ", cfgitem.name);
 		
-		switch (configspec[item].type) {
+		switch (cfgitem.type) {
 			case config_t::type_bool: {
-				fmt::print(fp, "{}\n", *std::get<bool*>(configspec[item].store));
+				fmt::print(fp, "{}\n", *std::get<bool*>(cfgitem.store));
 				break;
 			}
 			case config_t::type_int: {
-				fmt::print(fp, "{}\n", *std::get<int*>(configspec[item].store));
+				fmt::print(fp, "{}\n", *std::get<int*>(cfgitem.store));
 				break;
 			}
 			case config_t::type_hex: {
-				fmt::print(fp, "{:X}\n", *std::get<int*>(configspec[item].store));
+				fmt::print(fp, "{:X}\n", *std::get<int*>(cfgitem.store));
 				break;
 			}
 			case config_t::type_fixed16: {
-				fmt::print(fp, "{}\n", static_cast<double>(*std::get<int*>(configspec[item].store)) / 65536.0);
+				fmt::print(fp, "{}\n", static_cast<double>(*std::get<int*>(cfgitem.store)) / 65536.0);
 				break;
 			}
 			case config_t::type_double: {
-				fmt::print(fp, "{}\n", *std::get<double*>(configspec[item].store));
+				fmt::print(fp, "{}\n", *std::get<double*>(cfgitem.store));
 				break;
 			}
 			default: {
