@@ -6206,21 +6206,29 @@ bool loadpalette()
 
 	off_t flen{0};
 
+	const auto badpalette = [](const auto& fil) {
+		engineerrstr = "Failed to load PALETTE.DAT!";
+		if (fil >= 0)
+			kclose(fil);
+
+		return false;
+	};
+
 	if ((fil = kopen4load("palette.dat",0)) < 0)
-		goto badpalette;
+		return badpalette(fil);
 	
 	flen = kfilelength(fil);
 
 	if (kread(fil, &palette[0], 768) != 768) {
 		buildputs("loadpalette: truncated palette\n");
-		goto badpalette;
+		return badpalette(fil);
 	}
 
 	if ((flen - 65536 - 2 - 768) % 256 == 0) {
 		// Map format 7+ palette.
 		if (kread(fil,&numpalookups,2) != 2) {
 			buildputs("loadpalette: read error\n");
-			goto badpalette;
+			return badpalette(fil);
 		}
 	}
 	else if ((flen - 32640 - 768) % 256 == 0) {
@@ -6228,10 +6236,10 @@ bool loadpalette()
 		numpalookups = (flen - 32640 - 768) >> 8;
 		buildprintf("loadpalette: old format palette ({} shades)\n",
 			numpalookups);
-		goto badpalette;
+		return badpalette(fil);
 	} else {
 		buildprintf("loadpalette: damaged palette\n");
-		goto badpalette;
+		return badpalette(fil);
 	}
 
 	palookup[0].resize(numpalookups << 8);
@@ -6249,12 +6257,7 @@ bool loadpalette()
 	// FIXME: Make constexpr initialization.
 	initfastcolorlookup(30L,59L,11L);
 
-	return true;
-
-badpalette:
-	engineerrstr = "Failed to load PALETTE.DAT!";
-	if (fil >= 0) kclose(fil);
-	return false;
+	return true;	
 }
 
 } // namespace
@@ -8545,13 +8548,18 @@ int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *
 	struct walltypev6   v6wall;
 	struct spritetypev6 v6spr;
 
+	const auto readerror = [](const auto& fil){
+		kclose(fil);
+		return -3;
+	};
+
 	if ((fil = kopen4load(filename.c_str(), fromwhere)) == -1) {
 		mapversion = 5L;
 		return -1;
 	}
 
 	if (kread(fil,&mapversion,4) != 4)
-		goto readerror;
+		readerror(fil);
 	
 	if (mapversion != 5L && mapversion != 6L) {
 		kclose(fil);
@@ -8564,12 +8572,12 @@ int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *
 	clearbuf(&show2dsprite[0],(int)((MAXSPRITES+3)>>5),0L);
 	clearbuf(&show2dwall[0],(int)((MAXWALLS+3)>>5),0L);
 
-	if (kread(fil,daposx,4) != 4) goto readerror;
-	if (kread(fil,daposy,4) != 4) goto readerror;
-	if (kread(fil,daposz,4) != 4) goto readerror;
-	if (kread(fil,daang,2) != 2) goto readerror;
-	if (kread(fil,dacursectnum,2) != 2) goto readerror;
-	if (kread(fil,&numsectors,2) != 2) goto readerror;
+	if (kread(fil,daposx,4) != 4) return readerror(fil);
+	if (kread(fil,daposy,4) != 4) return readerror(fil);
+	if (kread(fil,daposz,4) != 4) return readerror(fil);
+	if (kread(fil,daang,2) != 2) return readerror(fil);
+	if (kread(fil,dacursectnum,2) != 2) return readerror(fil);
+	if (kread(fil,&numsectors,2) != 2) return readerror(fil);
 
 	if (numsectors > MAXSECTORS) {
 		kclose(fil);
@@ -8579,18 +8587,18 @@ int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *
 	for (int i{0}; i < numsectors; ++i) {
 		switch (mapversion) {
 			case 5:
-				if (readv5sect(fil,&v5sect)) goto readerror;
+				if (readv5sect(fil,&v5sect)) return readerror(fil);
 				convertv5sectv6(&v5sect,&v6sect);
 				convertv6sectv7(&v6sect,&sector[i]);
 				break;
 			case 6:
-				if (readv6sect(fil,&v6sect)) goto readerror;
+				if (readv6sect(fil,&v6sect)) return readerror(fil);
 				convertv6sectv7(&v6sect,&sector[i]);
 				break;
 		}
 	}
 
-	if (kread(fil,&numwalls,2) != 2) goto readerror;
+	if (kread(fil,&numwalls,2) != 2) return readerror(fil);
 	if (numwalls > MAXWALLS) {
 		kclose(fil);
 		return(-1);
@@ -8599,18 +8607,18 @@ int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *
 	for (int i{0}; i < numwalls; ++i) {
 		switch (mapversion) {
 			case 5:
-				if (readv5wall(fil,&v5wall)) goto readerror;
+				if (readv5wall(fil,&v5wall)) return readerror(fil);
 				convertv5wallv6(&v5wall,&v6wall,i);
 				convertv6wallv7(&v6wall,&wall[i]);
 				break;
 			case 6:
-				if (readv6wall(fil,&v6wall)) goto readerror;
+				if (readv6wall(fil,&v6wall)) return readerror(fil);
 				convertv6wallv7(&v6wall,&wall[i]);
 				break;
 		}
 	}
 
-	if (kread(fil,&numsprites,2) != 2) goto readerror;
+	if (kread(fil,&numsprites,2) != 2) return readerror(fil);
 	if (numsprites > MAXSPRITES) {
 		kclose(fil);
 		return(-1);
@@ -8619,12 +8627,12 @@ int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *
 	for (int i{0}; i < numsprites; ++i) {
 		switch (mapversion) {
 			case 5:
-				if (readv5sprite(fil,&v5spr)) goto readerror;
+				if (readv5sprite(fil,&v5spr)) readerror(fil);
 				convertv5sprv6(&v5spr,&v6spr);
 				convertv6sprv7(&v6spr,&sprite[i]);
 				break;
 			case 6:
-				if (readv6sprite(fil,&v6spr)) goto readerror;
+				if (readv6sprite(fil,&v6spr)) readerror(fil);
 				convertv6sprv7(&v6spr,&sprite[i]);
 				break;
 		}
@@ -8646,11 +8654,6 @@ int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *
 	guniqhudid = 0;
 
 	return 0;
-
-readerror:
-	kclose(fil);
-
-	return -3;
 }
 
 
@@ -8794,33 +8797,38 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 	auto tl = mapversion;
 	int ts{0};
 
-	if (Bwrite(fil,&tl,4) != 4) goto writeerror;
+	const auto writeerror = [](const auto& fil){
+		Bclose(fil);
+		return -1;
+	};
 
-	tl = *daposx;       if (Bwrite(fil,&tl,4) != 4) goto writeerror;
-	tl = *daposy;       if (Bwrite(fil,&tl,4) != 4) goto writeerror;
-	tl = *daposz;       if (Bwrite(fil,&tl,4) != 4) goto writeerror;
-	ts = *daang;        if (Bwrite(fil,&ts,2) != 2) goto writeerror;
-	ts = *dacursectnum; if (Bwrite(fil,&ts,2) != 2) goto writeerror;
+	if (Bwrite(fil,&tl,4) != 4) return writeerror(fil);
 
-	ts = numsectors;    if (Bwrite(fil,&ts,2) != 2) goto writeerror;
+	tl = *daposx;       if (Bwrite(fil,&tl,4) != 4) return writeerror(fil);
+	tl = *daposy;       if (Bwrite(fil,&tl,4) != 4) return writeerror(fil);
+	tl = *daposz;       if (Bwrite(fil,&tl,4) != 4) return writeerror(fil);
+	ts = *daang;        if (Bwrite(fil,&ts,2) != 2) return writeerror(fil);
+	ts = *dacursectnum; if (Bwrite(fil,&ts,2) != 2) return writeerror(fil);
+
+	ts = numsectors;    if (Bwrite(fil,&ts,2) != 2) return writeerror(fil);
 	for (const auto& tsect : sector) {
 		if (Bwrite(fil, &tsect, sizeof(sectortype)) != sizeof(sectortype))
-			goto writeerror;
+			return writeerror(fil);
 	}
 
 	ts = numwalls;
 	if (Bwrite(fil,&ts,2) != 2)
-		goto writeerror;
+		return writeerror(fil);
 
 	for (const auto& twall : wall) {
 		if (Bwrite(fil, &twall, sizeof(walltype)) != sizeof(walltype))
-			goto writeerror;
+			return writeerror(fil);
 	}
 
 	ts = numsprites;
 	
 	if (Bwrite(fil,&ts,2) != 2)
-		goto writeerror;
+		return writeerror(fil);
 
 	for(j=0;j<MAXSTATUS;j++)
 	{
@@ -8829,17 +8837,13 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 		{
 			const auto& tspri = sprite[i];
 			if (Bwrite(fil,&tspri,sizeof(spritetype)) != sizeof(spritetype))
-				goto writeerror;
+				return writeerror(fil);
 			i = nextspritestat[i];
 		}
 	}
 
 	Bclose(fil);
-	return(0);
-
-writeerror:
-	Bclose(fil);
-	return(-1);
+	return 0;
 }
 
 
@@ -8895,54 +8899,59 @@ int saveoldboard(const char *filename, const int *daposx, const int *daposy, con
 	if ((fil = Bopen(filename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
 		return(-1);
 
+	const auto writeerror = [](const auto& fil){
+		Bclose(fil);
+		return -1;
+	};
+
 	tl = mapversion;
-	if (Bwrite(fil,&tl,4) != 4) goto writeerror;
+	if (Bwrite(fil,&tl,4) != 4) return writeerror(fil);
 
 	tl = *daposx;
-	if (Bwrite(fil,&tl,4) != 4) goto writeerror;
+	if (Bwrite(fil,&tl,4) != 4) return writeerror(fil);
 	tl = *daposy;
-	if (Bwrite(fil,&tl,4) != 4) goto writeerror;
+	if (Bwrite(fil,&tl,4) != 4) return writeerror(fil);
 	tl = *daposz;
-	if (Bwrite(fil,&tl,4) != 4) goto writeerror;
+	if (Bwrite(fil,&tl,4) != 4) return writeerror(fil);
 	ts = *daang;
-	if (Bwrite(fil,&ts,2) != 2) goto writeerror;
+	if (Bwrite(fil,&ts,2) != 2) return writeerror(fil);
 	ts = *dacursectnum;
-	if (Bwrite(fil,&ts,2) != 2) goto writeerror;
+	if (Bwrite(fil,&ts,2) != 2) return writeerror(fil);
 
 	ts = numsectors;
-	if (Bwrite(fil,&ts,2) != 2) goto writeerror;
+	if (Bwrite(fil,&ts,2) != 2) return writeerror(fil);
 	for (i=0; i<numsectors; i++) {
 		switch (mapversion) {
 			case 6:
 				convertv7sectv6(&sector[i], &v6sect);
-				if (writev6sect(fil, &v6sect)) goto writeerror;
+				if (writev6sect(fil, &v6sect)) return writeerror(fil);
 				break;
 			case 5:
 				convertv7sectv6(&sector[i], &v6sect);
 				convertv6sectv5(&v6sect, &v5sect);
-				if (writev5sect(fil, &v5sect)) goto writeerror;
+				if (writev5sect(fil, &v5sect)) return writeerror(fil);
 				break;
 		}
 	}
 
 	ts = numwalls;
-	if (Bwrite(fil,&ts,2) != 2) goto writeerror;
+	if (Bwrite(fil,&ts,2) != 2) return writeerror(fil);
 	for (i=0; i<numwalls; i++) {
 		switch (mapversion) {
 			case 6:
 				convertv7wallv6(&wall[i], &v6wall);
-				if (writev6wall(fil, &v6wall)) goto writeerror;
+				if (writev6wall(fil, &v6wall)) return writeerror(fil);
 				break;
 			case 5:
 				convertv7wallv6(&wall[i], &v6wall);
 				convertv6wallv5(&v6wall, &v5wall);
-				if (writev5wall(fil, &v5wall)) goto writeerror;
+				if (writev5wall(fil, &v5wall)) return writeerror(fil);
 				break;
 		}
 	}
 
 	ts = numsprites;
-	if (Bwrite(fil,&ts,2) != 2) goto writeerror;
+	if (Bwrite(fil,&ts,2) != 2) return writeerror(fil);
 	for(j=0;j<MAXSTATUS;j++)
 	{
 		i = headspritestat[j];
@@ -8951,12 +8960,12 @@ int saveoldboard(const char *filename, const int *daposx, const int *daposy, con
 			switch (mapversion) {
 				case 6:
 					convertv7sprv6(&sprite[i], &v6spr);
-					if (writev6sprite(fil, &v6spr)) goto writeerror;
+					if (writev6sprite(fil, &v6spr)) return writeerror(fil);
 					break;
 				case 5:
 					convertv7sprv6(&sprite[i], &v6spr);
 					convertv6sprv5(&v6spr, &v5spr);
-					if (writev5sprite(fil, &v5spr)) goto writeerror;
+					if (writev5sprite(fil, &v5spr)) return writeerror(fil);
 					break;
 			}
 			i = nextspritestat[i];
@@ -8964,11 +8973,7 @@ int saveoldboard(const char *filename, const int *daposx, const int *daposy, con
 	}
 
 	Bclose(fil);
-	return(0);
-
-writeerror:
-	Bclose(fil);
-	return -1;
+	return 0;
 }
 
 
