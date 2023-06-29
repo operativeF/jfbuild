@@ -64,7 +64,6 @@ namespace {
 
 constexpr std::array<unsigned int, 256> crc32table = []() {
   std::array<unsigned int, 256> crc32tbl;
-	unsigned int k;
 	// algorithm and polynomial same as that used by infozip's zip
 	for (unsigned int i{0}; i < 256; ++i) {
 		unsigned int j{i};

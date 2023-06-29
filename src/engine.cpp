@@ -1827,7 +1827,7 @@ void ceilscan(int x1, int x2, int sectnum)
 	{
 		std::swap(globalxpanning, globalypanning);
 
-		int i = globalx2;
+		const int i = globalx2;
 		globalx2 = -globaly1;
 		globaly1 = -i;
 
@@ -3124,8 +3124,8 @@ void drawalls(int bunch)
 					wallmost(dwall,z,nextsectnum,(char)0);
 					
                     if ((cz[2] > fz[0]) || (cz[3] > fz[1])) {
-						std::ranges::subrange dplcrange{std::next(dplc.begin(), x1), std::next(dplc.begin(), x2 + 1)};
-						std::ranges::subrange dwallstart{std::next(dwall.begin(), x1), std::next(dwall.begin(), x2 + 1)};
+						const std::ranges::subrange dplcrange{std::next(dplc.begin(), x1), std::next(dplc.begin(), x2 + 1)};
+						const std::ranges::subrange dwallstart{std::next(dwall.begin(), x1), std::next(dwall.begin(), x2 + 1)};
 						ReplaceIfComp(dplcrange.begin(), dplcrange.end(), dwallstart.begin(), std::less<int>());
 					}
 
@@ -4831,13 +4831,13 @@ void drawmaskwall(short damaskwallcnt)
 #endif
 	//============================================================================= //POLYMOST ENDS
 
-	int z = maskwall[damaskwallcnt];
+	const int z = maskwall[damaskwallcnt];
 	auto* wal = &wall[thewall[z]];
-	int sectnum = thesector[z];
+	const int sectnum = thesector[z];
 	auto* sec = &sector[sectnum];
 	auto* nsec = &sector[wal->nextsector];
-	int z1 = std::max(nsec->ceilingz, sec->ceilingz);
-	int z2 = std::min(nsec->floorz, sec->floorz);
+	const int z1 = std::max(nsec->ceilingz, sec->ceilingz);
+	const int z2 = std::min(nsec->floorz, sec->floorz);
 
 	wallmost(uwall,z,sectnum,(char)0);
 	wallmost(uplc,z,(int)wal->nextsector,(char)0);
@@ -4885,8 +4885,8 @@ void drawmaskwall(short damaskwallcnt)
 		if ((xb1[j] > xb2[z]) || (xb2[j] < xb1[z])) continue;
 		if (wallfront(j,z)) continue;
 
-		int lx = std::max(xb1[j], xb1[z]);
-		int rx = std::min(xb2[j], xb2[z]);
+		const int lx = std::max(xb1[j], xb1[z]);
+		const int rx = std::min(xb2[j], xb2[z]);
 
 		switch(smostwalltype[i])
 		{
@@ -6753,7 +6753,7 @@ bool initengine()
 	sigaction(SIGFPE, &sigact, &oldact);
 #endif
 	if (!preinitcalled) {
-		int i = preinitengine();
+		const int i = preinitengine();
 
 		if (i != 0)
 			return false;
