@@ -9480,8 +9480,8 @@ int qloadkvx(int voxindex, const std::string& filename)
 
 #if USE_POLYMOST && USE_OPENGL
 	if (voxmodels[voxindex]) {
-		voxfree(voxmodels[voxindex]);
-		voxmodels[voxindex] = nullptr;
+		voxfree(voxmodels[voxindex].get());
+		voxmodels[voxindex].reset();
 	}
 	voxmodels[voxindex] = voxload(filename.c_str());
 #endif

@@ -9,6 +9,9 @@
 #define MDSPRITE_PRIV_H
 
 #include <array>
+#include <memory>
+#include <string>
+#include <vector>
 
 struct mdskinmap_t
 {
@@ -337,7 +340,7 @@ struct voxmodel
 	unsigned int indexcount;
 };
 
-extern std::array<voxmodel*, MAXVOXELS> voxmodels;
+extern std::array<std::unique_ptr<voxmodel>, MAXVOXELS> voxmodels;
 extern mdmodel **models;
 
 extern char mdinited;
@@ -347,7 +350,7 @@ extern int nextmodelid;
 void freeallmodels ();
 void clearskins ();
 void voxfree (voxmodel *m);
-voxmodel *voxload (const char *filnam);
+std::unique_ptr<voxmodel> voxload (const char *filnam);
 int voxdraw (voxmodel *m, const spritetype *tspr, int method);
 
 void mdinit ();

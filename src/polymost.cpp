@@ -4126,14 +4126,14 @@ void polymost_drawsprite (int snum)
 			break;	// else, render as flat sprite
 		}
 		if (usevoxels && (tspr->cstat&48)!=48 && tiletovox[tspr->picnum] >= 0 && voxmodels[ tiletovox[tspr->picnum] ]) {
-			if (voxdraw(voxmodels[ tiletovox[tspr->picnum] ], tspr, 0)) {
+			if (voxdraw(voxmodels[ tiletovox[tspr->picnum] ].get(), tspr, 0)) {
 				if (automapping) show2dsprite[spritenum >> 3] |= pow2char[spritenum & 7];
 				return;
 			}
 			break;	// else, render as flat sprite
 		}
 		if ((tspr->cstat&48)==48 && voxmodels[ tspr->picnum ]) {
-			voxdraw(voxmodels[ tspr->picnum ], tspr, 0);
+			voxdraw(voxmodels[ tspr->picnum ].get(), tspr, 0);
 			if (automapping) show2dsprite[spritenum >> 3] |= pow2char[spritenum & 7];
 			return;
 		}

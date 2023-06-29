@@ -28,7 +28,7 @@
 #endif
 
 #define VOXBORDWIDTH 1 //use 0 to save memory, but has texture artifacts; 1 looks better...
-std::array<voxmodel*, MAXVOXELS> voxmodels;
+std::array<std::unique_ptr<voxmodel>, MAXVOXELS> voxmodels;
 
 	//Move this to appropriate place!
 hudtyp hudmem[2][MAXTILES]; //~320KB ... ok for now ... could replace with dynamic alloc
@@ -129,7 +129,7 @@ void clearskins ()
 
 	for(i=0;i<MAXVOXELS;i++)
 	{
-		voxmodel *v = (voxmodel*)voxmodels[i]; if (!v) continue;
+		voxmodel *v = voxmodels[i].get(); if (!v) continue;
 		for(j=0;j<MAXPALOOKUPS;j++) {
 			if (v->texid[j]) glfunc.glDeleteTextures(1,(GLuint*)&v->texid[j]);
 			v->texid[j] = 0;
@@ -1391,7 +1391,6 @@ int gmaxx;
 int gmaxy;
 int garea;
 std::array<int, 33> pow2m1;
-voxmodel* gvox;
 
 }
 	//pitch must equal xsiz * 4 <- FIXME: Codify this.
@@ -1570,7 +1569,7 @@ void setrect(int x0, int y0, int dx, int dy, std::span<int> rzbit)
 #endif
 }
 
-void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face, std::span<const spoint2d> shp)
+void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face, std::span<const spoint2d> shp, voxmodel* gvox)
 {
 	std::ignore = x1;
 	std::ignore = y1;
@@ -1608,7 +1607,7 @@ void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int
 	gvox->qcnt++;
 }
 
-void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face, std::span<const spoint2d> shp)
+void addquad (int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face, std::span<const spoint2d> shp, voxmodel* gvox)
 {
 	int i;
 	int j;
@@ -1830,7 +1829,7 @@ int isolid(int x, int y, int z)
 	return vbit[z >> 5] & (1 << SHIFTMOD32(z));
 }
 
-voxmodel *vox2poly ()
+std::unique_ptr<voxmodel> vox2poly()
 {
 	int i;
 	int j;
@@ -1846,10 +1845,9 @@ voxmodel *vox2poly ()
 	int y0;
 	int dx;
 	int dy;
-	void (*daquad)(int, int, int, int, int, int, int, int, int, int, std::span<const spoint2d>);
+	void (*daquad)(int, int, int, int, int, int, int, int, int, int, std::span<const spoint2d>, voxmodel*);
 
-	gvox = (voxmodel *)std::malloc(sizeof(voxmodel)); if (!gvox) return(nullptr);
-	std::memset(gvox,0,sizeof(voxmodel));
+	auto gvox = std::make_unique<voxmodel>();
 
 		//x is largest dimension, y is 2nd largest dimension
 	x = xsiz;
@@ -1867,7 +1865,7 @@ voxmodel *vox2poly ()
 	}
 
 	shcntp = x; i = x*y*sizeof(int);
-	shcntmal = (int *)std::malloc(i); if (!shcntmal) { std::free(gvox); return(nullptr); }
+	shcntmal = (int *)std::malloc(i); if (!shcntmal) { return(nullptr); }
 	std::memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
 	gmaxx = gmaxy = garea = 0;
 
@@ -1898,7 +1896,7 @@ voxmodel *vox2poly ()
 					{
 						ov = v; v = (isolid(x,y,z) && (!isolid(x,y+i,z)));
 						if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
-							{ daquad(bx0[z],y,by0[z],x,y,by0[z],x,y,z,i>=0, shp); by0[z] = -1; }
+							{ daquad(bx0[z],y,by0[z],x,y,by0[z],x,y,z,i>=0, shp, gvox.get()); by0[z] = -1; }
 						if (v > ov) oz = z; else if ((v < ov) && (by0[z] != oz)) { bx0[z] = x; by0[z] = oz; }
 					}
 
@@ -1909,7 +1907,7 @@ voxmodel *vox2poly ()
 					{
 						ov = v; v = (isolid(x,y,z) && (!isolid(x,y,z-i)));
 						if ((by0[y] >= 0) && ((by0[y] != oz) || (v >= ov)))
-							{ daquad(bx0[y],by0[y],z,x,by0[y],z,x,y,z,(i>=0)+2, shp); by0[y] = -1; }
+							{ daquad(bx0[y],by0[y],z,x,by0[y],z,x,y,z,(i>=0)+2, shp, gvox.get()); by0[y] = -1; }
 						if (v > ov) oz = y; else if ((v < ov) && (by0[y] != oz)) { bx0[y] = x; by0[y] = oz; }
 					}
 
@@ -1920,7 +1918,7 @@ voxmodel *vox2poly ()
 					{
 						ov = v; v = (isolid(x,y,z) && (!isolid(x-i,y,z)));
 						if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
-							{ daquad(x,bx0[z],by0[z],x,y,by0[z],x,y,z,(i>=0)+4, shp); by0[z] = -1; }
+							{ daquad(x,bx0[z],by0[z],x,y,by0[z],x,y,z,(i>=0)+4, shp, gvox.get()); by0[z] = -1; }
 						if (v > ov) oz = z; else if ((v < ov) && (by0[z] != oz)) { bx0[z] = y; by0[z] = oz; }
 					}
 
@@ -1986,14 +1984,14 @@ skindidntfit:;
 			}
 
 			gvox->quad = (voxrect_t *)std::malloc(gvox->qcnt*sizeof(voxrect_t));
-			if (!gvox->quad) { std::free(gvox); return(nullptr); }
+			if (!gvox->quad) { return {}; }
 
 			gvox->mytex = (int *)std::malloc(gvox->mytexx*gvox->mytexy*sizeof(int));
-			if (!gvox->mytex) { std::free(gvox->quad); std::free(gvox); return(nullptr); }
+			if (!gvox->mytex) { std::free(gvox->quad); return {}; }
 		}
 	}
 
-	return(gvox);
+	return gvox;
 }
 
 int loadvox (const char *filnam)
@@ -2268,14 +2266,14 @@ int loadvxl (const char *filnam)
 
 void voxfree (voxmodel *m)
 {
-	if (!m) return;
+	if (!m)
+		return;
 	if (m->mytex) std::free(m->mytex);
 	if (m->quad) std::free(m->quad);
 	if (m->texid) std::free(m->texid);
-	std::free(m);
 }
 
-voxmodel* voxload (const char *filnam)
+std::unique_ptr<voxmodel> voxload(const char *filnam)
 {
 	auto* dot = std::strrchr(filnam, '.');
 	
@@ -2301,11 +2299,11 @@ voxmodel* voxload (const char *filnam)
 	else
 		return nullptr;
 
-	auto* vm = [ret]() -> voxmodel* {
+	auto vm = [ret]() -> std::unique_ptr<voxmodel> {
           if (ret >= 0)
             return vox2poly();
           else
-            return nullptr;
+            return {};
 	    }();
 	
 	if (vm)
@@ -2319,8 +2317,8 @@ voxmodel* voxload (const char *filnam)
 		vm->texid = (unsigned int *)std::calloc(MAXPALOOKUPS,sizeof(unsigned int));
 
 		if (!vm->texid) {
-			voxfree(vm);
-			vm = nullptr;
+			voxfree(vm.get());
+			vm.reset();
 		}
 	}
 
@@ -2655,7 +2653,7 @@ int voxloadbufs(voxmodel *m)
 
 mdmodel *mdload (const char *filnam)
 {
-	auto* vm = (mdmodel*)voxload(filnam);
+	auto vm = (mdmodel*)voxload(filnam).release();
 	
 	if (vm)
 		return(vm);
