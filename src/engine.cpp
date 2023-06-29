@@ -897,7 +897,7 @@ void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<const s
 		tsizy = picsiz[globalpicnum] >> 4;
 	}
 
-	const auto fpalookup = (intptr_t)palookup[globalpal];
+	const auto fpalookup = (intptr_t)palookup[globalpal].data();
 
 	setupmvlineasm(globalshiftval);
 
@@ -1739,10 +1739,10 @@ void ceilscan(int x1, int x2, int sectnum)
 {
 	const sectortype* sec = &sector[sectnum];
 	
-	if (palookup[sec->ceilingpal] != globalpalwritten)
+	if (palookup[sec->ceilingpal].data() != globalpalwritten)
 	{
-		globalpalwritten = palookup[sec->ceilingpal];
-		if (!globalpalwritten) globalpalwritten = palookup[globalpal];	// JBF: fixes null-pointer crash
+		globalpalwritten = palookup[sec->ceilingpal].data();
+		if (!globalpalwritten) globalpalwritten = palookup[globalpal].data();	// JBF: fixes null-pointer crash
 		setpalookupaddress(globalpalwritten);
 	}
 
@@ -2017,10 +2017,10 @@ void florscan(int x1, int x2, int sectnum)
 
 	const sectortype* sec = &sector[sectnum];
 
-	if (palookup[sec->floorpal] != globalpalwritten)
+	if (palookup[sec->floorpal].data() != globalpalwritten)
 	{
-		globalpalwritten = palookup[sec->floorpal];
-		if (!globalpalwritten) globalpalwritten = palookup[globalpal];	// JBF: fixes null-pointer crash
+		globalpalwritten = palookup[sec->floorpal].data();
+		if (!globalpalwritten) globalpalwritten = palookup[globalpal].data();	// JBF: fixes null-pointer crash
 		setpalookupaddress(globalpalwritten);
 	}
 
@@ -2245,7 +2245,7 @@ void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short
 	ynice = (pow2long[picsiz[globalpicnum] >> 4] == tsizy);
 	if (ynice) tsizy = (picsiz[globalpicnum]>>4);
 
-	fpalookup = (intptr_t)palookup[globalpal];
+	fpalookup = (intptr_t)palookup[globalpal].data();
 
 	setupvlineasm(globalshiftval);
 
@@ -2390,7 +2390,7 @@ void transmaskvline(int x)
 	if (y2v < y1v)
 		return;
 
-	auto palookupoffs = (intptr_t)palookup[globalpal] + (getpalookup((int)mulscalen<16>(swall[x],globvis),globalshade)<<8);
+	auto palookupoffs = (intptr_t)palookup[globalpal].data() + (getpalookup((int)mulscalen<16>(swall[x],globvis),globalshade)<<8);
 
 	const int vinc = swall[x]*globalyscale;
 	const int vplc = globalzd + vinc*(y1v-globalhoriz+1);
@@ -2539,7 +2539,7 @@ void ceilspritehline(int x2, int y)
 	asm1 = mulscalen<14>(globalx2,v);
 	asm2 = mulscalen<14>(globaly2,v);
 
-	asm3 = (intptr_t)palookup[globalpal] + (getpalookup((int)mulscalen<28>(std::abs(v), globvis), globalshade) << 8);
+	asm3 = (intptr_t)palookup[globalpal].data() + (getpalookup((int)mulscalen<28>(std::abs(v), globvis), globalshade) << 8);
 
 	if ((globalorientation&2) == 0)
 		mhline((void *)globalbufplc, bx, (x2 - x1) << 16, 0L, by, (void *)(ylookup[y] + x1 + frameoffset));
@@ -2637,7 +2637,7 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		daz = sec->floorz;
 	}
 
-	if (palookup[globalpal] == nullptr)
+	if (palookup[globalpal].empty())
 		globalpal = 0;
 	if ((picanm[globalpicnum] & 192) != 0)
 		globalpicnum += animateoffs(globalpicnum,sectnum);
@@ -2814,13 +2814,13 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 			
 			while (nptr1 <= mptr1)
 			{
-				*mptr1-- = (intptr_t)palookup[globalpal] + (getpalookup((int)mulscalen<24>(krecipasm(m1),globvis),globalshade)<<8);
+				*mptr1-- = (intptr_t)palookup[globalpal].data() + (getpalookup((int)mulscalen<24>(krecipasm(m1),globvis),globalshade)<<8);
 				m1 -= l;
 			}
 			
 			while (nptr2 >= mptr2)
 			{
-				*mptr2++ = (intptr_t)palookup[globalpal] + (getpalookup((int)mulscalen<24>(krecipasm(m2),globvis),globalshade)<<8);
+				*mptr2++ = (intptr_t)palookup[globalpal].data() + (getpalookup((int)mulscalen<24>(krecipasm(m2),globvis),globalshade)<<8);
 				m2 += l;
 			}
 
@@ -2884,7 +2884,7 @@ void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int bunch)
 		botptr = dmost;
 	}
 
-	if (palookup[globalpal] == nullptr)
+	if (palookup[globalpal].empty())
 		globalpal = 0;
 
 	if ((unsigned)globalpicnum >= (unsigned)MAXTILES)
@@ -3151,7 +3151,7 @@ void drawalls(int bunch)
 					globvis = globalvisibility;
 					if (sec->visibility != 0) globvis = mulscalen<4>(globvis,(int)((unsigned char)(sec->visibility+16)));
 					globalpal = (int)wal->pal;
-					if (palookup[globalpal] == nullptr) globalpal = 0;	// JBF: fixes crash
+					if (palookup[globalpal].empty()) globalpal = 0;	// JBF: fixes crash
 					globalyscale = (wal->yrepeat<<(globalshiftval-19));
 					if ((globalorientation&4) == 0)
 						globalzd = (((globalposz-nextsec->ceilingz)*globalyscale)<<8);
@@ -3282,7 +3282,7 @@ void drawalls(int bunch)
 						globalpal = (int)wal->pal;
 					}
 
-					if (palookup[globalpal] == nullptr) 	// JBF: fixes crash
+					if (palookup[globalpal].empty()) 	// JBF: fixes crash
 						globalpal = 0;
 
 					globvis = globalvisibility;
@@ -3398,7 +3398,7 @@ void drawalls(int bunch)
 			if (sec->visibility != 0) globvis = mulscalen<4>(globvis,(int)((unsigned char)(sec->visibility+16)));
 			globalpal = (int)wal->pal;
 
-			if (palookup[globalpal] == nullptr) 	// JBF: fixes crash
+			if (palookup[globalpal].empty()) 	// JBF: fixes crash
 				globalpal = 0;
 			
 			globalshiftval = (picsiz[globalpicnum]>>4);
@@ -3537,7 +3537,7 @@ void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 
 	i = std::abs(dmulscalen<6>(dasprx-globalposx,cosang,daspry-globalposy,sinang));
 	j = (int)(getpalookup((int)mulscalen<21>(globvis,i),(int)dashade)<<8);
-	setupdrawslab(ylookup[1], palookup[dapal]+j);
+	setupdrawslab(ylookup[1], palookup[dapal].data() + j);
 	j = 1310720;
 	j *= std::min(daxscale, dayscale);
 	j >>= 6;  //New hacks (for sized-down voxels)
@@ -3863,7 +3863,7 @@ void drawsprite(int snum)
 	const sectortype* sec = &sector[sectnum];
 	globalpal = tspr->pal;
 	
-	if (palookup[globalpal] == nullptr) {
+	if (palookup[globalpal].empty()) {
 		globalpal = 0;	// JBF: fixes null-pointer crash
 	}
 
@@ -4867,7 +4867,8 @@ void drawmaskwall(short damaskwallcnt)
 	globvis = globalvisibility;
 	if (sec->visibility != 0) globvis = mulscalen<4>(globvis,(int)((unsigned char)(sec->visibility+16)));
 	globalpal = (int)wal->pal;
-	if (palookup[globalpal] == nullptr) globalpal = 0;
+	if (palookup[globalpal].empty())
+		globalpal = 0;
 	globalshiftval = (picsiz[globalpicnum]>>4);
 	if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
 	globalshiftval = 32-globalshiftval;
@@ -5636,7 +5637,7 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 	setgotpic(picnum);
 	intptr_t bufplc = waloff[picnum];
 
-	auto palookupoffs = (intptr_t) palookup[dapalnum] + (getpalookup(0L, (int)dashade) << 8);
+	auto palookupoffs = (intptr_t) palookup[dapalnum].data() + (getpalookup(0L, (int)dashade) << 8);
 
 	const int iv = divscalen<32>(1L,z);
 	xv = mulscalen<14>(sinang, iv);
@@ -6244,24 +6245,21 @@ bool loadpalette()
 		goto badpalette;
 	}
 
-	if ((palookup[0] = static_cast<unsigned char*>(std::malloc(numpalookups<<8))) == nullptr) {
-		engineerrstr = "Failed to allocate palette memory";
-		kclose(fil);
-		return false;
-	}
+	palookup[0].resize(numpalookups << 8);
+
 	if ((transluc = static_cast<unsigned char*>(std::malloc(65536L))) == nullptr) {
 		engineerrstr = "Failed to allocate translucency memory";
 		kclose(fil);
 		return false;
 	}
 
-	globalpalwritten = palookup[0];
+	globalpalwritten = palookup[0].data();
 	globalpal = 0;
 	setpalookupaddress(globalpalwritten);
 
 	fixtransluscence(transluc);
 
-	kread(fil, palookup[globalpal], numpalookups << 8);
+	kread(fil, palookup[globalpal].data(), numpalookups << 8);
 	kread(fil, transluc, 65536);
 	kclose(fil);
 
@@ -6828,14 +6826,6 @@ void uninitengine()
 		std::free(pic);
 		pic = nullptr;
 	}
-
-	std::ranges::for_each(palookup.begin(), std::next(palookup.begin(), MAXPALOOKUPS),
-		[](auto& plook) {
-			if(plook != nullptr) {
-				std::free(plook);
-				plook = nullptr;
-			}
-		});
 }
 
 
@@ -7394,10 +7384,10 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			if ((globalorientation&1) != 0) continue;
 
 			globalpal = sec->floorpal;
-			if (palookup[sec->floorpal] != globalpalwritten)
+			if (palookup[sec->floorpal].data() != globalpalwritten)
 			{
-				globalpalwritten = palookup[sec->floorpal];
-				if (!globalpalwritten) globalpalwritten = palookup[0];	// JBF: fixes null-pointer crash
+				globalpalwritten = palookup[sec->floorpal].data();
+				if (!globalpalwritten) globalpalwritten = palookup[0].data();	// JBF: fixes null-pointer crash
 				setpalookupaddress(globalpalwritten);
 			}
 			globalpicnum = sec->floorpicnum;
@@ -7600,7 +7590,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 				globalshade = ((int)sector[spr->sectnum].floorshade);
 
 			globalshade = std::max(std::min(globalshade + spr->shade + 6, static_cast<int>(numpalookups) - 1), 0);
-			asm3 = (intptr_t)palookup[spr->pal]+(globalshade<<8);
+			asm3 = (intptr_t)palookup[spr->pal].data() + (globalshade<<8);
 			globvis = globalhisibility;
 
 			if (sec->visibility != 0)
@@ -12092,13 +12082,11 @@ void rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dash
 //
 int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char g, signed char b, unsigned char dastat)
 {
-	if (palookup[palnum] == nullptr)
+	// TODO: Are there situations where this wouldn't hold?
+	if (palookup[palnum].empty())
 	{
 			//Allocate palookup buffer
-		if ((palookup[palnum] = static_cast<unsigned char*>(std::malloc(numpalookups<<8))) == nullptr) {
-			engineerrstr = "Failed to allocate palette lookup memory";
-			return 1;
-		}
+		palookup[palnum].resize(numpalookups << 8);
 	}
 
 	if (dastat == 0) {
@@ -12113,8 +12101,8 @@ int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char
 	{
 		for(int i{0}; i < 256; ++i)
 		{
-			auto* ptr = (unsigned char *)((intptr_t)palookup[0]+remapbuf[i]);
-			auto* ptr2 = (unsigned char *)((intptr_t)palookup[palnum] + i);
+			auto* ptr = (unsigned char *)((intptr_t)palookup[0].data() + remapbuf[i]);
+			auto* ptr2 = (unsigned char *)((intptr_t)palookup[palnum].data() + i);
 
 			for(int j{0}; j < numpalookups; ++j) {
 				*ptr2 = *ptr;
@@ -12130,7 +12118,7 @@ int makepalookup(int palnum, unsigned char *remapbuf, signed char r, signed char
 	}
 	else
 	{
-		auto* ptr2 = palookup[palnum];
+		auto* ptr2 = palookup[palnum].data();
 		for(int i{0}; i < numpalookups; ++i)
 		{
 			const int palscale = divscalen<16>(i, numpalookups);

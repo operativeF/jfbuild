@@ -1136,7 +1136,7 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 	setgotpic(globalpicnum);
 	tsizx = tilesizx[globalpicnum];
 	tsizy = tilesizy[globalpicnum];
-	if (!palookup[globalpal]) globalpal = 0;
+	if (palookup[globalpal].empty()) globalpal = 0;
 	if (!waloff[globalpicnum])
 	{
 		loadtile(globalpicnum);
@@ -5008,7 +5008,7 @@ void polymost_fillpolygon (int npoints)
 	if ((unsigned int)globalpicnum >= MAXTILES)
 		globalpicnum = 0;
 	
-	if (!palookup[globalpal])
+	if (palookup[globalpal].empty())
 		globalpal = 0;
 
 	unsigned short ptflags{0};
@@ -5434,7 +5434,7 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
 	if (rendmode < 3)
 		return;
 
-	if (!palookup[dapalnum])
+	if (palookup[dapalnum].empty())
 		return;//dapalnum = 0;
 
 		//FIXME

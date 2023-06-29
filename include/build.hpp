@@ -289,7 +289,7 @@ inline std::array<short, 2048> sintable{};
 // }();
 inline std::array<unsigned char, 768> palette{};
 inline short numpalookups{0};
-inline std::array<unsigned char*, MAXPALOOKUPS> palookup{};
+inline std::array<std::vector<unsigned char>, MAXPALOOKUPS> palookup{};
 inline unsigned char parallaxtype{2};
 inline unsigned char showinvisibility{0};
 inline int parallaxyoffs{0};

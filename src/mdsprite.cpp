@@ -1463,7 +1463,7 @@ unsigned int gloadtex(int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 	}
 	else
 	{
-		if (palookup[dapal] == nullptr)
+		if (palookup[dapal].empty())
 			dapal = 0;
 
 		for(int i = xsiz * ysiz - 1; i >= 0; --i)

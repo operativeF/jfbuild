@@ -4058,9 +4058,9 @@ void drawscreen(short snum, int dasmoothratio)
 					{
 						ptr = (unsigned char *)(frameplace+ylookup[y1]);
 						ptr2 = (unsigned char *)(frameplace+ylookup[y2]);
-						ptr3 = palookup[18];
+						ptr3 = palookup[18].data();
 						ptr3 += (std::min(std::abs(y1 - l) >> 2, 31) << 8);
-						ptr4 = palookup[18];
+						ptr4 = palookup[18].data();
 						ptr4 += (std::min(std::abs(y2 - l) >> 2, 31) << 8);
 
 						int j = sintable[((y2+totalclock)<<6)&2047];
@@ -4129,9 +4129,7 @@ void drawscreen(short snum, int dasmoothratio)
 						oparallaxvisibility = parallaxvisibility;
 						visibility <<= 1;
 						parallaxvisibility <<= 1;
-						ptr = palookup[0];
-						palookup[0] = palookup[17];
-						palookup[17] = ptr;
+						std::swap(palookup[0], palookup[17]);
 
 						drawrooms(tposx,tposy,cposz,tang,choriz,mirrorsector[i]|MAXSECTORS);
 						
@@ -4145,9 +4143,7 @@ void drawscreen(short snum, int dasmoothratio)
 						analyzesprites(tposx,tposy);
 						drawmasks();
 
-						ptr = palookup[0];
-						palookup[0] = palookup[17];
-						palookup[17] = ptr;
+						std::swap(palookup[0], palookup[17]);
 						visibility = ovisibility;
 						parallaxvisibility = oparallaxvisibility;
 
