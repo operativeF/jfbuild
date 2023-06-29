@@ -61,10 +61,7 @@ constexpr auto MAXZSIZ{255};
 unsigned char voxlock[MAXVOXELS][MAXVOXMIPS];
 bool beforedrawrooms{true};
 
-int ebpbak;
-int espbak;
 constexpr auto SLOPALOOKUPSIZ = MAXXDIM << 1;
-std::array<intptr_t, SLOPALOOKUPSIZ> slopalookup;
 
 int artversion;
 void *pic{nullptr};
@@ -93,7 +90,6 @@ int wy2;
 std::array<short, MAXXDIM> uplc;
 std::array<short, MAXXDIM> dplc;
 
-
 unsigned char *globalpalwritten;
 int globaluclip;
 int globaldclip;
@@ -109,7 +105,6 @@ int viewingrangerecip;
 
 int asm1;
 int asm2;
-int asm4;
 intptr_t asm3;
 std::array<int, 4> vplce;
 std::array<int, 4> vince;
@@ -127,17 +122,9 @@ int globaly1;
 int globalx2;
 int globalx3;
 int globaly3;
-int globalzx;
-int globalx;
-int globaly;
-int globalz;
 
-short pointhighlight{-1};
 short linehighlight{-1};
 short highlightcnt{0};
-
-constexpr int hitscangoalx = (1 << 29) - 1;
-constexpr int hitscangoaly = (1 << 29) - 1;
 
 constexpr auto FASTPALGRIDSIZ{8};
 
@@ -177,7 +164,7 @@ constexpr std::array<int, 1024> lowrecip = [](){
 }();
 
 int nytooclose;
-int nytoofar;
+constexpr int nytoofar = 65536 * 16384 - 1048576; // NOTE: Previously hardcoded in dosetaspect
 std::array<unsigned int, 65536> distrecip;
 
 std::vector<int> lookups;
@@ -188,9 +175,6 @@ int oxyaspect{-1};
 
 	//Textured Map variables
 unsigned char globalpolytype;
-
-std::array<short*, MAXYDIM> dotp1;
-std::array<short*, MAXYDIM> dotp2;
 
 std::array<unsigned char, MAXWALLS> tempbuf;
 std::array<unsigned char, MAXTILES> tilefilenum;
@@ -2658,16 +2642,16 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 	wx *= i;
 	wy *= i;
 
-	globalx = -mulscalen<19>(singlobalang,xdimenrecip);
-	globaly = mulscalen<19>(cosglobalang,xdimenrecip);
+	int globalx = -mulscalen<19>(singlobalang,xdimenrecip);
+	int globaly = mulscalen<19>(cosglobalang,xdimenrecip);
 	globalx1 = (globalposx<<8);
 	globaly1 = -(globalposy<<8);
 	i = (dax1-halfxdimen)*xdimenrecip;
 	globalx2 = mulscalen<16>(cosglobalang<<4,viewingrangerecip) - mulscalen<27>(singlobalang,i);
 	globaly2 = mulscalen<16>(singlobalang<<4,viewingrangerecip) + mulscalen<27>(cosglobalang,i);
 	globalzd = (xdimscale<<9);
-	globalzx = -dmulscalen<17>(wx,globaly2,-wy,globalx2) + mulscalen<10>(1-globalhoriz,globalzd);
-	globalz = -dmulscalen<25>(wx,globaly,-wy,globalx);
+	int globalzx = -dmulscalen<17>(wx,globaly2,-wy,globalx2) + mulscalen<10>(1-globalhoriz,globalzd);
+	const int globalz = -dmulscalen<25>(wx,globaly,-wy,globalx);
 
 	if (globalorientation&64)  //Relative alignment
 	{
@@ -2783,6 +2767,8 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		m1 -= (globalzd >> 16);
 
 	int m2 = m1 + l;
+	std::array<intptr_t, SLOPALOOKUPSIZ> slopalookup;
+
 	intptr_t* mptr1 = &slopalookup[y1 + (shoffs >> 15)];
 	intptr_t* mptr2 = mptr1 + 1;
 
@@ -4946,6 +4932,10 @@ void drawmaskwall(short damaskwallcnt)
 //
 void fillpolygon(int npoints)
 {
+	// TODO: Make these both vectors.
+	std::array<short*, MAXYDIM> dotp1{};
+	std::array<short*, MAXYDIM> dotp2{};
+
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode == 3) {
 		polymost_fillpolygon(npoints);
@@ -6119,7 +6109,6 @@ void dosetaspect()
 		});
 
 		nytooclose = xdimen * 2100;
-		nytoofar = 65536 * 16384 - 1048576;
 	}
 }
 
@@ -10008,6 +9997,9 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 	short *hitsect, short *hitwall, short *hitsprite,
 	int *hitx, int *hity, int *hitz, unsigned int cliptype)
 {
+	constexpr int hitscangoalx = (1 << 29) - 1;
+	constexpr int hitscangoaly = (1 << 29) - 1;
+
 	*hitsect = -1;
 	*hitwall = -1;
 	*hitsprite = -1;

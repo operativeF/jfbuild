@@ -75,7 +75,7 @@ char names[MAXTILES][25];
 bool asksave{false};
 extern short searchwall;
 
-extern short pointhighlight;
+short pointhighlight{-1};
 extern short linehighlight;
 extern short highlightcnt;
 short grid{3};
@@ -7817,12 +7817,6 @@ void initcrc()
 	}
 }
 
-namespace {
-
-std::array<bool, 8192> visited;
-
-} // namespace
-
 int GetWallZPeg(int nWall)
 {
 	const int nSector = sectorofwall((short)nWall);
@@ -7872,6 +7866,8 @@ void AlignWalls(int nWall0, int z0, int nWall1, int z1, int nTile)
 
 void AutoAlignWalls(int nWall0, int ply)
 {
+	static std::array<bool, 8192> visited{};
+
 	const int nTile = wall[nWall0].picnum;
 	int branch{0};
 
