@@ -6247,20 +6247,14 @@ bool loadpalette()
 
 	palookup[0].resize(numpalookups << 8);
 
-	if ((transluc = static_cast<unsigned char*>(std::malloc(65536L))) == nullptr) {
-		engineerrstr = "Failed to allocate translucency memory";
-		kclose(fil);
-		return false;
-	}
-
 	globalpalwritten = palookup[0].data();
 	globalpal = 0;
 	setpalookupaddress(globalpalwritten);
 
-	fixtransluscence(transluc);
+	fixtransluscence(transluc.data());
 
 	kread(fil, palookup[globalpal].data(), numpalookups << 8);
-	kread(fil, transluc, 65536);
+	kread(fil, transluc.data(), 65536);
 	kclose(fil);
 
 	// FIXME: Make constexpr initialization.
@@ -6815,11 +6809,6 @@ void uninitengine()
 
 	if (artfil != -1) {
 		kclose(artfil);
-	}
-
-	if (transluc != nullptr) {
-		std::free(transluc);
-		transluc = nullptr;
 	}
 
 	if (pic != nullptr) {
@@ -8825,9 +8814,8 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 	ts = *dacursectnum; if (Bwrite(fil,&ts,2) != 2) goto writeerror;
 
 	ts = numsectors;    if (Bwrite(fil,&ts,2) != 2) goto writeerror;
-	for (i=0; i<numsectors; i++) {
-		auto tsect = sector[i];
-		if (Bwrite(fil,&tsect,sizeof(sectortype)) != sizeof(sectortype))
+	for (const auto& tsect : sector) {
+		if (Bwrite(fil, &tsect, sizeof(sectortype)) != sizeof(sectortype))
 			goto writeerror;
 	}
 
@@ -8835,9 +8823,8 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 	if (Bwrite(fil,&ts,2) != 2)
 		goto writeerror;
 
-	for (i=0; i<numwalls; i++) {
-		auto twall = wall[i];
-		if (Bwrite(fil,&twall,sizeof(walltype)) != sizeof(walltype))
+	for (const auto& twall : wall) {
+		if (Bwrite(fil, &twall, sizeof(walltype)) != sizeof(walltype))
 			goto writeerror;
 	}
 
@@ -8851,7 +8838,7 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 		i = headspritestat[j];
 		while (i != -1)
 		{
-			auto tspri = sprite[i];
+			const auto& tspri = sprite[i];
 			if (Bwrite(fil,&tspri,sizeof(spritetype)) != sizeof(spritetype))
 				goto writeerror;
 			i = nextspritestat[i];

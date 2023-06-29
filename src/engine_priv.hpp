@@ -80,7 +80,7 @@ inline float curgamma{1.0F};
 inline unsigned char britable[16][256]{};
 inline std::array<unsigned char, MAXTILES> picsiz{};
 inline std::array<int, MAXYDIM> lastx{};
-inline unsigned char* transluc{nullptr};
+inline std::array<unsigned char, 65536> transluc{};
 inline std::array<short, 256> sectorborder{};
 inline short sectorbordercnt{0};
 inline int qsetmode{0};

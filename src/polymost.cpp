@@ -1380,9 +1380,15 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 				{
 					j = i+1; if (j == n) j = 0;
 
-					dui = duj; duj = (px[j]*ngux + py[j]*nguy + nguo) / (px[j]*ngdx + py[j]*ngdy + ngdo);
+					dui = duj;
+					duj = (px[j]*ngux + py[j]*nguy + nguo) / (px[j]*ngdx + py[j]*ngdy + ngdo);
 
-					if ((du0 <= dui) && (dui <= du1)) { uu[nn] = px[i]; vv[nn] = py[i]; nn++; }
+					if ((du0 <= dui) && (dui <= du1)) {
+						uu[nn] = px[i];
+						vv[nn] = py[i];
+						nn++;
+					}
+
 					if (duj <= dui)
 					{
 						if ((du1 < duj) != (du1 < dui))
@@ -1431,7 +1437,8 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 
 				for(i=0;i<nn;i++)
 				{
-					ox = uu[i]; oy = vv[i];
+					ox = uu[i];
+					oy = vv[i];
 					dp = ox*ngdx + oy*ngdy + ngdo;
 					up = ox*ngux + oy*nguy + nguo;
 					vp = ox*ngvx + oy*ngvy + ngvo;
@@ -1452,7 +1459,8 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 		}
 		else if (n > 0)
 		{
-			ox2 *= hackscx; oy2 *= hackscy;
+			ox2 *= hackscx;
+			oy2 *= hackscy;
 
 			for(i=0;i<n;i++)
 			{
@@ -1486,7 +1494,8 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 		}
 		zbufoff = (int *)(zbufmem-(frameplace<<2));
 #endif
-		if ((!transluc)) method = (method & ~(METH_MASKED | METH_TRANS)) + METH_MASKED; //In case translucent table doesn't exist
+		// TODO: Translucency should always exist, yes?
+		// if ((!transluc)) method = (method & ~(METH_MASKED | METH_TRANS)) + METH_MASKED; //In case translucent table doesn't exist
 
 		if (!dorot)
 		{
@@ -1573,14 +1582,19 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 	ngux2 = ngux * (1 << LINTERPSIZ);
 	ngvx2 = ngvx * (1 << LINTERPSIZ);
 
-	mini = (py[0] >= py[1]); maxi = 1-mini;
-	for(z=2;z<n;z++)
-	{
-		if (py[z] < py[mini]) mini = z;
-		if (py[z] > py[maxi]) maxi = z;
+	mini = (py[0] >= py[1]);
+	maxi = 1-mini;
+
+	for(z=2;z<n;z++) {
+		if (py[z] < py[mini])
+			mini = z;
+
+		if (py[z] > py[maxi])
+			maxi = z;
 	}
 
-	i = maxi; dtol(py[i],&yy); if (yy > ydimen) yy = ydimen;
+	i = maxi;
+	dtol(py[i],&yy); if (yy > ydimen) yy = ydimen;
 	do
 	{
 		j = i+1; if (j == n) j = 0;
