@@ -2836,10 +2836,10 @@ void overheadeditor()
 	int y3;
 	int x4;
 	int y4;
-	int highlightx1;
-	int highlighty1;
-	int highlightx2;
-	int highlighty2;
+	int highlightx1{0};
+	int highlighty1{0};
+	int highlightx2{0};
+	int highlighty2{0};
 	int xvect;
 	int yvect;
 	short suckwall=0;
@@ -6531,7 +6531,7 @@ int menuselect(int newpathmode)
 		if (ch == 13 && !findfileshigh) ch = 0;
 	}
 	while ((ch != 13) && (ch != 27));
-	if (ch == 13)
+	if (ch == 13 && findfileshigh)
 	{
 		selectedboardfilename.append(findfileshigh->name);
 		//std::printf("Selected file: {}\n", selectedboardfilename);

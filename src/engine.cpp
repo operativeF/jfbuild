@@ -2767,7 +2767,7 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		m1 -= (globalzd >> 16);
 
 	int m2 = m1 + l;
-	std::array<intptr_t, SLOPALOOKUPSIZ> slopalookup;
+	std::vector<intptr_t> slopalookup(SLOPALOOKUPSIZ);
 
 	intptr_t* mptr1 = &slopalookup[y1 + (shoffs >> 15)];
 	intptr_t* mptr2 = mptr1 + 1;
@@ -4932,9 +4932,8 @@ void drawmaskwall(short damaskwallcnt)
 //
 void fillpolygon(int npoints)
 {
-	// TODO: Make these both vectors.
-	std::array<short*, MAXYDIM> dotp1{};
-	std::array<short*, MAXYDIM> dotp2{};
+	std::vector<short*> dotp1{MAXYDIM};
+	std::vector<short*> dotp2{MAXYDIM};
 
 #if USE_POLYMOST && USE_OPENGL
 	if (rendmode == 3) {

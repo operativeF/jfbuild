@@ -96,6 +96,10 @@ void ptcache_addhash(const std::string& filename, int effects, int flags, unsign
 	// to reduce memory fragmentation we tack the filename onto the end of the block
 	PTCacheIndex* pci = (PTCacheIndex *) std::malloc(sizeof(PTCacheIndex));
 
+	// FIXME: Memory failure if this is true.
+	if(!pci)
+		return;
+
 	pci->filename = filename;
 	pci->effects = effects;
 	pci->flags   = flags & (PTH_CLAMPED);

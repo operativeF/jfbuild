@@ -63,15 +63,16 @@ static unsigned int crc32table[256] = {
 namespace {
 
 constexpr std::array<unsigned int, 256> crc32table = []() {
-  std::array<unsigned int, 256> crc32tbl;
+  std::array<unsigned int, 256> crc32tbl{};
 	// algorithm and polynomial same as that used by infozip's zip
-	for (unsigned int i{0}; i < 256; ++i) {
+	for (unsigned int i{0}; auto& crcentry : crc32tbl) {
 		unsigned int j{i};
 		for (unsigned int k{8}; k != 0; --k) {
 			j = (j & 1) ? (0xedb88320L ^ (j >> 1)) : (j >> 1);
-    }
+		}
 
-		crc32tbl[i] = j;
+		crcentry = j;
+		++i;
 	}
 
   return crc32tbl;

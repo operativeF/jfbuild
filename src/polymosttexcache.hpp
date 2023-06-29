@@ -11,10 +11,10 @@
 #include <memory>
 
 struct PTCacheTileMip_typ {
-	int sizx;
-	int sizy;
-	int length;
-	unsigned char * data;
+	int sizx{0};
+	int sizy{0};
+	int length{0};
+	unsigned char * data{nullptr};
 };
 typedef struct PTCacheTileMip_typ PTCacheTileMip;
 
@@ -26,7 +26,7 @@ struct PTCacheTile_typ {
 	int tsizx{0};
 	int tsizy{0};
 	int nummipmaps{0};
-	PTCacheTileMip mipmap[1];
+	PTCacheTileMip mipmap[1]{};
 };
 typedef struct PTCacheTile_typ PTCacheTile;
 

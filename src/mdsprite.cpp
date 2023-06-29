@@ -459,7 +459,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 		return nullptr;
 	}
 
-	if (*tex && (*tex)->glpic) {
+	if (tex && *tex && (*tex)->glpic) {
 		// texture already loaded
 		return *tex;
 	}
