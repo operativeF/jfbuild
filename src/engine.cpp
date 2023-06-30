@@ -3077,22 +3077,21 @@ void drawalls(int bunch)
 			}
 		}
 
-		std::array<int, 5> cz{};
-		std::array<int, 5> fz{};
+		std::array<ceilfloorz, 5> cfz;
 	
 		if (nextsectnum >= 0)
 		{
-			getzsofslope((short)sectnum,wal->x,wal->y,&cz[0],&fz[0]);
-			getzsofslope((short)sectnum,wall[wal->point2].x,wall[wal->point2].y,&cz[1],&fz[1]);
-			getzsofslope((short)nextsectnum,wal->x,wal->y,&cz[2],&fz[2]);
-			getzsofslope((short)nextsectnum,wall[wal->point2].x,wall[wal->point2].y,&cz[3],&fz[3]);
-			getzsofslope((short)nextsectnum,globalposx,globalposy,&cz[4],&fz[4]);
+			cfz[0] = getzsofslope((short)sectnum,wal->x,wal->y);
+			cfz[1] = getzsofslope((short)sectnum,wall[wal->point2].x,wall[wal->point2].y);
+			cfz[2] = getzsofslope((short)nextsectnum,wal->x,wal->y);
+			cfz[3] = getzsofslope((short)nextsectnum,wall[wal->point2].x,wall[wal->point2].y);
+			cfz[4] = getzsofslope((short)nextsectnum,globalposx,globalposy);
 
 			if ((wal->cstat&48) == 16)
 				maskwall[maskwallcnt++] = z;
 
 			if (((sec->ceilingstat&1) == 0) || ((nextsec->ceilingstat&1) == 0)) {
-				if ((cz[2] <= cz[0]) && (cz[3] <= cz[1])) {
+				if ((cfz[2].ceilz <= cfz[0].ceilz) && (cfz[3].ceilz <= cfz[1].ceilz)) {
 					if (globparaceilclip) {
 						for(int x{x1}; x <= x2; ++x) {
 							if (uplc[x] > umost[x]) {
@@ -3109,7 +3108,7 @@ void drawalls(int bunch)
 				{
 					wallmost(dwall,z,nextsectnum,(char)0);
 					
-                    if ((cz[2] > fz[0]) || (cz[3] > fz[1])) {
+                    if ((cfz[2].ceilz > cfz[0].floorz) || (cfz[3].ceilz > cfz[1].floorz)) {
 						const std::ranges::subrange dplcrange{std::next(dplc.begin(), x1), std::next(dplc.begin(), x2 + 1)};
 						const std::ranges::subrange dwallstart{std::next(dwall.begin(), x1), std::next(dwall.begin(), x2 + 1)};
 						ReplaceIfComp(dplcrange.begin(), dplcrange.end(), dwallstart.begin(), std::less<int>());
@@ -3153,7 +3152,7 @@ void drawalls(int bunch)
 
 					wallscan(x1, x2, uplc, dwall, swall, lwall);
 
-					if ((cz[2] >= cz[0]) && (cz[3] >= cz[1])) {
+					if ((cfz[2].ceilz >= cfz[0].ceilz) && (cfz[3].ceilz >= cfz[1].ceilz)) {
 						for(int x{x1}; x <= x2; ++x) {
 							if (dwall[x] > umost[x]) {
 								if (umost[x] <= dmost[x]) {
@@ -3178,7 +3177,7 @@ void drawalls(int bunch)
 						}
 					}
 				}
-				if ((cz[2] < cz[0]) || (cz[3] < cz[1]) || (globalposz < cz[4]))
+				if ((cfz[2].ceilz < cfz[0].ceilz) || (cfz[3].ceilz < cfz[1].ceilz) || (globalposz < cfz[4].ceilz))
 				{
 					const int i = x2 - x1 + 1;
 					if (smostcnt + i < MAXYSAVES)
@@ -3195,7 +3194,7 @@ void drawalls(int bunch)
 
 			if (((sec->floorstat&1) == 0) || ((nextsec->floorstat&1) == 0))
 			{
-				if ((fz[2] >= fz[0]) && (fz[3] >= fz[1])) {
+				if ((cfz[2].floorz >= cfz[0].floorz) && (cfz[3].floorz >= cfz[1].floorz)) {
 					if (globparaflorclip) {
 						for(int x{x1}; x <= x2; ++x) {
 							if (dplc[x] < dmost[x]) {
@@ -3211,7 +3210,7 @@ void drawalls(int bunch)
 				else {
 					wallmost(uwall,z,nextsectnum,(char)1);
 
-					if ((fz[2] < cz[0]) || (fz[3] < cz[1])) {
+					if ((cfz[2].floorz < cfz[0].ceilz) || (cfz[3].floorz < cfz[1].ceilz)) {
 						for(int i{x1}; i <= x2; ++i) {
 							if (uwall[i] < uplc[i])
 								uwall[i] = uplc[i];
@@ -3303,7 +3302,7 @@ void drawalls(int bunch)
 
 					wallscan(x1,x2,uwall,dplc,swall,lwall);
 
-					if ((fz[2] <= fz[0]) && (fz[3] <= fz[1])) {
+					if ((cfz[2].floorz <= cfz[0].floorz) && (cfz[3].floorz <= cfz[1].floorz)) {
 						for(int x{x1}; x <= x2; ++x) {
 							if (uwall[x] < dmost[x]) {
 								if (umost[x] <= dmost[x]) {
@@ -3329,7 +3328,7 @@ void drawalls(int bunch)
 					}
 				}
 
-				if ((fz[2] > fz[0]) || (fz[3] > fz[1]) || (globalposz > fz[4])) {
+				if ((cfz[2].floorz > cfz[0].floorz) || (cfz[3].floorz > cfz[1].floorz) || (globalposz > cfz[4].floorz)) {
 					const int i = x2 - x1 + 1;
 					
 					if (smostcnt + i < MAXYSAVES) {
@@ -6944,11 +6943,11 @@ void drawrooms(int daposx, int daposy, int daposz,
 	globparaceilclip = 1;
 	globparaflorclip = 1;
 
-	getzsofslope(globalcursectnum,globalposx,globalposy,&cz,&fz);
-	if (globalposz < cz)
+	auto cfz = getzsofslope(globalcursectnum,globalposx,globalposy);
+	if (globalposz < cfz.ceilz)
 		globparaceilclip = 0;
 
-	if (globalposz > fz)
+	if (globalposz > cfz.floorz)
 		globparaflorclip = 0;
 
 	scansector(globalcursectnum);
@@ -9962,17 +9961,14 @@ bool cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short s
 			const int y = y1 + mulscalen<24>(y21, t);
 			const int z = z1 + mulscalen<24>(z21, t);
 
-			int cz{0};
-			int fz{0};
+			auto cfz = getzsofslope((short)dasectnum, x, y);
 
-			getzsofslope((short)dasectnum, x, y, &cz, &fz);
-
-			if ((z <= cz) || (z >= fz))
+			if ((z <= cfz.ceilz) || (z >= cfz.floorz))
 				return false;
 			
-			getzsofslope((short)nexts, x, y, &cz, &fz);
+			auto nextcfz = getzsofslope((short)nexts, x, y);
 			
-			if ((z <= cz) || (z >= fz))
+			if ((z <= nextcfz.ceilz) || (z >= nextcfz.floorz))
 				return false;
 
 			int i{0};
@@ -10176,11 +10172,9 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 				continue;
 			}
 			
-			int daz{0};
-			int daz2{0};
-			getzsofslope(nextsector, intx, inty, &daz, &daz2);
+			auto dacfz = getzsofslope(nextsector, intx, inty);
 			
-			if ((intz <= daz) || (intz >= daz2))
+			if ((intz <= dacfz.ceilz) || (intz >= dacfz.floorz))
 			{
 				*hitsect = dasector;
 				*hitwall = z;
@@ -11293,11 +11287,9 @@ void updatesector(int x, int y, short *sectnum)
 
 void updatesectorz(int x, int y, int z, short *sectnum)
 {
-	int cz{0};
-    int fz{0};
-	getzsofslope(*sectnum, x, y, &cz, &fz);
+	auto cfz = getzsofslope(*sectnum, x, y);
 
-	if ((z >= cz) && (z <= fz))
+	if ((z >= cfz.ceilz) && (z <= cfz.floorz))
 		if (inside(x,y,*sectnum) != 0)
 			return;
 
@@ -11312,8 +11304,8 @@ void updatesectorz(int x, int y, int z, short *sectnum)
 
 			if (i >= 0)
 			{
-				getzsofslope(i, x, y, &cz, &fz);
-				if ((z >= cz) && (z <= fz))
+				auto cfz = getzsofslope(i, x, y);
+				if ((z >= cfz.ceilz) && (z <= cfz.floorz))
 					if (inside(x,y,(short)i) == 1)
 						{ *sectnum = i; return; }
 			}
@@ -11325,9 +11317,9 @@ void updatesectorz(int x, int y, int z, short *sectnum)
 
 	for (int i = numsectors - 1; i >= 0; --i)
 	{
-		getzsofslope(i, x, y, &cz, &fz);
+		auto cfz = getzsofslope(i, x, y);
 
-		if ((z >= cz) && (z <= fz)) {
+		if ((z >= cfz.ceilz) && (z <= cfz.floorz)) {
 			if (inside(x, y, (short)i) == 1) {
 				*sectnum = i;
 				return;
@@ -11399,7 +11391,9 @@ void getzrange(int x, int y, int z, short sectnum,
 	const int xmax = x + extdist;
 	const int ymax = y + extdist;
 
-	getzsofslope(sectnum, x, y, ceilz, florz);
+	auto cfz = getzsofslope(sectnum, x, y);
+	*ceilz = cfz.ceilz;
+	*florz = cfz.floorz;
 	*ceilhit = sectnum + 16384;
 	*florhit = sectnum + 16384;
 
@@ -11507,17 +11501,15 @@ void getzrange(int x, int y, int z, short sectnum,
 				if (dax >= day)
 					continue;
 
-				int daz{0};
-				int daz2{0};
 					//It actually got here, through all the continue's!!!
-				getzsofslope((short)k,x,y,&daz,&daz2);
-				if (daz > *ceilz) {
-					*ceilz = daz;
+				auto dacfz = getzsofslope((short)k,x,y);
+				if (dacfz.ceilz > *ceilz) {
+					*ceilz = dacfz.ceilz;
 					*ceilhit = k + 16384;
 				}
 
-				if (daz2 < *florz) {
-					*florz = daz2;
+				if (dacfz.floorz < *florz) {
+					*florz = dacfz.floorz;
 					*florhit = k + 16384;
 				}
 			}
@@ -12444,12 +12436,11 @@ int getflorzofslope(short sectnum, int dax, int day)
 //
 // getzsofslope
 //
-void getzsofslope(short sectnum, int dax, int day, int *ceilz, int *florz)
+ceilfloorz getzsofslope(short sectnum, int dax, int day)
 {
 	sectortype* sec = &sector[sectnum];
 
-	*ceilz = sec->ceilingz;
-	*florz = sec->floorz;
+	ceilfloorz cfz{sec->ceilingz, sec->floorz};
 	
 	if ((sec->ceilingstat|sec->floorstat)&2)
 	{
@@ -12460,16 +12451,18 @@ void getzsofslope(short sectnum, int dax, int day, int *ceilz, int *florz)
 		const int i = (nsqrtasm(dx * dx + dy * dy) << 5);
 		
 		if (i == 0)
-			return;
+			return cfz;
 		
 		const int j = dmulscalen<3>(dx, day - wal->y, -dy, dax - wal->x);
 
 		if (sec->ceilingstat&2)
-			*ceilz = (*ceilz)+scale(sec->ceilingheinum, j, i);
+			cfz.ceilz = cfz.ceilz + scale(sec->ceilingheinum, j, i);
 
 		if (sec->floorstat&2)
-			*florz = (*florz)+scale(sec->floorheinum, j, i);
+			cfz.floorz = cfz.floorz + scale(sec->floorheinum, j, i);
 	}
+
+	return cfz;
 }
 
 

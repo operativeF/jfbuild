@@ -2313,8 +2313,6 @@ void polymost_drawalls (int bunch)
 	int x;
 	int y;
 	int z;
-	int cz;
-	int fz;
 	int wallnum;
 	int nextsectnum;
 	int domostmethod;
@@ -2395,15 +2393,17 @@ void polymost_drawalls (int bunch)
 		ryp0 *= gyxscale;
 		ryp1 *= gyxscale;
 
-		getzsofslope(sectnum,(int)nx0,(int)ny0,&cz,&fz);
-		cy0 = ((float)(cz-globalposz))*ryp0 + ghoriz;
-		fy0 = ((float)(fz-globalposz))*ryp0 + ghoriz;
-		getzsofslope(sectnum,(int)nx1,(int)ny1,&cz,&fz);
-		cy1 = ((float)(cz-globalposz))*ryp1 + ghoriz;
-		fy1 = ((float)(fz-globalposz))*ryp1 + ghoriz;
+		auto cfz = getzsofslope(sectnum,(int)nx0,(int)ny0);
+		cy0 = ((float)(cfz.ceilz - globalposz))*ryp0 + ghoriz;
+		fy0 = ((float)(cfz.floorz - globalposz))*ryp0 + ghoriz;
+		cfz = getzsofslope(sectnum,(int)nx1,(int)ny1);
+		cy1 = ((float)(cfz.ceilz - globalposz))*ryp1 + ghoriz;
+		fy1 = ((float)(cfz.floorz - globalposz))*ryp1 + ghoriz;
 
 		domostmethod = 0;
-		globalpicnum = sec->floorpicnum; globalshade = sec->floorshade; globalpal = (int)((unsigned char)sec->floorpal);
+		globalpicnum = sec->floorpicnum;
+		globalshade = sec->floorshade;
+		globalpal = (int)((unsigned char)sec->floorpal);
 		globalorientation = sec->floorstat;
 		if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,sectnum);
 		if (!(globalorientation&1))
@@ -3255,16 +3255,18 @@ void polymost_drawalls (int bunch)
 			//   (gvx*x0 + gvy*cy0 + gvo*1) = 0
 			//   (gvx*x1 + gvy*cy1 + gvo*1) = 0
 			//   (gvx*x0 + gvy*fy0 + gvo*1) = t
-		ogux = gux; oguy = guy; oguo = guo;
+		ogux = gux;
+		oguy = guy;
+		oguo = guo;
 
 		if (nextsectnum >= 0)
 		{
-			getzsofslope(nextsectnum,(int)nx0,(int)ny0,&cz,&fz);
-			ocy0 = ((float)(cz-globalposz))*ryp0 + ghoriz;
-			ofy0 = ((float)(fz-globalposz))*ryp0 + ghoriz;
-			getzsofslope(nextsectnum,(int)nx1,(int)ny1,&cz,&fz);
-			ocy1 = ((float)(cz-globalposz))*ryp1 + ghoriz;
-			ofy1 = ((float)(fz-globalposz))*ryp1 + ghoriz;
+			auto cfz = getzsofslope(nextsectnum,(int)nx0,(int)ny0);
+			ocy0 = ((float)(cfz.ceilz - globalposz))*ryp0 + ghoriz;
+			ofy0 = ((float)(cfz.floorz - globalposz))*ryp0 + ghoriz;
+			cfz = getzsofslope(nextsectnum,(int)nx1,(int)ny1);
+			ocy1 = ((float)(cfz.ceilz - globalposz))*ryp1 + ghoriz;
+			ofy1 = ((float)(cfz.floorz - globalposz))*ryp1 + ghoriz;
 
 			if ((wal->cstat&48) == 16) maskwall[maskwallcnt++] = z;
 
@@ -3748,25 +3750,24 @@ void polymost_drawrooms()
 			searchwall = hitwall; searchstat = 0;
 			if (wall[hitwall].nextwall >= 0)
 			{
-				int cz;
-				int fz;
-				getzsofslope(wall[hitwall].nextsector,hitx,hity,&cz,&fz);
-				if (hitz > fz)
+				auto cfz = getzsofslope(wall[hitwall].nextsector,hitx,hity);
+				if (hitz > cfz.floorz)
 				{
 					if (wall[hitwall].cstat&2) //'2' bottoms of walls
 						searchwall = wall[hitwall].nextwall;
 				}
-				else if ((hitz > cz) && (wall[hitwall].cstat&(16+32))) //masking or 1-way
+				else if ((hitz > cfz.ceilz) && (wall[hitwall].cstat&(16+32))) //masking or 1-way
 					searchstat = 4;
 			}
 		}
 		else if (hitsprite >= 0) { searchwall = hitsprite; searchstat = 3; }
 		else
 		{
-			int cz;
-			int fz;
-			getzsofslope(hitsect,hitx,hity,&cz,&fz);
-			if ((hitz<<1) < cz+fz) searchstat = 1; else searchstat = 2;
+			auto cfz = getzsofslope(hitsect,hitx,hity);
+			if ((hitz<<1) < cfz.ceilz + cfz.floorz)
+				searchstat = 1;
+			else
+				searchstat = 2;
 			//if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
 		}
 		searchit = 0;
@@ -3870,7 +3871,7 @@ void polymost_drawmaskwall (int damaskwallcnt)
 	float t1;
 	float csy[4];
 	float fsy[4];
-	int i, j, n, n2, cz[4], fz[4], method;
+	int i, j, n, n2, method;
 
 #ifdef DEBUGGINGAIDS
 	polymostcallcounts.drawmaskwall++;
@@ -3911,10 +3912,11 @@ void polymost_drawmaskwall (int damaskwallcnt)
 	if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0; yp1 = SCISDIST; }
 						else { t1 = 1.F; }
 
-	getzsofslope(sectnum,(int)((wal2->x-wal->x)*t0+wal->x),(int)((wal2->y-wal->y)*t0+wal->y),&cz[0],&fz[0]);
-	getzsofslope(wal->nextsector,(int)((wal2->x-wal->x)*t0+wal->x),(int)((wal2->y-wal->y)*t0+wal->y),&cz[1],&fz[1]);
-	getzsofslope(sectnum,(int)((wal2->x-wal->x)*t1+wal->x),(int)((wal2->y-wal->y)*t1+wal->y),&cz[2],&fz[2]);
-	getzsofslope(wal->nextsector,(int)((wal2->x-wal->x)*t1+wal->x),(int)((wal2->y-wal->y)*t1+wal->y),&cz[3],&fz[3]);
+	std::array<ceilfloorz, 4> cfz;
+	cfz[0] = getzsofslope(sectnum,(int)((wal2->x-wal->x)*t0+wal->x),(int)((wal2->y-wal->y)*t0+wal->y));
+	cfz[1] = getzsofslope(wal->nextsector,(int)((wal2->x-wal->x)*t0+wal->x),(int)((wal2->y-wal->y)*t0+wal->y));
+	cfz[2] = getzsofslope(sectnum,(int)((wal2->x-wal->x)*t1+wal->x),(int)((wal2->y-wal->y)*t1+wal->y));
+	cfz[3] = getzsofslope(wal->nextsector,(int)((wal2->x-wal->x)*t1+wal->x),(int)((wal2->y-wal->y)*t1+wal->y));
 
 	ryp0 = 1.F/yp0; ryp1 = 1.F/yp1;
 
@@ -3975,10 +3977,10 @@ void polymost_drawmaskwall (int damaskwallcnt)
 
 	for(i=0;i<2;i++)
 	{
-		csy[i] = ((float)(cz[i]-globalposz))*ryp0 + ghoriz;
-		fsy[i] = ((float)(fz[i]-globalposz))*ryp0 + ghoriz;
-		csy[i+2] = ((float)(cz[i+2]-globalposz))*ryp1 + ghoriz;
-		fsy[i+2] = ((float)(fz[i+2]-globalposz))*ryp1 + ghoriz;
+		csy[i] = ((float)(cfz[i].ceilz - globalposz))*ryp0 + ghoriz;
+		fsy[i] = ((float)(cfz[i].floorz - globalposz))*ryp0 + ghoriz;
+		csy[i+2] = ((float)(cfz[i+2].ceilz - globalposz))*ryp1 + ghoriz;
+		fsy[i+2] = ((float)(cfz[i+2].floorz - globalposz))*ryp1 + ghoriz;
 	}
 
 		//Clip 2 quadrilaterals
@@ -3995,10 +3997,14 @@ void polymost_drawmaskwall (int damaskwallcnt)
 		//   |   /
 		// fsy1/
 
-	dpx[0] = x0; dpy[0] = csy[1];
-	dpx[1] = x1; dpy[1] = csy[3];
-	dpx[2] = x1; dpy[2] = fsy[3];
-	dpx[3] = x0; dpy[3] = fsy[1];
+	dpx[0] = x0;
+	dpy[0] = csy[1];
+	dpx[1] = x1;
+	dpy[1] = csy[3];
+	dpx[2] = x1;
+	dpy[2] = fsy[3];
+	dpx[3] = x0;
+	dpy[3] = fsy[1];
 	n = 4;
 
 		//Clip to (x0,csy[0])-(x1,csy[2])

@@ -2780,17 +2780,22 @@ void statuslistcode()
 				//Check for bouncy objects before killing bullet
 			if ((hitobject&0xc000) == 16384)  //Bullet hit a ceiling/floor
 			{
-				k = sector[hitobject&(MAXSECTORS-1)].wallptr; l = wall[k].point2;
+				k = sector[hitobject&(MAXSECTORS-1)].wallptr;
+				l = wall[k].point2;
 				daang = getangle(wall[l].x-wall[k].x,wall[l].y-wall[k].y);
+				// both k, l overwritten here
+				auto klz = getzsofslope(hitobject&(MAXSECTORS-1),sprite[i].x,sprite[i].y);
+				
+				if (sprite[i].z < ((klz.ceilz + klz.floorz)>>1))
+					klz.ceilz = sector[hitobject&(MAXSECTORS-1)].ceilingheinum;
+				else
+					klz.ceilz = sector[hitobject&(MAXSECTORS-1)].floorheinum;
 
-				getzsofslope(hitobject&(MAXSECTORS-1),sprite[i].x,sprite[i].y,&k,&l);
-				if (sprite[i].z < ((k+l)>>1)) k = sector[hitobject&(MAXSECTORS-1)].ceilingheinum;
-												 else k = sector[hitobject&(MAXSECTORS-1)].floorheinum;
-
-				dax = mulscalen<14>(k,sintable[(daang)&2047]);
-				day = mulscalen<14>(k,sintable[(daang+1536)&2047]);
+				dax = mulscalen<14>(klz.ceilz, sintable[(daang)&2047]);
+				day = mulscalen<14>(klz.ceilz, sintable[(daang+1536)&2047]);
 				daz = 4096;
-
+				// end of klz usage
+				
 				k = sprite[i].xvel*dax+sprite[i].yvel*day+mulscalen<4>(sprite[i].zvel,daz);
 				l = dax*dax+day*day+daz*daz;
 				if ((std::abs(k)>>14) < l)

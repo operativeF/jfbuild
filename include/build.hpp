@@ -549,7 +549,13 @@ int   lastwall(short point);
 int   nextsectorneighborz(short sectnum, int thez, short topbottom, short direction);
 int   getceilzofslope(short sectnum, int dax, int day);
 int   getflorzofslope(short sectnum, int dax, int day);
-void   getzsofslope(short sectnum, int dax, int day, int *ceilz, int *florz);
+
+struct ceilfloorz {
+	int ceilz{};
+	int floorz{};
+};
+
+ceilfloorz getzsofslope(short sectnum, int dax, int day);
 void   alignceilslope(short dasect, int x, int y, int z);
 void   alignflorslope(short dasect, int x, int y, int z);
 int   sectorofwall(short theline);
