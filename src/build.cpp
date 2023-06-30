@@ -314,7 +314,6 @@ static constexpr char defsfilename[] = "kenbuild.def";
 
 int app_main(int argc, char const * const argv[])
 {
-	char quitflag;
 	int grpstoadd{ 0 };
 	char const** grps{ nullptr };
 	int i;
@@ -495,8 +494,8 @@ int app_main(int argc, char const * const argv[])
 
 	totalclock = 0;
 
-	quitflag = 0;
-	while (quitflag == 0)
+	bool quitflag{false};
+	while (!quitflag)
 	{
 		if (handleevents()) {
 			if (quitevent) {
@@ -532,14 +531,15 @@ int app_main(int argc, char const * const argv[])
 			{
 				if (handleevents()) {
 					if (quitevent) {
-						quitflag = 1;
+						quitflag = true;
 						break;
 					}
 				}
 
 				if (keystatus[0x15] != 0) {
 					keystatus[0x15] = 0;
-					quitflag = 1; break;
+					quitflag = true;
+					break;
 				}
 			}
 		}

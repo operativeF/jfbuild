@@ -39,7 +39,7 @@ inline int bpp{0};
 inline bool fullscreen{false};
 inline int bytesperline{0};
 inline int imageSize{0};
-inline char offscreenrendering{0};
+inline bool offscreenrendering{false};
 inline intptr_t frameplace{0};
 
 extern void (*baselayer_videomodewillchange)();

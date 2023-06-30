@@ -87,7 +87,7 @@ inline short sectorbordercnt{0};
 inline int qsetmode{0};
 
 #if USE_POLYMOST
-inline int hitallsprites{0};
+inline bool hitallsprites{false};
 #endif
 
 inline std::array<int, MAXWALLSB> xb1{};

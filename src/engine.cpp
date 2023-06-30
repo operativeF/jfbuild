@@ -12263,7 +12263,7 @@ void setviewtotile(short tilenume, int xsiz, int ysiz)
 	copybufbyte(&startdmost[windowx1],&bakdmost[windowx1],(windowx2-windowx1+1)*sizeof(bakdmost[0]));
 	setviewcnt++;
 
-	offscreenrendering = 1;
+	offscreenrendering = true;
 	setview(0,0,ysiz-1,xsiz-1);
 	setaspect(65536,65536);
 

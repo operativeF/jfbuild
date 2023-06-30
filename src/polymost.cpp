@@ -3740,10 +3740,10 @@ void polymost_drawrooms()
 		vy = (int)(ox2*((float)singlobalang) + oy2*((float)cosglobalang));
 		vz = (int)(oz2*16384.0);
 
-		hitallsprites = 1;
+		hitallsprites = true;
 		hitscan(globalposx,globalposy,globalposz,globalcursectnum, //Start position
 			vx>>12,vy>>12,vz>>8,&hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,0xffff0030);
-		hitallsprites = 0;
+		hitallsprites = false;
 
 		searchsector = hitsect;
 		if (hitwall >= 0)
