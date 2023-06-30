@@ -47,10 +47,10 @@ static void compressetc1(uint8_t *bgra, int width, int height, uint8_t *out)
 	int xyoff;
 	int stride;
 
-	static int initonce = 0;
+	static bool initonce{false};
 	if (!initonce) {
 		rg_etc1::pack_etc1_block_init();
-		initonce = 1;
+		initonce = true;
 	}
 
 	switch (gltexcomprquality) {

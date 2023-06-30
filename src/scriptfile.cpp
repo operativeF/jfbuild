@@ -145,11 +145,11 @@ namespace {
 double parsedouble(char *ptr, char **end)
 {	
 
-	int negative{0};
+	bool negative{false};
 	char* p{ptr};
 
 	if (*p == '-') {
-		negative = 1;
+		negative = true;
 		p++;
 	}
 	else if (*p == '+')
@@ -315,23 +315,22 @@ void scriptfile_preparse(scriptfile* sf, std::string tx, size_t flen)
 	//Count number of lines
 	int numcr{1};
 
-	int cr{0};
 	for(std::size_t i{0}; i < flen; ++i)
 	{
 			//detect all 4 types of carriage return (\r, \n, \r\n, \n\r :)
-		cr = 0;
+		bool cr{false};
 		
 		if (tx[i] == '\r') {
 			i += (tx[i+1] == '\n');
-			cr = 1;
+			cr = true;
 		}
 		else if (tx[i] == '\n') {
 			i += (tx[i+1] == '\r');
-			cr = 1;
+			cr = true;
 		}
 
 		if (cr) {
-			numcr++;
+			++numcr;
 			continue;
 		}
 	}
@@ -347,12 +346,12 @@ void scriptfile_preparse(scriptfile* sf, std::string tx, size_t flen)
 	for(int i{}; i < flen; ++i)
 	{
 			//detect all 4 types of carriage return (\r, \n, \r\n, \n\r :)
-		cr = 0;
+		bool cr{false};
 		
 		if (tx[i] == '\r') { i += (tx[i+1] == '\n');
-			cr = 1; }
+			cr = true; }
 		else if (tx[i] == '\n') { i += (tx[i+1] == '\r');
-			cr = 1; }
+			cr = true; }
 
 		if (cr)
 		{

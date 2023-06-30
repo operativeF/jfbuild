@@ -377,7 +377,7 @@ int startwin_puts(std::string_view buf)
     const char *p = nullptr;
     const char *q = nullptr;
     std::array<char, 1024> workbuf;
-    static int newline = 0;
+    static bool newline{false};
     int curlen, linesbefore, linesafter;
     HWND edctl;
     int vis;
@@ -397,14 +397,14 @@ int startwin_puts(std::string_view buf)
     while (*p) {
         if (newline) {
             SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)"\r\n");
-            newline = 0;
+            newline = false;
         }
         q = p;
         while (*q && *q != '\n') q++;
         std::memcpy(workbuf.data(), p, q-p);
         if (*q == '\n') {
             if (!q[1]) {
-                newline = 1;
+                newline = true;
                 workbuf[q-p] = 0;
             } else {
                 workbuf[q-p] = '\r';

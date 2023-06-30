@@ -1103,9 +1103,8 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 	int d1;
 	int u1;
 	int v1;
-	int xmodnice = 0;
-	int ymulnice = 0;
-	int dorot;
+	bool xmodnice{false};
+	bool ymulnice{false};
 	unsigned char dacol = 0, *walptr, *palptr = nullptr, *vidp, *vide;
 
 #ifdef DEBUGGINGAIDS
@@ -1147,7 +1146,9 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 	}
 	walptr = (unsigned char *)waloff[globalpicnum];
 
-	j = 0; dorot = ((gchang != 1.0) || (gctang != 1.0));
+	j = 0;
+	bool dorot = ((gchang != 1.0) || (gctang != 1.0));
+
 	if (dorot)
 	{
 		for(i=0;i<n;i++)
@@ -1548,11 +1549,11 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 		palptr = &palookup[globalpal][std::min(std::max(globalshade, 0), static_cast<int>(numpalookups) - 1) << 8]; //<-need to make shade not static!
 
 		tsizxm1 = tsizx-1;
-		xmodnice = (!(tsizxm1&tsizx));
+		xmodnice = !(tsizxm1 & tsizx);
 		tsizym1 = tsizy-1;
-		ymulnice = (!(tsizym1&tsizy));
-		if ((method & METH_CLAMPED) && (!xmodnice)) //Sprites don't need a mod on texture coordinates
-			{ xmodnice = 1; for(tsizxm1=1;tsizxm1<tsizx;tsizxm1=(tsizxm1<<1)+1); }
+		ymulnice = !(tsizym1 & tsizy);
+		if ((method & METH_CLAMPED) && !xmodnice) //Sprites don't need a mod on texture coordinates
+			{ xmodnice = true; for(tsizxm1=1;tsizxm1<tsizx;tsizxm1=(tsizxm1<<1)+1); }
 		if (!ymulnice) { for(tsizym1=1;tsizym1+1<tsizy;tsizym1=(tsizym1<<1)+1); }
 		ltsizy = (picsiz[globalpicnum]>>4);
 	}
@@ -1637,7 +1638,7 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 						switch (method & (METH_MASKED | METH_TRANS))
 						{
 							case METH_SOLID:
-								if (xmodnice&ymulnice) //both u&v texture sizes are powers of 2 :)
+								if (xmodnice && ymulnice) //both u&v texture sizes are powers of 2 :)
 								{
 									for(xx=ix0;xx<ix1;xx+=(1<<LINTERPSIZ))
 									{

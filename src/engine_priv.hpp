@@ -73,10 +73,10 @@ inline int globalorientation{0};
 extern "C" short searchwall;
 inline short searchstat{-1};
 
-inline char inpreparemirror{0};
+inline bool inpreparemirror{false};
 
 inline int curbrightness{0};
-inline int gammabrightness{0};
+inline bool gammabrightness{false};
 inline float curgamma{1.0F};
 inline unsigned char britable[16][256]{};
 inline std::array<unsigned char, MAXTILES> picsiz{};

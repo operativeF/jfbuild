@@ -98,8 +98,8 @@ int globalvisibility;
 int globalhisibility;
 int globalpisibility;
 int globalcisibility;
-unsigned char globparaceilclip;
-unsigned char globparaflorclip;
+bool globparaceilclip{false};
+bool globparaflorclip{false};
 
 int viewingrangerecip;
 
@@ -2225,8 +2225,6 @@ void florscan(int x1, int x2, int sectnum)
 void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short> dwal, std::span<const int> swal, std::span<const int> lwal)
 {
 	int x;
-	int xnice;
-	int ynice;
 	intptr_t i;
 	intptr_t fpalookup;
 	std::array<int, 4> y1ve;
@@ -2251,11 +2249,11 @@ void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short
 
 	if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
-	xnice = (pow2long[picsiz[globalpicnum] & 15] == tsizx);
-	
+	const bool xnice = (pow2long[picsiz[globalpicnum] & 15] == tsizx);
 	if (xnice)
 		--tsizx;
-	ynice = (pow2long[picsiz[globalpicnum] >> 4] == tsizy);
+
+	const bool ynice = (pow2long[picsiz[globalpicnum] >> 4] == tsizy);
 	if (ynice)
 		tsizy = (picsiz[globalpicnum]>>4);
 
@@ -5734,7 +5732,7 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 	int ny2;
 	int xx;
 	int xend;
-	int qlinemode{0};
+	bool qlinemode{false};
 	std::array<int, 4> y1ve;
 	std::array<int, 4> y2ve;
 	int u4;
@@ -5855,12 +5853,12 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 			{
 				if ((xv2 & 0x0000ffff) == 0)
 				{
-					qlinemode = 1;
+					qlinemode = true;
 					setupqrhlineasm4(0L,yv2<<16,(xv2>>16)*ysiz+(yv2>>16),(void *)palookupoffs,0L,0L);
 				}
 				else
 				{
-					qlinemode = 0;
+					qlinemode = false;
 					setuprhlineasm4(xv2<<16,yv2<<16,(xv2>>16)*ysiz+(yv2>>16),(void *)palookupoffs,ysiz,0L);
 				}
 			}
@@ -7013,21 +7011,21 @@ void drawrooms(int daposx, int daposy, int daposz,
 		if (globalcursectnum < 0) globalcursectnum = i;
 	}
 
-	globparaceilclip = 1;
-	globparaflorclip = 1;
+	globparaceilclip = true;
+	globparaflorclip = true;
 
 	auto cfz = getzsofslope(globalcursectnum,globalposx,globalposy);
 	if (globalposz < cfz.ceilz)
-		globparaceilclip = 0;
+		globparaceilclip = false;
 
 	if (globalposz > cfz.floorz)
-		globparaflorclip = 0;
+		globparaflorclip = false;
 
 	scansector(globalcursectnum);
 
 	if (inpreparemirror)
 	{
-		inpreparemirror = 0;
+		inpreparemirror = false;
 		mirrorsx1 = xdimen-1;
 		mirrorsx2 = 0;
 
@@ -9198,7 +9196,7 @@ void nextpage()
 
 			if (captureatnextpage) {
 				screencapture("", captureatnextpage); // FIXME: Correct behavior?
-				captureatnextpage = 0;
+				captureatnextpage = false;
 			}
 
 			showframe();
@@ -12378,7 +12376,7 @@ void preparemirror(int dax, int day, int daz, short daang, int dahoriz, short da
 	*tposy = (y << 1) + scale(dy, i, j) - day;
 	*tang = (((getangle(dx,dy)<<1)-daang)&2047);
 
-	inpreparemirror = 1;
+	inpreparemirror = true;
 }
 
 
@@ -12395,7 +12393,7 @@ void completemirror()
 
 		//Can't reverse with uninitialized data
 	if (inpreparemirror) {
-		inpreparemirror = 0;
+		inpreparemirror = false;
 		return;
 	}
 

@@ -30,7 +30,7 @@ extern intptr_t asm3;
 namespace {
 
 int bpl;
-int transmode{0};
+bool transmode{false};
 int glogx;
 int glogy;
 int gbxinc;
@@ -53,11 +53,11 @@ void fixtransluscence(void *datransoff) {
 }
 
 void settransnormal() {
-	transmode = 0;
+	transmode = false;
 }
 
 void settransreverse() {
-	transmode = 1;
+	transmode = true;
 }
 
 

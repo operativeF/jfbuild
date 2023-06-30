@@ -155,8 +155,8 @@ void PTCacheLoadIndex()
 
 	int total{0};
 	int dups{0};
-	int haveindex{0};
-	int havestore{0};
+	bool haveindex{false};
+	bool havestore{false};
 
 	// first, check the cache storage file's signature.
 	// we open for reading and writing to test permission
@@ -165,7 +165,7 @@ void PTCacheLoadIndex()
 	std::array<int8_t, 16> sig;
 
 	if (fh) {
-		havestore = 1;
+		havestore = true;
 
 		if (std::fread(&sig[0], 16, 1, fh) != 1 || std::memcmp(&sig[0], &storagesig[0], 16)) {
 			cachereplace = true;
@@ -188,7 +188,7 @@ void PTCacheLoadIndex()
 	// next, check the index
 	fh = std::fopen(CACHEINDEXFILE, "r+b");
 	if (fh) {
-		haveindex = 1;
+		haveindex = true;
 
 		if (std::fread(&sig[0], 16, 1, fh) != 1 || std::memcmp(&sig[0], &indexsig[0], 16)) {
 			cachereplace = true;

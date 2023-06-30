@@ -44,8 +44,6 @@
 #include <string_view>
 #include <utility>
 
-extern int gammabrightness;
-
 static BOOL CheckWinVersion();
 static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 static LPTSTR GetWindowsErrorMsg(DWORD code);
@@ -129,7 +127,8 @@ int SetupDIB(int width, int height);
 void shutdownvideo();
 
 // video
-int desktopxdim=0,desktopydim=0,desktopbpp=0, desktopmodeset=0;
+int desktopxdim=0,desktopydim=0,desktopbpp=0;
+bool desktopmodeset{false};
 int windowposx, windowposy;
 unsigned modeschecked=0;
 unsigned maxrefreshfreq=60;
@@ -412,9 +411,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, 
 	_buildargc = 0;
 
 	if (argvbuf) {
-		char quoted{0};
-		char instring{0};
-		char swallownext{0};
+		bool quoted{false};
+		bool instring{false};
+		bool swallownext{false};
 
 		char *p;
 		char *wp; int i;
@@ -423,7 +422,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, 
 				if (instring && !quoted) {
 					// end of a string
 					*(wp++) = 0;
-					instring = 0;
+					instring = false;
 				} else if (instring) {
 					*(wp++) = *p;
 				}
@@ -432,25 +431,25 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, const LPSTR lpCmdLine, 
 					// end of a string
 					if (p[1] == ' ') {
 						*(wp++) = 0;
-						instring = 0;
-						quoted = 0;
+						instring = false;
+						quoted = false;
 					} else {
-						quoted = 0;
+						quoted = false;
 					}
 				} else if (instring && !quoted) {
-					quoted = 1;
+					quoted = true;
 				} else if (!instring) {
-					instring = 1;
-					quoted = 1;
+					instring = true;
+					quoted = true;
 					_buildargc++;
 				}
 			} else if (*p == '\\' && p[1] == '"' && !swallownext) {
-				swallownext = 1;
+				swallownext = true;
 			} else {
 				if (!instring) _buildargc++;
-				instring = 1;
+				instring = true;
 				*(wp++) = *p;
-				swallownext = 0;
+				swallownext = false;
 			}
 		}
 		*wp = 0;
@@ -696,7 +695,7 @@ void debugprintf(const char *f, ...)
 //
 namespace {
 
-int eatosdinput{0};
+bool eatosdinput{false};
 
 } // namespace
 
@@ -705,7 +704,7 @@ int handleevents() {
 
 	while (::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 		if (msg.message == WM_QUIT) {
-			quitevent = 1;
+			quitevent = true;
 		}
 
 		if (startwin_idle((void*)&msg) > 0) {
@@ -716,7 +715,7 @@ int handleevents() {
 		::DispatchMessage(&msg);
 	}
 
-	eatosdinput = 0;
+	eatosdinput = false;
 	updatemouse();
 	updatejoystick();
 
@@ -1272,7 +1271,7 @@ void shutdownvideo()
 
 	if (desktopmodeset) {
 		::ChangeDisplaySettings(nullptr, 0);
-		desktopmodeset = 0;
+		desktopmodeset = false;
 	}
 }
 
@@ -1302,7 +1301,7 @@ int setvideomode(int x, int y, int c, bool fs)
 
 	if (hWindow && gammabrightness) {
 		setgammaramp(sysgamma);
-		gammabrightness = 0;
+		gammabrightness = false;
 	}
 
 	if (baselayer_videomodewillchange) {
@@ -1320,11 +1319,11 @@ int setvideomode(int x, int y, int c, bool fs)
 
 	if (!gammabrightness) {
 		if (getgammaramp(sysgamma) >= 0) {
-			gammabrightness = 1;
+			gammabrightness = true;
 		}
 
 		if (gammabrightness && setgamma(curgamma) < 0) {
-			gammabrightness = 0;
+			gammabrightness = false;
 		}
 	}
 
@@ -2251,7 +2250,7 @@ static BOOL CreateAppWindow(int width, int height, int bitspp, bool fs, int refr
 				ShowErrorBox("Video mode not supported");
 				return TRUE;
 			}
-			desktopmodeset = 1;
+			desktopmodeset = true;
 		}
 
 		::ShowWindow(hWindow, SW_SHOWNORMAL);
@@ -2290,7 +2289,7 @@ static void DestroyAppWindow()
 {
 	if (hWindow && gammabrightness) {
 		setgammaramp(sysgamma);
-		gammabrightness = 0;
+		gammabrightness = false;
 	}
 
 	shutdownvideo();
@@ -2425,7 +2424,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 			return 0;
 
 		case WM_CLOSE:
-			quitevent = 1;
+			quitevent = true;
 			return 0;
 
 		case WM_SYSKEYDOWN:
@@ -2451,7 +2450,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 				} else if (scan == OSD_CaptureKey(-1)) {
 					if (press) {
 						OSD_ShowDisplay(-1);
-						eatosdinput = 1;
+						eatosdinput = true;
 					}
 				} else if (OSD_HandleKey(scan, press) != 0) {
 					if (!keystatus[scan] || !press) {
@@ -2463,7 +2462,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
 		case WM_CHAR:
 			if (eatosdinput) {
-				eatosdinput = 0;
+				eatosdinput = false;
 			} else if (OSD_HandleChar((unsigned char)wParam)) {
 				if (((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc) {
 					keyasciififo[keyasciififoend] = (unsigned char)wParam;
@@ -2512,13 +2511,13 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 					if (raw.data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) {
 						static LONG absx = 0;
 						static LONG absy = 0;
-						static char first = 1;
+						static bool first{true};
 
 						if (!first) {
 							mousex += raw.data.mouse.lLastX - absx;
 							mousey += raw.data.mouse.lLastY - absy;
 						} else {
-							first = 0;
+							first = false;
 						}
 						absx = raw.data.mouse.lLastX;
 						absy = raw.data.mouse.lLastY;

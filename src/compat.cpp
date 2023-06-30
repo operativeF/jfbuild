@@ -205,8 +205,8 @@ int Bcorrectfilename(char *filename, int removefn)
 	char *token;
 	int i;
 	int ntok = 0;
-	int leadslash = 0;
-	int trailslash = 0;
+	bool leadslash{false};
+	bool trailslash{false};
 	
 	fn = strdup(filename);
 	if (!fn) return -1;
@@ -236,11 +236,11 @@ int Bcorrectfilename(char *filename, int removefn)
 	
 	if (!trailslash && removefn) {
 		ntok = std::max(0, ntok - 1);
-		trailslash = 1;
+		trailslash = true;
 	}
 
 	if (ntok == 0 && trailslash && leadslash) {
-		trailslash = 0;
+		trailslash = false;
 	}
 	
 	// rebuild the filename
@@ -251,7 +251,9 @@ int Bcorrectfilename(char *filename, int removefn)
 		for (token=tokarr[i]; *token; token++)
 			*(first++) = *token;
 	}
-	if (trailslash) *(first++) = '/';
+	if (trailslash)
+		*(first++) = '/';
+
 	*(first++) = 0;
 	
 	std::free(fn);

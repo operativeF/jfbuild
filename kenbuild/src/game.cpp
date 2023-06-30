@@ -674,7 +674,7 @@ int app_main(int argc, char const * const argv[])
 			if (handleevents()) {
 				if (quitevent) {
 					keystatus[1] = 1;
-					quitevent = 0;
+					quitevent = false;
 				}
 			}
 
@@ -722,7 +722,7 @@ int app_main(int argc, char const * const argv[])
 		if (handleevents()) {
 			if (quitevent) {
 				keystatus[1] = 1;
-				quitevent = 0;
+				quitevent = false;
 			}
 		}
 
@@ -3790,17 +3790,17 @@ void drawscreen(short snum, int dasmoothratio)
 
 	if (dimensionmode[myconnectindex] == 3)
 	{
-		int apply = 0;
+		bool apply{false};
 		tempint = screensize;
 
 		if (((loc.bits&32) > (screensizeflag&32)) && (screensize > 64))
 		{
-			apply = 1;
+			apply = true;
 			screensize -= (screensize>>3);
 		}
 		if (((loc.bits&16) > (screensizeflag&16)) && (screensize <= xdim))
 		{
-			apply = 1;
+			apply = true;
 			screensize += (screensize>>3);
 			if ((screensize > xdim) && (tempint == xdim))
 			{
@@ -3812,8 +3812,10 @@ void drawscreen(short snum, int dasmoothratio)
 			}
 		}
 		if (apply) {
-			ox1 = oy1 = 0;
-			ox2 = xdim-1; oy2 = ydim-32-1;
+			ox1 = 0;
+			oy1 = 0;
+			ox2 = xdim-1;
+			oy2 = ydim-32-1;
 
 			flushperms();
 
@@ -4949,7 +4951,7 @@ void playback()
 		if (handleevents()) {
 			if (quitevent) {
 				keystatus[1] = 1;
-				quitevent = 0;
+				quitevent = false;
 			}
 		}
 

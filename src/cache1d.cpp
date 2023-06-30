@@ -682,13 +682,13 @@ int kopen4load(const char *filename, char searchfirst)
 			{
 				const auto* gfileptr = (char *)&gfilelist[k][i << 4];
 
-				char bad{0};
+				bool bad{false};
 				int j{0};
 				for(; j < 13; ++j)
 				{
 					if (!filename[j]) break;
 					if (toupperlookup[(int)(unsigned char)filename[j]] != toupperlookup[(int)(unsigned char)gfileptr[j]])
-						{ bad = 1; break; }
+						{ bad = true; break; }
 				}
 
 				if (bad) 
@@ -878,21 +878,21 @@ int klistaddentry(CACHE1D_FIND_REC **rec, const std::string& name, int type, int
 	CACHE1D_FIND_REC *attach = nullptr;
 
 	if (*rec) {
-		int insensitive;
+		bool insensitive{false};
 		int v;
 		CACHE1D_FIND_REC *last = nullptr;
 		
 		for (attach = *rec; attach; last = attach, attach = attach->next) {
 			if (type == CACHE1D_FIND_DRIVE) continue;	// we just want to get to the end for drives
 #ifdef _WIN32
-			insensitive = 1;
+			insensitive = true;
 #else
 			if (source == CACHE1D_SOURCE_GRP || attach->source == CACHE1D_SOURCE_GRP)
-				insensitive = 1;
+				insensitive = true;
 			else if (source == CACHE1D_SOURCE_ZIP || attach->source == CACHE1D_SOURCE_ZIP)
-				insensitive = 1;
+				insensitive = true;
 			else
-				insensitive = 0;
+				insensitive = false;
 #endif
 			if (insensitive) v = CmpNoCase(name, attach->name);
 			else v = std::strcmp(name.c_str(), attach->name);

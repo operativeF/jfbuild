@@ -8,7 +8,7 @@
 // screencapture
 //
 
-inline char captureatnextpage{0};
+inline bool captureatnextpage{false};
 
 std::FILE *screencapture_openfile(const char *ext);
 

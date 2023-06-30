@@ -501,7 +501,7 @@ int app_main(int argc, char const * const argv[])
 		if (handleevents()) {
 			if (quitevent) {
 				keystatus[1] = 1;
-				quitevent = 0;
+				quitevent = false;
 			}
 		}
 
@@ -2576,7 +2576,7 @@ int gettile(int tilenum)
 		showframe();
 
 		if (handleevents()) {
-			if (quitevent) quitevent = 0;
+			if (quitevent) quitevent = false;
 		}
 
 		synctics = totalclock-lockclock;
@@ -2643,7 +2643,7 @@ int gettile(int tilenum)
 			j = tilenum;
 			while (keystatus[1] == 0) {
 				if (handleevents()) {
-					if (quitevent) quitevent = 0;
+					if (quitevent) quitevent = false;
 				}
 
 				const auto ch = bgetchar();
@@ -2940,7 +2940,7 @@ void overheadeditor()
 		if (handleevents()) {
 			if (quitevent) {
 				keystatus[1] = 1;
-				quitevent = 0;
+				quitevent = false;
 			}
 		}
 
@@ -5222,7 +5222,7 @@ void overheadeditor()
 			{
 				if (handleevents()) {
 					if (quitevent) {
-						quitevent = 0;
+						quitevent = false;
 					}
 				}
 
@@ -5244,7 +5244,7 @@ void overheadeditor()
 					{
 						if (handleevents()) {
 							if (quitevent) {
-								quitevent = 0;
+								quitevent = false;
 							}
 						}
 
@@ -5576,7 +5576,7 @@ void overheadeditor()
 						showframe();
 
 						if (handleevents()) {
-							if (quitevent) quitevent = 0;
+							if (quitevent) quitevent = false;
 						}
 
 						ch = bgetchar();
@@ -5672,7 +5672,7 @@ void overheadeditor()
 					while (keystatus[1] == 0)
 					{
 						if (handleevents()) {
-							if (quitevent) quitevent = 0;
+							if (quitevent) quitevent = false;
 						}
 
 						ch = bgetchar();
@@ -6251,7 +6251,7 @@ short getnumber16(char *namestart, short num, int maxnumber, char sign)
 	while (keystatus[0x1] == 0)
 	{
 		if (handleevents()) {
-			if (quitevent) quitevent = 0;
+			if (quitevent) quitevent = false;
 		}
 
 		const auto ch = bgetchar();
@@ -6294,7 +6294,7 @@ short getnumber256(char *namestart, short num, int maxnumber, char sign)
 	while (keystatus[0x1] == 0)
 	{
 		if (handleevents()) {
-			if (quitevent) quitevent = 0;
+			if (quitevent) quitevent = false;
 		}
 
 		drawrooms(posx,posy,posz,ang,horiz,cursectnum);
@@ -6466,7 +6466,7 @@ int menuselect(int newpathmode)
 			if (handleevents()) {
 				if (quitevent) {
 					keystatus[1] = 1;
-					quitevent = 0;
+					quitevent = false;
 				}
 			}
 			ch = bgetchar();

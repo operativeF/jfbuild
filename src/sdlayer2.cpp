@@ -1397,7 +1397,7 @@ int handleevents()
 				break;
 
 			case SDL_QUIT:
-				quitevent = 1;
+				quitevent = true;
 				rv=-1;
 				break;
 

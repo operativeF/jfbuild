@@ -14,7 +14,7 @@
 inline int _buildargc{0};
 inline const char **_buildargv{nullptr};
 
-inline char quitevent{0};
+inline bool quitevent{false};
 inline bool appactive{true};
 
 enum {
