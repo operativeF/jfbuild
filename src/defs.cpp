@@ -604,7 +604,7 @@ int defsparser(scriptfile* script)
 								}
 #if USE_POLYMOST && USE_OPENGL
 								for (tilex = ftilenume.value(); tilex <= ltilenume && happy; ++tilex) {
-									switch (md_defineframe(lastmodelid, framename.c_str(), tilex, std::max(0, modelskin))) {
+									switch (md_defineframe(lastmodelid, framename, tilex, std::max(0, modelskin))) {
 										case 0: break;
 										case -1: happy = false; break; // invalid model id!?
 										case -2: buildprintf("Invalid tile number on line {}:{}\n",
@@ -658,7 +658,7 @@ int defsparser(scriptfile* script)
 									break;
 								}
 #if USE_POLYMOST && USE_OPENGL
-								switch (md_defineanimation(lastmodelid, startframe.c_str(), endframe.c_str(), (int)(dfps*(65536.0*.001)), flags)) {
+								switch (md_defineanimation(lastmodelid, startframe, endframe, (int)(dfps*(65536.0*.001)), flags)) {
 									case 0: break;
 									case -1: break; // invalid model id!?
 									case -2: buildprintf("Invalid starting frame name on line {}:{}\n",

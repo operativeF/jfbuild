@@ -5644,7 +5644,7 @@ void overheadeditor()
 					showframe();
 					std::string filename = boardfilename;
 					if (pathsearchmode == PATHSEARCH_GAME) {
-						filename = findfilename(filename.c_str());
+						filename = findfilename(filename);
 					}
 					fixspritesectors();   //Do this before saving!
 					updatesector(startposx,startposy,&startsectnum);
@@ -5652,7 +5652,7 @@ void overheadeditor()
 					if (mapversion < 7) {
 						bad = saveoldboard(filename.c_str(), &startposx, &startposy, &startposz, &startang, &startsectnum);
 					} else {
-						bad = saveboard(filename.c_str(), &startposx, &startposy, &startposz, &startang, &startsectnum);
+						bad = saveboard(filename, &startposx, &startposy, &startposz, &startang, &startsectnum);
 					}
 					if (!bad) {
 						ExtSaveMap(filename.c_str());
@@ -5703,7 +5703,7 @@ void overheadeditor()
 										if (mapversion < 7) {
 											bad = saveoldboard(filename.c_str(), &startposx, &startposy, &startposz, &startang, &startsectnum);
 										} else {
-											bad = saveboard(filename.c_str(), &startposx, &startposy, &startposz, &startang, &startsectnum);
+											bad = saveboard(filename, &startposx, &startposy, &startposz, &startang, &startsectnum);
 										}
 										if (!bad) {
 											ExtSaveMap(filename.c_str());
