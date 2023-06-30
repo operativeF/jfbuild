@@ -409,7 +409,7 @@ int startwin_close()
     return 0;
 }
 
-int startwin_puts(const char *buf)
+int startwin_puts(std::string_view buf)
 {
     const char *p = nullptr;
     const char *q = nullptr;
@@ -432,7 +432,7 @@ int startwin_puts(const char *buf)
     curlen = SendMessage(edctl, WM_GETTEXTLENGTH, 0,0);
     SendMessage(edctl, EM_SETSEL, (WPARAM)curlen, (LPARAM)curlen);
     linesbefore = SendMessage(edctl, EM_GETLINECOUNT, 0,0);
-    p = buf;
+    p = buf.data();
     while (*p) {
         if (newline) {
             SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)"\r\n");

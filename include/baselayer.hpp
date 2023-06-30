@@ -9,6 +9,7 @@
 
 #include <array>
 #include <string>
+#include <string_view>
 
 inline int _buildargc{0};
 inline const char **_buildargv{nullptr};
@@ -26,7 +27,7 @@ struct startwin_settings;
 extern int app_main(int argc, char const * const argv[]);
 extern int startwin_open();
 extern int startwin_close();
-extern int startwin_puts(const char *);
+extern int startwin_puts(std::string_view strv);
 extern int startwin_settitle(const char *);
 extern int startwin_idle(void *);
 extern int startwin_run(struct startwin_settings *);
@@ -69,7 +70,7 @@ inline char joynumaxes{0};
 inline char joynumbuttons{0};
 
 
-void initputs(const char* buf);
+void initputs(std::string_view buf);
 void debugprintf(const char *,...) PRINTF_FORMAT(1, 2);
 
 int handleevents();

@@ -5,8 +5,13 @@
 #ifndef __osd_h__
 #define __osd_h__
 
+#include <fmt/core.h>
+
 #include <string>
+#include <string_view>
 #include <vector>
+
+inline bool osdinited{false};		// text buffer initialised?
 
 struct osdfuncparm_t {
 	std::string name;
@@ -60,11 +65,29 @@ void OSD_ShowDisplay(int onf);
 // draw the osd to the screen
 void OSD_Draw();
 
-// just like printf
-void OSD_Printf(const char *fmt, ...);
-
 // just like puts
 void OSD_Puts(std::string_view strv);
+
+//
+// OSD_Printf() -- Print a formatted string to the onscreen display
+//   and write it to the log file
+//
+
+template<typename... Args>
+void OSD_Printf(std::string_view form, Args&&... args)
+{
+	if (!osdinited)
+		return;
+	
+	// FIXME: Logging?
+	// if (logfile) {
+	// 	fmt::vprint(logfile, form, fmt::make_format_args(args...));
+	// }
+
+	const auto tmpstr = fmt::vformat(form, fmt::make_format_args(args...));
+
+	OSD_Puts(tmpstr);
+}
 
 // executes buffered commands
 void OSD_DispatchQueued();

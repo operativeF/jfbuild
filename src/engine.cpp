@@ -12865,8 +12865,8 @@ void buildputs(std::string_view str)
     if (logfile)
 		fmt::print(logfile, "{}", str);
     
-	initputs(str.data());  // the startup window
-    OSD_Puts(str.data());  // the onscreen-display
+	initputs(str);  // the startup window
+    OSD_Puts(str);  // the onscreen-display
 }
 
 void buildsetlogfile(const char *fn)

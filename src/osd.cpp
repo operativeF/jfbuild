@@ -62,7 +62,6 @@ int  osdmaxrows=20;		// maximum number of lines which can fit on the screen
 int  osdmaxlines = TEXTSIZE / 60;	// maximum lines which can fit in the buffer
 bool osdvisible{false};		// onscreen display visible?
 int  osdhead=0; 			// topmost visible line number
-bool osdinited{false};		// text buffer initialised?
 int  osdkey=0x45;		// numlock shows the osd
 int  keytime=0;
 
@@ -224,7 +223,7 @@ int osdcmd_osdvars(const osdfuncparm_t *parm)
 
 	if (IsSameAsNoCase(parm->name, "osdrows")) {
 		if (showval) {
-			OSD_Printf("osdrows is %d\n", osdrows); return OSDCMD_OK;
+			OSD_Printf("osdrows is {}\n", osdrows); return OSDCMD_OK;
 		}
 		else {
 			const std::string_view parmv{parm->parms[0]};
@@ -246,7 +245,7 @@ int osdcmd_listsymbols(const osdfuncparm_t *parm)
 	std::ignore = parm;
 
 	OSD_Printf("Symbol listing:\n");
-	std::ranges::for_each(symbols, [](std::string_view symbname) { OSD_Printf("     %s\n", symbname); }, &symbol_t::name);
+	std::ranges::for_each(symbols, [](std::string_view symbname) { OSD_Printf("     {}\n", symbname); }, &symbol_t::name);
 
 	return OSDCMD_OK;
 }
@@ -259,9 +258,9 @@ int osdcmd_help(const osdfuncparm_t *parm)
 	const auto symb = findexactsymbol(parm->parms[0].data());
 	
 	if (symb == symbols.end()) {
-		OSD_Printf("Help Error: \"%s\" is not a defined variable or function\n", parm->parms[0]);
+		OSD_Printf("Help Error: \"{}\" is not a defined variable or function\n", parm->parms[0]);
 	} else {
-		OSD_Printf("%s\n", symb->help);
+		OSD_Printf("{}\n", symb->help);
 	}
 
 	return OSDCMD_OK;
@@ -946,26 +945,6 @@ inline void linefeed()
 } // namespace
 
 //
-// OSD_Printf() -- Print a formatted string to the onscreen display
-//   and write it to the log file
-//
-
-void OSD_Printf(const char *fmt, ...)
-{
-	if (!osdinited)
-		return;
-
-	char tmpstr[1024];
-	va_list va;
-
-	va_start(va, fmt);
-	vsnprintf(tmpstr, sizeof(tmpstr), fmt, va);
-	va_end(va);
-
-	OSD_Puts(tmpstr);
-}
-
-//
 // OSD_Puts() -- Print a string to the onscreen display
 //   and write it to the log file
 //
@@ -1114,7 +1093,7 @@ int OSD_Dispatch(const char *cmd)
 
 		const auto symb = findexactsymbol(wp);
 		if (symb == symbols.end()) {
-			OSD_Printf("Error: \"%s\" is not defined\n", wp);
+			OSD_Printf("Error: \"{}\" is not defined\n", wp);
 			std::free(workbuf);
 			return -1;
 		}
@@ -1131,7 +1110,7 @@ int OSD_Dispatch(const char *cmd)
 		ofp.raw      = cmd;
 		switch (symb->func(&ofp)) {
 			case OSDCMD_OK: break;
-			case OSDCMD_SHOWHELP: OSD_Printf("%s\n", symb->help); break;
+			case OSDCMD_SHOWHELP: OSD_Printf("{}\n", symb->help); break;
 		}
 
 		state = wtp;

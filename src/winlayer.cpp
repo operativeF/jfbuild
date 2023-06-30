@@ -661,7 +661,7 @@ void uninitsystem()
 //
 // initputs() -- prints a string to the intitialization window
 //
-void initputs(const char *buf)
+void initputs(std::string_view buf)
 {
 	startwin_puts(buf);
 }
