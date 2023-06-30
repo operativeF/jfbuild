@@ -2090,11 +2090,25 @@ void florscan(int x1, int x2, int sectnum)
 		
 		std::swap(globalx1, globaly2);
 	}
-	if ((globalorientation&0x10) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalxpanning = -globalxpanning;
-	if ((globalorientation&0x20) > 0) globalx2 = -globalx2, globaly2 = -globaly2, globalypanning = -globalypanning;
-	globalx1 <<= globalxshift; globaly1 <<= globalxshift;
-	globalx2 <<= globalyshift;  globaly2 <<= globalyshift;
-	globalxpanning <<= globalxshift; globalypanning <<= globalyshift;
+
+	if ((globalorientation&0x10) > 0) {
+		globalx1 = -globalx1;
+		globaly1 = -globaly1;
+		globalxpanning = -globalxpanning;
+	}
+
+	if ((globalorientation&0x20) > 0) {
+		globalx2 = -globalx2;
+		globaly2 = -globaly2;
+		globalypanning = -globalypanning;
+	}
+
+	globalx1 <<= globalxshift;
+	globaly1 <<= globalxshift;
+	globalx2 <<= globalyshift;
+	globaly2 <<= globalyshift;
+	globalxpanning <<= globalxshift;
+	globalypanning <<= globalyshift;
 	globalxpanning += (((int)sec->floorxpanning)<<24);
 	globalypanning += (((int)sec->floorypanning)<<24);
 	globaly1 = (-globalx1-globaly1)*halfxdimen;
@@ -2104,10 +2118,10 @@ void florscan(int x1, int x2, int sectnum)
 
 	globalx2 += globaly2*(x1-1);
 	globaly1 += globalx1*(x1-1);
-	globalx1 = mulscalen<16>(globalx1,globalzd);
-	globalx2 = mulscalen<16>(globalx2,globalzd);
-	globaly1 = mulscalen<16>(globaly1,globalzd);
-	globaly2 = mulscalen<16>(globaly2,globalzd);
+	globalx1 = mulscalen<16>(globalx1, globalzd);
+	globalx2 = mulscalen<16>(globalx2, globalzd);
+	globaly1 = mulscalen<16>(globaly1, globalzd);
+	globaly2 = mulscalen<16>(globaly2, globalzd);
 	globvis = std::abs(mulscalen<10>(globvis,globalzd));
 
 	if (!(globalorientation&0x180))
@@ -2127,8 +2141,10 @@ void florscan(int x1, int x2, int sectnum)
 				}
 				else
 				{
-					while (y1 < twall) hline(x-1,++y1);
-					while (y1 > twall) lastx[y1--] = x;
+					while (y1 < twall)
+						hline(x - 1, ++y1);
+					while (y1 > twall)
+						lastx[y1--] = x;
 				}
 				while (y2 > bwall) hline(x-1,--y2);
 				while (y2 < bwall) lastx[y2++] = x;
@@ -2140,7 +2156,9 @@ void florscan(int x1, int x2, int sectnum)
 				y1 = std::max(dplc[x + 1], umost[x + 1]);
 				y2 = y1;
 			}
-			globalx2 += globaly2; globaly1 += globalx1;
+
+			globalx2 += globaly2;
+			globaly1 += globalx1;
 		}
 		while (y1 < y2-1) hline(x2,++y1);
 		faketimerhandler();
@@ -2190,9 +2208,13 @@ void florscan(int x1, int x2, int sectnum)
 			y1 = std::max(dplc[x + 1], umost[x + 1]);
 			y2 = y1;
 		}
-		globalx2 += globaly2; globaly1 += globalx1;
+		globalx2 += globaly2;
+		globaly1 += globalx1;
 	}
-	while (y1 < y2-1) slowhline(x2,++y1);
+
+	while (y1 < y2-1)
+		slowhline(x2,++y1);
+
 	faketimerhandler();
 }
 
@@ -2218,16 +2240,24 @@ void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short
 	int tsizx = tilesizx[globalpicnum];
 	int tsizy = tilesizy[globalpicnum];
 	setgotpic(globalpicnum);
-	if ((tsizx <= 0) || (tsizy <= 0)) return;
-	if ((uwal[x1] > ydimen) && (uwal[x2] > ydimen)) return;
-	if ((dwal[x1] < 0) && (dwal[x2] < 0)) return;
+	if ((tsizx <= 0) || (tsizy <= 0))
+		return;
+
+	if ((uwal[x1] > ydimen) && (uwal[x2] > ydimen))
+		return;
+
+	if ((dwal[x1] < 0) && (dwal[x2] < 0))
+		return;
 
 	if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
 	xnice = (pow2long[picsiz[globalpicnum] & 15] == tsizx);
-	if (xnice) tsizx--;
+	
+	if (xnice)
+		--tsizx;
 	ynice = (pow2long[picsiz[globalpicnum] >> 4] == tsizy);
-	if (ynice) tsizy = (picsiz[globalpicnum]>>4);
+	if (ynice)
+		tsizy = (picsiz[globalpicnum]>>4);
 
 	fpalookup = (intptr_t)palookup[globalpal].data();
 
@@ -2236,19 +2266,31 @@ void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short
 #ifndef USING_A_C
 
 	x = x1;
-	while ((umost[x] > dmost[x]) && (x <= x2)) x++;
+	while ((umost[x] > dmost[x]) && (x <= x2))
+		++x;
 
 	for(;(x<=x2)&&((x+frameoffset)&3);x++)
 	{
 		y1ve[0] = std::max(uwal[x], umost[x]);
 		y2ve[0] = std::min(dwal[x], dmost[x]);
-		if (y2ve[0] <= y1ve[0]) continue;
+		
+		if (y2ve[0] <= y1ve[0])
+			continue;
 
 		palookupoffse[0] = fpalookup+(getpalookup((int)mulscalen<16>(swal[x],globvis),globalshade)<<8);
 
 		bufplce[0] = lwal[x] + globalxpanning;
-		if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
-		if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
+		if (bufplce[0] >= tsizx) {
+			if (xnice == 0)
+				bufplce[0] %= tsizx;
+			else
+				bufplce[0] &= tsizx;
+		}
+
+		if (ynice == 0)
+			bufplce[0] *= tsizy;
+		else
+			bufplce[0] <<= tsizy;
 
 		vince[0] = swal[x]*globalyscale;
 		vplce[0] = globalzd + vince[0]*(y1ve[0]-globalhoriz+1);
@@ -2262,17 +2304,33 @@ void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short
 		{
 			y1ve[z] = std::max(uwal[x + z], umost[x + z]);
 			y2ve[z] = std::min(dwal[x + z], dmost[x + z]) - 1;
-			if (y2ve[z] < y1ve[z]) { bad += pow2char[z]; continue; }
+			
+			if (y2ve[z] < y1ve[z]) {
+				bad += pow2char[z];
+				continue;
+			}
 
 			i = lwal[x+z] + globalxpanning;
-			if (i >= tsizx) { if (xnice == 0) i %= tsizx; else i &= tsizx; }
-			if (ynice == 0) i *= tsizy; else i <<= tsizy;
+			if (i >= tsizx) {
+				if (xnice == 0)
+					i %= tsizx;
+				else
+					i &= tsizx;
+			}
+
+			if (ynice == 0)
+				i *= tsizy;
+			else
+				i <<= tsizy;
+
 			bufplce[z] = waloff[globalpicnum]+i;
 
 			vince[z] = swal[x+z]*globalyscale;
 			vplce[z] = globalzd + vince[z]*(y1ve[z]-globalhoriz+1);
 		}
-		if (bad == 15) continue;
+		
+		if (bad == 15)
+			continue;
 
 		palookupoffse[0] = fpalookup+(getpalookup((int)mulscalen<16>(swal[x],globvis),globalshade)<<8);
 		palookupoffse[3] = fpalookup+(getpalookup((int)mulscalen<16>(swal[x+3],globvis),globalshade)<<8);
@@ -2317,15 +2375,26 @@ void wallscan(int x1, int x2, std::span<const short> uwal, std::span<const short
 	{
 		y1ve[0] = std::max(uwal[x], umost[x]);
 		y2ve[0] = std::min(dwal[x], dmost[x]);
-		if (y2ve[0] <= y1ve[0]) continue;
+		
+		if (y2ve[0] <= y1ve[0])
+			continue;
 
 		palookupoffse[0] = fpalookup+(getpalookup((int)mulscalen<16>(swal[x],globvis),globalshade)<<8);
 
 		bufplce[0] = lwal[x] + globalxpanning;
-		if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
-		if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
+		if (bufplce[0] >= tsizx) {
+			if (xnice == 0)
+				bufplce[0] %= tsizx;
+			else
+				bufplce[0] &= tsizx;
+		}
 
-		vince[0] = swal[x]*globalyscale;
+		if (ynice == 0)
+			bufplce[0] *= tsizy;
+		else
+			bufplce[0] <<= tsizy;
+
+		vince[0] = swal[x] * globalyscale;
 		vplce[0] = globalzd + vince[0]*(y1ve[0]-globalhoriz+1);
 
 		vlineasm1(vince[0],(void *)palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],(void *)(bufplce[0]+waloff[globalpicnum]),(void *)(x+frameoffset+ylookup[y1ve[0]]));
@@ -3067,13 +3136,17 @@ void drawalls(int bunch)
 		{
 			if (searchy <= uplc[searchx]) //ceiling
 			{
-				searchsector = sectnum; searchwall = wallnum;
-				searchstat = 1; searchit = 1;
+				searchsector = sectnum;
+				searchwall = wallnum;
+				searchstat = 1;
+				searchit = 1;
 			}
 			else if (searchy >= dplc[searchx]) //floor
 			{
-				searchsector = sectnum; searchwall = wallnum;
-				searchstat = 2; searchit = 1;
+				searchsector = sectnum;
+				searchwall = wallnum;
+				searchstat = 2;
+				searchit = 1;
 			}
 		}
 
@@ -3095,10 +3168,10 @@ void drawalls(int bunch)
 					if (globparaceilclip) {
 						for(int x{x1}; x <= x2; ++x) {
 							if (uplc[x] > umost[x]) {
-								if (umost[x] <= dmost[x])
-								{
+								if (umost[x] <= dmost[x]) {
 									umost[x] = uplc[x];
-									if (umost[x] > dmost[x]) numhits--;
+									if (umost[x] > dmost[x])
+										numhits--;
 								}
 							}
 						}
