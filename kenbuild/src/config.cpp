@@ -263,7 +263,7 @@ int loadsetup(const std::string& fn)
 
 #if USE_POLYMOST
 	if (tmprenderer >= 0) {
-		setrendermode(tmprenderer);
+		setrendermode(static_cast<rendmode_t>(tmprenderer));
 	}
 #endif
 #ifdef RENDERTYPEWIN
@@ -306,7 +306,7 @@ int writesetup(const std::string& fn)
 
 	tmpbrightness = brightness;
 #if USE_POLYMOST
-	tmprenderer = getrendermode();
+	tmprenderer = static_cast<std::underlying_type_t<rendmode_t>>(getrendermode());
 #endif
 #ifdef RENDERTYPEWIN
 	tmpmaxrefreshfreq = win_getmaxrefreshfreq();

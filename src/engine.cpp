@@ -660,7 +660,7 @@ std::array<int, 4> bakwindowx2;
 std::array<int, 4> bakwindowy2;
 
 #if USE_POLYMOST
-int bakrendmode;
+rendmode_t bakrendmode;
 int baktile;
 #endif
 
@@ -3809,7 +3809,7 @@ void drawsprite(int snum)
 
 	//============================================================================= //POLYMOST BEGINS
 #if USE_POLYMOST
-	if (rendmode) { polymost_drawsprite(snum); return; }
+	if (rendmode != rendmode_t::Classic) { polymost_drawsprite(snum); return; }
 #endif
 	//============================================================================= //POLYMOST ENDS
 
@@ -4813,7 +4813,7 @@ void drawmaskwall(short damaskwallcnt)
 
 	//============================================================================= //POLYMOST BEGINS
 #if USE_POLYMOST
-	if (rendmode) { polymost_drawmaskwall(damaskwallcnt); return; }
+	if (rendmode != rendmode_t::Classic) { polymost_drawmaskwall(damaskwallcnt); return; }
 #endif
 	//============================================================================= //POLYMOST ENDS
 
@@ -4936,7 +4936,7 @@ void fillpolygon(int npoints)
 	std::vector<short*> dotp2{MAXYDIM};
 
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode == 3) {
+	if (rendmode == rendmode_t::OpenGL) {
 		polymost_fillpolygon(npoints);
 		return;
 	}
@@ -5465,7 +5465,7 @@ void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed char da
 
 	//============================================================================= //POLYMOST BEGINS
 #if USE_POLYMOST
-	if (rendmode) {
+	if (rendmode != rendmode_t::Classic) {
 		polymost_dorotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, cx1, cy1, cx2, cy2, uniqid);
 		return;
 	}
@@ -6915,7 +6915,10 @@ void drawrooms(int daposx, int daposy, int daposz,
 
 	//============================================================================= //POLYMOST BEGINS
 #if USE_POLYMOST
-	polymost_drawrooms(); if (rendmode) { return; }
+	polymost_drawrooms();
+	if (rendmode != rendmode_t::Classic) {
+		return;
+	}
 #endif
 	//============================================================================= //POLYMOST ENDS
 
@@ -7142,7 +7145,7 @@ killsprite:
 		//bad sorting causing transparent quads knocking out opaque quads behind it.
 		//
 		//Need to store alpha flag with all textures before this works right!
-	if (rendmode > 0)
+	if (rendmode != rendmode_t::Classic)
 	{
 		for(i=spritesortcnt-1;i>=0;i--)
 			if ((!(tspriteptr[i]->cstat&2))
@@ -7196,7 +7199,7 @@ killsprite:
 			for(i=spritesortcnt-2;i>=0;i--)
 			{
 #if USE_POLYMOST
-				if (rendmode > 0)
+				if (rendmode != rendmode_t::Classic)
 					l = dxb1[j] <= (double)spritesx[i]/256.0 && (double)spritesx[i]/256.0 <= dxb2[j];
 				else
 #endif
@@ -9004,9 +9007,9 @@ int setgamemode(bool davidoption, int daxdim, int daydim, int dabpp)
 
 #if USE_POLYMOST && USE_OPENGL
 	if (dabpp > 8)
-		rendmode = 3;	// GL renderer
+		rendmode = rendmode_t::OpenGL;	// GL renderer
 	else if (dabpp == 8 && oldbpp != 8)
-		rendmode = 0;	// going from GL to software activates classic
+		rendmode = rendmode_t::Classic;	// going from GL to software activates classic
 #endif
 
 	xdim = xres;
@@ -9063,7 +9066,7 @@ int setgamemode(bool davidoption, int daxdim, int daydim, int dabpp)
 	setview(0L, 0L, xdim - 1, ydim - 1);
 
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode == 3) {
+	if (rendmode == rendmode_t::OpenGL) {
 		polymost_glreset();
 		polymost_glinit();
 	}
@@ -11993,7 +11996,7 @@ void setbrightness(int dabrightness, std::span<const unsigned char> dapal, char 
 	}
 
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode == 3) {
+	if (rendmode == rendmode_t::OpenGL) {
 		static unsigned int lastpalettesum{0};
 		const unsigned int newpalettesum = crc32once((unsigned char *)&curpalettefaded[0], sizeof(curpalettefaded));
 
@@ -12066,7 +12069,7 @@ void clearview(int dacol)
 	}
 
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode == 3) {
+	if (rendmode == rendmode_t::OpenGL) {
 		palette_t p;
 
 		if (gammabrightness) {
@@ -12114,7 +12117,7 @@ void clearallviews(int dacol)
 	}
 
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode == 3) {
+	if (rendmode == rendmode_t::OpenGL) {
 		palette_t p;
 		if (gammabrightness)
 			p = curpalette[dacol];
@@ -12160,7 +12163,7 @@ void plotpixel(int x, int y, unsigned char col)
 unsigned char getpixel(int x, int y)
 {
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode == 3 && qsetmode == 200) return 0;
+	if (rendmode == rendmode_t::OpenGL && qsetmode == 200) return 0;
 #endif
 
 	return readpixel((void*)(ylookup[y] + x + frameplace));
@@ -12191,7 +12194,7 @@ void setviewtotile(short tilenume, int xsiz, int ysiz)
 		baktile = tilenume;
 	}
 
-	rendmode = 0; //2;
+	rendmode = rendmode_t::Classic; //2;
 #endif
 	copybufbyte(&startumost[windowx1],&bakumost[windowx1],(windowx2-windowx1+1)*sizeof(bakumost[0]));
 	copybufbyte(&startdmost[windowx1],&bakdmost[windowx1],(windowx2-windowx1+1)*sizeof(bakdmost[0]));
@@ -12320,7 +12323,7 @@ void preparemirror(int dax, int day, int daz, short daang, int dahoriz, short da
 void completemirror()
 {
 #if USE_POLYMOST
-	if (rendmode) {
+	if (rendmode != rendmode_t::Classic) {
 		return;
 	}
 #endif
@@ -12758,26 +12761,23 @@ void printext256(int xpos, int ypos, short col, short backcol, std::string_view 
 //
 // setrendermode
 //
-int setrendermode(int renderer)
+void setrendermode(rendmode_t renderer)
 {
 	if (bpp == 8) {
-		if (renderer < 0)
-			renderer = 0;
-		else if (renderer > 2)
-			renderer = 2;
+		// TODO: Add greater quality modes.
+		if (renderer == rendmode_t::OpenGL)
+			renderer = rendmode_t::Software;
 	} else {
-		renderer = 3;
+		renderer = rendmode_t::OpenGL;
 	}
 
 	rendmode = renderer;
-
-	return 0;
 }
 
 //
 // getrendermode
 //
-int getrendermode()
+rendmode_t getrendermode()
 {
 	return rendmode;
 }
@@ -12814,7 +12814,7 @@ void setrollangle(int rolla)
 //
 void invalidatetile(short tilenume, int pal, int how)
 {
-	if (rendmode < 3)
+	if (rendmode != rendmode_t::OpenGL)
 		return;
 
 	const auto [numpal, firstpal] = [pal]() -> std::pair<int, int> {
@@ -12843,7 +12843,7 @@ void invalidatetile(short tilenume, int pal, int how)
 //
 void setpolymost2dview()
 {
-	if (rendmode < 3)
+	if (rendmode != rendmode_t::OpenGL)
 		return;
 
 	if (gloy1 != -1) {

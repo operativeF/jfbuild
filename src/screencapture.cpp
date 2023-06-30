@@ -63,7 +63,8 @@ int screencapture_writeframe(std::FILE *fil, char mode, void *v,
 	bottotop = (mode & 2);
 
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode >= 3 && qsetmode == 200) {
+	// TODO: Add other modes of greater quality
+	if (rendmode == rendmode_t::OpenGL && qsetmode == 200) {
 		const char bgr = (mode & 4);
 
 		// OpenGL returns bottom-to-top ordered lines.
@@ -137,7 +138,8 @@ int screencapture_tga(char mode)
 	}
 
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode >= 3 && qsetmode == 200) {
+	// TODO: Add other modes of greater quality.
+	if (rendmode == rendmode_t::OpenGL && qsetmode == 200) {
 		head[1] = 0;	// no colourmap
 		head[2] = 2;	// uncompressed truecolour
 		head[3] = 0;	// (low) first colourmap index
@@ -158,7 +160,8 @@ int screencapture_tga(char mode)
 
 	// palette first
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode < 3 || (rendmode == 3 && qsetmode != 200)) {
+	// TODO: Add other modes of greater quality.
+	if (rendmode != rendmode_t::OpenGL || (rendmode == rendmode_t::OpenGL && qsetmode != 200)) {
 #endif
 		for (const auto& fadedCol : curpalettefaded) {
 			std::fputc(fadedCol.b, fil);
@@ -267,7 +270,8 @@ int screencapture_pcx(char mode)
 	head[68] = 1;
 
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode >= 3 && qsetmode == 200) {
+	// TODO: Add other modes of greater quality.
+	if (rendmode == rendmode_t::OpenGL && qsetmode == 200) {
 		head[65] = 3;	// 24-bit
 	}
 #endif
@@ -290,7 +294,8 @@ int screencapture_pcx(char mode)
 
 	// palette last
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode < 3 || (rendmode == 3 && qsetmode != 200)) {
+	// TODO: Add other modes of greater quality.
+	if (rendmode != rendmode_t::OpenGL || (rendmode == rendmode_t::OpenGL && qsetmode != 200)) {
 #endif
 		std::fputc(12, fil);
 
@@ -365,7 +370,8 @@ int screencapture_png(char mode)
 	struct pngsums sums;
 
 #if USE_POLYMOST && USE_OPENGL
-	glmode = (rendmode == 3 && qsetmode == 200);
+	// TODO: Add other modes of greater quality.
+	glmode = (rendmode == rendmode_t::OpenGL && qsetmode == 200);
 #endif
 
 	if ((fil = screencapture_openfile("png")) == nullptr) {
@@ -388,7 +394,8 @@ int screencapture_png(char mode)
 
 	// Palette if needed.
 #if USE_POLYMOST && USE_OPENGL
-	if (rendmode < 3 || (rendmode == 3 && qsetmode != 200)) {
+	// TODO: Add other modes of greater quality.
+	if (rendmode != rendmode_t::OpenGL || (rendmode == rendmode_t::OpenGL && qsetmode != 200)) {
 #endif
 		BEGIN_PNG_CHUNK("PLTE");
 		for (i=0; i<256; i++, acclen+=3) {

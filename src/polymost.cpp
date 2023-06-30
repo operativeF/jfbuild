@@ -95,7 +95,6 @@ Low priority:
 #include <utility>
 #include <vector>
 
-int rendmode{0};
 int usegoodalpha{0};
 
 struct vsptyp {
@@ -978,7 +977,7 @@ void polymost_palfade()
 	struct polymostdrawauxcall draw;
 	std::array<polymostvboitem, 4> vboitem;
 
-	if ((rendmode != 3) || (qsetmode != 200)) return;
+	if ((rendmode != rendmode_t::OpenGL) || (qsetmode != 200)) return;
 	if (palfadedelta == 0) return;
 
 	draw.mode = 2;	// Solid colour.
@@ -1142,7 +1141,7 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 		loadtile(globalpicnum);
 		if (!waloff[globalpicnum])
 		{
-			if (rendmode != 3) return;
+			if (rendmode != rendmode_t::OpenGL) return;
 			tsizx = tsizy = 1; method = METH_MASKED; //Hack to update Z-buffer for invalid mirror textures
 		}
 	}
@@ -1167,7 +1166,7 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 			oy = ox2*gstang + oy2*gctang;
 			oz = oz2;
 
-			if ((oz < SCISDIST) && (rendmode != 3)) return; //annoying hack to avoid bugs in software rendering
+			if ((oz < SCISDIST) && (rendmode != rendmode_t::OpenGL)) return; //annoying hack to avoid bugs in software rendering
 
 			r = ghalfx / oz;
 
@@ -1201,7 +1200,7 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 	double dui;
 	double duj;
 
-	if (rendmode == 3)
+	if (rendmode == rendmode_t::OpenGL)
 	{
 		unsigned short ptflags{0};
 		int picidx{PTHPIC_BASE};
@@ -1483,7 +1482,7 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 	}
 #endif
 
-	if (rendmode == 2)
+	if (rendmode == rendmode_t::Software)
 	{
 #if (USEZBUFFER != 0)
 		if ((!zbufmem) || (zbufbpl != bytesperline) || (zbufysiz != ydim))
@@ -1621,7 +1620,7 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 				ix1 = (x>>14); if (ix1 > xdimen) ix1 = xdimen;
 				if (ix0 < ix1)
 				{
-					if (rendmode == 1)
+					if (rendmode == rendmode_t::SolidColor)
 						std::memset((void *)(ylookup[y]+ix0+frameoffset),dacol,ix1-ix0);
 					else
 					{
@@ -1807,7 +1806,7 @@ void drawpoly (std::span<const double> dpx, std::span<const double> dpy, int n, 
 		i = j;
 	} while (i != maxi);
 
-	if (rendmode == 1)
+	if (rendmode == rendmode_t::SolidColor)
 	{
 		if (method & (METH_MASKED | METH_TRANS)) //Only draw border around sprites/maskwalls
 		{
@@ -2538,7 +2537,7 @@ void polymost_drawalls (int bunch)
 				//Parallaxing sky... hacked for Ken's mountain texture; paper-sky only :/
 #if USE_OPENGL
 			const float tempfogdensity{ gfogdensity };
-			if (rendmode == 3)
+			if (rendmode == rendmode_t::OpenGL)
 			{
 				gfogdensity = 0.F;
 
@@ -2804,7 +2803,7 @@ void polymost_drawalls (int bunch)
 
 				drawingskybox = 0;
 			}
-			if (rendmode == 3)
+			if (rendmode == rendmode_t::OpenGL)
 			{
 				gfogdensity = tempfogdensity;
 			}
@@ -2945,7 +2944,7 @@ void polymost_drawalls (int bunch)
 		{
 #if USE_OPENGL
 			const float tempfogdensity{ gfogdensity };
-			if (rendmode == 3)
+			if (rendmode == rendmode_t::OpenGL)
 			{
 				gfogdensity = 0.F;
 
@@ -3211,7 +3210,7 @@ void polymost_drawalls (int bunch)
 
 				drawingskybox = 0;
 			}
-			if (rendmode == 3)
+			if (rendmode == rendmode_t::OpenGL)
 			{
 				gfogdensity = tempfogdensity;
 			}
@@ -3561,7 +3560,7 @@ void polymost_scansector (int sectnum)
 
 } // namespace
 
-void polymost_drawrooms ()
+void polymost_drawrooms()
 {
 	int i;
 	int j;
@@ -3585,12 +3584,13 @@ void polymost_drawrooms ()
 	double sy[6];
 	static unsigned char tempbuf[MAXWALLS];
 
-	if (!rendmode) return;
+	if (rendmode == rendmode_t::Classic)
+		return;
 
 	frameoffset = frameplace + windowy1*bytesperline + windowx1;
 
 #if USE_OPENGL
-	if (rendmode == 3)
+	if (rendmode == rendmode_t::OpenGL)
 	{
 		resizeglcheck();
 
@@ -3829,7 +3829,7 @@ void polymost_drawrooms ()
 		bunchlast[closest] = bunchlast[numbunches];
 	}
 #if USE_OPENGL
-	if (rendmode == 3)
+	if (rendmode == rendmode_t::OpenGL)
 	{
 		glfunc.glDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 
@@ -4117,7 +4117,8 @@ void polymost_drawsprite (int snum)
 	gfogpalnum = sector[tspr->sectnum].floorpal;
 	gfogdensity = gvisibility*((float)((unsigned char)(sector[tspr->sectnum].visibility+16)) / 255.F);
 
-	while (rendmode == 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
+	// FIXME: Does rendmode need to be checked every time?
+	while (rendmode == rendmode_t::OpenGL && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
 		if (usemodels && tile2model[tspr->picnum].modelid >= 0 && tile2model[tspr->picnum].framenum >= 0) {
 			if (mddraw(tspr, 0)) {
 				if (automapping) show2dsprite[spritenum >> 3] |= pow2char[spritenum & 7];
@@ -4458,7 +4459,7 @@ void polymost_dorotatesprite (int sx, int sy, int z, short a, short picnum,
 	int oldviewingrange;
 	static int onumframes = 0;
 
-	if (rendmode == 3 && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
+	if (rendmode == rendmode_t::OpenGL && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
 	{
 		if ((tile2model[picnum].modelid >= 0) && (tile2model[picnum].framenum >= 0))
 		{
@@ -4613,7 +4614,7 @@ void polymost_dorotatesprite (int sx, int sy, int z, short a, short picnum,
 	gstang = 0.0;
 
 #if USE_OPENGL
-	if (rendmode == 3)
+	if (rendmode == rendmode_t::OpenGL)
 	{
 		glfunc.glViewport(0,0,xdim,ydim); glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
 		glfunc.glDisable(GL_DEPTH_TEST);
@@ -5071,7 +5072,7 @@ int polymost_drawtilescreen (int tilex, int tiley, int wallnum, int dimen)
 	struct polymostdrawauxcall draw;
 	polymostvboitem vboitem[4];
 
-	if ((rendmode != 3) || (qsetmode != 200))
+	if ((rendmode != rendmode_t::OpenGL) || (qsetmode != 200))
 		return -1;
 
 	const auto xdime = (float)tilesizx[wallnum];
@@ -5180,7 +5181,7 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, std::stri
 	polymostvboitem vboitem[80*4];
 	GLushort vboindexes[80*6];
 
-	if ((rendmode != 3) || (qsetmode != 200)) {
+	if ((rendmode != rendmode_t::OpenGL) || (qsetmode != 200)) {
 		return -1;
 	}
 
@@ -5299,7 +5300,7 @@ int polymost_drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 	struct polymostdrawauxcall draw;
 	polymostvboitem vboitem[2];
 
-	if ((rendmode != 3) || (qsetmode != 200)) return(-1);
+	if ((rendmode != rendmode_t::OpenGL) || (qsetmode != 200)) return(-1);
 
 	polymost_preparetext();
 	setpolymost2dview();	// disables blending, texturing, and depth testing
@@ -5345,7 +5346,7 @@ int polymost_plotpixel(int x, int y, unsigned char col)
 	struct polymostdrawauxcall draw;
 	polymostvboitem vboitem[1];
 
-	if ((rendmode != 3) || (qsetmode != 200)) return(-1);
+	if ((rendmode != rendmode_t::OpenGL) || (qsetmode != 200)) return(-1);
 
 	setpolymost2dview();	// disables blending, texturing, and depth testing
 	glfunc.glDepthMask(GL_FALSE);	// disable writing to the z-buffer
@@ -5445,7 +5446,7 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
 	//    basically this just means walls are repeating
 	//    while sprites are clamped
 
-	if (rendmode < 3)
+	if (rendmode != rendmode_t::OpenGL)
 		return;
 
 	if (palookup[dapalnum].empty())

@@ -10,6 +10,7 @@
 
 #include <array>
 #include <memory>
+#include <vector>
 
 enum {
 	HICEFFECT_NONE = 0,
@@ -39,7 +40,7 @@ struct hicreplctyp {
 };
 
 inline std::array<palette_t, MAXPALOOKUPS> hictinting{};
-inline std::array<hicreplctyp*, MAXTILES> hicreplc{};
+inline std::vector<hicreplctyp*> hicreplc(MAXTILES);
 inline int hicfirstinit{0};
 
 void hicinit();

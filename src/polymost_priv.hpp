@@ -5,7 +5,6 @@
 #include <array>
 #include <string_view>
 
-extern int rendmode;
 extern float gtang;
 inline std::array<double, 4096> dxb1{};
 inline std::array<double, 4096> dxb2{}; // FIXME: Was MAXWALLSB in size.

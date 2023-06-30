@@ -564,12 +564,21 @@ int   setspritez(short spritenum, int newx, int newy, int newz);
 
 int   screencapture(const char* filename, char mode);	// mode&1 == invert, mode&2 == wait for nextpage
 
+enum class rendmode_t {
+    Classic,
+    SolidColor,
+    Software,
+    OpenGL
+};
+
+inline rendmode_t rendmode{rendmode_t::Classic};
+
 #if USE_POLYMOST
-int   setrendermode(int renderer);
-int   getrendermode();
-# define POLYMOST_RENDERMODE_CLASSIC() (getrendermode() == 0)
-# define POLYMOST_RENDERMODE_POLYMOST() (getrendermode() > 0)
-# define POLYMOST_RENDERMODE_POLYGL() (getrendermode() == 3)
+void setrendermode(rendmode_t renderer);
+rendmode_t   getrendermode();
+# define POLYMOST_RENDERMODE_CLASSIC()  (getrendermode() == rendmode_t::Classic)
+# define POLYMOST_RENDERMODE_POLYMOST() (getrendermode() != rendmode_t::Classic)
+# define POLYMOST_RENDERMODE_POLYGL()   (getrendermode() == rendmode_t::OpenGL)
 
 void    setrollangle(int rolla);
 #else

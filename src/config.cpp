@@ -67,7 +67,8 @@ enum class config_t {
 };
 
 #if USE_POLYMOST
-int tmprenderer = -1;
+// FIXME: Figure out way to get data into an enum here.
+int tmprenderer{0};
 #endif
 int tmpbrightness = -1;
 #ifdef RENDERTYPEWIN
@@ -256,9 +257,7 @@ int loadsetup(const std::string& fn)
 	}
 
 #if USE_POLYMOST
-	if (tmprenderer >= 0) {
-		setrendermode(tmprenderer);
-	}
+	setrendermode(static_cast<rendmode_t>(tmprenderer));
 #endif
 #ifdef RENDERTYPEWIN
 	win_setmaxrefreshfreq(tmpmaxrefreshfreq);
@@ -284,7 +283,7 @@ int writesetup(const std::string& fn)
 
 	tmpbrightness = brightness;
 #if USE_POLYMOST
-	tmprenderer = getrendermode();
+	tmprenderer = static_cast<std::underlying_type_t<rendmode_t>>(getrendermode());
 #endif
 
 #ifdef RENDERTYPEWIN

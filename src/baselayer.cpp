@@ -24,6 +24,7 @@ struct glbuild_info glinfo;
 #include <charconv>
 #include <limits>
 #include <string_view>
+#include <utility>
 
 void (*baselayer_videomodewillchange)() = nullptr;
 void (*baselayer_videomodedidchange)() = nullptr;
@@ -173,8 +174,8 @@ int osdfunc_setrendermode(const osdfuncparm_t *parm)
 	if (m < 0 || m > 3 || (ec != std::errc{}))
 		return OSDCMD_SHOWHELP;
 
-	setrendermode(m);
-	buildprintf("Rendering method changed to {}\n", modestrs[ getrendermode() ] );
+	setrendermode(static_cast<rendmode_t>(m));
+	buildprintf("Rendering method changed to {}\n", modestrs[ static_cast<std::underlying_type_t<rendmode_t>>(getrendermode()) ] );
 
 	return OSDCMD_OK;
 }
