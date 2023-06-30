@@ -289,7 +289,7 @@ int md_defineanimation (int modelid, std::string_view framestart, std::string_vi
 	return 0;
 }
 
-int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int surfnum)
+int md_defineskin (int modelid, const std::string& skinfn, int palnum, int skinnum, int surfnum)
 {
 	if (!mdinited)
 		mdinit();
@@ -297,7 +297,7 @@ int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int
 	if ((unsigned int)modelid >= (unsigned int)nextmodelid)
 		return -1;
 
-	if (!skinfn)
+	if (skinfn.empty())
 		return -2;
 
 	if ((unsigned)palnum >= (unsigned)MAXPALOOKUPS)

@@ -205,7 +205,7 @@ int osdcmd_vars(const osdfuncparm_t *parm)
 	const bool showval = parm->parms.size() < 1;
 
 	if (IsSameAsNoCase(parm->name, "screencaptureformat")) {
-		constexpr std::array<const char*, 3> fmts = { "TGA", "PCX", "PNG" };
+		constexpr std::array<std::string_view, 3> fmts = { "TGA", "PCX", "PNG" };
 		if (!showval) {
 			int i;
 			for (i=0; i<3; i++)

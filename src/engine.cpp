@@ -9124,7 +9124,7 @@ void nextpage()
 #endif
 
 			if (captureatnextpage) {
-				screencapture(nullptr, captureatnextpage);
+				screencapture("", captureatnextpage); // FIXME: Correct behavior?
 				captureatnextpage = 0;
 			}
 

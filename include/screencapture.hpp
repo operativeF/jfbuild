@@ -2,6 +2,7 @@
 #define __screencapture_h__
 
 #include <cstdio>
+#include <string>
 
 //
 // screencapture
@@ -37,6 +38,6 @@ void screencapture_writepngline(unsigned char *buf, int bytes, int elements, std
 
 int screencapture_png(char mode);
 
-int screencapture(const char* filename, char mode);
+int screencapture(const std::string& filename, char mode);
 
 #endif // __screencapture_h__

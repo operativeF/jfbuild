@@ -568,7 +568,7 @@ int   changespritestat(short spritenum, short newstatnum);
 int   setsprite(short spritenum, int newx, int newy, int newz);
 int   setspritez(short spritenum, int newx, int newy, int newz);
 
-int   screencapture(const char* filename, char mode);	// mode&1 == invert, mode&2 == wait for nextpage
+int   screencapture(const std::string& filename, char mode);	// mode&1 == invert, mode&2 == wait for nextpage
 
 enum class rendmode_t {
     Classic,
@@ -644,7 +644,7 @@ int md_setmisc(int modelid, float scale, int shadeoff, float zadd);
 int md_tilehasmodel(int tilenume);
 int md_defineframe(int modelid, std::string_view framename, int tilenume, int skinnum);
 int md_defineanimation(int modelid, std::string_view framestart, std::string_view frameend, int fps, int flags);
-int md_defineskin(int modelid, const char *skinfn, int palnum, int skinnum, int surfnum);
+int md_defineskin(int modelid, const std::string& skinfn, int palnum, int skinnum, int surfnum);
 int md_definehud (int modelid, int tilex, double xadd, double yadd, double zadd, double angadd, int flags);
 int md_undefinetile(int tile);
 int md_undefinemodel(int modelid);

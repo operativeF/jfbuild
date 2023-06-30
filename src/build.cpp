@@ -350,7 +350,7 @@ int app_main(int argc, char const * const argv[])
 				grps[grpstoadd++] = argv[i];
 			}
 			else if (IsSameAsNoCase(argv[i], "-help") || IsSameAsNoCase(argv[i], "--help") || IsSameAsNoCase(argv[i], "-?")) {
-				const char* s =
+				std::string_view s =
 					"BUILD by Ken Silverman\n"
 					"Syntax: build [options] mapname\n"
 					"Options:\n"
@@ -5307,14 +5307,14 @@ void overheadeditor()
 						i = menuselect(PATHSEARCH_GAME);
 					} else {
 						std::string filename;
-						const char* initialdir = nullptr;
+						std::string initialdir;
 						int filer;
 
 						std::string initialfile = findfilename(&selectedboardfilename[0]);
 						if (pathsearchmode == PATHSEARCH_GAME || initialfile == selectedboardfilename) {
 							initialdir = "";
 						} else {
-							initialdir = &selectedboardfilename[0];
+							initialdir = selectedboardfilename;
 						}
 						while (1) {
 							filer = wm_filechooser(initialdir, initialfile.c_str(), "map", 1, filename);
@@ -5513,7 +5513,7 @@ void overheadeditor()
 				else if (ch == 'a' || ch == 'A')  //A
 				{
 					std::string filename;
-					const char* initialdir = nullptr;
+					std::string initialdir;
 					std::string initialfile;
 					char *curs;
 					int filer;
@@ -5528,7 +5528,7 @@ void overheadeditor()
 						initialdir = "";
 					}
 					else {
-						initialdir = &selectedboardfilename[0];
+						initialdir = selectedboardfilename;
 					}
 
 					while (1) {

@@ -451,12 +451,12 @@ int screencapture_png(char mode)
 	return 0;
 }
 
-int screencapture(const char* filename, char mode)
+int screencapture(const std::string& filename, char mode)
 {
 	int ret;
 
-	if (filename) {
-		std::strcpy(&capturename[0], filename);
+	if (!filename.empty()) {
+		std::strcpy(&capturename[0], filename.c_str());
 	}
 
 	if (qsetmode == 200 && (mode & 2) && !captureatnextpage) {
