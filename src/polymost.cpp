@@ -2419,7 +2419,9 @@ void polymost_drawalls (int bunch)
 					//relative alignment
 				fx = (double)(wall[wall[sec->wallptr].point2].x-wall[sec->wallptr].x);
 				fy = (double)(wall[wall[sec->wallptr].point2].y-wall[sec->wallptr].y);
-				r = 1.0/std::sqrt(fx*fx+fy*fy); fx *= r; fy *= r;
+				r = 1.0/std::hypot(fx, fy);
+				fx *= r;
+				fy *= r;
 				ft[2] = cosglobalang*fx + singlobalang*fy;
 				ft[3] = singlobalang*fx - cosglobalang*fy;
 				ft[0] = ((double)(globalposx-wall[sec->wallptr].x))*fx + ((double)(globalposy-wall[sec->wallptr].y))*fy;
@@ -2462,7 +2464,7 @@ void polymost_drawalls (int bunch)
 			fy = (float)sec->floorypanning*((float)(1<<(picsiz[globalpicnum]>>4)))/256.0;
 			if ((globalorientation&(2+64)) == (2+64)) //Hack for panning for slopes w/ relative alignment
 			{
-				r = (float)sec->floorheinum / 4096.0; r = 1.0/std::sqrt(r*r+1);
+				r = (float)sec->floorheinum / 4096.0; r = 1.0/std::hypot(r, 1);
 				if (!(globalorientation&4)) fy *= r; else fx *= r;
 			}
 			guy += gdy*fx; guo += gdo*fx;
@@ -2516,7 +2518,7 @@ void polymost_drawalls (int bunch)
 				if (globalorientation&64) //Hack for relative alignment on slopes
 				{
 					r = (float)sec->floorheinum / 4096.0;
-					r = std::sqrt(r*r+1);
+					r = std::hypot(r, 1);
 					if (!(globalorientation&4)) {
 						gvx *= r;
 						gvy *= r;
@@ -2824,7 +2826,9 @@ void polymost_drawalls (int bunch)
 					//relative alignment
 				fx = (double)(wall[wall[sec->wallptr].point2].x-wall[sec->wallptr].x);
 				fy = (double)(wall[wall[sec->wallptr].point2].y-wall[sec->wallptr].y);
-				r = 1.0/std::sqrt(fx*fx+fy*fy); fx *= r; fy *= r;
+				r = 1.0/std::hypot(fx, fy);
+				fx *= r;
+				fy *= r;
 				ft[2] = cosglobalang*fx + singlobalang*fy;
 				ft[3] = singlobalang*fx - cosglobalang*fy;
 				ft[0] = ((double)(globalposx-wall[sec->wallptr].x))*fx + ((double)(globalposy-wall[sec->wallptr].y))*fy;
@@ -2869,7 +2873,8 @@ void polymost_drawalls (int bunch)
 			fy = (float)sec->ceilingypanning*((float)(1<<(picsiz[globalpicnum]>>4)))/256.0;
 			if ((globalorientation&(2+64)) == (2+64)) //Hack for panning for slopes w/ relative alignment
 			{
-				r = (float)sec->ceilingheinum / 4096.0; r = 1.0/std::sqrt(r*r+1);
+				r = (float)sec->ceilingheinum / 4096.0;
+				r = 1.0/std::hypot(r, 1);
 				if (!(globalorientation&4)) fy *= r; else fx *= r;
 			}
 			guy += gdy*fx;
@@ -2924,7 +2929,7 @@ void polymost_drawalls (int bunch)
 				if (globalorientation&64) //Hack for relative alignment on slopes
 				{
 					r = (float)sec->ceilingheinum / 4096.0;
-					r = std::sqrt(r*r+1);
+					r = std::hypot(r, 1);
 					if (!(globalorientation&4)) {
 						gvx *= r;
 						gvy *= r;
@@ -3647,8 +3652,8 @@ void polymost_drawrooms()
 
 		//global cos/sin height angle
 	r = (double)((ydimen>>1)-ghoriz);
-	gshang = r/std::sqrt(r*r+ghalfx*ghalfx);
-	gchang = std::sqrt(1.0-gshang*gshang);
+	gshang = r/std::hypot(r, ghalfx);
+	gchang = std::sqrt(1.0 - gshang * gshang);
 	ghoriz = (double)(ydimen>>1);
 
 	  //global cos/sin tilt angle
@@ -4384,7 +4389,9 @@ void polymost_drawsprite (int snum)
 				//copied&modified from relative alignment
 			xv = (float)tspr->x + s*x1 + c*y1; fx = (double)-(x0+x1)*s;
 			yv = (float)tspr->y + s*y1 - c*x1; fy = (double)+(x0+x1)*c;
-			f = 1.0/std::sqrt(fx*fx+fy*fy); fx *= f; fy *= f;
+			f = 1.0/std::hypot(fx, fy);
+			fx *= f;
+			fy *= f;
 			ft[2] = singlobalang*fy + cosglobalang*fx;
 			ft[3] = singlobalang*fx - cosglobalang*fy;
 			ft[0] = ((double)(globalposy-yv))*fy + ((double)(globalposx-xv))*fx;

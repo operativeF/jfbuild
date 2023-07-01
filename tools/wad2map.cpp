@@ -193,41 +193,6 @@ static inline unsigned int ksqrtasm(unsigned int a)
 	return a;
 }
 
-static inline int msqrtasm(unsigned int c)
-{
-	unsigned int a,b;
-
-	a = 0x40000000l;
-	b = 0x20000000l;
-	do {
-		if (c >= a) {
-			c -= a;
-			a += b*4;
-		}
-		a -= b;
-		a >>= 1;
-		b >>= 2;
-	} while (b);
-	if (c >= a) a++;
-	a >>= 1;
-	return a;
-}
-
-static void initksqrt()
-{
-	int i, j, k;
-
-	j = 1; k = 0;
-	for(i=0;i<4096;i++)
-	{
-		if (i >= j) { j <<= 2; k++; }
-		sqrtable[i] = (unsigned short)(msqrtasm((i<<18)+131072)<<1);
-		shlookup[i] = (k<<1)+((10-k)<<8);
-		if (i < 256) shlookup[i+4096] = ((k+6)<<1)+((10-(k+6))<<8);
-	}
-}
-
-
 int inside(int x, int y, short sectnum)
 {
 	walltype *wal;

@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <array>
 #include <charconv>
+#include <cmath>
 
 constexpr auto TIMERINTSPERSECOND{140}; //280
 constexpr auto MOVESPERSECOND{40};
@@ -2447,7 +2448,7 @@ void statuslistcode()
 				ox = posx[target]; oy = posy[target];
 
 					//distance is j
-				j = ksqrt((ox-sprite[i].x)*(ox-sprite[i].x)+(oy-sprite[i].y)*(oy-sprite[i].y));
+				j = std::sqrt((ox-sprite[i].x)*(ox-sprite[i].x)+(oy-sprite[i].y)*(oy-sprite[i].y));
 
 				switch((sprite[i].extra>>11)&3)
 				{
@@ -2580,7 +2581,7 @@ void statuslistcode()
 					sintable[(sprite[j].ang+512)&2047]>>6,
 					sintable[sprite[j].ang&2047]>>6,
 					((posz[target]+(8<<8)-sprite[j].z)<<8) /
-					  (ksqrt((posx[target]-sprite[j].x) *
+					  (std::sqrt((posx[target]-sprite[j].x) *
 								(posx[target]-sprite[j].x) +
 								(posy[target]-sprite[j].y) *
 								(posy[target]-sprite[j].y))+1),
@@ -2685,7 +2686,7 @@ void statuslistcode()
 				for (j = connecthead; j >= 0; j = connectpoint2[j])   // Players
 					if (j != (sprite[i].owner & (MAXSPRITES - 1)))
 						if (cansee(sprite[i].x,sprite[i].y,sprite[i].z,sprite[i].sectnum,posx[j],posy[j],posz[j],cursectnum[j])) {
-							k = ksqrt(sqr(posx[j] - sprite[i].x) + sqr(posy[j] - sprite[i].y) + (sqr(posz[j] - sprite[i].z) >> 8));
+							k = std::sqrt(sqr(posx[j] - sprite[i].x) + sqr(posy[j] - sprite[i].y) + (sqr(posz[j] - sprite[i].z) >> 8));
 							if (k < l) {
 								l = k;
 								dax = (posx[j] - sprite[i].x);
@@ -2696,7 +2697,7 @@ void statuslistcode()
 				for(j = headspritestat[1]; j >= 0; j = nextj) {   // Active monsters
 					nextj = nextspritestat[j];
 					if (cansee(sprite[i].x,sprite[i].y,sprite[i].z,sprite[i].sectnum,sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].sectnum)) {
-						k = ksqrt(sqr(sprite[j].x - sprite[i].x) + sqr(sprite[j].y - sprite[i].y) + (sqr(sprite[j].z - sprite[i].z) >> 8));
+						k = std::sqrt(sqr(sprite[j].x - sprite[i].x) + sqr(sprite[j].y - sprite[i].y) + (sqr(sprite[j].z - sprite[i].z) >> 8));
 						if (k < l) {
 							l = k;
 							dax = (sprite[j].x - sprite[i].x);
@@ -2708,7 +2709,7 @@ void statuslistcode()
 				for(j = headspritestat[2]; j >= 0; j = nextj) {   // Inactive monsters
 					nextj = nextspritestat[j];
 					if (cansee(sprite[i].x,sprite[i].y,sprite[i].z,sprite[i].sectnum,sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].sectnum)) {
-						k = ksqrt(sqr(sprite[j].x - sprite[i].x) + sqr(sprite[j].y - sprite[i].y) + (sqr(sprite[j].z - sprite[i].z) >> 8));
+						k = std::sqrt(sqr(sprite[j].x - sprite[i].x) + sqr(sprite[j].y - sprite[i].y) + (sqr(sprite[j].z - sprite[i].z) >> 8));
 						if (k < l) {
 							l = k;
 							dax = (sprite[j].x - sprite[i].x);
@@ -2721,7 +2722,7 @@ void statuslistcode()
 					sprite[i].xvel = (divscalen<7>(dax,l) + sprite[i].xvel);   // 1/5 of velocity is homing, 4/5 is momentum
 					sprite[i].yvel = (divscalen<7>(day,l) + sprite[i].yvel);   // 1/5 of velocity is homing, 4/5 is momentum
 					sprite[i].zvel = (divscalen<7>(daz,l) + sprite[i].zvel);   // 1/5 of velocity is homing, 4/5 is momentum
-					l = ksqrt((sprite[i].xvel * sprite[i].xvel) + (sprite[i].yvel * sprite[i].yvel) + ((sprite[i].zvel * sprite[i].zvel) >> 8));
+					l = std::sqrt((sprite[i].xvel * sprite[i].xvel) + (sprite[i].yvel * sprite[i].yvel) + ((sprite[i].zvel * sprite[i].zvel) >> 8));
 					sprite[i].xvel = divscalen<9>(sprite[i].xvel,l);
 					sprite[i].yvel = divscalen<9>(sprite[i].yvel,l);
 					sprite[i].zvel = divscalen<9>(sprite[i].zvel,l);
@@ -5194,14 +5195,14 @@ void initlava()
 	for(x=-16;x<=16;x++)
 		for(y=-16;y<=16;y++)
 		{
-			r = ksqrt(x*x + y*y);
+			r = static_cast<int>(std::hypot(x, y));
 			lavaradx[r][lavaradcnt[r]] = x;
 			lavarady[r][lavaradcnt[r]] = y;
 			lavaradcnt[r]++;
 		}
 
 	for(z=0;z<16;z++)
-		lavadropsizlookup[z] = 8 / (ksqrt(z)+1);
+		lavadropsizlookup[z] = 8 / (std::sqrt(z)+1);
 
 	for(z=0;z<LAVASIZ;z++)
 		lavainc[z] = std::abs((((z^17)>>4)&7)-4)+12;

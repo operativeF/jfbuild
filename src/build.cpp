@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <array>
 #include <charconv>
+#include <cmath>
 #include <limits>
 #include <numeric>
 #include <string_view>
@@ -4381,7 +4382,7 @@ void overheadeditor()
 					k = -((circleang1-circleang2)&2047);
 				}
 
-				circlerad = (ksqrt(dmulscalen<4>(centerx-x1,centerx-x1,centery-y1,centery-y1))<<2);
+				circlerad = static_cast<int>(std::sqrt(dmulscalen<4>(centerx-x1,centerx-x1,centery-y1,centery-y1))) << 2;
 
 				for(i=circlepoints;i>0;i--)
 				{
@@ -6180,7 +6181,7 @@ void fixrepeats(short i)
 {
 	int dax = wall[wall[i].point2].x-wall[i].x;
 	int day = wall[wall[i].point2].y-wall[i].y;
-	const int dist = ksqrt(dax * dax + day * day);
+	const int dist = static_cast<int>(std::hypot(dax, day));
 	dax = wall[i].xrepeat; // TODO: Why set this again?
 	day = wall[i].yrepeat;
 	wall[i].xrepeat = static_cast<unsigned char>(std::min(std::max(mulscalen<10>(dist, day), 1), 255));
@@ -7594,7 +7595,7 @@ void showwalldata(short wallnum)
 
 	int dax = wall[wallnum].x-wall[wall[wallnum].point2].x;
 	const int day = wall[wallnum].y-wall[wall[wallnum].point2].y;
-	const int dist = ksqrt(dax*dax+day*day);
+	const int dist = static_cast<int>(std::hypot(dax, day));
 	fmt::format_to(&snotbuf[0],"Wall length: {}",dist>>4);
 	printext16(400,96,11,-1,&snotbuf[0],0);
 

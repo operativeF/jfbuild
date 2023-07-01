@@ -542,7 +542,6 @@ void   setfirstwall(short sectnum, short newfirstwall);
 
 void   getmousevalues(int *mousx, int *mousy, int *bstatus);
 int    krand();
-int   ksqrt(int num);
 int   getangle(int xvect, int yvect);
 void   rotatepoint(int xpivot, int ypivot, int x, int y, short daang, int *x2, int *y2);
 int   lastwall(short point);

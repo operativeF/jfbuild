@@ -180,66 +180,6 @@ std::array<unsigned char, MAXWALLS> tempbuf;
 std::array<unsigned char, MAXTILES> tilefilenum;
 std::array<short, 1280> radarang;
 std::array<short, MAXXDIM> radarang2;
-
-constexpr int msqrtasm(unsigned int c)
-{
-	unsigned int a{0x40000000L};    // mov eax, 0x40000000
-	unsigned int b{0x20000000L};	// mov ebx, 0x20000000
-	
-	do {				// begit:
-		if (c >= a) {		// cmp ecx, eax	 /  jl skip
-			c -= a;		// sub ecx, eax
-			a += b*4;	// lea eax, [eax+ebx*4]
-		}			// skip:
-		a -= b;			// sub eax, ebx
-		a >>= 1;		// shr eax, 1
-		b >>= 2;		// shr ebx, 2
-	} while (b);			// jnz begit
-
-	if (c >= a)			// cmp ecx, eax
-		a++;			// sbb eax, -1
-	a >>= 1;			// shr eax, 1
-	
-	return a;
-}
-
-constexpr std::array<unsigned short, 4096> sqrtable = [](){
-	std::array<unsigned short, 4096> sqrtarr;
-	std::ranges::generate(sqrtarr, [i = 0]() mutable {
-		return static_cast<unsigned short>(msqrtasm(((i++) << 18) + 131072) << 1);
-	});
-
-	return sqrtarr; 
-}();
-
-constexpr std::array<int, 4096 + 256> shlookup = [](){
-    std::array<int, 4096 + 256> shtable{};
-    std::ranges::generate_n(shtable.begin(), 4096, [j = 1, i = 0, k = 0]() mutable {
-        if (i >= j) {
-			j <<= 2;
-			++k;
-		}
-
-        ++i;
-
-		return (k << 1) + ((10 - k) << 8);
-    });
-
-    std::ranges::subrange shtableafter4k = {std::ranges::next(shtable.begin(), 4096), shtable.end()};
-    std::ranges::generate(shtableafter4k, [j = 1, i = 0, k = 0]() mutable {
-        if (i >= j) {
-			j <<= 2;
-			++k;
-		}
-
-        ++i;
-
-        return ((k + 6) << 1)+((10 - (k + 6)) << 8);
-    });
-
-    return shtable;
-}();
-
 std::array<char, 128> kensmessage;
 
 //unsigned int ratelimitlast[32], ratelimitn = 0, ratelimit = 60;
@@ -249,41 +189,6 @@ std::array<char, 128> kensmessage;
 //
 // Watcom Inline Assembly Routines
 //
-
-#pragma aux nsqrtasm =\
-	"test eax, 0xff000000",\
-	"mov ebx, eax",\
-	"jnz short over24",\
-	"shr ebx, 12",\
-	"mov cx, word ptr shlookup[ebx*2]",\
-	"jmp short under24",\
-	"over24: shr ebx, 24",\
-	"mov cx, word ptr shlookup[ebx*2+8192]",\
-	"under24: shr eax, cl",\
-	"mov cl, ch",\
-	"mov ax, word ptr sqrtable[eax*2]",\
-	"shr eax, cl",\
-	parm nomemory [eax]\
-	modify exact [eax ebx ecx]
-unsigned int nsqrtasm(unsigned int);
-
-#pragma aux msqrtasm =\
-	"mov eax, 0x40000000",\
-	"mov ebx, 0x20000000",\
-	"begit: cmp ecx, eax",\
-	"jl skip",\
-	"sub ecx, eax",\
-	"lea eax, [eax+ebx*4]",\
-	"skip: sub eax, ebx",\
-	"shr eax, 1",\
-	"shr ebx, 2",\
-	"jnz begit",\
-	"cmp ecx, eax",\
-	"sbb eax, -1",\
-	"shr eax, 1",\
-	parm nomemory [ecx]\
-	modify exact [eax ebx ecx]
-int msqrtasm(unsigned int);
 
 	//0x007ff000 is (11<<13), 0x3f800000 is (127<<23)
 #pragma aux krecipasm =\
@@ -322,57 +227,6 @@ int krecipasm(int);
 int getclipmask(int,int,int,int);
 
 #elif defined(_MSC_VER) && defined(_M_IX86) && USE_ASM	// __WATCOMC__
-
-//
-// Microsoft C Inline Assembly Routines
-//
-
-inline int nsqrtasm(int a)
-{
-	_asm {
-		push ebx
-		mov eax, a
-		test eax, 0xff000000
-		mov ebx, eax
-		jnz short over24
-		shr ebx, 12
-		mov cx, word ptr shlookup[ebx*2]
-		jmp short under24
-	over24:
-		shr ebx, 24
-		mov cx, word ptr shlookup[ebx*2+8192]
-	under24:
-		shr eax, cl
-		mov cl, ch
-		mov ax, word ptr sqrtable[eax*2]
-		shr eax, cl
-		pop ebx
-	}
-}
-
-inline int msqrtasm(int c)
-{
-	_asm {
-		push ebx
-		mov ecx, c
-		mov eax, 0x40000000
-		mov ebx, 0x20000000
-	begit:
-		cmp ecx, eax
-		jl skip
-		sub ecx, eax
-		lea eax, [eax+ebx*4]
-	skip:
-		sub eax, ebx
-		shr eax, 1
-		shr ebx, 2
-		jnz begit
-		cmp ecx, eax
-		sbb eax, -1
-		shr eax, 1
-		pop ebx
-	}
-}
 
 	//0x007ff000 is (11<<13), 0x3f800000 is (127<<23)
 inline int krecipasm(int a)
@@ -427,50 +281,6 @@ inline int getclipmask(int a, int b, int c, int d)
 // GCC "Inline" Assembly Routines
 //
 
-#define nsqrtasm(a) \
-	({ int __r, __a=(a); \
-	   __asm__ __volatile__ ( \
-		"testl $0xff000000, %%eax\n\t" \
-		"movl %%eax, %%ebx\n\t" \
-		"jnz 0f\n\t" \
-		"shrl $12, %%ebx\n\t" \
-		"movw %[shlookup](,%%ebx,2), %%cx\n\t" \
-		"jmp 1f\n\t" \
-		"0:\n\t" \
-		"shrl $24, %%ebx\n\t" \
-		"movw (%[shlookup]+8192)(,%%ebx,2), %%cx\n\t" \
-		"1:\n\t" \
-		"shrl %%cl, %%eax\n\t" \
-		"movb %%ch, %%cl\n\t" \
-		"movw %[sqrtable](,%%eax,2), %%ax\n\t" \
-		"shrl %%cl, %%eax" \
-		: "=a" (__r) \
-		: "a" (__a), [shlookup] "m" (shlookup[0]), [sqrtable] "m" (sqrtable[0]) \
-		: "ebx", "ecx", "cc"); \
-	 __r; })
-
-	// edx is blown by this code somehow?!
-#define msqrtasm(c) \
-	({ int __r, __c=(c); \
-	   __asm__ __volatile__ ( \
-		"movl $0x40000000, %%eax\n\t" \
-		"movl $0x20000000, %%ebx\n\t" \
-		"0:\n\t" \
-		"cmpl %%eax, %%ecx\n\t" \
-		"jl 1f\n\t" \
-		"subl %%eax, %%ecx\n\t" \
-		"leal (%%eax,%%ebx,4), %%eax\n\t" \
-		"1:\n\t" \
-		"subl %%ebx, %%eax\n\t" \
-		"shrl $1, %%eax\n\t" \
-		"shrl $2, %%ebx\n\t" \
-		"jnz 0b\n\t" \
-		"cmpl %%eax, %%ecx\n\t" \
-		"sbbl $-1, %%eax\n\t" \
-		"shrl $1, %%eax" \
-		: "=a" (__r) : "c" (__c) : "edx","ebx", "cc"); \
-	 __r; })
-
 #define krecipasm(a) \
 	({ int __a=(a); \
 	   __asm__ __volatile__ ( \
@@ -496,30 +306,6 @@ inline int getclipmask(int a, int b, int c, int d)
 	 __a; })
 
 #else	// __GNUC__ && __i386__
-
-inline unsigned int nsqrtasm(unsigned int a)
-{	// JBF 20030901: This was a damn lot simpler to reverse engineer than
-	// msqrtasm was. Really, it was just like simplifying an algebra equation.
-    const unsigned short c = [a]() {
-			if(a & 0xFF000000) { // test eax, 0xff000000  /  jnz short over24
-				return shlookup[(a >>  24) + 4096]; // mov ebx, eax
-                                                    // over24: shr ebx, 24
-                                                    // mov cx, word ptr shlookup[ebx*2+8192]
-			}
-			else {
-				return shlookup[a >> 12]; // mov ebx, eax
-                                          // shr ebx, 12
-                                          // mov cx, word ptr shlookup[ebx*2]
-                                          // jmp short under24
-			}
-		}();
-
-	a >>= c & 0xFF;				            // under24: shr eax, cl
-	a = (a & 0xFFFF0000) | (sqrtable[a]);	// mov ax, word ptr sqrtable[eax*2]
-	a >>= ((c & 0xFF00) >> 8);		        // mov cl, ch
-						                    // shr eax, cl
-	return a;
-}
 
 inline int krecipasm(int i)
 { // Ken did this
@@ -1519,7 +1305,7 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	i = wall[fw].point2;
 	const int dx = wall[i].x - wall[fw].x;
 	const int dy = wall[i].y - wall[fw].y;
-	const int dasqr = krecipasm(nsqrtasm(dx * dx + dy * dy));
+	const int dasqr = krecipasm(static_cast<int>(std::hypot(dx, dy)));
 
 	if (xb1[w] == 0) {
 		xv = cosglobalang+sinviewingrangeglobalang;
@@ -1775,7 +1561,7 @@ void ceilscan(int x1, int x2, int sectnum)
 		int j = sec->wallptr;
 		int ox = wall[wall[j].point2].x - wall[j].x;
 		int oy = wall[wall[j].point2].y - wall[j].y;
-		int i = nsqrtasm(ox*ox+oy*oy);
+		int i = static_cast<int>(std::hypot(ox, oy));
 		
 		if (i == 0)
 			i = 1024;
@@ -2054,7 +1840,7 @@ void florscan(int x1, int x2, int sectnum)
 		j = sec->wallptr;
 		ox = wall[wall[j].point2].x - wall[j].x;
 		oy = wall[wall[j].point2].y - wall[j].y;
-		i = nsqrtasm(ox*ox+oy*oy);
+		i = static_cast<int>(std::hypot(ox, oy));
 		
 		if (i == 0)
 			i = 1024;
@@ -2704,7 +2490,7 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 	auto* wal = &wall[sec->wallptr];
 	int wx = wall[wal->point2].x - wal->x;
 	int wy = wall[wal->point2].y - wal->y;
-	const int dasqr = krecipasm(nsqrtasm(wx*wx+wy*wy));
+	const int dasqr = krecipasm(static_cast<int>(std::hypot(wx, wy)));
 	int i = mulscalen<21>(daslope, dasqr);
 	wx *= i;
 	wy *= i;
@@ -2725,7 +2511,7 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		const int dx = mulscalen<14>(wall[wal->point2].x-wal->x, dasqr);
 		const int dy = mulscalen<14>(wall[wal->point2].y-wal->y, dasqr);
 
-		i = nsqrtasm(daslope*daslope+16777216);
+		i = static_cast<int>(std::sqrt(daslope * daslope+16777216)); // FIXME: Magic number.
 
 		int x{globalx};
 		int y{globaly};
@@ -7467,7 +7253,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			{
 				ox = wall[wall[startwall].point2].x - wall[startwall].x;
 				oy = wall[wall[startwall].point2].y - wall[startwall].y;
-				i = nsqrtasm(ox*ox+oy*oy); 
+				i = static_cast<int>(std::hypot(ox, oy)); 
 				
 				if (i == 0)
 					continue;
@@ -7483,7 +7269,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 				globaly2 = -globaly1;
 
 				daslope = sector[s].floorheinum;
-				i = nsqrtasm(daslope*daslope+16777216);
+				i = static_cast<int>(std::sqrt(daslope * daslope+ 16777216)); // FIXME: Magic number.
 				globalposy = mulscalen<12>(globalposy,i);
 				globalx2 = mulscalen<12>(globalx2,i);
 				globaly2 = mulscalen<12>(globaly2,i);
@@ -9761,16 +9547,6 @@ int getangle(int xvect, int yvect)
 	return ((radarang[640 - scale(160, xvect, yvect)] >> 6) + 512 + ((yvect < 0) << 10)) & 2047;
 }
 
-
-//
-// ksqrt
-//
-int ksqrt(int num)
-{
-	return nsqrtasm(num);
-}
-
-
 //
 // krecip
 //
@@ -10107,7 +9883,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			const auto* wal2 = &wall[wal->point2];
 			auto dax = wal2->x-wal->x;
 			auto day = wal2->y-wal->y;
-			int i = nsqrtasm(dax * dax + day * day); 
+			int i = static_cast<int>(std::hypot(dax, day)); 
 			
 			if (i == 0) {
 				continue;
@@ -10161,7 +9937,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			const auto* wal2 = &wall[wal->point2];
 			int dax = wal2->x-wal->x;
 			int day = wal2->y-wal->y;
-			int i = nsqrtasm(dax*dax+day*day);
+			int i = static_cast<int>(std::hypot(dax, day));
 			
 			if (i == 0) {
 				continue;
@@ -10772,7 +10548,7 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 		//Extra walldist for sprites on sector lines
 	const int gx = goalx - (*x);
 	const int gy = goaly - (*y);
-	const int rad = nsqrtasm(gx * gx + gy * gy) + MAXCLIPDIST + walldist + 8;
+	const int rad = static_cast<int>(std::hypot(gx, gy)) + MAXCLIPDIST + walldist + 8;
 	const int xmin = cx - rad;
 	const int ymin = cy - rad;
 	const int xmax = cx + rad;
@@ -12471,7 +12247,7 @@ int getceilzofslope(short sectnum, int dax, int day)
 	const walltype* wal = &wall[sector[sectnum].wallptr];
 	const int dx = wall[wal->point2].x - wal->x;
 	const int dy = wall[wal->point2].y - wal->y;
-	const int i = nsqrtasm(dx * dx + dy * dy) << 5;
+	const int i = static_cast<int>(std::hypot(dx, dy)) << 5;
 	
 	if (i == 0)
 		return sector[sectnum].ceilingz;
@@ -12493,7 +12269,7 @@ int getflorzofslope(short sectnum, int dax, int day)
 	const walltype* wal = &wall[sector[sectnum].wallptr];
 	const int dx = wall[wal->point2].x - wal->x;
 	const int dy = wall[wal->point2].y - wal->y;
-	const int i = nsqrtasm(dx * dx + dy * dy) << 5;
+	const int i = static_cast<int>(std::hypot(dx, dy)) << 5;
 	
 	if (i == 0)
 		return sector[sectnum].floorz;
@@ -12519,7 +12295,7 @@ ceilfloorz getzsofslope(short sectnum, int dax, int day)
 		const walltype* wal2 = &wall[wal->point2];
 		const int dx = wal2->x - wal->x;
 		const int dy = wal2->y - wal->y;
-		const int i = (nsqrtasm(dx * dx + dy * dy) << 5);
+		const int i = static_cast<int>(std::hypot(dx, dy)) << 5;
 		
 		if (i == 0)
 			return cfz;
@@ -12553,7 +12329,7 @@ void alignceilslope(short dasect, int x, int y, int z)
 	}
 
 	sector[dasect].ceilingheinum = scale((z - sector[dasect].ceilingz) << 8,
-	  nsqrtasm(dax * dax + day * day), i);
+	  static_cast<int>(std::hypot(dax, day)), i);
 
 	if (sector[dasect].ceilingheinum == 0) {
 		sector[dasect].ceilingstat &= ~2;
@@ -12580,7 +12356,7 @@ void alignflorslope(short dasect, int x, int y, int z)
 	}
 
 	sector[dasect].floorheinum = scale((z - sector[dasect].floorz) << 8,
-	  nsqrtasm(dax * dax + day * day), i);
+	  static_cast<int>(std::hypot(dax, day)), i);
 
 	if (sector[dasect].floorheinum == 0) {
 		sector[dasect].floorstat &= ~2;

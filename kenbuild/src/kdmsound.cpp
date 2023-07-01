@@ -98,7 +98,6 @@ static unsigned char *snd = nullptr;
 
 static void startwave(int wavnum, int dafreq, int davolume1, int davolume2, int dafrqeff, int davoleff, int dapaneff);
 static void fsin(int *eax);
-static inline int msqrtasm(unsigned int c);
 static inline void bound2char(int count, int *stemp, unsigned char *charptr);
 static inline void bound2short(int count, int *stemp, short *shortptr);
 static void calcvolookupmono(int *edi, int eax, int ebx);
@@ -461,7 +460,7 @@ void preparekdmsndbuf(unsigned char *sndoffsplc, int sndbufsiz)
                 { splc[i] = 0; continue; }
 
             j = vdist[i];
-            vdist[i] = msqrtasm(x*x+y*y);
+            vdist[i] = static_cast<int>(std::hypot(x, y));
             if (j)
             {
                 j = (sinc[i] << 10) / (std::min(std::max(vdist[i] - j, -768), 768) + 1024) - sinc[i];
@@ -632,28 +631,6 @@ static void fsin(int *eax)
     const float oneshr10 = 0.0009765625f;
 
     *eax = sinf(std::numbers::pi_v<float> * (*eax) * oneshr10) * oneshl14;
-}
-
-static inline int msqrtasm(unsigned int c)
-{
-    unsigned int a;
-    unsigned int b;
-
-    a = 0x40000000l;    // mov eax, 0x40000000
-    b = 0x20000000l;    // mov ebx, 0x20000000
-    do {                // begit:
-        if (c >= a) {   // cmp ecx, eax  /  jl skip
-            c -= a;     // sub ecx, eax
-            a += b*4;   // lea eax, [eax+ebx*4]
-        }               // skip:
-        a -= b;         // sub eax, ebx
-        a >>= 1;        // shr eax, 1
-        b >>= 2;        // shr ebx, 2
-    } while (b);        // jnz begit
-    if (c >= a)         // cmp ecx, eax
-        a++;            // sbb eax, -1
-    a >>= 1;            // shr eax, 1
-    return a;
 }
 
 static inline void bound2char(int count, int *stemp, unsigned char *charptr)
