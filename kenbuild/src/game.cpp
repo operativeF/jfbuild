@@ -468,7 +468,7 @@ int app_main(int argc, char const * const argv[])
 
         if (!supportdir.empty()) {
 #if defined(_WIN32) || defined(__APPLE__)
-            constexpr std::string_view dirname = "KenBuild";
+            static constexpr std::string_view dirname = "KenBuild";
 #else
             const char *dirname = ".kenbuild";
 #endif

@@ -1371,8 +1371,8 @@ void cdsenummodes()
 
 	struct { unsigned x,y,bpp,freq; } modes[MAXVALIDMODES];
 	int nmodes=0;
-	constexpr int maxx{ MAXXDIM };
-	constexpr int maxy{ MAXYDIM };
+	static constexpr int maxx{ MAXXDIM };
+	static constexpr int maxy{ MAXYDIM };
 
 	// Enumerate display modes.
 	::ZeroMemory(&dm,sizeof(DEVMODE));

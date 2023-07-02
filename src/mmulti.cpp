@@ -144,7 +144,7 @@ int netinit (int portnum)
 {
 #ifdef _WIN32
 	WSADATA ws;
-	constexpr u_long off{ 0 };
+	static constexpr u_long off{ 0 };
 	u_long on{ 1 };
 #else
 	unsigned int off = 0, on = 1;

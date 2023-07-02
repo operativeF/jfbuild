@@ -2643,8 +2643,8 @@ void polymost_drawalls (int bunch)
 				double _ox1;
 				double nfy0;
 				double nfy1;
-				constexpr int skywalx[4] = { -512,512,512,-512 };
-				constexpr int skywaly[4] = { -512,-512,512,512 };
+				static constexpr int skywalx[4] = { -512,512,512,-512 };
+				static constexpr int skywaly[4] = { -512,-512,512,512 };
 
 				std::ignore = _nx0;
 				std::ignore = _ny0;
@@ -3054,8 +3054,8 @@ void polymost_drawalls (int bunch)
 				double _ox1;
 				double ncy0;
 				double ncy1;
-				constexpr int skywalx[4] = { -512,  512, 512, -512 };
-				constexpr int skywaly[4] = { -512, -512, 512,  512 };
+				static constexpr int skywalx[4] = { -512,  512, 512, -512 };
+				static constexpr int skywaly[4] = { -512, -512, 512,  512 };
 
 				std::ignore = _nx0;
 				std::ignore = _ny0;

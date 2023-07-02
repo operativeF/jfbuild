@@ -157,7 +157,7 @@ namespace {
 #if USE_POLYMOST
 int osdfunc_setrendermode(const osdfuncparm_t *parm)
 {
-	constexpr std::string_view modestrs[] = {
+	static constexpr std::string_view modestrs[] = {
 		"classic software",
 		"polygonal flat-shaded software",
 		"polygonal textured software",
@@ -205,7 +205,7 @@ int osdcmd_vars(const osdfuncparm_t *parm)
 	const bool showval = parm->parms.size() < 1;
 
 	if (IsSameAsNoCase(parm->name, "screencaptureformat")) {
-		constexpr std::array<std::string_view, 3> fmts = { "TGA", "PCX", "PNG" };
+		static constexpr std::array<std::string_view, 3> fmts = { "TGA", "PCX", "PNG" };
 		if (!showval) {
 			int i;
 			for (i=0; i<3; i++)

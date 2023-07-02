@@ -828,9 +828,9 @@ void glbuild_update_8bit_palette(const glbuild8bit *state, const GLvoid *pal)
 void glbuild_update_8bit_frame(const glbuild8bit *state, const GLvoid *frame, int resx, int resy, int stride)
 {
 #if (USE_OPENGL == USE_GLES2)
-	constexpr GLenum extfmt{ GL_LUMINANCE };
+	static constexpr GLenum extfmt{ GL_LUMINANCE };
 #else
-	constexpr GLenum extfmt{ GL_RED };
+	static constexpr GLenum extfmt{ GL_RED };
 #endif
 
 	std::ignore = resx;
@@ -880,8 +880,8 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 
 void dumpglinfo()
 {
-	constexpr std::string_view supported   = "supported";
-	constexpr std::string_view unsupported = "not supported";
+	static constexpr std::string_view supported   = "supported";
+	static constexpr std::string_view unsupported = "not supported";
 	std::string glslverstr  = "not supported";
 
 	if (!glinfo.loaded) {

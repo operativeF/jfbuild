@@ -9847,8 +9847,8 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 	short *hitsect, short *hitwall, short *hitsprite,
 	int *hitx, int *hity, int *hitz, unsigned int cliptype)
 {
-	constexpr int hitscangoalx = (1 << 29) - 1;
-	constexpr int hitscangoaly = (1 << 29) - 1;
+	static constexpr int hitscangoalx = (1 << 29) - 1;
+	static constexpr int hitscangoaly = (1 << 29) - 1;
 
 	*hitsect = -1;
 	*hitwall = -1;
