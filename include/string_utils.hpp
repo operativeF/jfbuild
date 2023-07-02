@@ -239,28 +239,52 @@ inline std::string JoinStringsEsc(std::span<const std::string> strSpan, char del
 
 inline int CmpNoCaseN(std::string_view strViewA, std::string_view strViewB, std::size_t count)
 {
-    const auto nA = strViewA.size();
-    const auto nB = strViewB.size();
+    std::string strA;
+    std::string strB;
 
-    std::string strA(nA, '0');
-    std::string strB(nB, '0');
+    strA.resize_and_overwrite(count,
+        [strViewA, count](char* buf, std::size_t bufsize) -> std::size_t {
+            for(int i{0}; i < count; ++i) {
+                *(buf + i) = std::tolower(*(strViewA.data() + i));
+            }
 
-    std::ranges::transform(strViewA, strA.begin(), [](auto c) noexcept { return ToLowerCh(c); });
-    std::ranges::transform(strViewB, strB.begin(), [](auto c) noexcept { return ToLowerCh(c); });
+        return count;
+    });
+
+    strB.resize_and_overwrite(count,
+        [strViewB, count](char* buf, std::size_t bufsize) -> std::size_t {
+            for(int i{0}; i < count; ++i) {
+                *(buf + i) = std::tolower(*(strViewB.data() + i));
+            }
+
+        return count;
+    });
 
     return strA.compare(0, count, strB);
 }
 
 inline int CmpNoCase(std::string_view strViewA, std::string_view strViewB)
 {
-    const auto nA = strViewA.size();
-    const auto nB = strViewB.size();
+    std::string strA;
+    std::string strB;
 
-    std::string strA(nA, '0');
-    std::string strB(nB, '0');
+    strA.resize_and_overwrite(strViewA.size(),
+        [strViewA, count = strViewA.size()](char* buf, std::size_t bufsize) -> std::size_t {
+            for(int i{0}; i < count; ++i) {
+                *(buf + i) = std::tolower(*(strViewA.data() + i));
+            }
 
-    std::ranges::transform(strViewA, strA.begin(), [](auto c) noexcept { return ToLowerCh(c); });
-    std::ranges::transform(strViewB, strB.begin(), [](auto c) noexcept { return ToLowerCh(c); });
+        return count;
+    });
+
+    strB.resize_and_overwrite(strViewB.size(),
+        [strViewB, count = strViewB.size()](char* buf, std::size_t bufsize) -> std::size_t {
+            for(int i{0}; i < count; ++i) {
+                *(buf + i) = std::tolower(*(strViewB.data() + i));
+            }
+
+        return count;
+    });
 
     return strA.compare(strB);
 }
