@@ -1848,7 +1848,7 @@ std::unique_ptr<voxmodel> vox2poly()
 	int dy;
 	void (*daquad)(int, int, int, int, int, int, int, int, int, int, std::span<const spoint2d>, voxmodel*);
 
-	auto gvox = std::make_unique<voxmodel>();
+	auto gvox = std::make_unique_for_overwrite<voxmodel>();
 
 		//x is largest dimension, y is 2nd largest dimension
 	x = xsiz;

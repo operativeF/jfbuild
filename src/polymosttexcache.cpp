@@ -290,7 +290,7 @@ std::unique_ptr<PTCacheTile> ptcache_load(off_t offset)
 	int32_t i;
 	int32_t length;
 
-	std::unique_ptr<PTCacheTile> tdef;
+	auto tdef = std::make_unique_for_overwrite<PTCacheTile>();
 
 	if (cachereplace) {
 		// cache is in a broken state, so don't try loading
