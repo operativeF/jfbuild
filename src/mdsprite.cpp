@@ -972,7 +972,7 @@ md3model *md3load (int fil)
 	kread(fil, &filehead, sizeof(md3filehead_t));
 	m->head.id = filehead.id;
 	m->head.vers = filehead.vers;
-	std::memcpy(m->head.nam, filehead.nam, sizeof(filehead.nam));
+	m->head.nam = filehead.nam;
 	m->head.flags = filehead.flags;
 	m->head.numframes = filehead.numframes;
 	m->head.numtags = filehead.numtags;
@@ -1005,66 +1005,65 @@ md3model *md3load (int fil)
 	}
 
 	klseek(fil,filehead.surfs,SEEK_SET);
-	m->head.surfs = (md3surf_t *)std::calloc(m->head.numsurfs, sizeof(md3surf_t));
-	if (!m->head.surfs) { md3free(m); return(nullptr); }
+	m->head.surfs.resize(m->head.numsurfs);
 
 	int ofsurf = filehead.surfs;
 
-	for(int surfi{0}; surfi < m->head.numsurfs; ++surfi)
+	for(auto& s : m->head.surfs)
 	{
-		auto* s = &m->head.surfs[surfi];
 		klseek(fil, ofsurf, SEEK_SET);
 
 		md3filesurf_t filesurf{};
 		kread(fil, &filesurf, sizeof(md3filesurf_t));
 
-		s->id = filesurf.id;
-		std::memcpy(s->nam, filesurf.nam, sizeof(filesurf.nam));
-		s->flags = filesurf.flags;
-		s->numframes = filesurf.numframes;
-		s->numshaders = filesurf.numshaders;
-		s->numverts = filesurf.numverts;
-		s->numtris = filesurf.numtris;
+		s.id = filesurf.id;
+		s.nam = filesurf.nam;
+		s.flags = filesurf.flags;
+		s.numframes = filesurf.numframes;
+		s.numshaders = filesurf.numshaders;
+		s.numverts = filesurf.numverts;
+		s.numtris = filesurf.numtris;
 		filesurf.tris = filesurf.tris;
 		filesurf.shaders = filesurf.shaders;
 		filesurf.uv = filesurf.uv;
 		filesurf.xyzn = filesurf.xyzn;
-		s->ofsend = filesurf.ofsend;
+		s.ofsend = filesurf.ofsend;
 
-		std::array<int, 4> offs{};
-		std::array<int, 4> leng{};
+		std::array<int, 4> offs{
+			ofsurf + filesurf.tris,
+			ofsurf + filesurf.shaders,
+			ofsurf + filesurf.uv,
+			ofsurf + filesurf.xyzn
+		};
+		std::array<std::size_t, 4> leng{
+			s.numtris * sizeof(md3tri_t),
+			s.numshaders * sizeof(md3shader_t),
+			s.numverts * sizeof(md3uv_t),
+			s.numframes * s.numverts * sizeof(md3xyzn_t)
+		};
 
-		offs[0] = ofsurf + filesurf.tris;
-		leng[0] = s->numtris * sizeof(md3tri_t);
-		offs[1] = ofsurf + filesurf.shaders;
-		leng[1] = s->numshaders * sizeof(md3shader_t);
-		offs[2] = ofsurf + filesurf.uv;
-		leng[2] = s->numverts * sizeof(md3uv_t);
-		offs[3] = ofsurf + filesurf.xyzn;
-		leng[3] = s->numframes * s->numverts * sizeof(md3xyzn_t);
-
-		s->tris = (md3tri_t *) std::malloc(leng[0] + leng[1] + leng[2] + leng[3]);
-		if (!s->tris)
+		s.tris = (md3tri_t *) std::malloc(leng[0] + leng[1] + leng[2] + leng[3]);
+		if (!s.tris)
 		{
 			md3free(m);
 			return(nullptr);
 		}
-		s->shaders = (md3shader_t*)(((intptr_t)s->tris) + leng[0]);
-		s->uv      = (md3uv_t*)(((intptr_t)s->shaders) + leng[1]);
-		s->xyzn    = (md3xyzn_t*)(((intptr_t)s->uv) + leng[2]);
+		s.shaders = (md3shader_t*)(((intptr_t)s.tris) + leng[0]);
+		s.uv      = (md3uv_t*)(((intptr_t)s.shaders) + leng[1]);
+		s.xyzn    = (md3xyzn_t*)(((intptr_t)s.uv) + leng[2]);
 
 		klseek(fil, offs[0], SEEK_SET);
-		kread(fil, s->tris, leng[0]);
+		kread(fil, s.tris, leng[0]);
 		klseek(fil, offs[1], SEEK_SET);
-		kread(fil, s->shaders, leng[1]);
+		kread(fil, s.shaders, leng[1]);
 		klseek(fil, offs[2], SEEK_SET);
-		kread(fil, s->uv, leng[2]);
+		kread(fil, s.uv, leng[2]);
 		klseek(fil, offs[3], SEEK_SET);
-		kread(fil, s->xyzn, leng[3]);
+		kread(fil, s.xyzn, leng[3]);
 
-		maxmodelverts = std::max(maxmodelverts, s->numverts);
-		maxelementvbo = std::max(maxelementvbo, s->numtris * 3);
-		ofsurf += s->ofsend;
+		maxmodelverts = std::max(maxmodelverts, s.numverts);
+		maxelementvbo = std::max(maxelementvbo, s.numtris * 3);
+		ofsurf += s.ofsend;
 	}
 
 	return m;
@@ -1072,9 +1071,6 @@ md3model *md3load (int fil)
 
 int md3draw (md3model *m, spritetype *tspr, int method)
 {
-	point3d m0;
-	point3d m1;
-	point3d a0;
 	md3xyzn_t* v0;
 	md3xyzn_t* v1;
 	int i;
@@ -1082,10 +1078,6 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 	int k;
 	int vbi;
 	int surfi;
-	float f;
-	float g;
-	float k0;
-	float k1;
 	float k2;
 	float k3;
 	float k4;
@@ -1102,38 +1094,58 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 
 		//create current&next frame's vertex list from whole list
 
-	f = m->interpol;
-	g = 1 - f;
-	m0.x = (1.0/64.0) * m->scale * g;
-	m1.x = (1.0/64.0) * m->scale * f;
-	m0.y = (1.0/64.0) * m->scale * g;
-	m1.y = (1.0/64.0) * m->scale * f;
-	m0.z = (1.0/64.0) * m->scale * g;
-	m1.z = (1.0/64.0) * m->scale * f;
-	a0.x = 0;
-	a0.y = 0;
-	a0.z = m->zadd * m->scale;
+	float f = m->interpol;
+	float g = 1 - f;
+	point3d m0{
+		.x = (1.0F / 64.0F) * m->scale * g,
+		.y = (1.0F / 64.0F) * m->scale * g,
+		.z = (1.0F / 64.0F) * m->scale * g
+	};
+	point3d m1{
+		.x = (1.0F / 64.0F) * m->scale * f,
+		.y = (1.0F / 64.0F) * m->scale * f,
+		.z = (1.0F / 64.0F) * m->scale * f
+	};
+	point3d a0{
+		.x = 0,
+		.y = 0,
+		.z = m->zadd * m->scale
+	};
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
-	k0 = tspr->z;
-	if ((globalorientation&128) && !((globalorientation&48)==32)) k0 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<1);
+	auto k0 = static_cast<float>(tspr->z);
+	if ((globalorientation&128) && !((globalorientation&48)==32))
+		k0 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<1);
 
     // Parkar: Changed to use the same method as centeroriented sprites
 	if (globalorientation&8) //y-flipping
 	{
-		m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
+		m0.z = -m0.z;
+		m1.z = -m1.z;
+		a0.z = -a0.z;
 		k0 -= (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<2);
 	}
-	if (globalorientation&4) { m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y; } //x-flipping
+	if (globalorientation&4) { //x-flipping
+		m0.y = -m0.y;
+		m1.y = -m1.y;
+		a0.y = -a0.y;
+	}
 
 	f = ((float)tspr->xrepeat)/64*m->bscale;
-	m0.x *= f; m1.x *= f; a0.x *= f; f = -f;   // 20040610: backwards models aren't cool
-	m0.y *= f; m1.y *= f; a0.y *= f;
+	m0.x *= f;
+	m1.x *= f;
+	a0.x *= f;
+	f = -f;   // 20040610: backwards models aren't cool
+	m0.y *= f;
+	m1.y *= f;
+	a0.y *= f;
 	f = ((float)tspr->yrepeat)/64*m->bscale;
-	m0.z *= f; m1.z *= f; a0.z *= f;
+	m0.z *= f;
+	m1.z *= f;
+	a0.z *= f;
 
 	// floor aligned
-	k1 = tspr->y;
+	auto k1 = static_cast<float>(tspr->y);
 	if((globalorientation & 48) == 32)
 	{
 		m0.z = -m0.z;
@@ -1166,7 +1178,8 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 	k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] / 16384.0;
 	k2 = k0*(1-k4)+k1*k5;
 	k3 = k1*(1-k4)-k0*k5;
-	k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
+	k6 = f*gstang - gsinang*gctang;
+	k7 = g*gstang + gcosang*gctang;
 	mat[0] = k4*k6 + k5*k7;
 	mat[4] = gchang*gstang;
 	mat[ 8] = k4*k7 - k5*k6;
@@ -1210,7 +1223,9 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 		mat[12] = -mat[12];
 	}
 
-	mat[3] = mat[7] = mat[11] = 0.F;
+	mat[3]  = 0.F;
+	mat[7]  = 0.F;
+	mat[11] = 0.F;
 	mat[15] = 1.F;
 
 //------------
@@ -1238,14 +1253,14 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 //------------
 
 	draw.texture1 = 0;
-	draw.alphacut = 0.32;
+	draw.alphacut = 0.32F;
 	draw.colour.r = pc[0];
 	draw.colour.g = pc[1];
 	draw.colour.b = pc[2];
 	draw.colour.a = pc[3];
-	draw.fogcolour.r = (float)palookupfog[gfogpalnum].r / 63.F;
-	draw.fogcolour.g = (float)palookupfog[gfogpalnum].g / 63.F;
-	draw.fogcolour.b = (float)palookupfog[gfogpalnum].b / 63.F;
+	draw.fogcolour.r = static_cast<float>(palookupfog[gfogpalnum].r) / 63.F;
+	draw.fogcolour.g = static_cast<float>(palookupfog[gfogpalnum].g) / 63.F;
+	draw.fogcolour.b = static_cast<float>(palookupfog[gfogpalnum].b) / 63.F;
 	draw.fogcolour.a = 1.F;
 	draw.fogdensity = gfogdensity;
 	draw.indexbuffer = 0;
@@ -1259,13 +1274,12 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 	}
 	draw.modelview = mat.data();
 
-	for(surfi=0;surfi<m->head.numsurfs;surfi++)
+	for(int surfi{0}; auto& s : m->head.surfs)
 	{
-		s = &m->head.surfs[surfi];
-		v0 = &s->xyzn[m->cframe*s->numverts];
-		v1 = &s->xyzn[m->nframe*s->numverts];
+		v0 = &s.xyzn[m->cframe * s.numverts];
+		v1 = &s.xyzn[m->nframe * s.numverts];
 
-		for(i=s->numverts-1;i>=0;i--) //interpolate (for animation) & transform to Build coords
+		for(i=s.numverts-1;i>=0;i--) //interpolate (for animation) & transform to Build coords
 		{
 			vertlist[i].z = ((float)v0[i].x)*m0.x + ((float)v1[i].x)*m1.x;
 			vertlist[i].y = ((float)v0[i].z)*m0.z + ((float)v1[i].z)*m1.z;
@@ -1290,21 +1304,23 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 
 		draw.texture0 = ptmh->glpic;
 
-		for(i=0, vbi=0; i<s->numtris; i++, vbi+=3)
+		for(i=0, vbi=0; i<s.numtris; i++, vbi+=3)
 			for(j=2;j>=0;j--)
 			{
-				k = s->tris[i].i[j];
+				k = s.tris[i].i[j];
 
 				elementvbo[vbi+j].v.x = vertlist[k].x;
 				elementvbo[vbi+j].v.y = vertlist[k].y;
 				elementvbo[vbi+j].v.z = vertlist[k].z;
-				elementvbo[vbi+j].t.s = s->uv[k].u;
-				elementvbo[vbi+j].t.t = s->uv[k].v;
+				elementvbo[vbi+j].t.s = s.uv[k].u;
+				elementvbo[vbi+j].t.t = s.uv[k].v;
 			}
 
-		draw.indexcount = 3 * s->numtris;
-		draw.elementcount = 3 * s->numtris;
+		draw.indexcount = 3 * s.numtris;
+		draw.elementcount = 3 * s.numtris;
 		polymost_drawpoly_glcall(GL_TRIANGLES, &draw);
+
+		++surfi; // FIXME: Kind of dumb.
 	}
 
 //------------
@@ -1327,24 +1343,24 @@ void md3free (md3model *m)
 {
 	mdanim_t *anim;
 	mdanim_t *nanim = nullptr;
-	md3surf_t *s;
-	int surfi;
 
-	if (!m) return;
+	if (!m)
+		return;
 
-	if (m->head.surfs)
+	for(auto& s : m->head.surfs)
 	{
-		for(surfi=m->head.numsurfs-1;surfi>=0;surfi--)
-		{
-			s = &m->head.surfs[surfi];
-			if (s->tris) std::free(s->tris);
-		}
-		std::free(m->head.surfs);
+		if (s.tris)
+			std::free(s.tris);
 	}
-	if (m->head.tags) std::free(m->head.tags);
-	if (m->head.frames) std::free(m->head.frames);
+	
+	if (m->head.tags)
+		std::free(m->head.tags);
 
-	if (m->tex) std::free(m->tex);
+	if (m->head.frames)
+		std::free(m->head.frames);
+
+	if (m->tex)
+		std::free(m->tex);
 
 	std::free(m);
 }

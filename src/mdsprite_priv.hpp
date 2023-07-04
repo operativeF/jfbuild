@@ -54,7 +54,68 @@ struct point3d {
 	float x;
 	float y;
 	float z;
+
+	constexpr point3d& operator+=(const point3d& pt) {
+		x += pt.x;
+		y += pt.y;
+		z += pt.z;
+		return *this;
+	}
+
+	constexpr point3d& operator-() {
+		x = -x;
+		y = -y;
+		z = -z;
+		return *this;
+	}
+
+	constexpr point3d& operator-=(const point3d& pt) {
+		x -= pt.x;
+		y -= pt.y;
+		z -= pt.z;
+		return *this;
+	}
+
+	constexpr point3d& operator*=(auto val) {
+		x *= val;
+		y *= val;
+		z *= val;
+		return *this;
+	}
+
+	constexpr point3d& operator/=(auto val) {
+		x /= val;
+		y /= val;
+		z /= val;
+		return *this;
+	}
+
 };
+
+inline constexpr point3d operator+(point3d lhp, const point3d& rhp) {
+	lhp += rhp;
+	return lhp;
+}
+
+inline constexpr point3d operator-(point3d lhp, const point3d& rhp) {
+	lhp -= rhp;
+	return lhp;
+}
+
+// TODO: Add constraints
+inline constexpr point3d operator*(point3d pt, auto val) {
+	pt *= val;
+	return pt;
+}
+
+inline constexpr point3d operator*(auto val, point3d pt) {
+	return pt * val;
+}
+
+inline constexpr point3d operator/(point3d pt, auto val) {
+	pt /= val;
+	return pt;
+}
 
 struct md2head_t
 {
@@ -182,7 +243,7 @@ struct md3tag_t
 struct md3surf_t
 {
 	int id; //IDP3(0x33806873)
-	char nam[64]; //ascz surface name
+	std::string nam; //ascz surface name
 	int flags; //?
 	int numframes;
 	int numshaders;
@@ -198,7 +259,7 @@ struct md3surf_t
 struct md3filesurf_t
 {
 	int id; //IDP3(0x33806873)
-	char nam[64]; //ascz surface name
+	std::string nam; //ascz surface name
 	int flags; //?
 	int numframes;
 	int numshaders;
@@ -215,7 +276,7 @@ struct md3head_t
 {
 	int id;
 	int vers; //id=IDP3(0x33806873), vers=15
-	char nam[64]; //ascz path in PK3
+	std::string nam; //ascz path in PK3
 	int flags; //?
 	int numframes;
 	int numtags;
@@ -223,7 +284,7 @@ struct md3head_t
 	int numskins; //max=~1024,~16,~32,numskins=artifact of MD2; use shader field instead
 	md3frame_t *frames; //file format: abs offs
 	md3tag_t *tags;     //file format: abs offs
-	md3surf_t *surfs;   //file format: abs offs
+	std::vector<md3surf_t> surfs;   //file format: abs offs
 	int eof;           //file format: abs offs
 };
 
