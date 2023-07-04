@@ -29,7 +29,6 @@ struct hicskybox_t {
 };
 
 struct hicreplctyp {
-	hicreplctyp* next;
 	unsigned char palnum;
 	bool ignore{false};
 	unsigned char flags;
@@ -40,7 +39,7 @@ struct hicreplctyp {
 };
 
 inline std::array<palette_t, MAXPALOOKUPS> hictinting{};
-inline std::vector<hicreplctyp*> hicreplc(MAXTILES);
+inline std::vector<std::vector<hicreplctyp>> hicreplc(MAXTILES);
 inline int hicfirstinit{0};
 
 void hicinit();

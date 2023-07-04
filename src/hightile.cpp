@@ -34,14 +34,14 @@ hicreplctyp* hicfindsubst(int picnum, int palnum, int skybox)
 		return nullptr;
 
 	do {
-		for (hicreplctyp* hr = hicreplc[picnum]; hr; hr = hr->next) {
-			if (hr->palnum == palnum) {
+		for (auto& hr : hicreplc[picnum]) {
+			if (hr.palnum == palnum) {
 				if (skybox) {
-					if (!hr->skybox.ignore)
-						return hr;
+					if (!hr.skybox.ignore)
+						return &hr;
 				} else {
-					if (!hr->ignore)
-						return hr;
+					if (!hr.ignore)
+						return &hr;
 				}
 			}
 		}
@@ -67,18 +67,8 @@ void hicinit()
 				   .f = 0x00});
 
 	if (hicfirstinit) {
-		for (auto* hr : hicreplc) {
-			for (; hr != nullptr;) {
-				hicreplctyp* next = hr->next;
-
-				std::free(hr);
-
-				hr = next;
-			}
-		}
+		hicreplc.clear();
 	}
-
-	std::ranges::fill(hicreplc, nullptr);
 
 	hicfirstinit = 1;
 }
@@ -120,41 +110,37 @@ int hicsetsubsttex(int picnum, int palnum, const std::string& filen, float alpha
 	if (!hicfirstinit)
 		hicinit();
 
-	hicreplctyp* hr{nullptr};
-	for (hr = hicreplc[picnum]; hr; hr = hr->next) {
-		if (hr->palnum == palnum)
-			break;
-	}
+	auto hr = std::ranges::find_if(hicreplc[picnum], [palnum](auto anHr){
+		if(anHr.palnum == palnum)
+			return true;
 
-	hicreplctyp* hrn{nullptr};
-	if (!hr) {
+		return false;
+	});
+
+	hicreplctyp hrn{};
+	if (hr == hicreplc[picnum].end()) {
 		// no replacement yet defined
-		hrn = (hicreplctyp *)std::calloc(1,sizeof(hicreplctyp));
-		if (!hrn) return -1;
-		hrn->palnum = palnum;
+		hrn.palnum = palnum;
 	}
 	else
-		hrn = hr;
+		hrn = *hr;
 
 	// store into hicreplc the details for this replacement
-	hrn->filename = filen;
+	hrn.filename = filen;
 
-	if (hrn->filename.empty()) {
-		if (hrn->skybox.face.empty())
+	if (hrn.filename.empty()) {
+		if (hrn.skybox.face.empty())
 			return -1;	// don't free the base structure if there's a skybox defined
-		
-		if (hr == nullptr)
-			std::free(hrn);	// not yet a link in the chain
+
 		return -1;
 	}
 
-	hrn->ignore = false;
-	hrn->alphacut = std::min(alphacut, 1.0F);
-	hrn->flags = flags;
+	hrn.ignore = false;
+	hrn.alphacut = std::min(alphacut, 1.0F);
+	hrn.flags = flags;
 
-	if (hr == nullptr) {
-		hrn->next = hicreplc[picnum];
-		hicreplc[picnum] = hrn;
+	if (hr == hicreplc[picnum].end()) {
+		hicreplc[picnum].push_back(hrn);
 	}
 
 	//std::printf("Replacement [%d,%d]: %s\n", picnum, palnum, hicreplc[i]->filename);
@@ -178,31 +164,28 @@ int hicsetskybox(int picnum, int palnum, std::span<const std::string> faces)
 	if (!hicfirstinit)
 		hicinit();
 
-	hicreplctyp* hr{nullptr};
-	for (hr = hicreplc[picnum]; hr; hr = hr->next) {
-		if (hr->palnum == palnum)
-			break;
-	}
+	auto hr = std::ranges::find_if(hicreplc[picnum], [palnum](auto anHr){
+		if(anHr.palnum == palnum)
+			return true;
 
-	hicreplctyp* hrn{nullptr};
+		return false;
+	});
 
-	if (!hr) {
+	hicreplctyp hrn;
+
+	if (hr == hicreplc[picnum].end()) {
 		// no replacement yet defined
-		hrn = (hicreplctyp *)std::calloc(1,sizeof(hicreplctyp));
-		if (!hrn) return -1;
-
-		hrn->palnum = palnum;
+		hrn.palnum = palnum;
 	}
 	else
-		hrn = hr;
+		hrn = *hr;
 
 	// store each face's filename
-	std::ranges::copy(faces.begin(), faces.end(), hrn->skybox.face.data());
+	std::ranges::copy(faces.begin(), faces.end(), hrn.skybox.face.data());
 
-	hrn->skybox.ignore = false;
-	if (hr == nullptr) {
-		hrn->next = hicreplc[picnum];
-		hicreplc[picnum] = hrn;
+	hrn.skybox.ignore = false;
+	if (hr == hicreplc[picnum].end()) {
+		hicreplc[picnum].push_back(hrn);
 	}
 
 	return 0;
@@ -224,23 +207,17 @@ int hicclearsubst(int picnum, int palnum)
 	if (!hicfirstinit)
 		return 0;
 
-	hicreplctyp* hrn{nullptr};
-	hicreplctyp *hr{nullptr};
+	auto hr = std::ranges::find_if(hicreplc[picnum], [palnum](auto anHr){
+		if(anHr.palnum == palnum)
+			return true;
 
-	for (hr = hicreplc[picnum]; hr; hrn = hr, hr = hr->next) {
-		if (hr->palnum == palnum)
-			break;
-	}
+		return false;
+	});
 
-	if (!hr)
+	if (hr == hicreplc[picnum].end())
 		return 0;
 
-	if (hrn)
-		hrn->next = hr->next;
-	else
-		hicreplc[picnum] = hr->next;
-
-	std::free(hr);
+	hicreplc[picnum].erase(hr);
 
 	return 0;
 }
