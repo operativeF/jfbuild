@@ -11136,12 +11136,12 @@ void updatesectorz(int x, int y, int z, short *sectnum)
 
 	if ((*sectnum >= 0) && (*sectnum < numsectors))
 	{
-		walltype* wal = &wall[g_sector[*sectnum].wallptr];
-		int j = g_sector[*sectnum].wallnum;
-		
-		do
+		std::ranges::subrange wallrange{&wall[g_sector[*sectnum].wallptr],
+		                                &wall[g_sector[*sectnum].wallptr + g_sector[*sectnum].wallnum]};
+
+		for(const auto& wal : wallrange)
 		{
-			const int i = wal->nextsector;
+			const int i = wal.nextsector;
 
 			if (i >= 0)
 			{
@@ -11150,10 +11150,7 @@ void updatesectorz(int x, int y, int z, short *sectnum)
 					if (inside(x,y,(short)i) == 1)
 						{ *sectnum = i; return; }
 			}
-
-			wal++;
-			j--;
-		} while (j != 0);
+		}
 	}
 
 	for (int i = numsectors - 1; i >= 0; --i)
