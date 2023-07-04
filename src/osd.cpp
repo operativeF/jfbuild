@@ -1205,14 +1205,14 @@ symbol_iter addnewsymbol(std::string_view name)
 
 
 //
-// findsymbol() -- Finds a symbol, possibly partially named;
+// findsymbol() -- Finds a symbol, possibly partially named; (limited by name length)
 //                 starting at "startingat" in the symbols vector.
 //
 symbol_iter findsymbol(std::string_view name, symbol_iter startingat)
 {
 	std::ranges::subrange symrange = {startingat, symbols.end()};
 	return std::ranges::find_if(symrange, [name](std::string_view startname) {
-		return !CmpNoCaseN(name, startname, name.length()); }, &symbol_t::name);
+		return IsSameAsNoCaseN(name, startname, name.length()); }, &symbol_t::name);
 }
 
 

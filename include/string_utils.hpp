@@ -289,14 +289,20 @@ inline int CmpNoCase(std::string_view strViewA, std::string_view strViewB)
     return strA.compare(strB);
 }
 
-inline constexpr bool IsSameAsCase(std::string_view strViewA, std::string_view strViewB) noexcept
+inline constexpr bool IsSameAsNoCaseN(std::string_view strViewA, std::string_view strViewB, std::size_t count)
 {
-    return strViewA == strViewB;
+    auto strA = strViewA.substr(0, count) | std::ranges::views::transform(ToLowerCh);
+    auto strB = strViewB.substr(0, count) | std::ranges::views::transform(ToLowerCh);
+
+    return std::ranges::equal(strA, strB);
 }
 
-inline bool IsSameAsNoCase(std::string_view strViewA, std::string_view strViewB)
+inline constexpr bool IsSameAsNoCase(std::string_view strViewA, std::string_view strViewB)
 {
-    return CmpNoCase(strViewA, strViewB) == 0;
+    auto strA = strViewA | std::ranges::views::transform(ToLowerCh);
+    auto strB = strViewB | std::ranges::views::transform(ToLowerCh);
+
+    return std::ranges::equal(strA, strB);
 }
 
 template<typename R>
@@ -322,18 +328,6 @@ template<typename R>
     auto it2 = std::ranges::find_if_not(std::ranges::reverse_view(str), isWhitespace);
 
     return {it1, it2.base()};
-}
-
-inline bool IsSameAs(std::string_view strViewA, std::string_view strViewB, bool bCase)
-{
-    if(bCase)
-    {
-        return IsSameAsCase(strViewA, strViewB);
-    }
-    else
-    {
-        return IsSameAsNoCase(strViewA, strViewB);
-    }
 }
 
 [[nodiscard]] inline constexpr std::string BeforeFirst(std::string_view strView, std::string_view strFirst, size_t pos = 0)
