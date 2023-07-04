@@ -40,7 +40,7 @@ inline std::array<short, MAXWALLSB> bunchfirst{};
 inline std::array<short, MAXWALLSB> bunchlast{};
 inline std::array<short, MAXWALLSB> maskwall{};
 inline short maskwallcnt{0};
-inline spritetype* tspriteptr[MAXSPRITESONSCREEN]{};
+inline std::array<spritetype*, MAXSPRITESONSCREEN> tspriteptr{};
 inline int xdimen{-1};
 inline int xdimenrecip{0};
 inline int halfxdimen{0};
