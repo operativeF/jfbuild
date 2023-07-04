@@ -183,7 +183,8 @@ struct md2model
 	float interpol;
 	std::vector<mdanim_t> animations;
 	std::vector<mdskinmap_t> skinmap;
-	int numskins, skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
+	int numskins;
+	int skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
 
 		//MD2 specific stuff:
 	int numverts;
@@ -192,10 +193,10 @@ struct md2model
 	int framebytes;
 	int skinxsiz;
 	int skinysiz;
-	char *frames;
-	md2uv_t *uvs;
-	md2tri_t *tris;
-	char *basepath;   // pointer to string of base path
+	std::vector<char> frames;
+	std::vector<md2uv_t> uvs;
+	std::vector<md2tri_t> tris;
+	std::string basepath;
 	char *skinfn;   // pointer to first of numskins 64-char strings
 };
 
@@ -249,7 +250,7 @@ struct md3surf_t
 	int numshaders;
 	int numverts;
 	int numtris; //numframes same as md3head,max shade=~256,vert=~4096,tri=~8192
-	md3tri_t *tris;       //file format: rel offs from md3surf
+	std::vector<md3tri_t> tris;       //file format: rel offs from md3surf
 	md3shader_t *shaders; //file format: rel offs from md3surf
 	md3uv_t *uv;          //file format: rel offs from md3surf
 	md3xyzn_t *xyzn;      //file format: rel offs from md3surf
@@ -282,8 +283,8 @@ struct md3head_t
 	int numtags;
 	int numsurfs;
 	int numskins; //max=~1024,~16,~32,numskins=artifact of MD2; use shader field instead
-	md3frame_t *frames; //file format: abs offs
-	md3tag_t *tags;     //file format: abs offs
+	std::vector<md3frame_t> frames; //file format: abs offs
+	std::vector<md3tag_t> tags;     //file format: abs offs
 	std::vector<md3surf_t> surfs;   //file format: abs offs
 	int eof;           //file format: abs offs
 };
@@ -322,7 +323,8 @@ struct md3model
 	float interpol;
 	std::vector<mdanim_t> animations;
 	std::vector<mdskinmap_t> skinmap;
-	int numskins, skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
+	int numskins;
+	int skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
 
 		//MD3 specific
 	md3head_t head;
@@ -381,7 +383,7 @@ struct voxmodel
 
 		//VOX specific stuff:
 	GLuint *texid;	// skins for palettes
-	voxrect_t *quad;
+	std::vector<voxrect_t> quad;
 	int qcnt;
 	std::array<int, 7> qfacind;
 	std::vector<int> mytex;

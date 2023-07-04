@@ -48,7 +48,7 @@ int maxmodelverts{0};
 int allocmodelverts{0};
 int maxelementvbo{0};
 int allocelementvbo{0};
-point3d *vertlist{nullptr}; //temp array to store interpolated vertices for drawing
+std::vector<point3d> vertlist; //temp array to store interpolated vertices for drawing
 struct polymostvboitem *elementvbo{nullptr};	 // 3 per triangle.
 
 } // namespace
@@ -71,12 +71,13 @@ void freeallmodels ()
 	// TODO: Is this really necessary?
 	std::ranges::fill(tile2model, tile2model_t{});
 
-	if (vertlist)
+	// TODO: Same with this.
+	if (!vertlist.empty())
 	{
-		std::free(vertlist);
-		vertlist = nullptr;
+		vertlist.clear();
 		allocmodelverts = maxmodelverts = 0;
 	}
+
 	if (elementvbo) {
 		std::free(elementvbo);
 		elementvbo = nullptr;
@@ -449,7 +450,7 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 			}
 			tex = &m->tex[ number * (HICEFFECTMASK+1) + hictinting[pal].f ];
 			skinfile = m->skinfn + number*64;
-			std::strcpy(&fn[0], m->basepath);
+			std::strcpy(&fn[0], m->basepath.c_str());
 			std::strcat(&fn[0], skinfile.c_str());
 			//buildprintf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
 		}
@@ -500,13 +501,12 @@ PTMHead * mdloadskin (md2model *m, int number, int pal, int surf)
 				md3model *m3 = (md3model *)m;
 				md3surf_t *s;
 				int surfi;
-				for (surfi=0;surfi<m3->head.numsurfs;surfi++)
+				for (auto& s : m3->head.surfs)
 				{
-					s = &m3->head.surfs[surfi];
-					for(i=s->numverts-1;i>=0;i--)
+					for(i = 0; i < s.numverts; ++i)
 					{
-						s->uv[i].u *= fx;
-						s->uv[i].v *= fy;
+						s.uv[i].u *= fx;
+						s.uv[i].v *= fy;
 					}
 				}
 			}
@@ -579,18 +579,6 @@ void md2free(md2model *m)
 		return;
 	}
 
-	if (m->frames)
-		std::free(m->frames);
-
-	if (m->uvs)
-		std::free(m->uvs);
-
-	if (m->tris)
-		std::free(m->tris);
-
-	if (m->basepath)
-		std::free(m->basepath);
-
 	if (m->skinfn)
 		std::free(m->skinfn);
 
@@ -624,22 +612,22 @@ md2model *md2load(int fil, const std::string& filnam)
 	m->skinxsiz = head.skinxsiz;
 	m->skinysiz = head.skinysiz;
 
-	m->uvs = (md2uv_t *)std::calloc(m->numuv,sizeof(md2uv_t));
-	if (!m->uvs) { md2free(m); return(nullptr); }
+	// TODO: Consider writing a container that can initialize from kread directly.
+	m->uvs.resize(m->numuv);
 	klseek(fil,head.ofsuv,SEEK_SET);
-	if (kread(fil,(char *)m->uvs,m->numuv*sizeof(md2uv_t)) != m->numuv*sizeof(md2uv_t))
+	if (kread(fil,(char *)m->uvs.data(),m->numuv*sizeof(md2uv_t)) != m->numuv*sizeof(md2uv_t))
 		{ md2free(m); return(nullptr); }
 
-	m->tris = (md2tri_t *)std::calloc(m->numtris,sizeof(md2tri_t));
-	if (!m->tris) { md2free(m); return(nullptr); }
+	// TODO: Consider writing a container that can initialize from kread directly.
+	m->tris.resize(m->numtris);
+
 	klseek(fil,head.ofstris,SEEK_SET);
-	if (kread(fil,(char *)m->tris,m->numtris*sizeof(md2tri_t)) != m->numtris*sizeof(md2tri_t))
+	if (kread(fil,(char *)m->tris.data(), m->numtris*sizeof(md2tri_t)) != m->numtris*sizeof(md2tri_t))
 		{ md2free(m); return(nullptr); }
 
-	m->frames = (char *)std::calloc(m->numframes,m->framebytes);
-	if (!m->frames) { md2free(m); return(nullptr); }
+	m->frames.resize(m->numframes);
 	klseek(fil,head.ofsframes,SEEK_SET);
-	if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
+	if (kread(fil,(char *)m->frames.data(),m->numframes*m->framebytes) != m->numframes*m->framebytes)
 		{ md2free(m); return(nullptr); }
 
 #if B_BIG_ENDIAN != 0
@@ -674,14 +662,7 @@ md2model *md2load(int fil, const std::string& filnam)
 
 	st[i] = 0;
 
-	m->basepath = (char *)std::malloc(i + 1);
-	
-	if (!m->basepath) {
-		md2free(m);
-		return nullptr;
-	}
-
-	std::strcpy(m->basepath, st);
+	std::strcpy(m->basepath.data(), st);
 
 	m->skinfn = (char *)std::calloc(m->numskins,64);
 	
@@ -712,8 +693,6 @@ md2model *md2load(int fil, const std::string& filnam)
 
 int md2draw (md2model *m, spritetype *tspr, int method)
 {
-	point3d m0;
-	point3d m1;
 	point3d a0;
 	int i;
 	int j;
@@ -740,12 +719,18 @@ int md2draw (md2model *m, spritetype *tspr, int method)
 	float f = m->interpol;
 	float g = 1 - f;
 
-	m0.x = f0->mul.x*m->scale*g;
-	m1.x = f1->mul.x*m->scale*f;
-	m0.y = f0->mul.y*m->scale*g;
-	m1.y = f1->mul.y*m->scale*f;
-	m0.z = f0->mul.z*m->scale*g;
-	m1.z = f1->mul.z*m->scale*f;
+	point3d m0{
+		.x = f0->mul.x * m->scale * g,
+		.y = f0->mul.y * m->scale * g,
+		.z = f0->mul.z * m->scale * g
+	};
+
+	point3d m1 {
+		.x = f1->mul.x * m->scale * f,
+		.y = f1->mul.y * m->scale * f,
+		.z = f1->mul.z * m->scale * f
+	};
+
 	a0.x = f0->add.x*m->scale;
 	a0.x = (f1->add.x*m->scale-a0.x)*f+a0.x;
 	a0.y = f0->add.y*m->scale;
@@ -810,9 +795,15 @@ int md2draw (md2model *m, spritetype *tspr, int method)
 
 	f = (65536.0*512.0)/((float)xdimen*viewingrange);
 	g = 32.0/((float)xdimen*gxyaspect);
-	m0.y *= f; m1.y *= f; a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
-	m0.x *=-f; m1.x *=-f; a0.x = (((float)(k1     -globalposy))/ -1024.0 + a0.x)*-f;
-	m0.z *= g; m1.z *= g; a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
+	m0.y *= f;
+	m1.y *= f;
+	a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
+	m0.x *=-f;
+	m1.x *=-f;
+	a0.x = (((float)(k1     -globalposy))/ -1024.0 + a0.x)*-f;
+	m0.z *= g;
+	m1.z *= g;
+	a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
 
 	k0 = ((float)(tspr->x-globalposx))*f/1024.0;
 	k1 = ((float)(tspr->y-globalposy))*f/1024.0;
@@ -865,11 +856,13 @@ int md2draw (md2model *m, spritetype *tspr, int method)
 
 // ------ Unnecessarily clean (lol) code to generate translation/rotation matrix for MD2 ends ------
 
-	for(i=m->numverts-1;i>=0;i--) //interpolate (for animation) & transform to Build coords
+	for(i = 0; i < m->numverts; ++i) //interpolate (for animation) & transform to Build coords
 	{
-		vertlist[i].z = ((float)c0[i].v[0])*m0.x + ((float)c1[i].v[0])*m1.x;
-		vertlist[i].y = ((float)c0[i].v[2])*m0.z + ((float)c1[i].v[2])*m1.z;
-		vertlist[i].x = ((float)c0[i].v[1])*m0.y + ((float)c1[i].v[1])*m1.y;
+		vertlist.emplace_back(
+			point3d{((float)c0[i].v[1]) * m0.y + ((float)c1[i].v[1]) * m1.y,
+			        ((float)c0[i].v[2]) * m0.z + ((float)c1[i].v[2]) * m1.z,
+			        ((float)c0[i].v[0]) * m0.x + ((float)c1[i].v[0]) * m1.x}
+		);
 	}
 
 	ptmh = mdloadskin(m,tile2model[tspr->picnum].skinnum,globalpal,0);
@@ -992,16 +985,15 @@ md3model *md3load (int fil)
 	m->numframes = m->head.numframes;
 
 	klseek(fil,filehead.frames,SEEK_SET);
-	m->head.frames = (md3frame_t *)std::calloc(m->head.numframes, sizeof(md3frame_t));
-	if (!m->head.frames) { md3free(m); return(nullptr); }
-	kread(fil,m->head.frames,m->head.numframes*sizeof(md3frame_t));
+	m->head.frames.resize(m->head.numframes);
+	kread(fil,m->head.frames.data(),m->head.numframes*sizeof(md3frame_t));
 
-	if (m->head.numtags == 0) m->head.tags = nullptr;
+	if (m->head.numtags == 0)
+		m->head.tags.clear();
 	else {
 		klseek(fil,filehead.tags,SEEK_SET);
-		m->head.tags = (md3tag_t *)std::calloc(m->head.numtags, sizeof(md3tag_t));
-		if (!m->head.tags) { md3free(m); return(nullptr); }
-		kread(fil,m->head.tags,m->head.numtags*sizeof(md3tag_t));
+		m->head.tags.resize(m->head.numtags);
+		kread(fil,m->head.tags.data(),m->head.numtags*sizeof(md3tag_t));
 	}
 
 	klseek(fil,filehead.surfs,SEEK_SET);
@@ -1042,18 +1034,13 @@ md3model *md3load (int fil)
 			s.numframes * s.numverts * sizeof(md3xyzn_t)
 		};
 
-		s.tris = (md3tri_t *) std::malloc(leng[0] + leng[1] + leng[2] + leng[3]);
-		if (!s.tris)
-		{
-			md3free(m);
-			return(nullptr);
-		}
-		s.shaders = (md3shader_t*)(((intptr_t)s.tris) + leng[0]);
+		s.tris.resize(leng[0] + leng[1] + leng[2] + leng[3]);
+		s.shaders = (md3shader_t*)(((intptr_t)s.tris.data()) + leng[0]);
 		s.uv      = (md3uv_t*)(((intptr_t)s.shaders) + leng[1]);
 		s.xyzn    = (md3xyzn_t*)(((intptr_t)s.uv) + leng[2]);
 
 		klseek(fil, offs[0], SEEK_SET);
-		kread(fil, s.tris, leng[0]);
+		kread(fil, s.tris.data(), leng[0]);
 		klseek(fil, offs[1], SEEK_SET);
 		kread(fil, s.shaders, leng[1]);
 		klseek(fil, offs[2], SEEK_SET);
@@ -1279,11 +1266,13 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 		v0 = &s.xyzn[m->cframe * s.numverts];
 		v1 = &s.xyzn[m->nframe * s.numverts];
 
-		for(i=s.numverts-1;i>=0;i--) //interpolate (for animation) & transform to Build coords
+		for(i = 0; i < s.numverts; ++i) //interpolate (for animation) & transform to Build coords
 		{
-			vertlist[i].z = ((float)v0[i].x)*m0.x + ((float)v1[i].x)*m1.x;
-			vertlist[i].y = ((float)v0[i].z)*m0.z + ((float)v1[i].z)*m1.z;
-			vertlist[i].x = ((float)v0[i].y)*m0.y + ((float)v1[i].y)*m1.y;
+			vertlist.emplace_back(
+				((float)v0[i].y)*m0.y + ((float)v1[i].y)*m1.y,
+				((float)v0[i].z)*m0.z + ((float)v1[i].z)*m1.z,
+				((float)v0[i].x)*m0.x + ((float)v1[i].x)*m1.x
+			);
 		}
 
 #if 0
@@ -1346,19 +1335,7 @@ void md3free (md3model *m)
 
 	if (!m)
 		return;
-
-	for(auto& s : m->head.surfs)
-	{
-		if (s.tris)
-			std::free(s.tris);
-	}
 	
-	if (m->head.tags)
-		std::free(m->head.tags);
-
-	if (m->head.frames)
-		std::free(m->head.frames);
-
 	if (m->tex)
 		std::free(m->tex);
 
@@ -2000,9 +1977,7 @@ skindidntfit:;
 				shp[z].y = y0; //Overwrite size with top-left location
 			}
 
-			gvox->quad = (voxrect_t *)std::malloc(gvox->qcnt*sizeof(voxrect_t));
-			if (!gvox->quad) { return {}; }
-
+			gvox->quad.resize(gvox->qcnt);
 			gvox->mytex.resize(gvox->mytexx * gvox->mytexy);
 		}
 	}
@@ -2284,8 +2259,9 @@ void voxfree (voxmodel *m)
 {
 	if (!m)
 		return;
-	if (m->quad) std::free(m->quad);
-	if (m->texid) std::free(m->texid);
+
+	if (m->texid)
+		std::free(m->texid);
 }
 
 std::unique_ptr<voxmodel> voxload(const std::string& filnam)
@@ -2705,14 +2681,7 @@ int mddraw (spritetype *tspr, int method)
 {
 	if (maxmodelverts > allocmodelverts)
 	{
-		auto* vl = static_cast<point3d *>(std::realloc(vertlist, sizeof(point3d) * maxmodelverts));
-		
-		if (!vl) {
-			buildprintf("ERROR: Not enough memory to allocate {} vertices!\n", maxmodelverts);
-			return 0;
-		}
-
-		vertlist = vl;
+		vertlist.resize(maxmodelverts);
 		allocmodelverts = maxmodelverts;
 	}
 	if (maxelementvbo > allocelementvbo)
