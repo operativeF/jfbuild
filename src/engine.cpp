@@ -9694,23 +9694,23 @@ int nextsectorneighborz(short sectnum, int thez, short topbottom, short directio
 
 	short sectortouse{ -1 };
 
-	walltype* wal = &wall[g_sector[sectnum].wallptr];
-	int i = g_sector[sectnum].wallnum;
+	std::ranges::subrange wallrange{&wall[g_sector[sectnum].wallptr],
+								    &wall[g_sector[sectnum].wallptr + g_sector[sectnum].wallnum]};
 
-	do
+	for(const auto& wal : wallrange)
 	{
-		if (wal->nextsector >= 0)
+		if (wal.nextsector >= 0)
 		{
 			if (topbottom == 1)
 			{
-				const int testz = g_sector[wal->nextsector].floorz;
+				const int testz = g_sector[wal.nextsector].floorz;
 
 				if (direction == 1)
 				{
 					if ((testz > thez) && (testz < nextz))
 					{
 						nextz = testz;
-						sectortouse = wal->nextsector;
+						sectortouse = wal.nextsector;
 					}
 				}
 				else
@@ -9718,19 +9718,19 @@ int nextsectorneighborz(short sectnum, int thez, short topbottom, short directio
 					if ((testz < thez) && (testz > nextz))
 					{
 						nextz = testz;
-						sectortouse = wal->nextsector;
+						sectortouse = wal.nextsector;
 					}
 				}
 			}
 			else
 			{
-				const int testz = g_sector[wal->nextsector].ceilingz;
+				const int testz = g_sector[wal.nextsector].ceilingz;
 				if (direction == 1)
 				{
 					if ((testz > thez) && (testz < nextz))
 					{
 						nextz = testz;
-						sectortouse = wal->nextsector;
+						sectortouse = wal.nextsector;
 					}
 				}
 				else
@@ -9738,15 +9738,12 @@ int nextsectorneighborz(short sectnum, int thez, short topbottom, short directio
 					if ((testz < thez) && (testz > nextz))
 					{
 						nextz = testz;
-						sectortouse = wal->nextsector;
+						sectortouse = wal.nextsector;
 					}
 				}
 			}
 		}
-
-		++wal;
-		--i;
-	} while (i != 0);
+	}
 
 	return sectortouse;
 }
@@ -11103,12 +11100,12 @@ void updatesector(int x, int y, short *sectnum)
 
 	if ((*sectnum >= 0) && (*sectnum < numsectors))
 	{
-		walltype* wal = &wall[g_sector[*sectnum].wallptr];
-		int j = g_sector[*sectnum].wallnum;
+		std::ranges::subrange wallrange{&wall[g_sector[*sectnum].wallptr],
+		                                &wall[g_sector[*sectnum].wallptr + g_sector[*sectnum].wallnum]};
 
-		do
+		for(const auto& wal : wallrange)
 		{
-			const int i = wal->nextsector;
+			const int i = wal.nextsector;
 			
 			if (i >= 0)
 				if (inside(x,y,(short)i) == 1)
@@ -11116,10 +11113,7 @@ void updatesector(int x, int y, short *sectnum)
 					*sectnum = i;
 					return;
 				}
-
-			++wal;
-			--j;
-		} while (j != 0);
+		}
 	}
 
 	for(int i = numsectors - 1; i >= 0; --i) {
