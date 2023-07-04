@@ -2712,6 +2712,12 @@ int mddraw (spritetype *tspr, int method)
 		allocelementvbo = maxelementvbo;
 	}
 
+	// FIXME: Actually find out how we get here without any models being available (or the assumption
+	//        that they're available). Do we also need to check whether the pointer to this pointer
+	//        needs to be checked?
+	if(!models)
+		return 0;
+
 	mdmodel* vm = models[tile2model[tspr->picnum].modelid];
 
 	if (vm->mdnum == 1) {
