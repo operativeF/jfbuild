@@ -10668,64 +10668,70 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 
 			if ((cstat&dasprclipmask) == 0)
 				continue;
-			
-			int x1 = spr->x;
-			int y1 = spr->y;
-			int bsz{0};
-			int cosang{0};
-			int dax{0};
-			int day{0};
-			int daz{0};
-			int daz2{0};
-			int k{0};
-			int l{0};
-			int sinang{0};
-			int tilenum{0};
-			int x2{0};
-			int y2{0};
-			int xoff{0};
-			int yoff{0};
-			int xspan{0};
-			int yspan{0};
-			int xrepeat{0};
-			int yrepeat{0};
 
-			switch(cstat&48)
+			int daz{0};
+			int l{0};
+
+			switch(cstat & 48) // FIXME: Cryptic
 			{
-				case 0:
+				case 0: {
+					const int x1 = spr->x;
+					const int y1 = spr->y;
 					if ((x1 >= xmin) && (x1 <= xmax) && (y1 >= ymin) && (y1 <= ymax))
 					{
-						k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
+						const int k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
 						if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
 						if (picanm[spr->picnum]&0x00ff0000) daz -= ((int)((signed char)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
 						if (((*z) < daz+ceildist) && ((*z) > daz-k-flordist))
 						{
-							bsz = (spr->clipdist<<2)+walldist; if (gx < 0) bsz = -bsz;
+							int bsz = (spr->clipdist<<2)+walldist;
+							if (gx < 0)
+								bsz = -bsz;
 							addclipline(x1-bsz,y1-bsz,x1-bsz,y1+bsz,(short)j+49152);
-							bsz = (spr->clipdist<<2)+walldist; if (gy < 0) bsz = -bsz;
+
+							bsz = (spr->clipdist<<2)+walldist;
+							if (gy < 0)
+								bsz = -bsz;
 							addclipline(x1+bsz,y1-bsz,x1-bsz,y1-bsz,(short)j+49152);
 						}
 					}
 					break;
-				case 16:
-					k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
-					if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
-					if (picanm[spr->picnum]&0x00ff0000) daz -= ((int)((signed char)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
-					daz2 = daz-k;
-					daz += ceildist; daz2 -= flordist;
+				}
+				case 16: {
+					int k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
+
+					if (cstat&128)
+						daz = spr->z+(k>>1);
+					else
+						daz = spr->z;
+
+					if (picanm[spr->picnum]&0x00ff0000)
+						daz -= ((int)((signed char)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+					int daz2 = daz - k;
+					daz += ceildist;
+					daz2 -= flordist;
+					
 					if (((*z) < daz) && ((*z) > daz2))
 					{
 							//These lines get the 2 points of the rotated sprite
 							//Given: (x1, y1) starts out as the center point
-						tilenum = spr->picnum;
-						xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
-						if ((cstat&4) > 0) xoff = -xoff;
+						const int tilenum = spr->picnum;
+						int xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
+						if ((cstat&4) > 0)
+							xoff = -xoff;
 						k = spr->ang;
 						l = spr->xrepeat;
-						dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
-						l = tilesizx[tilenum]; k = (l>>1)+xoff;
-						x1 -= mulscalen<16>(dax,k); x2 = x1+mulscalen<16>(dax,l);
-						y1 -= mulscalen<16>(day,k); y2 = y1+mulscalen<16>(day,l);
+						int dax = sintable[k&2047]*l;
+						int day = sintable[(k+1536)&2047]*l;
+						l = tilesizx[tilenum];
+						k = (l>>1)+xoff;
+						int x1 = spr->x;
+						int y1 = spr->y;
+						x1 -= mulscalen<16>(dax,k);
+						int x2 = x1+mulscalen<16>(dax,l);
+						y1 -= mulscalen<16>(day,k);
+						int y2 = y1+mulscalen<16>(day,l);
+						
 						if (clipinsideboxline(cx,cy,x1,y1,x2,y2,rad) != 0)
 						{
 							dax = mulscalen<14>(sintable[(spr->ang+256+512)&2047],walldist);
@@ -10749,30 +10755,38 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 						}
 					}
 					break;
-				case 32:
+				}
+				case 32: {
+					const int x1 = spr->x;
+					const int y1 = spr->y;
 					daz = spr->z+ceildist;
-					daz2 = spr->z-flordist;
+					const int daz2 = spr->z-flordist;
+
 					if (((*z) < daz) && ((*z) > daz2))
 					{
 						if ((cstat&64) != 0)
 							if (((*z) > spr->z) == ((cstat&8)==0)) continue;
 
-						tilenum = spr->picnum;
-						xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
-						yoff = (int)((signed char)((picanm[tilenum]>>16)&255))+((int)spr->yoffset);
-						if ((cstat&4) > 0) xoff = -xoff;
-						if ((cstat&8) > 0) yoff = -yoff;
+						int tilenum = spr->picnum;
+						int xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
+						int yoff = (int)((signed char)((picanm[tilenum]>>16)&255))+((int)spr->yoffset);
+						
+						if ((cstat&4) > 0)
+							xoff = -xoff;
 
-						k = spr->ang;
-						cosang = sintable[(k+512)&2047];
-						sinang = sintable[k];
-						xspan = tilesizx[tilenum];
-						xrepeat = spr->xrepeat;
-						yspan = tilesizy[tilenum];
-						yrepeat = spr->yrepeat;
+						if ((cstat&8) > 0)
+							yoff = -yoff;
 
-						dax = ((xspan>>1)+xoff) * xrepeat;
-						day = ((yspan>>1)+yoff)*yrepeat;
+						int k = spr->ang;
+						const int cosang = sintable[(k+512)&2047];
+						const int sinang = sintable[k];
+						const int xspan = tilesizx[tilenum];
+						const int xrepeat = spr->xrepeat;
+						const int yspan = tilesizy[tilenum];
+						const int yrepeat = spr->yrepeat;
+
+						int dax = ((xspan>>1)+xoff) * xrepeat;
+						int day = ((yspan>>1)+yoff)*yrepeat;
 						rxi[0] = x1 + dmulscalen<16>(sinang,dax,cosang,day);
 						ryi[0] = y1 + dmulscalen<16>(sinang,day,-cosang,dax);
 						l = xspan*xrepeat;
@@ -10812,6 +10826,7 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 						}
 					}
 					break;
+				}
 			}
 		}
 	} while (clipsectcnt < clipsectnum);
