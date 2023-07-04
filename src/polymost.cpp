@@ -2323,7 +2323,7 @@ void polymost_drawalls (int bunch)
 #endif
 
 	const int sectnum = thesector[bunchfirst[bunch]];
-	sectortype* sec = &sector[sectnum];
+	sectortype* sec = &g_sector[sectnum];
 
 #if USE_OPENGL
 	gfogpalnum = sec->floorpal;
@@ -2334,7 +2334,7 @@ void polymost_drawalls (int bunch)
 	for(z=bunchfirst[bunch];z>=0;z=p2[z])
 	{
 		wallnum = thewall[z]; wal = &wall[wallnum]; wal2 = &wall[wal->point2];
-		nextsectnum = wal->nextsector; nextsec = &sector[nextsectnum];
+		nextsectnum = wal->nextsector; nextsec = &g_sector[nextsectnum];
 
 			//Offset&Rotate 3D coordinates to screen 3D space
 		x = wal->x-globalposx;
@@ -2535,7 +2535,7 @@ void polymost_drawalls (int bunch)
 			if (globalposz >= getflorzofslope(sectnum,globalposx,globalposy)) domostmethod = -1; //Back-face culling
 			domost(x0,fy0,x1,fy1,domostmethod); //flor
 		}
-		else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
+		else if ((nextsectnum < 0) || (!(g_sector[nextsectnum].floorstat&1)))
 		{
 				//Parallaxing sky... hacked for Ken's mountain texture; paper-sky only :/
 #if USE_OPENGL
@@ -2946,7 +2946,7 @@ void polymost_drawalls (int bunch)
 			if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostmethod = -1; //Back-face culling
 			domost(x1,cy1,x0,cy0,domostmethod); //ceil
 		}
-		else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
+		else if ((nextsectnum < 0) || (!(g_sector[nextsectnum].ceilingstat&1)))
 		{
 #if USE_OPENGL
 			const float tempfogdensity{ gfogdensity };
@@ -3276,12 +3276,12 @@ void polymost_drawalls (int bunch)
 
 			if ((wal->cstat&48) == 16) maskwall[maskwallcnt++] = z;
 
-			if (((cy0 < ocy0) || (cy1 < ocy1)) && (!((sec->ceilingstat&sector[nextsectnum].ceilingstat)&1)))
+			if (((cy0 < ocy0) || (cy1 < ocy1)) && (!((sec->ceilingstat&g_sector[nextsectnum].ceilingstat)&1)))
 			{
 				globalpicnum = wal->picnum; globalshade = wal->shade; globalpal = (int)((unsigned char)wal->pal);
 				if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,wallnum+16384);
 
-				if (!(wal->cstat&4)) i = sector[nextsectnum].ceilingz; else i = sec->ceilingz;
+				if (!(wal->cstat&4)) i = g_sector[nextsectnum].ceilingz; else i = sec->ceilingz;
 				t0 = ((float)(i-globalposz))*ryp0 + ghoriz;
 				t1 = ((float)(i-globalposz))*ryp1 + ghoriz;
 				t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.F);
@@ -3313,7 +3313,7 @@ void polymost_drawalls (int bunch)
 					guo = oguo;
 				}
 			}
-			if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&sector[nextsectnum].floorstat)&1)))
+			if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&g_sector[nextsectnum].floorstat)&1)))
 			{
 				if (!(wal->cstat&2)) nwal = wal;
 				else
@@ -3328,7 +3328,7 @@ void polymost_drawalls (int bunch)
 				globalpal = (int)((unsigned char)nwal->pal);
 				if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,wallnum+16384);
 
-				if (!(nwal->cstat&4)) i = sector[nextsectnum].floorz; else i = sec->ceilingz;
+				if (!(nwal->cstat&4)) i = g_sector[nextsectnum].floorz; else i = sec->ceilingz;
 				t0 = ((float)(i-globalposz))*ryp0 + ghoriz;
 				t1 = ((float)(i-globalposz))*ryp1 + ghoriz;
 				t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.F);
@@ -3493,8 +3493,8 @@ void polymost_scansector (int sectnum)
 		bunchfrst = numbunches;
 		numscansbefore = numscans;
 
-		startwall = sector[sectnum].wallptr;
-		endwall = sector[sectnum].wallnum+startwall;
+		startwall = g_sector[sectnum].wallptr;
+		endwall = g_sector[sectnum].wallnum+startwall;
 		scanfirst = numscans;
 		xp2 = 0;
 		yp2 = 0;
@@ -3887,8 +3887,8 @@ void polymost_drawmaskwall (int damaskwallcnt)
 	const walltype* wal = &wall[thewall[z]];
 	const walltype* wal2 = &wall[wal->point2];
 	const int sectnum = thesector[z];
-	const sectortype* sec = &sector[sectnum];
-	const sectortype* nsec = &sector[wal->nextsector];
+	const sectortype* sec = &g_sector[sectnum];
+	const sectortype* nsec = &g_sector[wal->nextsector];
 	const int z1 = std::max(nsec->ceilingz, sec->ceilingz);
 	const int z2 = std::min(nsec->floorz, sec->floorz);
 
@@ -4126,8 +4126,8 @@ void polymost_drawsprite (int snum)
 	method |= METH_CLAMPED | METH_LAYERS;
 
 #if USE_OPENGL
-	gfogpalnum = sector[tspr->sectnum].floorpal;
-	gfogdensity = gvisibility*((float)((unsigned char)(sector[tspr->sectnum].visibility+16)) / 255.F);
+	gfogpalnum = g_sector[tspr->sectnum].floorpal;
+	gfogdensity = gvisibility*((float)((unsigned char)(g_sector[tspr->sectnum].visibility+16)) / 255.F);
 
 	// FIXME: Does rendmode need to be checked every time?
 	while (rendmode == rendmode_t::OpenGL && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
@@ -4189,14 +4189,14 @@ void polymost_drawsprite (int snum)
 			else { gvy = (float)tilesizy[globalpicnum]*gdo/(py[0]-py[3]-.002); gvo = -gvy*(py[3]+.001); }
 
 			//Clip sprites to ceilings/floors when no parallaxing and not sloped
-			if (!(sector[tspr->sectnum].ceilingstat&3))
+			if (!(g_sector[tspr->sectnum].ceilingstat&3))
 			{
-				sy0 = ((float)(sector[tspr->sectnum].ceilingz-globalposz))*gyxscale*ryp0 + ghoriz;
+				sy0 = ((float)(g_sector[tspr->sectnum].ceilingz-globalposz))*gyxscale*ryp0 + ghoriz;
 				if (py[0] < sy0) py[0] = py[1] = sy0;
 			}
-			if (!(sector[tspr->sectnum].floorstat&3))
+			if (!(g_sector[tspr->sectnum].floorstat&3))
 			{
-				sy0 = ((float)(sector[tspr->sectnum].floorz-globalposz))*gyxscale*ryp0 + ghoriz;
+				sy0 = ((float)(g_sector[tspr->sectnum].floorz-globalposz))*gyxscale*ryp0 + ghoriz;
 				if (py[2] > sy0) py[2] = py[3] = sy0;
 			}
 
@@ -4286,21 +4286,21 @@ void polymost_drawsprite (int snum)
 			}
 
 			//Clip sprites to ceilings/floors when no parallaxing
-			if (!(sector[tspr->sectnum].ceilingstat&1))
+			if (!(g_sector[tspr->sectnum].ceilingstat&1))
 			{
 				f = ((float)tspr->yrepeat) * (float)tilesizy[globalpicnum] * 4;
-				if (sector[tspr->sectnum].ceilingz > tspr->z-f)
+				if (g_sector[tspr->sectnum].ceilingz > tspr->z-f)
 				{
-					sc0 = ((float)(sector[tspr->sectnum].ceilingz-globalposz))*ryp0 + ghoriz;
-					sc1 = ((float)(sector[tspr->sectnum].ceilingz-globalposz))*ryp1 + ghoriz;
+					sc0 = ((float)(g_sector[tspr->sectnum].ceilingz-globalposz))*ryp0 + ghoriz;
+					sc1 = ((float)(g_sector[tspr->sectnum].ceilingz-globalposz))*ryp1 + ghoriz;
 				}
 			}
-			if (!(sector[tspr->sectnum].floorstat&1))
+			if (!(g_sector[tspr->sectnum].floorstat&1))
 			{
-				if (sector[tspr->sectnum].floorz < tspr->z)
+				if (g_sector[tspr->sectnum].floorz < tspr->z)
 				{
-					sf0 = ((float)(sector[tspr->sectnum].floorz-globalposz))*ryp0 + ghoriz;
-					sf1 = ((float)(sector[tspr->sectnum].floorz-globalposz))*ryp1 + ghoriz;
+					sf0 = ((float)(g_sector[tspr->sectnum].floorz-globalposz))*ryp0 + ghoriz;
+					sf1 = ((float)(g_sector[tspr->sectnum].floorz-globalposz))*ryp1 + ghoriz;
 				}
 			}
 

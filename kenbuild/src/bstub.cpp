@@ -309,10 +309,10 @@ void ExtAnalyzeSprites()
 		}
 
 		tspr->shade += 6;
-		if (sector[tspr->sectnum].ceilingstat&1)
-			tspr->shade += sector[tspr->sectnum].ceilingshade;
+		if (g_sector[tspr->sectnum].ceilingstat&1)
+			tspr->shade += g_sector[tspr->sectnum].ceilingshade;
 		else
-			tspr->shade += sector[tspr->sectnum].floorshade;
+			tspr->shade += g_sector[tspr->sectnum].floorshade;
 	}
 }
 
@@ -397,14 +397,14 @@ void ExtSaveMap(const char *mapname)
 
 const char *ExtGetSectorCaption(short sectnum)
 {
-	if ((sector[sectnum].lotag|sector[sectnum].hitag) == 0)
+	if ((g_sector[sectnum].lotag|g_sector[sectnum].hitag) == 0)
 	{
 		tempbuf[0] = 0;
 	}
 	else
 	{
-		std::sprintf((char *)&tempbuf[0],"%hu,%hu",(unsigned short)sector[sectnum].hitag,
-								  (unsigned short)sector[sectnum].lotag);
+		std::sprintf((char *)&tempbuf[0],"%hu,%hu",(unsigned short)g_sector[sectnum].hitag,
+								  (unsigned short)g_sector[sectnum].lotag);
 	}
 	return((char *)&tempbuf[0]);
 }
@@ -513,11 +513,11 @@ void ExtEditSectorData(short sectnum)    //F7
 	{
 			//Ceiling
 		if (searchstat == 1)
-			sector[searchsector].ceilingpicnum++;   //Just a stupid example
+			g_sector[searchsector].ceilingpicnum++;   //Just a stupid example
 
 			//Floor
 		if (searchstat == 2)
-			sector[searchsector].floorshade++;      //Just a stupid example
+			g_sector[searchsector].floorshade++;      //Just a stupid example
 	}
 	else                    //In 2D mode
 	{

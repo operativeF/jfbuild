@@ -526,8 +526,8 @@ void scansector(short sectnum)
 		bunchfrst = numbunches;
 		numscansbefore = numscans;
 
-		startwall = sector[sectnum].wallptr;
-		endwall = startwall + sector[sectnum].wallnum;
+		startwall = g_sector[sectnum].wallptr;
+		endwall = startwall + g_sector[sectnum].wallnum;
 		scanfirst = numscans;
 		for(z=startwall,wal=&wall[z];z<endwall;z++,wal++)
 		{
@@ -1282,18 +1282,18 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 
 	if (dastat == 0)
 	{
-		z = sector[sectnum].ceilingz-globalposz;
-		if ((sector[sectnum].ceilingstat&2) == 0) return(owallmost(mostbuf,w,z));
+		z = g_sector[sectnum].ceilingz-globalposz;
+		if ((g_sector[sectnum].ceilingstat&2) == 0) return(owallmost(mostbuf,w,z));
 	}
 	else
 	{
-		z = sector[sectnum].floorz-globalposz;
-		if ((sector[sectnum].floorstat&2) == 0) return(owallmost(mostbuf,w,z));
+		z = g_sector[sectnum].floorz-globalposz;
+		if ((g_sector[sectnum].floorstat&2) == 0) return(owallmost(mostbuf,w,z));
 	}
 
 	int i = thewall[w];
 	
-	if (i == sector[sectnum].wallptr)
+	if (i == g_sector[sectnum].wallptr)
 		return(owallmost(mostbuf,w,z));
 
 	const int x1 = wall[i].x;
@@ -1301,7 +1301,7 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	const int y1 = wall[i].y;
 	const int y2 = wall[wall[i].point2].y - y1;
 
-	const int fw = sector[sectnum].wallptr;
+	const int fw = g_sector[sectnum].wallptr;
 	i = wall[fw].point2;
 	const int dx = wall[i].x - wall[fw].x;
 	const int dy = wall[i].y - wall[fw].y;
@@ -1323,12 +1323,12 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 		i = divscalen<28>(i, j);
 
 	if (dastat == 0) {
-		t = mulscalen<15>(sector[sectnum].ceilingheinum,dasqr);
-		z1 = sector[sectnum].ceilingz;
+		t = mulscalen<15>(g_sector[sectnum].ceilingheinum,dasqr);
+		z1 = g_sector[sectnum].ceilingz;
 	}
 	else {
-		t = mulscalen<15>(sector[sectnum].floorheinum,dasqr);
-		z1 = sector[sectnum].floorz;
+		t = mulscalen<15>(g_sector[sectnum].floorheinum,dasqr);
+		z1 = g_sector[sectnum].floorz;
 	}
 
 	z1 = dmulscalen<24>(dx*t,mulscalen<20>(y2,i)+((y1-wall[fw].y)<<8),
@@ -1352,13 +1352,13 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 
 	if (dastat == 0)
 	{
-		t = mulscalen<15>(sector[sectnum].ceilingheinum,dasqr);
-		z2 = sector[sectnum].ceilingz;
+		t = mulscalen<15>(g_sector[sectnum].ceilingheinum,dasqr);
+		z2 = g_sector[sectnum].ceilingz;
 	}
 	else
 	{
-		t = mulscalen<15>(sector[sectnum].floorheinum,dasqr);
-		z2 = sector[sectnum].floorz;
+		t = mulscalen<15>(g_sector[sectnum].floorheinum,dasqr);
+		z2 = g_sector[sectnum].floorz;
 	}
 
 	z2 = dmulscalen<24>(dx*t,mulscalen<20>(y2,i)+((y1-wall[fw].y)<<8),
@@ -1507,7 +1507,7 @@ namespace {
 //
 void ceilscan(int x1, int x2, int sectnum)
 {
-	const sectortype* sec = &sector[sectnum];
+	const sectortype* sec = &g_sector[sectnum];
 	
 	if (palookup[sec->ceilingpal].data() != globalpalwritten)
 	{
@@ -1785,7 +1785,7 @@ void florscan(int x1, int x2, int sectnum)
 	int twall;
 	int bwall;
 
-	const sectortype* sec = &sector[sectnum];
+	const sectortype* sec = &g_sector[sectnum];
 
 	if (palookup[sec->floorpal].data() != globalpalwritten)
 	{
@@ -2447,7 +2447,7 @@ void ceilspritescan(int x1, int x2)
 constexpr auto BITSOFPRECISION{3};  //Don't forget to change this in A.ASM also!
 void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 {
-	auto* sec = &sector[sectnum];
+	auto* sec = &g_sector[sectnum];
 
 	int daslope{0};
 	int daz{0};
@@ -2687,7 +2687,7 @@ void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int bunch)
 	std::ignore = dax2;
 
 	sectnum = thesector[bunchfirst[bunch]];
-	auto* sec = &sector[sectnum];
+	auto* sec = &g_sector[sectnum];
 
 	const int globalhorizbak{globalhoriz};
 
@@ -2751,9 +2751,9 @@ void parascan(int dax1, int dax2, int sectnum, unsigned char dastat, int bunch)
 
 		int stat{0};
 		if (dastat == 0)
-			stat = sector[nextsectnum].ceilingstat;
+			stat = g_sector[nextsectnum].ceilingstat;
 		else
-			stat = sector[nextsectnum].floorstat;
+			stat = g_sector[nextsectnum].floorstat;
 
 		if ((nextsectnum < 0) || (wall[wallnum].cstat&32) || ((stat & 1) == 0))
 		{
@@ -2855,7 +2855,7 @@ void drawalls(int bunch)
 {
 	int z = bunchfirst[bunch];
 	const int sectnum = thesector[z];
-	const sectortype* sec = &sector[sectnum];
+	const sectortype* sec = &g_sector[sectnum];
 
 	unsigned char andwstat1{ 0xff };
 	unsigned char andwstat2{ 0xff };
@@ -2909,7 +2909,7 @@ void drawalls(int bunch)
 		short wallnum = thewall[z];
 		const auto* wal = &wall[wallnum];
 		const short nextsectnum = wal->nextsector;
-		const auto* nextsec = &sector[nextsectnum];
+		const auto* nextsec = &g_sector[nextsectnum];
 
 		int gotswall{0};
 
@@ -3702,7 +3702,7 @@ void drawsprite(int snum)
 	if ((tspr->xrepeat <= 0) || (tspr->yrepeat <= 0)) return;
 
 	sectnum = tspr->sectnum;
-	const sectortype* sec = &sector[sectnum];
+	const sectortype* sec = &g_sector[sectnum];
 	globalpal = tspr->pal;
 	
 	if (palookup[globalpal].empty()) {
@@ -4676,8 +4676,8 @@ void drawmaskwall(short damaskwallcnt)
 	const int z = maskwall[damaskwallcnt];
 	auto* wal = &wall[thewall[z]];
 	const int sectnum = thesector[z];
-	auto* sec = &sector[sectnum];
-	auto* nsec = &sector[wal->nextsector];
+	auto* sec = &g_sector[sectnum];
+	auto* nsec = &g_sector[wal->nextsector];
 	const int z1 = std::max(nsec->ceilingz, sec->ceilingz);
 	const int z2 = std::min(nsec->floorz, sec->floorz);
 
@@ -6550,7 +6550,7 @@ int preinitengine()
 
 	// Detect anomalous structure packing.
 	assert(sizeof(sectortype) == 40);
-	assert((intptr_t)&sector[1] - (intptr_t)&sector[0] == sizeof(sectortype));
+	assert((intptr_t)&g_sector[1] - (intptr_t)&g_sector[0] == sizeof(sectortype));
 	assert(sizeof(walltype) == 32);
 	assert((intptr_t)&wall[1] - (intptr_t)&wall[0] == sizeof(walltype));
 	assert(sizeof(spritetype) == 44);
@@ -6670,7 +6670,7 @@ void uninitengine()
 //
 void initspritelists()
 {
-	//Init doubly-linked sprite sector lists
+	//Init doubly-linked sprite g_sector lists
 	// FIXME: Initialize with constexpr.
 	std::ranges::fill(headspritesect, -1);
 	headspritesect[MAXSECTORS] = 0;
@@ -7154,7 +7154,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 
 	int sortnum{ 0 };
 
-	for(s=0,sec=&sector[s];s<numsectors;s++,sec++)
+	for(s=0,sec=&g_sector[s];s<numsectors;s++,sec++)
 		if (show2dsector[s>>3] & pow2char[s & 7])
 		{
 			npoints = 0; i = 0;
@@ -7268,7 +7268,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 				globalx2 = -globalx1;
 				globaly2 = -globaly1;
 
-				daslope = sector[s].floorheinum;
+				daslope = g_sector[s].floorheinum;
 				i = static_cast<int>(std::sqrt(daslope * daslope+ 16777216)); // FIXME: Magic number.
 				globalposy = mulscalen<12>(globalposy,i);
 				globalx2 = mulscalen<12>(globalx2,i);
@@ -7423,10 +7423,10 @@ void drawmapview(int dax, int day, int zoome, short ang)
 
 			globalbufplc = waloff[globalpicnum];
 
-			if ((sector[spr->sectnum].ceilingstat&1) > 0)
-				globalshade = ((int)sector[spr->sectnum].ceilingshade);
+			if ((g_sector[spr->sectnum].ceilingstat&1) > 0)
+				globalshade = ((int)g_sector[spr->sectnum].ceilingshade);
 			else
-				globalshade = ((int)sector[spr->sectnum].floorshade);
+				globalshade = ((int)g_sector[spr->sectnum].floorshade);
 
 			globalshade = std::max(std::min(globalshade + spr->shade + 6, static_cast<int>(numpalookups) - 1), 0);
 			asm3 = (intptr_t)palookup[spr->pal].data() + (globalshade<<8);
@@ -7534,7 +7534,7 @@ int loadboard(const std::string& filename, char fromwhere, int *daposx, int *dap
 	/*
 	// Enable this for doing map checksum tests
 	clearbufbyte(&wall,   sizeof(wall),   0);
-	clearbufbyte(&sector, sizeof(sector), 0);
+	clearbufbyte(&g_sector, sizeof(g_sector), 0);
 	clearbufbyte(&sprite, sizeof(sprite), 0);
 	*/
 
@@ -7556,7 +7556,7 @@ int loadboard(const std::string& filename, char fromwhere, int *daposx, int *dap
 		return -2;
 	}
 
-	kread(fil, &sector[0], sizeof(sectortype) * numsectors);
+	kread(fil, &g_sector[0], sizeof(sectortype) * numsectors);
 
 	kread(fil,&numwalls,2);
 	if (numwalls > maxwalls) { kclose(fil); return(-2); }
@@ -7749,8 +7749,8 @@ short sectorofwallv5(short theline)
 
 	for(i=0;i<numsectors;i++)
 	{
-		startwall = sector[i].wallptr;
-		endwall = startwall + sector[i].wallnum - 1;
+		startwall = g_sector[i].wallptr;
+		endwall = startwall + g_sector[i].wallnum - 1;
 		if ((theline >= startwall) && (theline <= endwall))
 		{
 			sucksect = i;
@@ -7933,7 +7933,7 @@ void convertv5wallv6(struct walltypev5 const *from, struct walltypev6 *to, int i
 	to->picnum = from->picnum;
 	to->overpicnum = from->overpicnum;
 	to->shade = from->shade;
-	to->pal = sector[sectorofwallv5((short)i)].floorpal;
+	to->pal = g_sector[sectorofwallv5((short)i)].floorpal;
 	to->cstat = from->cstat;
 	to->xrepeat = from->xrepeat;
 	to->yrepeat = from->yrepeat;
@@ -8026,10 +8026,10 @@ void convertv5sprv6(struct spritetypev5 const *from, struct spritetypev6 *to)
 	to->shade = from->shade;
 
 	const short j = from->sectnum;
-	if ((sector[j].ceilingstat&1) > 0)
-		to->pal = sector[j].ceilingpal;
+	if ((g_sector[j].ceilingstat&1) > 0)
+		to->pal = g_sector[j].ceilingpal;
 	else
-		to->pal = sector[j].floorpal;
+		to->pal = g_sector[j].floorpal;
 
 	to->clipdist = 32;
 	to->xrepeat = from->xrepeat;
@@ -8447,11 +8447,11 @@ int loadoldboard(const std::string& filename, char fromwhere, int *daposx, int *
 			case 5:
 				if (readv5sect(fil,&v5sect)) return readerror(fil);
 				convertv5sectv6(&v5sect,&v6sect);
-				convertv6sectv7(&v6sect,&sector[i]);
+				convertv6sectv7(&v6sect,&g_sector[i]);
 				break;
 			case 6:
 				if (readv6sect(fil,&v6sect)) return readerror(fil);
-				convertv6sectv7(&v6sect,&sector[i]);
+				convertv6sectv7(&v6sect,&g_sector[i]);
 				break;
 		}
 	}
@@ -8669,7 +8669,7 @@ int saveboard(const std::string& filename, const int *daposx, const int *daposy,
 	ts = *dacursectnum; if (Bwrite(fil,&ts,2) != 2) return writeerror(fil);
 
 	ts = numsectors;    if (Bwrite(fil,&ts,2) != 2) return writeerror(fil);
-	for (const auto& tsect : sector) {
+	for (const auto& tsect : g_sector) {
 		if (Bwrite(fil, &tsect, sizeof(sectortype)) != sizeof(sectortype))
 			return writeerror(fil);
 	}
@@ -8781,11 +8781,11 @@ int saveoldboard(const char *filename, const int *daposx, const int *daposy, con
 	for (i=0; i<numsectors; i++) {
 		switch (mapversion) {
 			case 6:
-				convertv7sectv6(&sector[i], &v6sect);
+				convertv7sectv6(&g_sector[i], &v6sect);
 				if (writev6sect(fil, &v6sect)) return writeerror(fil);
 				break;
 			case 5:
-				convertv7sectv6(&sector[i], &v6sect);
+				convertv7sectv6(&g_sector[i], &v6sect);
 				convertv6sectv5(&v6sect, &v5sect);
 				if (writev5sect(fil, &v5sect)) return writeerror(fil);
 				break;
@@ -9490,9 +9490,9 @@ int inside(int x, int y, short sectnum)
 
 	unsigned int cnt{ 0 };
 
-	walltype* wal = &wall[sector[sectnum].wallptr];
+	walltype* wal = &wall[g_sector[sectnum].wallptr];
 
-	int i = sector[sectnum].wallnum;
+	int i = g_sector[sectnum].wallnum;
 
 	do
 	{
@@ -9694,8 +9694,8 @@ int nextsectorneighborz(short sectnum, int thez, short topbottom, short directio
 
 	short sectortouse{ -1 };
 
-	walltype* wal = &wall[sector[sectnum].wallptr];
-	int i = sector[sectnum].wallnum;
+	walltype* wal = &wall[g_sector[sectnum].wallptr];
+	int i = g_sector[sectnum].wallnum;
 
 	do
 	{
@@ -9703,7 +9703,7 @@ int nextsectorneighborz(short sectnum, int thez, short topbottom, short directio
 		{
 			if (topbottom == 1)
 			{
-				const int testz = sector[wal->nextsector].floorz;
+				const int testz = g_sector[wal->nextsector].floorz;
 
 				if (direction == 1)
 				{
@@ -9724,7 +9724,7 @@ int nextsectorneighborz(short sectnum, int thez, short topbottom, short directio
 			}
 			else
 			{
-				const int testz = sector[wal->nextsector].ceilingz;
+				const int testz = g_sector[wal->nextsector].ceilingz;
 				if (direction == 1)
 				{
 					if ((testz > thez) && (testz < nextz))
@@ -9771,7 +9771,7 @@ bool cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short s
 	for(int dacnt{0}; dacnt < danum; ++dacnt)
 	{
 		const int dasectnum = clipsectorlist[dacnt];
-		const auto* sec = &sector[dasectnum];
+		const auto* sec = &g_sector[dasectnum];
 
 		int cnt = sec->wallnum;
 
@@ -9873,7 +9873,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 	do
 	{
 		const auto dasector = clipsectorlist[tempshortcnt];
-		auto* sec = &sector[dasector];
+		auto* sec = &g_sector[dasector];
 
 		int x1 = 0x7fffffff;
 
@@ -10319,8 +10319,8 @@ int neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsec
 	{
 		dasector = clipsectorlist[tempshortcnt];
 
-		startwall = sector[dasector].wallptr;
-		endwall = startwall + sector[dasector].wallnum - 1;
+		startwall = g_sector[dasector].wallptr;
+		endwall = startwall + g_sector[dasector].wallnum - 1;
 
 		for(z=startwall,wal=&wall[startwall];z<=endwall;z++,wal++)
 		{
@@ -10335,8 +10335,8 @@ int neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsec
 			good = 0;
 			if (nextsector >= 0)
 			{
-				if ((tagsearch&1) && sector[nextsector].lotag) good |= 1;
-				if ((tagsearch&2) && sector[nextsector].hitag) good |= 1;
+				if ((tagsearch&1) && g_sector[nextsector].lotag) good |= 1;
+				if ((tagsearch&2) && g_sector[nextsector].hitag) good |= 1;
 			}
 
 			if ((tagsearch&1) && wal->lotag)
@@ -10565,7 +10565,7 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 	do
 	{
 		const int dasect = clipsectorlist[clipsectcnt++];
-		const sectortype* sec = &sector[dasect];
+		const sectortype* sec = &g_sector[dasect];
 		const int startwall = sec->wallptr;
 		const int endwall = startwall + sec->wallnum;
 		auto* wal = &wall[startwall];
@@ -10623,7 +10623,7 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 				daz = getflorzofslope((short)dasect,dax,day);
 				int daz2 = getflorzofslope(wal->nextsector,dax,day);
 
-				auto* sec2 = &sector[wal->nextsector];
+				auto* sec2 = &g_sector[wal->nextsector];
 				if (daz2 < daz-(1<<8))
 					if ((sec2->floorstat&1) == 0)
 						if ((*z) >= daz2-(flordist-1)) clipyou = 1;
@@ -10891,10 +10891,10 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 		{
 			int templong2{0};
 
-			if (sector[j].ceilingstat&2)
+			if (g_sector[j].ceilingstat&2)
 				templong2 = (getceilzofslope((short)j,*x,*y)-(*z));
 			else
-				templong2 = (sector[j].ceilingz-(*z));
+				templong2 = (g_sector[j].ceilingz-(*z));
 
 			if (templong2 > 0)
 			{
@@ -10903,10 +10903,10 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 			}
 			else
 			{
-				if (sector[j].floorstat&2)
+				if (g_sector[j].floorstat&2)
 					templong2 = ((*z)-getflorzofslope((short)j,*x,*y));
 				else
-					templong2 = ((*z)-sector[j].floorz);
+					templong2 = ((*z)-g_sector[j].floorz);
 
 				if (templong2 <= 0)
 				{
@@ -10985,7 +10985,7 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 				}
 			}*/
 
-			auto* sec = &sector[clipsectorlist[clipsectcnt]];
+			auto* sec = &g_sector[clipsectorlist[clipsectcnt]];
 			short startwall{0};
 			short endwall{0};
 
@@ -11012,7 +11012,7 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 
 					if (j == 0)
 					{
-						auto* sec2 = &sector[wal->nextsector];
+						auto* sec2 = &g_sector[wal->nextsector];
 
 
 							//Find closest point on wall (dax, day) to (*x, *y)
@@ -11103,8 +11103,8 @@ void updatesector(int x, int y, short *sectnum)
 
 	if ((*sectnum >= 0) && (*sectnum < numsectors))
 	{
-		walltype* wal = &wall[sector[*sectnum].wallptr];
-		int j = sector[*sectnum].wallnum;
+		walltype* wal = &wall[g_sector[*sectnum].wallptr];
+		int j = g_sector[*sectnum].wallnum;
 
 		do
 		{
@@ -11142,8 +11142,8 @@ void updatesectorz(int x, int y, int z, short *sectnum)
 
 	if ((*sectnum >= 0) && (*sectnum < numsectors))
 	{
-		walltype* wal = &wall[sector[*sectnum].wallptr];
-		int j = sector[*sectnum].wallnum;
+		walltype* wal = &wall[g_sector[*sectnum].wallptr];
+		int j = g_sector[*sectnum].wallnum;
 		
 		do
 		{
@@ -11253,7 +11253,7 @@ void getzrange(int x, int y, int z, short sectnum,
 
 	do  //Collect sectors inside your square first
 	{
-		auto* sec = &sector[clipsectorlist[clipsectcnt]];
+		auto* sec = &g_sector[clipsectorlist[clipsectcnt]];
 		const int startwall = sec->wallptr;
 		const int endwall = startwall + sec->wallnum;
 		int j{startwall};
@@ -11304,7 +11304,7 @@ void getzrange(int x, int y, int z, short sectnum,
 				if (wal->cstat&dawalclipmask)
 					continue;
 
-				sec = &sector[k];
+				sec = &g_sector[k];
 				
 				if (!editstatus)
 				{
@@ -12220,16 +12220,16 @@ int sectorofwall(short theline)
 	{
 		gap >>= 1;
 
-		if (sector[i].wallptr < theline)
+		if (g_sector[i].wallptr < theline)
 			i += gap;
 		else
 			i -= gap;
 	}
 
-	while (sector[i].wallptr > theline)
+	while (g_sector[i].wallptr > theline)
 		i--;
 
-	while (sector[i].wallptr+sector[i].wallnum <= theline)
+	while (g_sector[i].wallptr+g_sector[i].wallnum <= theline)
 		i++;
 	
 	return i;
@@ -12241,20 +12241,20 @@ int sectorofwall(short theline)
 //
 int getceilzofslope(short sectnum, int dax, int day)
 {
-	if (!(sector[sectnum].ceilingstat & 2))
-		return sector[sectnum].ceilingz;
+	if (!(g_sector[sectnum].ceilingstat & 2))
+		return g_sector[sectnum].ceilingz;
 
-	const walltype* wal = &wall[sector[sectnum].wallptr];
+	const walltype* wal = &wall[g_sector[sectnum].wallptr];
 	const int dx = wall[wal->point2].x - wal->x;
 	const int dy = wall[wal->point2].y - wal->y;
 	const int i = static_cast<int>(std::hypot(dx, dy)) << 5;
 	
 	if (i == 0)
-		return sector[sectnum].ceilingz;
+		return g_sector[sectnum].ceilingz;
 	
 	const int j = dmulscalen<3>(dx, day - wal->y, -dy, dax - wal->x);
 
-	return sector[sectnum].ceilingz + scale(sector[sectnum].ceilingheinum, j, i);
+	return g_sector[sectnum].ceilingz + scale(g_sector[sectnum].ceilingheinum, j, i);
 }
 
 
@@ -12263,20 +12263,20 @@ int getceilzofslope(short sectnum, int dax, int day)
 //
 int getflorzofslope(short sectnum, int dax, int day)
 {
-	if (!(sector[sectnum].floorstat & 2))
-		return sector[sectnum].floorz;
+	if (!(g_sector[sectnum].floorstat & 2))
+		return g_sector[sectnum].floorz;
 
-	const walltype* wal = &wall[sector[sectnum].wallptr];
+	const walltype* wal = &wall[g_sector[sectnum].wallptr];
 	const int dx = wall[wal->point2].x - wal->x;
 	const int dy = wall[wal->point2].y - wal->y;
 	const int i = static_cast<int>(std::hypot(dx, dy)) << 5;
 	
 	if (i == 0)
-		return sector[sectnum].floorz;
+		return g_sector[sectnum].floorz;
 
 	const int j = dmulscalen<3>(dx, day - wal->y, -dy, dax - wal->x);
 
-	return sector[sectnum].floorz + scale(sector[sectnum].floorheinum, j, i);
+	return g_sector[sectnum].floorz + scale(g_sector[sectnum].floorheinum, j, i);
 }
 
 
@@ -12285,7 +12285,7 @@ int getflorzofslope(short sectnum, int dax, int day)
 //
 ceilfloorz getzsofslope(short sectnum, int dax, int day)
 {
-	sectortype* sec = &sector[sectnum];
+	sectortype* sec = &g_sector[sectnum];
 
 	ceilfloorz cfz{sec->ceilingz, sec->floorz};
 	
@@ -12318,7 +12318,7 @@ ceilfloorz getzsofslope(short sectnum, int dax, int day)
 //
 void alignceilslope(short dasect, int x, int y, int z)
 {
-	const walltype* wal = &wall[sector[dasect].wallptr];
+	const walltype* wal = &wall[g_sector[dasect].wallptr];
 	const int dax = wall[wal->point2].x-wal->x;
 	const int day = wall[wal->point2].y-wal->y;
 
@@ -12328,14 +12328,14 @@ void alignceilslope(short dasect, int x, int y, int z)
 		return;
 	}
 
-	sector[dasect].ceilingheinum = scale((z - sector[dasect].ceilingz) << 8,
+	g_sector[dasect].ceilingheinum = scale((z - g_sector[dasect].ceilingz) << 8,
 	  static_cast<int>(std::hypot(dax, day)), i);
 
-	if (sector[dasect].ceilingheinum == 0) {
-		sector[dasect].ceilingstat &= ~2;
+	if (g_sector[dasect].ceilingheinum == 0) {
+		g_sector[dasect].ceilingstat &= ~2;
 	}
 	else {
-		sector[dasect].ceilingstat |= 2;
+		g_sector[dasect].ceilingstat |= 2;
 	}
 }
 
@@ -12345,7 +12345,7 @@ void alignceilslope(short dasect, int x, int y, int z)
 //
 void alignflorslope(short dasect, int x, int y, int z)
 {
-	const walltype* wal = &wall[sector[dasect].wallptr];
+	const walltype* wal = &wall[g_sector[dasect].wallptr];
 	const int dax = wall[wal->point2].x-wal->x;
 	const int day = wall[wal->point2].y-wal->y;
 
@@ -12355,14 +12355,14 @@ void alignflorslope(short dasect, int x, int y, int z)
 		return;
 	}
 
-	sector[dasect].floorheinum = scale((z - sector[dasect].floorz) << 8,
+	g_sector[dasect].floorheinum = scale((z - g_sector[dasect].floorz) << 8,
 	  static_cast<int>(std::hypot(dax, day)), i);
 
-	if (sector[dasect].floorheinum == 0) {
-		sector[dasect].floorstat &= ~2;
+	if (g_sector[dasect].floorheinum == 0) {
+		g_sector[dasect].floorstat &= ~2;
 	}
 	else {
-		sector[dasect].floorstat |= 2;
+		g_sector[dasect].floorstat |= 2;
 	}
 }
 
@@ -12373,8 +12373,8 @@ void alignflorslope(short dasect, int x, int y, int z)
 int loopnumofsector(short sectnum, short wallnum)
 {
 	int numloops{0};
-	const int startwall = sector[sectnum].wallptr;
-	const int endwall = startwall + sector[sectnum].wallnum;
+	const int startwall = g_sector[sectnum].wallptr;
+	const int endwall = startwall + g_sector[sectnum].wallnum;
 
 	for(int i{startwall}; i < endwall; i++)
 	{
@@ -12396,8 +12396,8 @@ int loopnumofsector(short sectnum, short wallnum)
 //
 void setfirstwall(short sectnum, short newfirstwall)
 {
-	const int startwall = sector[sectnum].wallptr;
-	const int danumwalls = sector[sectnum].wallnum;
+	const int startwall = g_sector[sectnum].wallptr;
+	const int danumwalls = g_sector[sectnum].wallnum;
 	const int endwall = startwall + danumwalls;
 	
 	if ((newfirstwall < startwall) || (newfirstwall >= startwall+danumwalls))
@@ -12481,24 +12481,50 @@ void drawline256(int x1, int y1, int x2, int y2, unsigned char col)
 	const int dx = x2 - x1;
 	const int dy = y2 - y1;
 
-	if (dx >= 0)
-	{
-		if ((x1 >= wx2) || (x2 < wx1)) return;
-		if (x1 < wx1) y1 += scale(wx1-x1,dy,dx), x1 = wx1;
-		if (x2 > wx2) y2 += scale(wx2-x2,dy,dx), x2 = wx2;
+	if (dx >= 0) {
+		if ((x1 >= wx2) || (x2 < wx1))
+			return;
+
+		if (x1 < wx1) {
+			y1 += scale(wx1-x1,dy,dx);
+			x1 = wx1;
+		}
+
+		if (x2 > wx2) {
+			y2 += scale(wx2-x2,dy,dx);
+			x2 = wx2;
+		}
 	}
 	else
 	{
-		if ((x2 >= wx2) || (x1 < wx1)) return;
-		if (x2 < wx1) y2 += scale(wx1-x2,dy,dx), x2 = wx1;
-		if (x1 > wx2) y1 += scale(wx2-x1,dy,dx), x1 = wx2;
+		if ((x2 >= wx2) || (x1 < wx1))
+			return;
+		
+		if (x2 < wx1) {
+			y2 += scale(wx1-x2,dy,dx);
+			x2 = wx1;
+		}
+
+		if (x1 > wx2) {
+			y1 += scale(wx2-x1,dy,dx);
+			x1 = wx2;
+		}
 	}
 
 	if (dy >= 0)
 	{
-		if ((y1 >= wy2) || (y2 < wy1)) return;
-		if (y1 < wy1) x1 += scale(wy1-y1,dx,dy), y1 = wy1;
-		if (y2 > wy2) x2 += scale(wy2-y2,dx,dy), y2 = wy2;
+		if ((y1 >= wy2) || (y2 < wy1))
+			return;
+
+		if (y1 < wy1) {
+			x1 += scale(wy1-y1,dx,dy);
+			y1 = wy1;
+		}
+
+		if (y2 > wy2) {
+			x2 += scale(wy2-y2,dx,dy);
+			y2 = wy2;
+		}
 	}
 	else
 	{

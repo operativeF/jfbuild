@@ -232,7 +232,7 @@ struct spriteexttype {
 #define SPREXT_NOTMD 1
 #define SPREXT_NOMDANIM 2
 
-inline std::array<sectortype, MAXSECTORS> sector{};
+inline std::array<sectortype, MAXSECTORS> g_sector{};
 inline std::array<walltype, MAXWALLS> wall{};
 inline std::array<spritetype, MAXSPRITES> sprite{};
 inline std::array<spriteexttype, MAXSPRITES + MAXUNIQHUDID> spriteext{};

@@ -35,29 +35,29 @@ int writesetup(const std::string&);
 /***************************************************************************
 	KEN'S TAG DEFINITIONS:      (Please define your own tags for your games)
 
- sector[?].lotag = 0   Normal sector
- sector[?].lotag = 1   If you are on a sector with this tag, then all sectors
+ g_sector[?].lotag = 0   Normal sector
+ g_sector[?].lotag = 1   If you are on a sector with this tag, then all sectors
 			with same hi tag as this are operated.  Once.
- sector[?].lotag = 2   Same as sector[?].tag = 1 but this is retriggable.
- sector[?].lotag = 3   A really stupid sector that really does nothing now.
- sector[?].lotag = 4   A sector where you are put closer to the floor
+ g_sector[?].lotag = 2   Same as sector[?].tag = 1 but this is retriggable.
+ g_sector[?].lotag = 3   A really stupid sector that really does nothing now.
+ g_sector[?].lotag = 4   A sector where you are put closer to the floor
 			(such as the slime in DOOM1.DAT)
- sector[?].lotag = 5   A really stupid sector that really does nothing now.
- sector[?].lotag = 6   A normal door - instead of pressing D, you tag the
+ g_sector[?].lotag = 5   A really stupid sector that really does nothing now.
+ g_sector[?].lotag = 6   A normal door - instead of pressing D, you tag the
 			sector with a 6.  The reason I make you edit doors
 			this way is so that can program the doors
 			yourself.
- sector[?].lotag = 7   A door the goes down to open.
- sector[?].lotag = 8   A door that opens horizontally in the middle.
- sector[?].lotag = 9   A sliding door that opens vertically in the middle.
+ g_sector[?].lotag = 7   A door the goes down to open.
+ g_sector[?].lotag = 8   A door that opens horizontally in the middle.
+ g_sector[?].lotag = 9   A sliding door that opens vertically in the middle.
 			-Example of the advantages of not using BSP tree.
- sector[?].lotag = 10  A warping sector with floor and walls that shade.
- sector[?].lotag = 11  A sector with all walls that do X-panning.
- sector[?].lotag = 12  A sector with walls using the dragging function.
- sector[?].lotag = 13  A sector with some swinging doors in it.
- sector[?].lotag = 14  A revolving door sector.
- sector[?].lotag = 15  A subway track.
- sector[?].lotag = 16  A true double-sliding door.
+ g_sector[?].lotag = 10  A warping sector with floor and walls that shade.
+ g_sector[?].lotag = 11  A sector with all walls that do X-panning.
+ g_sector[?].lotag = 12  A sector with walls using the dragging function.
+ g_sector[?].lotag = 13  A sector with some swinging doors in it.
+ g_sector[?].lotag = 14  A revolving door sector.
+ g_sector[?].lotag = 15  A subway track.
+ g_sector[?].lotag = 16  A true double-sliding door.
 
 	wall[?].lotag = 0   Normal wall
 	wall[?].lotag = 1   Y-panning wall
@@ -812,10 +812,10 @@ void operatesector(short dasector)
 	short endwall;
 	short wallfind[2];
 
-	datag = sector[dasector].lotag;
+	datag = g_sector[dasector].lotag;
 
-	startwall = sector[dasector].wallptr;
-	endwall = startwall + sector[dasector].wallnum;
+	startwall = g_sector[dasector].wallptr;
+	endwall = startwall + g_sector[dasector].wallnum;
 	centx = 0L, centy = 0L;
 	for(i=startwall;i<endwall;i++)
 	{
@@ -828,64 +828,64 @@ void operatesector(short dasector)
 		//Simple door that moves up  (tag 8 is a combination of tags 6 & 7)
 	if ((datag == 6) || (datag == 8))    //If the sector in front is a door
 	{
-		i = getanimationgoal(&sector[dasector].ceilingz);
+		i = getanimationgoal(&g_sector[dasector].ceilingz);
 		if (i >= 0)      //If door already moving, reverse its direction
 		{
 			if (datag == 8)
-				daz = ((sector[dasector].ceilingz+sector[dasector].floorz)>>1);
+				daz = ((g_sector[dasector].ceilingz+g_sector[dasector].floorz)>>1);
 			else
-				daz = sector[dasector].floorz;
+				daz = g_sector[dasector].floorz;
 
 			if (animategoal[i] == daz)
-				animategoal[i] = sector[nextsectorneighborz(dasector,sector[dasector].floorz,-1,-1)].ceilingz;
+				animategoal[i] = g_sector[nextsectorneighborz(dasector,g_sector[dasector].floorz,-1,-1)].ceilingz;
 			else
 				animategoal[i] = daz;
 			animatevel[i] = 0;
 		}
 		else      //else insert the door's ceiling on the animation list
 		{
-			if (sector[dasector].ceilingz == sector[dasector].floorz)
-				daz = sector[nextsectorneighborz(dasector,sector[dasector].floorz,-1,-1)].ceilingz;
+			if (g_sector[dasector].ceilingz == g_sector[dasector].floorz)
+				daz = g_sector[nextsectorneighborz(dasector,g_sector[dasector].floorz,-1,-1)].ceilingz;
 			else
 			{
 				if (datag == 8)
-					daz = ((sector[dasector].ceilingz+sector[dasector].floorz)>>1);
+					daz = ((g_sector[dasector].ceilingz+g_sector[dasector].floorz)>>1);
 				else
-					daz = sector[dasector].floorz;
+					daz = g_sector[dasector].floorz;
 			}
-			if ((j = setanimation(&sector[dasector].ceilingz,daz,6L,6L)) >= 0)
+			if ((j = setanimation(&g_sector[dasector].ceilingz,daz,6L,6L)) >= 0)
 				wsayfollow("updowndr.wav",4096L+(krand()&255)-128,256L,&centx,&centy,0);
 		}
 	}
 		//Simple door that moves down
 	if ((datag == 7) || (datag == 8)) //If the sector in front's elevator
 	{
-		i = getanimationgoal(&sector[dasector].floorz);
+		i = getanimationgoal(&g_sector[dasector].floorz);
 		if (i >= 0)      //If elevator already moving, reverse its direction
 		{
 			if (datag == 8)
-				daz = ((sector[dasector].ceilingz+sector[dasector].floorz)>>1);
+				daz = ((g_sector[dasector].ceilingz+g_sector[dasector].floorz)>>1);
 			else
-				daz = sector[dasector].ceilingz;
+				daz = g_sector[dasector].ceilingz;
 
 			if (animategoal[i] == daz)
-				animategoal[i] = sector[nextsectorneighborz(dasector,sector[dasector].ceilingz,1,1)].floorz;
+				animategoal[i] = g_sector[nextsectorneighborz(dasector,g_sector[dasector].ceilingz,1,1)].floorz;
 			else
 				animategoal[i] = daz;
 			animatevel[i] = 0;
 		}
 		else      //else insert the elevator's ceiling on the animation list
 		{
-			if (sector[dasector].floorz == sector[dasector].ceilingz)
-				daz = sector[nextsectorneighborz(dasector,sector[dasector].ceilingz,1,1)].floorz;
+			if (g_sector[dasector].floorz == g_sector[dasector].ceilingz)
+				daz = g_sector[nextsectorneighborz(dasector,g_sector[dasector].ceilingz,1,1)].floorz;
 			else
 			{
 				if (datag == 8)
-					daz = ((sector[dasector].ceilingz+sector[dasector].floorz)>>1);
+					daz = ((g_sector[dasector].ceilingz+g_sector[dasector].floorz)>>1);
 				else
-					daz = sector[dasector].ceilingz;
+					daz = g_sector[dasector].ceilingz;
 			}
-			if ((j = setanimation(&sector[dasector].floorz,daz,6L,6L)) >= 0)
+			if ((j = setanimation(&g_sector[dasector].floorz,daz,6L,6L)) >= 0)
 				wsayfollow("updowndr.wav",4096L+(krand()&255)-128,256L,&centx,&centy,0);
 		}
 	}
@@ -1304,7 +1304,7 @@ void prepareboard(char *daboardfilename)
 
 	for(i=0;i<numsectors;i++)
 	{
-		switch(sector[i].lotag)
+		switch(g_sector[i].lotag)
 		{
 			case 4:
 				floorpanninglist[floorpanningcnt++] = i;
@@ -1321,8 +1321,8 @@ void prepareboard(char *daboardfilename)
 				day = 0x7fffffff;
 				dax2 = 0x80000000;
 				day2 = 0x80000000;
-				startwall = sector[i].wallptr;
-				endwall = startwall+sector[i].wallnum;
+				startwall = g_sector[i].wallptr;
+				endwall = startwall+g_sector[i].wallnum;
 				for(j=startwall;j<endwall;j++)
 				{
 					if (wall[j].x < dax) dax = wall[j].x;
@@ -1341,8 +1341,8 @@ void prepareboard(char *daboardfilename)
 				dragy1[dragsectorcnt] = 0x7fffffff;
 				dragx2[dragsectorcnt] = 0x80000000;
 				dragy2[dragsectorcnt] = 0x80000000;
-				startwall = sector[dasector].wallptr;
-				endwall = startwall+sector[dasector].wallnum;
+				startwall = g_sector[dasector].wallptr;
+				endwall = startwall+g_sector[dasector].wallnum;
 				for(j=startwall;j<endwall;j++)
 				{
 					if (wall[j].x < dragx1[dragsectorcnt]) dragx1[dragsectorcnt] = wall[j].x;
@@ -1350,25 +1350,25 @@ void prepareboard(char *daboardfilename)
 					if (wall[j].x > dragx2[dragsectorcnt]) dragx2[dragsectorcnt] = wall[j].x;
 					if (wall[j].y > dragy2[dragsectorcnt]) dragy2[dragsectorcnt] = wall[j].y;
 
-					setinterpolation(&sector[dasector].floorz);
+					setinterpolation(&g_sector[dasector].floorz);
 					setinterpolation(&wall[j].x);
 					setinterpolation(&wall[j].y);
 					setinterpolation(&wall[wall[j].nextwall].x);
 					setinterpolation(&wall[wall[j].nextwall].y);
 				}
 
-				dragx1[dragsectorcnt] += (wall[sector[i].wallptr].x-dax);
-				dragy1[dragsectorcnt] += (wall[sector[i].wallptr].y-day);
-				dragx2[dragsectorcnt] -= (dax2-wall[sector[i].wallptr].x);
-				dragy2[dragsectorcnt] -= (day2-wall[sector[i].wallptr].y);
+				dragx1[dragsectorcnt] += (wall[g_sector[i].wallptr].x-dax);
+				dragy1[dragsectorcnt] += (wall[g_sector[i].wallptr].y-day);
+				dragx2[dragsectorcnt] -= (dax2-wall[g_sector[i].wallptr].x);
+				dragy2[dragsectorcnt] -= (day2-wall[g_sector[i].wallptr].y);
 
-				dragfloorz[dragsectorcnt] = sector[i].floorz;
+				dragfloorz[dragsectorcnt] = g_sector[i].floorz;
 
 				dragsectorlist[dragsectorcnt++] = i;
 				break;
 			case 13:
-				startwall = sector[i].wallptr;
-				endwall = startwall+sector[i].wallnum;
+				startwall = g_sector[i].wallptr;
+				endwall = startwall+g_sector[i].wallnum;
 				for(j=startwall;j<endwall;j++)
 				{
 					if (wall[j].lotag == 4)
@@ -1409,8 +1409,8 @@ void prepareboard(char *daboardfilename)
 				}
 				break;
 			case 14:
-				startwall = sector[i].wallptr;
-				endwall = startwall+sector[i].wallnum;
+				startwall = g_sector[i].wallptr;
+				endwall = startwall+g_sector[i].wallnum;
 				dax = 0L;
 				day = 0L;
 				for(j=startwall;j<endwall;j++)
@@ -1447,8 +1447,8 @@ void prepareboard(char *daboardfilename)
 				day = 0x7fffffff;
 				dax2 = 0x80000000;
 				day2 = 0x80000000;
-				startwall = sector[i].wallptr;
-				endwall = startwall+sector[i].wallnum;
+				startwall = g_sector[i].wallptr;
+				endwall = startwall+g_sector[i].wallnum;
 				for(j=startwall;j<endwall;j++)
 				{
 					if (wall[j].x < dax) dax = wall[j].x;
@@ -1495,16 +1495,16 @@ void prepareboard(char *daboardfilename)
 				for(j=0;j<numsectors;j++)
 					if (j != i)
 					{
-						startwall = sector[j].wallptr;
+						startwall = g_sector[j].wallptr;
 						if (wall[startwall].x > subwaytrackx1[subwaytrackcnt])
 							if (wall[startwall].y > subwaytracky1[subwaytrackcnt])
 								if (wall[startwall].x < subwaytrackx2[subwaytrackcnt])
 									if (wall[startwall].y < subwaytracky2[subwaytrackcnt])
 									{
-										if (sector[j].floorz != sector[i].floorz)
+										if (g_sector[j].floorz != g_sector[i].floorz)
 										{
-											sector[j].ceilingstat |= 64;
-											sector[j].floorstat |= 64;
+											g_sector[j].ceilingstat |= 64;
+											g_sector[j].floorstat |= 64;
 										}
 										subwaytracksector[subwaytrackcnt][subwaynumsectors[subwaytrackcnt]] = j;
 										subwaynumsectors[subwaytrackcnt]++;
@@ -1514,8 +1514,8 @@ void prepareboard(char *daboardfilename)
 				subwayvel[subwaytrackcnt] = 64;
 				subwaypausetime[subwaytrackcnt] = 720;
 
-				startwall = sector[i].wallptr;
-				endwall = startwall+sector[i].wallnum;
+				startwall = g_sector[i].wallptr;
+				endwall = startwall+g_sector[i].wallnum;
 				for(k=startwall;k<endwall;k++)
 					if (wall[k].x > subwaytrackx1[subwaytrackcnt])
 						if (wall[k].y > subwaytracky1[subwaytrackcnt])
@@ -1527,8 +1527,8 @@ void prepareboard(char *daboardfilename)
 				{
 					dasector = subwaytracksector[subwaytrackcnt][j];
 
-					startwall = sector[dasector].wallptr;
-					endwall = startwall+sector[dasector].wallnum;
+					startwall = g_sector[dasector].wallptr;
+					endwall = startwall+g_sector[dasector].wallnum;
 					for(k=startwall;k<endwall;k++)
 						setinterpolation(&wall[k].x);
 
@@ -1541,9 +1541,9 @@ void prepareboard(char *daboardfilename)
 				subwaytrackcnt++;
 				break;
 		}
-		if (sector[i].floorpicnum == FLOORMIRROR)
+		if (g_sector[i].floorpicnum == FLOORMIRROR)
 			floormirrorsector[mirrorcnt++] = i;
-		//if (sector[i].ceilingpicnum == FLOORMIRROR) floormirrorsector[mirrorcnt++] = i; //SOS
+		//if (g_sector[i].ceilingpicnum == FLOORMIRROR) floormirrorsector[mirrorcnt++] = i; //SOS
 	}
 
 		//Scan wall tags
@@ -1564,27 +1564,27 @@ void prepareboard(char *daboardfilename)
 		s = wall[i].nextsector;
 		if ((s >= 0) && (wall[i].overpicnum == MIRROR) && (wall[i].cstat&32))
 		{
-			if ((sector[s].floorstat&1) == 0)
+			if ((g_sector[s].floorstat&1) == 0)
 			{
 				wall[i].overpicnum = MIRRORLABEL+mirrorcnt;
-				sector[s].ceilingpicnum = MIRRORLABEL+mirrorcnt;
-				sector[s].floorpicnum = MIRRORLABEL+mirrorcnt;
-				sector[s].floorstat |= 1;
+				g_sector[s].ceilingpicnum = MIRRORLABEL+mirrorcnt;
+				g_sector[s].floorpicnum = MIRRORLABEL+mirrorcnt;
+				g_sector[s].floorstat |= 1;
 				mirrorwall[mirrorcnt] = i;
 				mirrorsector[mirrorcnt] = s;
 				mirrorcnt++;
 			}
 			else
-				wall[i].overpicnum = sector[s].ceilingpicnum;
+				wall[i].overpicnum = g_sector[s].ceilingpicnum;
 		}
 	}
 
-		//Invalidate textures in sector behind mirror
+		//Invalidate textures in g_sector behind mirror
 	for(i=0;i<mirrorcnt;i++)
 	{
 		k = mirrorsector[i];
-		startwall = sector[k].wallptr;
-		endwall = startwall + sector[k].wallnum;
+		startwall = g_sector[k].wallptr;
+		endwall = startwall + g_sector[k].wallnum;
 		for(j=startwall;j<endwall;j++)
 		{
 			wall[j].picnum = MIRROR;
@@ -1892,7 +1892,7 @@ void shootgun(short snum, int x, int y, int z,
 				if (waloff[MAXTILES-1] != 0) wall[hitwall].picnum = MAXTILES-1;
 				wsayfollow("hello.wav",4096L+(krand()&127)-64,256L,&wall[hitwall].x,&wall[hitwall].y,0);
 			}
-			else if (((hitwall < 0) && (hitsprite < 0) && (hitz >= z) && ((sector[hitsect].floorpicnum == SLIME) || (sector[hitsect].floorpicnum == FLOORMIRROR))) || ((hitwall >= 0) && (wall[hitwall].picnum == SLIME)))
+			else if (((hitwall < 0) && (hitsprite < 0) && (hitz >= z) && ((g_sector[hitsect].floorpicnum == SLIME) || (g_sector[hitsect].floorpicnum == FLOORMIRROR))) || ((hitwall >= 0) && (wall[hitwall].picnum == SLIME)))
 			{    //If you shoot slime, make a splash
 				wsayfollow("splash.wav",4096L+(krand()&511)-256,256L,&hitx,&hity,0);
 				spawnsprite(j,hitx,hity,hitz,2,0,0,32,64,64,0,0,SPLASH,daang,
@@ -2062,10 +2062,10 @@ void analyzesprites(int dax, int day)
 					tspr->cstat &= ~2;
 
 		tspr->shade += 6;
-		if (sector[tspr->sectnum].ceilingstat&1)
-			tspr->shade += sector[tspr->sectnum].ceilingshade;
+		if (g_sector[tspr->sectnum].ceilingstat&1)
+			tspr->shade += g_sector[tspr->sectnum].ceilingshade;
 		else
-			tspr->shade += sector[tspr->sectnum].floorshade;
+			tspr->shade += g_sector[tspr->sectnum].floorshade;
 	}
 }
 
@@ -2088,14 +2088,14 @@ void tagcode()
 
 	for(p=connecthead;p>=0;p=connectpoint2[p])
 	{
-		if (sector[cursectnum[p]].lotag == 1)
+		if (g_sector[cursectnum[p]].lotag == 1)
 		{
-			activatehitag(sector[cursectnum[p]].hitag);
-			sector[cursectnum[p]].lotag = 0;
-			sector[cursectnum[p]].hitag = 0;
+			activatehitag(g_sector[cursectnum[p]].hitag);
+			g_sector[cursectnum[p]].lotag = 0;
+			g_sector[cursectnum[p]].hitag = 0;
 		}
-		if ((sector[cursectnum[p]].lotag == 2) && (cursectnum[p] != ocursectnum[p]))
-			activatehitag(sector[cursectnum[p]].hitag);
+		if ((g_sector[cursectnum[p]].lotag == 2) && (cursectnum[p] != ocursectnum[p]))
+			activatehitag(g_sector[cursectnum[p]].hitag);
 	}
 
 	for(i=0;i<warpsectorcnt;i++)
@@ -2104,17 +2104,17 @@ void tagcode()
 		j = ((lockclock&127)>>2);
 		if (j >= 16) j = 31-j;
 		{
-			sector[dasector].ceilingshade = j;
-			sector[dasector].floorshade = j;
-			startwall = sector[dasector].wallptr;
-			endwall = startwall+sector[dasector].wallnum;
+			g_sector[dasector].ceilingshade = j;
+			g_sector[dasector].floorshade = j;
+			startwall = g_sector[dasector].wallptr;
+			endwall = startwall+g_sector[dasector].wallnum;
 			for(s=startwall;s<endwall;s++)
 				wall[s].shade = j;
 		}
 	}
 
 	for(p=connecthead;p>=0;p=connectpoint2[p])
-		if (sector[cursectnum[p]].lotag == 10)  //warp sector
+		if (g_sector[cursectnum[p]].lotag == 10)  //warp sector
 		{
 			if (cursectnum[p] != ocursectnum[p])
 			{
@@ -2138,8 +2138,8 @@ void tagcode()
 	{
 		dasector = xpanningsectorlist[i];
 
-		startwall = sector[dasector].wallptr;
-		endwall = startwall+sector[dasector].wallnum;
+		startwall = g_sector[dasector].wallptr;
+		endwall = startwall+g_sector[dasector].wallnum;
 		for(s=startwall;s<endwall;s++)
 			wall[s].xpanning = ((lockclock>>2)&255);
 	}
@@ -2155,16 +2155,16 @@ void tagcode()
 
 	for(i=0;i<floorpanningcnt;i++)   //animate floor of slime sectors
 	{
-		sector[floorpanninglist[i]].floorxpanning = ((lockclock>>2)&255);
-		sector[floorpanninglist[i]].floorypanning = ((lockclock>>2)&255);
+		g_sector[floorpanninglist[i]].floorxpanning = ((lockclock>>2)&255);
+		g_sector[floorpanninglist[i]].floorypanning = ((lockclock>>2)&255);
 	}
 
 	for(i=0;i<dragsectorcnt;i++)
 	{
 		dasector = dragsectorlist[i];
 
-		startwall = sector[dasector].wallptr;
-		endwall = startwall+sector[dasector].wallnum;
+		startwall = g_sector[dasector].wallptr;
+		endwall = startwall+g_sector[dasector].wallnum;
 
 		if (wall[startwall].x+dragxdir[i] < dragx1[i]) dragxdir[i] = 16;
 		if (wall[startwall].y+dragydir[i] < dragy1[i]) dragydir[i] = 16;
@@ -2173,8 +2173,8 @@ void tagcode()
 
 		for(j=startwall;j<endwall;j++)
 			dragpoint(j,wall[j].x+dragxdir[i],wall[j].y+dragydir[i]);
-		j = sector[dasector].floorz;
-		sector[dasector].floorz = dragfloorz[i]+(sintable[(lockclock<<4)&2047]>>3);
+		j = g_sector[dasector].floorz;
+		g_sector[dasector].floorz = dragfloorz[i]+(sintable[(lockclock<<4)&2047]>>3);
 
 		for(p=connecthead;p>=0;p=connectpoint2[p])
 			if (cursectnum[p] == dasector)
@@ -2183,7 +2183,7 @@ void tagcode()
 				posy[p] += dragydir[i];
 				if (p == myconnectindex)
 					{ myx += dragxdir[i]; myy += dragydir[i]; }
-				//posz[p] += (sector[dasector].floorz-j);
+				//posz[p] += (g_sector[dasector].floorz-j);
 
 					//Update sprite representation of player
 				setsprite(playersprite[p],posx[p],posy[p],posz[p]+EYEHEIGHT);
@@ -2267,8 +2267,8 @@ void tagcode()
 
 	for(i=0;i<revolvecnt;i++)
 	{
-		startwall = sector[revolvesector[i]].wallptr;
-		endwall = startwall + sector[revolvesector[i]].wallnum;
+		startwall = g_sector[revolvesector[i]].wallptr;
+		endwall = startwall + g_sector[revolvesector[i]].wallnum;
 
 		revolveang[i] = ((revolveang[i]-(TICSPERFRAME<<2))&2047);
 		for(k=startwall;k<endwall;k++)
@@ -2283,8 +2283,8 @@ void tagcode()
 		if ((subwayvel[i] < -2) || (subwayvel[i] > 2))
 		{
 			dasector = subwaytracksector[i][0];
-			startwall = sector[dasector].wallptr;
-			endwall = startwall+sector[dasector].wallnum;
+			startwall = g_sector[dasector].wallptr;
+			endwall = startwall+g_sector[dasector].wallnum;
 			for(k=startwall;k<endwall;k++)
 				if (wall[k].x > subwaytrackx1[i])
 					if (wall[k].y > subwaytracky1[i])
@@ -2296,8 +2296,8 @@ void tagcode()
 			{
 				dasector = subwaytracksector[i][j];
 
-				startwall = sector[dasector].wallptr;
-				endwall = startwall+sector[dasector].wallnum;
+				startwall = g_sector[dasector].wallptr;
+				endwall = startwall+g_sector[dasector].wallnum;
 				for(k=startwall;k<endwall;k++)
 					wall[k].x += subwayvel[i];
 
@@ -2307,7 +2307,7 @@ void tagcode()
 
 			for(p=connecthead;p>=0;p=connectpoint2[p])
 				if (cursectnum[p] != subwaytracksector[i][0])
-					if (sector[cursectnum[p]].floorz != sector[subwaytracksector[i][0]].floorz)
+					if (g_sector[cursectnum[p]].floorz != g_sector[subwaytracksector[i][0]].floorz)
 						if (posx[p] > subwaytrackx1[i])
 							if (posy[p] > subwaytracky1[i])
 								if (posx[p] < subwaytrackx2[i])
@@ -2352,7 +2352,7 @@ void tagcode()
 		{
 			  //Open / close doors
 			if ((subwaypausetime[i] == 720) || ((subwaypausetime[i] >= 120) && (subwaypausetime[i]-TICSPERFRAME < 120)))
-				activatehitag(sector[subwaytracksector[i][0]].hitag);
+				activatehitag(g_sector[subwaytracksector[i][0]].hitag);
 
 			subwaypausetime[i] -= TICSPERFRAME;
 			if (subwaypausetime[i] < 0)
@@ -2495,7 +2495,7 @@ void statuslistcode()
 		else
 			sprite[i].z = globloz-((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
 
-		if ((sprite[i].sectnum != osectnum) && (sector[sprite[i].sectnum].lotag == 10))
+		if ((sprite[i].sectnum != osectnum) && (g_sector[sprite[i].sectnum].lotag == 10))
 			{ warpsprite((short)i); movestat = 0; }
 
 		if ((movestat != 0) || ((k&63) == 1))
@@ -2574,7 +2574,7 @@ void statuslistcode()
 				wsayfollow("zipguns.wav",5144L+(krand()&127)-64,256L,&sprite[i].x,&sprite[i].y,1);
 
 				spawnsprite(j,sprite[i].x,sprite[i].y,
-					sector[sprite[i].sectnum].floorz-(24<<8),
+					g_sector[sprite[i].sectnum].floorz-(24<<8),
 					0,0,0,16,32,32,0,0,BULLET,
 					(getangle(posx[target]-sprite[j].x,
 						posy[target]-sprite[j].y)+(krand()&15)-8)&2047,
@@ -2598,7 +2598,7 @@ void statuslistcode()
 		osectnum = sprite[i].sectnum;
 		movestat = movesprite((short)i,dax,day,0L,-(8L<<8),-(8L<<8),CLIPMASK0);
 		sprite[i].z = globloz;
-		if ((sprite[i].sectnum != osectnum) && (sector[sprite[i].sectnum].lotag == 10))
+		if ((sprite[i].sectnum != osectnum) && (g_sector[sprite[i].sectnum].lotag == 10))
 		{
 			warpsprite((short)i);
 			movestat = 0;
@@ -2674,7 +2674,7 @@ void statuslistcode()
 
 			osectnum = sprite[i].sectnum;
 			hitobject = movesprite((short)i,dax,day,daz,4L<<8,4L<<8,CLIPMASK1);
-			if ((sprite[i].sectnum != osectnum) && (sector[sprite[i].sectnum].lotag == 10))
+			if ((sprite[i].sectnum != osectnum) && (g_sector[sprite[i].sectnum].lotag == 10))
 			{
 				warpsprite((short)i);
 				hitobject = 0;
@@ -2733,12 +2733,12 @@ void statuslistcode()
 			if (sprite[i].picnum == BOMB)
 			{
 				j = sprite[i].sectnum;
-				if ((sector[j].floorstat&2) && (sprite[i].z > globloz-(8<<8)))
+				if ((g_sector[j].floorstat&2) && (sprite[i].z > globloz-(8<<8)))
 				{
-					k = sector[j].wallptr;
+					k = g_sector[j].wallptr;
 					daang = getangle(wall[wall[k].point2].x-wall[k].x,wall[wall[k].point2].y-wall[k].y);
-					sprite[i].xvel += mulscalen<22>(sintable[(daang+1024)&2047],sector[j].floorheinum);
-					sprite[i].yvel += mulscalen<22>(sintable[(daang+512)&2047],sector[j].floorheinum);
+					sprite[i].xvel += mulscalen<22>(sintable[(daang+1024)&2047],g_sector[j].floorheinum);
+					sprite[i].yvel += mulscalen<22>(sintable[(daang+512)&2047],g_sector[j].floorheinum);
 				}
 			}
 
@@ -2781,16 +2781,16 @@ void statuslistcode()
 				//Check for bouncy objects before killing bullet
 			if ((hitobject&0xc000) == 16384)  //Bullet hit a ceiling/floor
 			{
-				k = sector[hitobject&(MAXSECTORS-1)].wallptr;
+				k = g_sector[hitobject&(MAXSECTORS-1)].wallptr;
 				l = wall[k].point2;
 				daang = getangle(wall[l].x-wall[k].x,wall[l].y-wall[k].y);
 				// both k, l overwritten here
 				auto klz = getzsofslope(hitobject&(MAXSECTORS-1),sprite[i].x,sprite[i].y);
 				
 				if (sprite[i].z < ((klz.ceilz + klz.floorz)>>1))
-					klz.ceilz = sector[hitobject&(MAXSECTORS-1)].ceilingheinum;
+					klz.ceilz = g_sector[hitobject&(MAXSECTORS-1)].ceilingheinum;
 				else
-					klz.ceilz = sector[hitobject&(MAXSECTORS-1)].floorheinum;
+					klz.ceilz = g_sector[hitobject&(MAXSECTORS-1)].floorheinum;
 
 				dax = mulscalen<14>(klz.ceilz, sintable[(daang)&2047]);
 				day = mulscalen<14>(klz.ceilz, sintable[(daang+1536)&2047]);
@@ -3100,14 +3100,14 @@ bulletisdeletedskip: continue;
 		sprite[i].z += ((sprite[i].zvel*TICSPERFRAME)>>2);
 
 		sprite[i].zvel += (TICSPERFRAME<<9);
-		if (sprite[i].z < sector[sprite[i].sectnum].ceilingz+(4<<8))
+		if (sprite[i].z < g_sector[sprite[i].sectnum].ceilingz+(4<<8))
 		{
-			sprite[i].z = sector[sprite[i].sectnum].ceilingz+(4<<8);
+			sprite[i].z = g_sector[sprite[i].sectnum].ceilingz+(4<<8);
 			sprite[i].zvel = -(sprite[i].zvel>>1);
 		}
-		if (sprite[i].z > sector[sprite[i].sectnum].floorz-(4<<8))
+		if (sprite[i].z > g_sector[sprite[i].sectnum].floorz-(4<<8))
 		{
-			sprite[i].z = sector[sprite[i].sectnum].floorz-(4<<8);
+			sprite[i].z = g_sector[sprite[i].sectnum].floorz-(4<<8);
 			sprite[i].zvel = -(sprite[i].zvel>>1);
 		}
 	}
@@ -3129,16 +3129,16 @@ bulletisdeletedskip: continue;
 		sprite[i].z += (sprite[i].zvel*TICSPERFRAME);
 
 		sprite[i].zvel += (TICSPERFRAME<<8);
-		if (sprite[i].z < sector[sprite[i].sectnum].ceilingz)
+		if (sprite[i].z < g_sector[sprite[i].sectnum].ceilingz)
 		{
-			sprite[i].z = sector[sprite[i].sectnum].ceilingz;
+			sprite[i].z = g_sector[sprite[i].sectnum].ceilingz;
 			sprite[i].xvel -= (sprite[i].xvel>>2);
 			sprite[i].yvel -= (sprite[i].yvel>>2);
 			sprite[i].zvel = -(sprite[i].zvel>>1);
 		}
-		if (sprite[i].z > sector[sprite[i].sectnum].floorz)
+		if (sprite[i].z > g_sector[sprite[i].sectnum].floorz)
 		{
-			sprite[i].z = sector[sprite[i].sectnum].floorz;
+			sprite[i].z = g_sector[sprite[i].sectnum].floorz;
 			sprite[i].xvel -= (sprite[i].xvel>>2);
 			sprite[i].yvel -= (sprite[i].yvel>>2);
 			sprite[i].zvel = -(sprite[i].zvel>>1);
@@ -3167,7 +3167,7 @@ void activatehitag(short dahitag)
 	int nexti;
 
 	for(i=0;i<numsectors;i++)
-		if (sector[i].hitag == dahitag) operatesector(i);
+		if (g_sector[i].hitag == dahitag) operatesector(i);
 
 	for(i=headspritestat[0];i>=0;i=nexti)
 	{
@@ -3389,7 +3389,7 @@ void processinput(short snum)
 	if (((ssync[snum].bits&4) > 0) && (horiz[snum] < 100+(200>>1))) horiz[snum] += 4;   //+
 
 	goalz = globloz-EYEHEIGHT;
-	if (sector[cursectnum[snum]].lotag == 4)   //slime sector
+	if (g_sector[cursectnum[snum]].lotag == 4)   //slime sector
 		if ((globlohit&0xc000) != 49152)            //You're not on a sprite
 		{
 			goalz = globloz-(8<<8);
@@ -3506,7 +3506,7 @@ void processinput(short snum)
 		if (neartagsector == -1)
 		{
 			i = cursectnum[snum];
-			if ((sector[i].lotag|sector[i].hitag) != 0)
+			if ((g_sector[i].lotag|g_sector[i].hitag) != 0)
 				neartagsector = i;
 		}
 
@@ -3541,7 +3541,7 @@ void processinput(short snum)
 		if ((oflags[snum]&1024) == 0)
 		{
 			if (neartagsector >= 0)
-				if (sector[neartagsector].hitag == 0)
+				if (g_sector[neartagsector].hitag == 0)
 					operatesector(neartagsector);
 
 			if (neartagwall >= 0)
@@ -3971,7 +3971,7 @@ void drawscreen(short snum, int dasmoothratio)
 					}
 					drawmasks();
 					if ((numgrabbers[i] > 0) || (nummissiles[i] > 0) || (numbombs[i] > 0))
-						rotatesprite(160<<16,184L<<16,65536,0,GUNONBOTTOM,sector[cursectnum[i]].floorshade,0,2,windowx1,windowy1,windowx2,windowy2);
+						rotatesprite(160<<16,184L<<16,65536,0,GUNONBOTTOM,g_sector[cursectnum[i]].floorshade,0,2,windowx1,windowy1,windowx2,windowy2);
 
 					if (lockclock < 384)
 					{
@@ -4038,8 +4038,8 @@ void drawscreen(short snum, int dasmoothratio)
 
 				for(k=floormirrorcnt-1;k>=0;k--)
 				{
-					int j = std::abs(wall[sector[floormirrorsector[k]].wallptr].x-cposx);
-					j += std::abs(wall[sector[floormirrorsector[k]].wallptr].y-cposy);
+					int j = std::abs(wall[g_sector[floormirrorsector[k]].wallptr].x-cposx);
+					j += std::abs(wall[g_sector[floormirrorsector[k]].wallptr].y-cposy);
 
 					if (j < dist) {
 						dist = j;
@@ -4047,12 +4047,12 @@ void drawscreen(short snum, int dasmoothratio)
 					}
 				}
 
-				//if (cposz > sector[floormirrorsector[i]].ceilingz) i = 1-i; //SOS
+				//if (cposz > g_sector[floormirrorsector[i]].ceilingz) i = 1-i; //SOS
 
 				const int fmsect = floormirrorsector[i];
 
 				if (cameradist < 0) sprite[playersprite[snum]].cstat |= 0x8000;
-				drawrooms(cposx,cposy,(sector[fmsect].floorz<<1)-cposz,cang,201-choriz,fmsect); //SOS
+				drawrooms(cposx,cposy,(g_sector[fmsect].floorz<<1)-cposz,cang,201-choriz,fmsect); //SOS
 				//drawrooms(cposx,cposy,cposz,cang,choriz,j+MAXSECTORS); //SOS
 				sprite[playersprite[snum]].cstat &= ~0x8000;
 				analyzesprites(cposx,cposy);
@@ -4200,7 +4200,7 @@ void drawscreen(short snum, int dasmoothratio)
 						startdmost[i + x1] = y1;
 					}
 				}
-				rotatesprite(160<<16,184L<<16,65536,0,GUNONBOTTOM,sector[cursectnum[screenpeek]].floorshade,0,2,windowx1,windowy1,windowx2,windowy2);
+				rotatesprite(160<<16,184L<<16,65536,0,GUNONBOTTOM,g_sector[cursectnum[screenpeek]].floorshade,0,2,windowx1,windowy1,windowx2,windowy2);
 			}
 
 			if (cachecount != 0)
@@ -4523,7 +4523,7 @@ void fakedomovethings()
 	if (((syn->bits&4) > 0) && (myhoriz < 100+(200>>1))) myhoriz += 4;   //+
 
 	goalz = globloz-EYEHEIGHT;
-	if (sector[mycursectnum].lotag == 4)   //slime sector
+	if (g_sector[mycursectnum].lotag == 4)   //slime sector
 		if ((globlohit&0xc000) != 49152)            //You're not on a sprite
 		{
 			goalz = globloz-(8<<8);
@@ -4690,8 +4690,8 @@ void domovethings()
 		processinput(i);                        //Move player
 
 		checktouchsprite(i,cursectnum[i]);      //Pick up coins
-		startwall = sector[cursectnum[i]].wallptr;
-		endwall = startwall + sector[cursectnum[i]].wallnum;
+		startwall = g_sector[cursectnum[i]].wallptr;
+		endwall = startwall + g_sector[cursectnum[i]].wallnum;
 		for(j=startwall,wal=&wall[j];j<endwall;j++,wal++)
 			if (wal->nextsector >= 0) checktouchsprite(i,wal->nextsector);
 	}
@@ -5083,10 +5083,10 @@ void findrandomspot(int *x, int *y, short *sectnum)
 		do
 		{
 			dasector = mulscalen<16>(krand(),numsectors);
-		} while ((sector[dasector].ceilingz+(8<<8) >= sector[dasector].floorz) || ((sector[dasector].lotag|sector[dasector].hitag) != 0) || ((sector[dasector].floorstat&1) != 0));
+		} while ((g_sector[dasector].ceilingz+(8<<8) >= g_sector[dasector].floorz) || ((g_sector[dasector].lotag|g_sector[dasector].hitag) != 0) || ((g_sector[dasector].floorstat&1) != 0));
 
-		startwall = sector[dasector].wallptr;
-		endwall = startwall+sector[dasector].wallnum;
+		startwall = g_sector[dasector].wallptr;
+		endwall = startwall+g_sector[dasector].wallnum;
 		if (endwall <= startwall) continue;
 
 		dax = 0L;
@@ -5111,7 +5111,7 @@ void findrandomspot(int *x, int *y, short *sectnum)
 
 		if (inside(dax,day,dasector) == 0) continue;
 
-		daz = sector[dasector].floorz-(32<<8);
+		daz = g_sector[dasector].floorz-(32<<8);
 		if (pushmove(&dax,&day,&daz,&dasector,128L,4<<8,4<<8,CLIPMASK0) < 0) continue;
 
 		*x = dax; *y = day; *sectnum = dasector;
@@ -5136,19 +5136,19 @@ void warp(int *x, int *y, int *z, short *daang, short *dasector)
 	for(i=0;i<warpsectorcnt;i++)
 		if (warpsectorlist[i] == *dasector)
 		{
-			j = sector[*dasector].hitag;
+			j = g_sector[*dasector].hitag;
 			do
 			{
 				i++;
 				if (i >= warpsectorcnt) i = 0;
-			} while (sector[warpsectorlist[i]].hitag != j);
+			} while (g_sector[warpsectorlist[i]].hitag != j);
 			*dasector = warpsectorlist[i];
 			break;
 		}
 
 		//Find center of sector
-	startwall = sector[*dasector].wallptr;
-	endwall = startwall+sector[*dasector].wallnum;
+	startwall = g_sector[*dasector].wallptr;
+	endwall = startwall+g_sector[*dasector].wallnum;
 	dax = 0L, day = 0L;
 	for(s=startwall;s<endwall;s++)
 	{
@@ -5158,7 +5158,7 @@ void warp(int *x, int *y, int *z, short *daang, short *dasector)
 	}
 	*x = dax / (endwall-startwall);
 	*y = day / (endwall-startwall);
-	*z = sector[*dasector].floorz-(32<<8);
+	*z = g_sector[*dasector].floorz-(32<<8);
 	updatesector(*x,*y,dasector);
 	dax = ((wall[i].x+wall[wall[i].point2].x)>>1);
 	day = ((wall[i].y+wall[wall[i].point2].y)>>1);
@@ -5481,18 +5481,18 @@ int testneighborsectors(short sect1, short sect2)
 	short num1;
 	short num2;
 
-	num1 = sector[sect1].wallnum;
-	num2 = sector[sect2].wallnum;
+	num1 = g_sector[sect1].wallnum;
+	num2 = g_sector[sect2].wallnum;
 	if (num1 < num2) //Traverse walls of sector with fewest walls (for speed)
 	{
-		startwall = sector[sect1].wallptr;
+		startwall = g_sector[sect1].wallptr;
 		for(i=num1-1;i>=0;i--)
 			if (wall[i+startwall].nextsector == sect2)
 				return(1);
 	}
 	else
 	{
-		startwall = sector[sect2].wallptr;
+		startwall = g_sector[sect2].wallptr;
 		for(i=num2-1;i>=0;i--)
 			if (wall[i+startwall].nextsector == sect1)
 				return(1);
@@ -5542,7 +5542,7 @@ int loadgame()
 	kdfread(revolvedoory,4,MAXPLAYERS,fil);
 
 	kdfread(&numsectors,2,1,fil);
-	kdfread(&sector[0],sizeof(sectortype),numsectors,fil);
+	kdfread(&g_sector[0],sizeof(sectortype),numsectors,fil);
 	kdfread(&numwalls,2,1,fil);
 	kdfread(&wall[0],sizeof(walltype),numwalls,fil);
 		//Store all sprites (even holes) to preserve indeces
@@ -5641,7 +5641,7 @@ int loadgame()
 		//Warning: only works if all pointers are in sector structures!
 	kdfread(&tmpanimateptr[0], 4, MAXANIMATES, fil);
 	for(i=MAXANIMATES-1;i>=0;i--)
-		animateptr[i] = (int *)(tmpanimateptr[i]+(intptr_t)&sector[0]);
+		animateptr[i] = (int *)(tmpanimateptr[i]+(intptr_t)&g_sector[0]);
 
 	kdfread(animategoal,4,MAXANIMATES,fil);
 	kdfread(animatevel,4,MAXANIMATES,fil);
@@ -5720,7 +5720,7 @@ int savegame()
 	dfwrite(revolvedoory,4,MAXPLAYERS,fil);
 
 	dfwrite(&numsectors,2,1,fil);
-	dfwrite(&sector[0],sizeof(sectortype),numsectors,fil);
+	dfwrite(&g_sector[0],sizeof(sectortype),numsectors,fil);
 	dfwrite(&numwalls,2,1,fil);
 	dfwrite(&wall[0],sizeof(walltype),numwalls,fil);
 		//Store all sprites (even holes) to preserve indeces
@@ -5818,7 +5818,7 @@ int savegame()
 
 		//Warning: only works if all pointers are in sector structures!
 	for(i=MAXANIMATES-1;i>=0;i--)
-		tmpanimateptr[i] = (int)((intptr_t)animateptr[i]-(intptr_t)&sector[0]);
+		tmpanimateptr[i] = (int)((intptr_t)animateptr[i]-(intptr_t)&g_sector[0]);
 	dfwrite(tmpanimateptr,4,MAXANIMATES,fil);
 
 	dfwrite(animategoal,4,MAXANIMATES,fil);
@@ -6166,10 +6166,10 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 		//Draw red lines
 	for(i=0;i<numsectors;i++)
 	{
-		startwall = sector[i].wallptr;
-		endwall = sector[i].wallptr + sector[i].wallnum;
+		startwall = g_sector[i].wallptr;
+		endwall = g_sector[i].wallptr + g_sector[i].wallnum;
 
-		z1 = sector[i].ceilingz; z2 = sector[i].floorz;
+		z1 = g_sector[i].ceilingz; z2 = g_sector[i].floorz;
 
 		for(j=startwall,wal=&wall[startwall];j<endwall;j++,wal++)
 		{
@@ -6178,20 +6178,20 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 			if ((show2dwall[j>>3]&(1<<(j&7))) == 0) continue;
 			if ((k > j) && ((show2dwall[k>>3]&(1<<(k&7))) > 0)) continue;
 
-			if (sector[wal->nextsector].ceilingz == z1)
-				if (sector[wal->nextsector].floorz == z2)
+			if (g_sector[wal->nextsector].ceilingz == z1)
+				if (g_sector[wal->nextsector].floorz == z2)
 					if (((wal->cstat|wall[wal->nextwall].cstat)&(16+32)) == 0) continue;
 
 			col = 152;
 
 			if (dimensionmode[screenpeek] == 2)
 			{
-				if (sector[i].floorz != sector[i].ceilingz)
-					if (sector[wal->nextsector].floorz != sector[wal->nextsector].ceilingz)
+				if (g_sector[i].floorz != g_sector[i].ceilingz)
+					if (g_sector[wal->nextsector].floorz != g_sector[wal->nextsector].ceilingz)
 						if (((wal->cstat|wall[wal->nextwall].cstat)&(16+32)) == 0)
-							if (sector[i].floorz == sector[wal->nextsector].floorz) continue;
-				if (sector[i].floorpicnum != sector[wal->nextsector].floorpicnum) continue;
-				if (sector[i].floorshade != sector[wal->nextsector].floorshade) continue;
+							if (g_sector[i].floorz == g_sector[wal->nextsector].floorz) continue;
+				if (g_sector[i].floorpicnum != g_sector[wal->nextsector].floorpicnum) continue;
+				if (g_sector[i].floorshade != g_sector[wal->nextsector].floorshade) continue;
 				col = 12;
 			}
 
@@ -6359,8 +6359,8 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 		//Draw white lines
 	for(i=0;i<numsectors;i++)
 	{
-		startwall = sector[i].wallptr;
-		endwall = sector[i].wallptr + sector[i].wallnum;
+		startwall = g_sector[i].wallptr;
+		endwall = g_sector[i].wallptr + g_sector[i].wallnum;
 
 		k = -1;
 		for(j=startwall,wal=&wall[startwall];j<endwall;j++,wal++)
@@ -6535,15 +6535,15 @@ void searchmap(short startsector)
 		//Search your area recursively & set all show2dsector/show2dwalls
 	tempshort[0] = startsector;
 	show2dsector[startsector>>3] |= (1<<(startsector&7));
-	dapic = sector[startsector].ceilingpicnum;
+	dapic = g_sector[startsector].ceilingpicnum;
 	if (waloff[dapic] == 0) loadtile(dapic);
-	dapic = sector[startsector].floorpicnum;
+	dapic = g_sector[startsector].floorpicnum;
 	if (waloff[dapic] == 0) loadtile(dapic);
 	for(splc=0,send=1;splc<send;splc++)
 	{
 		dasect = tempshort[splc];
-		startwall = sector[dasect].wallptr;
-		endwall = startwall + sector[dasect].wallnum;
+		startwall = g_sector[dasect].wallptr;
+		endwall = startwall + g_sector[dasect].wallnum;
 		for(i=startwall,wal=&wall[startwall];i<endwall;i++,wal++)
 		{
 			show2dwall[i>>3] |= (1<<(i&7));
@@ -6557,9 +6557,9 @@ void searchmap(short startsector)
 			{
 				show2dsector[j>>3] |= (1<<(j&7));
 
-				dapic = sector[j].ceilingpicnum;
+				dapic = g_sector[j].ceilingpicnum;
 				if (waloff[dapic] == 0) loadtile(dapic);
-				dapic = sector[j].floorpicnum;
+				dapic = g_sector[j].floorpicnum;
 				if (waloff[dapic] == 0) loadtile(dapic);
 
 				tempshort[send++] = (short)j;

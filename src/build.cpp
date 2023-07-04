@@ -846,9 +846,9 @@ void editinput()
 								{
 									for(i=0;i<highlightsectorcnt;i++)
 									{
-										sector[highlightsector[i]].visibility++;
-										if (sector[highlightsector[i]].visibility == 240)
-											sector[highlightsector[i]].visibility = 239;
+										g_sector[highlightsector[i]].visibility++;
+										if (g_sector[highlightsector[i]].visibility == 240)
+											g_sector[highlightsector[i]].visibility = 239;
 									}
 									k--;
 								}
@@ -856,9 +856,9 @@ void editinput()
 							}
 					while (k > 0)
 					{
-						sector[searchsector].visibility++;
-						if (sector[searchsector].visibility == 240)
-							sector[searchsector].visibility = 239;
+						g_sector[searchsector].visibility++;
+						if (g_sector[searchsector].visibility == 240)
+							g_sector[searchsector].visibility = 239;
 						k--;
 					}
 					asksave = true;
@@ -880,8 +880,8 @@ void editinput()
 				if (k == 0)
 				{
 					if (searchstat == 0) wall[searchwall].shade++;
-					if (searchstat == 1) sector[searchsector].ceilingshade++;
-					if (searchstat == 2) sector[searchsector].floorshade++;
+					if (searchstat == 1) g_sector[searchsector].ceilingshade++;
+					if (searchstat == 2) g_sector[searchsector].floorshade++;
 					if (searchstat == 3) sprite[searchwall].shade++;
 					if (searchstat == 4) wall[searchwall].shade++;
 				}
@@ -891,11 +891,11 @@ void editinput()
 					{
 						dasector = highlightsector[i];
 
-						sector[dasector].ceilingshade++;        //sector shade
-						sector[dasector].floorshade++;
+						g_sector[dasector].ceilingshade++;        //sector shade
+						g_sector[dasector].floorshade++;
 
-						startwall = sector[dasector].wallptr;   //wall shade
-						endwall = startwall + sector[dasector].wallnum - 1;
+						startwall = g_sector[dasector].wallptr;   //wall shade
+						endwall = startwall + g_sector[dasector].wallnum - 1;
 						for(j=startwall;j<=endwall;j++)
 							wall[j].shade++;
 
@@ -932,9 +932,9 @@ void editinput()
 								{
 									for(i=0;i<highlightsectorcnt;i++)
 									{
-										sector[highlightsector[i]].visibility--;
-										if (sector[highlightsector[i]].visibility == 239)
-											sector[highlightsector[i]].visibility = 240;
+										g_sector[highlightsector[i]].visibility--;
+										if (g_sector[highlightsector[i]].visibility == 239)
+											g_sector[highlightsector[i]].visibility = 240;
 									}
 									k--;
 								}
@@ -942,9 +942,9 @@ void editinput()
 							}
 					while (k > 0)
 					{
-						sector[searchsector].visibility--;
-						if (sector[searchsector].visibility == 239)
-							sector[searchsector].visibility = 240;
+						g_sector[searchsector].visibility--;
+						if (g_sector[searchsector].visibility == 239)
+							g_sector[searchsector].visibility = 240;
 						k--;
 					}
 					asksave = true;
@@ -966,8 +966,8 @@ void editinput()
 				if (k == 0)
 				{
 					if (searchstat == 0) wall[searchwall].shade--;
-					if (searchstat == 1) sector[searchsector].ceilingshade--;
-					if (searchstat == 2) sector[searchsector].floorshade--;
+					if (searchstat == 1) g_sector[searchsector].ceilingshade--;
+					if (searchstat == 2) g_sector[searchsector].floorshade--;
 					if (searchstat == 3) sprite[searchwall].shade--;
 					if (searchstat == 4) wall[searchwall].shade--;
 				}
@@ -977,11 +977,11 @@ void editinput()
 					{
 						dasector = highlightsector[i];
 
-						sector[dasector].ceilingshade--;        //sector shade
-						sector[dasector].floorshade--;
+						g_sector[dasector].ceilingshade--;        //sector shade
+						g_sector[dasector].floorshade--;
 
-						startwall = sector[dasector].wallptr;   //wall shade
-						endwall = startwall + sector[dasector].wallnum - 1;
+						startwall = g_sector[dasector].wallptr;   //wall shade
+						endwall = startwall + g_sector[dasector].wallnum - 1;
 						for(j=startwall;j<=endwall;j++)
 							wall[j].shade--;
 
@@ -1023,7 +1023,7 @@ void editinput()
 							sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 						i = nextspritesect[i];
 					}
-					sector[searchsector].ceilingz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+					g_sector[searchsector].ceilingz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 				}
 				else
 				{
@@ -1039,7 +1039,7 @@ void editinput()
 								sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 							i = nextspritesect[i];
 						}
-						sector[highlightsector[j]].ceilingz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+						g_sector[highlightsector[j]].ceilingz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 					}
 				}
 			}
@@ -1056,7 +1056,7 @@ void editinput()
 							sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 						i = nextspritesect[i];
 					}
-					sector[searchsector].floorz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+					g_sector[searchsector].floorz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 				}
 				else
 				{
@@ -1071,12 +1071,12 @@ void editinput()
 								sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 							i = nextspritesect[i];
 						}
-						sector[highlightsector[j]].floorz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+						g_sector[highlightsector[j]].floorz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 					}
 				}
 			}
-			if (sector[searchsector].floorz < sector[searchsector].ceilingz)
-				sector[searchsector].floorz = sector[searchsector].ceilingz;
+			if (g_sector[searchsector].floorz < g_sector[searchsector].ceilingz)
+				g_sector[searchsector].floorz = g_sector[searchsector].ceilingz;
 			if (searchstat == 3)
 			{
 				if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL - put sprite on ceiling
@@ -1137,7 +1137,7 @@ void editinput()
 							sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 						i = nextspritesect[i];
 					}
-					sector[searchsector].ceilingz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+					g_sector[searchsector].ceilingz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 				}
 				else
 				{
@@ -1153,7 +1153,7 @@ void editinput()
 								sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 							i = nextspritesect[i];
 						}
-						sector[highlightsector[j]].ceilingz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+						g_sector[highlightsector[j]].ceilingz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 					}
 				}
 			}
@@ -1170,7 +1170,7 @@ void editinput()
 							sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 						i = nextspritesect[i];
 					}
-					sector[searchsector].floorz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+					g_sector[searchsector].floorz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 				}
 				else
 				{
@@ -1185,12 +1185,12 @@ void editinput()
 								sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 							i = nextspritesect[i];
 						}
-						sector[highlightsector[j]].floorz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+						g_sector[highlightsector[j]].floorz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
 					}
 				}
 			}
-			if (sector[searchsector].ceilingz > sector[searchsector].floorz)
-				sector[searchsector].ceilingz = sector[searchsector].floorz;
+			if (g_sector[searchsector].ceilingz > g_sector[searchsector].floorz)
+				g_sector[searchsector].ceilingz = g_sector[searchsector].floorz;
 			if (searchstat == 3)
 			{
 				if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL - put sprite on ground
@@ -1238,29 +1238,29 @@ void editinput()
 			}
 			if (searchstat == 1)
 			{
-				temppicnum = sector[searchsector].ceilingpicnum;
-				tempshade = sector[searchsector].ceilingshade;
-				temppal = sector[searchsector].ceilingpal;
-				tempvis = sector[searchsector].visibility;
-				tempxrepeat = sector[searchsector].ceilingxpanning;
-				tempyrepeat = sector[searchsector].ceilingypanning;
-				tempcstat = sector[searchsector].ceilingstat;
-				templotag = sector[searchsector].lotag;
-				temphitag = sector[searchsector].hitag;
-				tempextra = sector[searchsector].extra;
+				temppicnum = g_sector[searchsector].ceilingpicnum;
+				tempshade = g_sector[searchsector].ceilingshade;
+				temppal = g_sector[searchsector].ceilingpal;
+				tempvis = g_sector[searchsector].visibility;
+				tempxrepeat = g_sector[searchsector].ceilingxpanning;
+				tempyrepeat = g_sector[searchsector].ceilingypanning;
+				tempcstat = g_sector[searchsector].ceilingstat;
+				templotag = g_sector[searchsector].lotag;
+				temphitag = g_sector[searchsector].hitag;
+				tempextra = g_sector[searchsector].extra;
 			}
 			if (searchstat == 2)
 			{
-				temppicnum = sector[searchsector].floorpicnum;
-				tempshade = sector[searchsector].floorshade;
-				temppal = sector[searchsector].floorpal;
-				tempvis = sector[searchsector].visibility;
-				tempxrepeat = sector[searchsector].floorxpanning;
-				tempyrepeat = sector[searchsector].floorypanning;
-				tempcstat = sector[searchsector].floorstat;
-				templotag = sector[searchsector].lotag;
-				temphitag = sector[searchsector].hitag;
-				tempextra = sector[searchsector].extra;
+				temppicnum = g_sector[searchsector].floorpicnum;
+				tempshade = g_sector[searchsector].floorshade;
+				temppal = g_sector[searchsector].floorpal;
+				tempvis = g_sector[searchsector].visibility;
+				tempxrepeat = g_sector[searchsector].floorxpanning;
+				tempyrepeat = g_sector[searchsector].floorypanning;
+				tempcstat = g_sector[searchsector].floorstat;
+				templotag = g_sector[searchsector].lotag;
+				temphitag = g_sector[searchsector].hitag;
+				tempextra = g_sector[searchsector].extra;
 			}
 			if (searchstat == 3)
 			{
@@ -1326,15 +1326,15 @@ void editinput()
 					if (searchstat == 0) wall[searchwall].shade = tempshade, wall[searchwall].pal = temppal;
 					if (searchstat == 1)
 					{
-						sector[searchsector].ceilingshade = tempshade, sector[searchsector].ceilingpal = temppal;
+						g_sector[searchsector].ceilingshade = tempshade, g_sector[searchsector].ceilingpal = temppal;
 						if ((somethingintab == 1) || (somethingintab == 2))
-							sector[searchsector].visibility = tempvis;
+							g_sector[searchsector].visibility = tempvis;
 					}
 					if (searchstat == 2)
 					{
-						sector[searchsector].floorshade = tempshade, sector[searchsector].floorpal = temppal;
+						g_sector[searchsector].floorshade = tempshade, g_sector[searchsector].floorpal = temppal;
 						if ((somethingintab == 1) || (somethingintab == 2))
-							sector[searchsector].visibility = tempvis;
+							g_sector[searchsector].visibility = tempvis;
 					}
 					if (searchstat == 3) sprite[searchwall].shade = tempshade, sprite[searchwall].pal = temppal;
 					if (searchstat == 4) wall[searchwall].shade = tempshade, wall[searchwall].pal = temppal;
@@ -1365,29 +1365,29 @@ void editinput()
 				if (searchstat == 1)
 				{
 					i = searchsector;
-					if ((sector[i].ceilingstat&1) > 0)
+					if ((g_sector[i].ceilingstat&1) > 0)
 						pskysearch[i] = 1;
 
 					while (pskysearch[i] == 1)
 					{
-						sector[i].ceilingpicnum = temppicnum;
-						sector[i].ceilingshade = tempshade;
-						sector[i].ceilingpal = temppal;
+						g_sector[i].ceilingpicnum = temppicnum;
+						g_sector[i].ceilingshade = tempshade;
+						g_sector[i].ceilingpal = temppal;
 						if ((somethingintab == 1) || (somethingintab == 2))
 						{
-							sector[i].ceilingxpanning = tempxrepeat;
-							sector[i].ceilingypanning = tempyrepeat;
-							sector[i].ceilingstat = tempcstat;
+							g_sector[i].ceilingxpanning = tempxrepeat;
+							g_sector[i].ceilingypanning = tempyrepeat;
+							g_sector[i].ceilingstat = tempcstat;
 						}
 						pskysearch[i] = 2;
 
-						startwall = sector[i].wallptr;
-						endwall = startwall + sector[i].wallnum - 1;
+						startwall = g_sector[i].wallptr;
+						endwall = startwall + g_sector[i].wallnum - 1;
 						for(j=startwall;j<=endwall;j++)
 						{
 							k = wall[j].nextsector;
 							if (k >= 0)
-								if ((sector[k].ceilingstat&1) > 0)
+								if ((g_sector[k].ceilingstat&1) > 0)
 									if (pskysearch[k] == 0)
 										pskysearch[k] = 1;
 						}
@@ -1400,29 +1400,29 @@ void editinput()
 				if (searchstat == 2)
 				{
 					i = searchsector;
-					if ((sector[i].floorstat&1) > 0)
+					if ((g_sector[i].floorstat&1) > 0)
 						pskysearch[i] = 1;
 
 					while (pskysearch[i] == 1)
 					{
-						sector[i].floorpicnum = temppicnum;
-						sector[i].floorshade = tempshade;
-						sector[i].floorpal = temppal;
+						g_sector[i].floorpicnum = temppicnum;
+						g_sector[i].floorshade = tempshade;
+						g_sector[i].floorpal = temppal;
 						if ((somethingintab == 1) || (somethingintab == 2))
 						{
-							sector[i].floorxpanning = tempxrepeat;
-							sector[i].floorypanning = tempyrepeat;
-							sector[i].floorstat = tempcstat;
+							g_sector[i].floorxpanning = tempxrepeat;
+							g_sector[i].floorypanning = tempyrepeat;
+							g_sector[i].floorstat = tempcstat;
 						}
 						pskysearch[i] = 2;
 
-						startwall = sector[i].wallptr;
-						endwall = startwall + sector[i].wallnum - 1;
+						startwall = g_sector[i].wallptr;
+						endwall = startwall + g_sector[i].wallnum - 1;
 						for(j=startwall;j<=endwall;j++)
 						{
 							k = wall[j].nextsector;
 							if (k >= 0)
-								if ((sector[k].floorstat&1) > 0)
+								if ((g_sector[k].floorstat&1) > 0)
 									if (pskysearch[k] == 0)
 										pskysearch[k] = 1;
 						}
@@ -1453,34 +1453,34 @@ void editinput()
 				}
 				if (searchstat == 1)
 				{
-					sector[searchsector].ceilingpicnum = temppicnum;
-					sector[searchsector].ceilingshade = tempshade;
-					sector[searchsector].ceilingpal = temppal;
+					g_sector[searchsector].ceilingpicnum = temppicnum;
+					g_sector[searchsector].ceilingshade = tempshade;
+					g_sector[searchsector].ceilingpal = temppal;
 					if ((somethingintab == 1) || (somethingintab == 2))
 					{
-						sector[searchsector].ceilingxpanning = tempxrepeat;
-						sector[searchsector].ceilingypanning = tempyrepeat;
-						sector[searchsector].ceilingstat = tempcstat;
-						sector[searchsector].visibility = tempvis;
-						sector[searchsector].lotag = templotag;
-						sector[searchsector].hitag = temphitag;
-						sector[searchsector].extra = tempextra;
+						g_sector[searchsector].ceilingxpanning = tempxrepeat;
+						g_sector[searchsector].ceilingypanning = tempyrepeat;
+						g_sector[searchsector].ceilingstat = tempcstat;
+						g_sector[searchsector].visibility = tempvis;
+						g_sector[searchsector].lotag = templotag;
+						g_sector[searchsector].hitag = temphitag;
+						g_sector[searchsector].extra = tempextra;
 					}
 				}
 				if (searchstat == 2)
 				{
-					sector[searchsector].floorpicnum = temppicnum;
-					sector[searchsector].floorshade = tempshade;
-					sector[searchsector].floorpal = temppal;
+					g_sector[searchsector].floorpicnum = temppicnum;
+					g_sector[searchsector].floorshade = tempshade;
+					g_sector[searchsector].floorpal = temppal;
 					if ((somethingintab == 1) || (somethingintab == 2))
 					{
-						sector[searchsector].floorxpanning= tempxrepeat;
-						sector[searchsector].floorypanning= tempyrepeat;
-						sector[searchsector].floorstat = tempcstat;
-						sector[searchsector].visibility = tempvis;
-						sector[searchsector].lotag = templotag;
-						sector[searchsector].hitag = temphitag;
-						sector[searchsector].extra = tempextra;
+						g_sector[searchsector].floorxpanning= tempxrepeat;
+						g_sector[searchsector].floorypanning= tempyrepeat;
+						g_sector[searchsector].floorstat = tempcstat;
+						g_sector[searchsector].visibility = tempvis;
+						g_sector[searchsector].lotag = templotag;
+						g_sector[searchsector].hitag = temphitag;
+						g_sector[searchsector].extra = tempextra;
 					}
 				}
 				if (searchstat == 3)
@@ -1546,14 +1546,14 @@ void editinput()
 								if (wall[i].picnum == j) wall[i].picnum = temppicnum;
 							break;
 						 case 1:
-							j = sector[searchsector].ceilingpicnum;
+							j = g_sector[searchsector].ceilingpicnum;
 							for(i=0;i<numsectors;i++)
-								if (sector[i].ceilingpicnum == j) sector[i].ceilingpicnum = temppicnum;
+								if (g_sector[i].ceilingpicnum == j) g_sector[i].ceilingpicnum = temppicnum;
 							break;
 						 case 2:
-							j = sector[searchsector].floorpicnum;
+							j = g_sector[searchsector].floorpicnum;
 							for(i=0;i<numsectors;i++)
-								if (sector[i].floorpicnum == j) sector[i].floorpicnum = temppicnum;
+								if (g_sector[i].floorpicnum == j) g_sector[i].floorpicnum = temppicnum;
 							break;
 						 case 3:
 							 j = sprite[searchwall].picnum;
@@ -1581,14 +1581,14 @@ void editinput()
 		if (keystatus[0x2f] > 0)  //V
 		{
 			if (searchstat == 0) templong = wall[searchwall].picnum;
-			if (searchstat == 1) templong = sector[searchsector].ceilingpicnum;
-			if (searchstat == 2) templong = sector[searchsector].floorpicnum;
+			if (searchstat == 1) templong = g_sector[searchsector].ceilingpicnum;
+			if (searchstat == 2) templong = g_sector[searchsector].floorpicnum;
 			if (searchstat == 3) templong = sprite[searchwall].picnum;
 			if (searchstat == 4) templong = wall[searchwall].overpicnum;
 			templong = gettile(templong);
 			if (searchstat == 0) wall[searchwall].picnum = templong;
-			if (searchstat == 1) sector[searchsector].ceilingpicnum = templong;
-			if (searchstat == 2) sector[searchsector].floorpicnum = templong;
+			if (searchstat == 1) g_sector[searchsector].ceilingpicnum = templong;
+			if (searchstat == 2) g_sector[searchsector].floorpicnum = templong;
 			if (searchstat == 3) sprite[searchwall].picnum = templong;
 			if (searchstat == 4)
 			{
@@ -1625,27 +1625,27 @@ void editinput()
 
 				if (searchstat == 1)
 				{
-					if (!(sector[searchsector].ceilingstat&2))
-						sector[searchsector].ceilingheinum = 0;
-					sector[searchsector].ceilingheinum = std::max(static_cast<int>(sector[searchsector].ceilingheinum) - i,-32768);
+					if (!(g_sector[searchsector].ceilingstat&2))
+						g_sector[searchsector].ceilingheinum = 0;
+					g_sector[searchsector].ceilingheinum = std::max(static_cast<int>(g_sector[searchsector].ceilingheinum) - i,-32768);
 				}
 				if (searchstat == 2)
 				{
-					if (!(sector[searchsector].floorstat&2))
-						sector[searchsector].floorheinum = 0;
-					sector[searchsector].floorheinum = std::max(static_cast<int>(sector[searchsector].floorheinum) - i, -32768);
+					if (!(g_sector[searchsector].floorstat&2))
+						g_sector[searchsector].floorheinum = 0;
+					g_sector[searchsector].floorheinum = std::max(static_cast<int>(g_sector[searchsector].floorheinum) - i, -32768);
 				}
 			}
 
-			if (sector[searchsector].ceilingheinum == 0)
-				sector[searchsector].ceilingstat &= ~2;
+			if (g_sector[searchsector].ceilingheinum == 0)
+				g_sector[searchsector].ceilingstat &= ~2;
 			else
-				sector[searchsector].ceilingstat |= 2;
+				g_sector[searchsector].ceilingstat |= 2;
 
-			if (sector[searchsector].floorheinum == 0)
-				sector[searchsector].floorstat &= ~2;
+			if (g_sector[searchsector].floorheinum == 0)
+				g_sector[searchsector].floorstat &= ~2;
 			else
-				sector[searchsector].floorstat |= 2;
+				g_sector[searchsector].floorstat |= 2;
 			asksave = true;
 		}
 		if (keystatus[0x1b])  // ]
@@ -1673,27 +1673,27 @@ void editinput()
 
 				if (searchstat == 1)
 				{
-					if (!(sector[searchsector].ceilingstat&2))
-						sector[searchsector].ceilingheinum = 0;
-					sector[searchsector].ceilingheinum = std::min(static_cast<int>(sector[searchsector].ceilingheinum) + i, 32767);
+					if (!(g_sector[searchsector].ceilingstat&2))
+						g_sector[searchsector].ceilingheinum = 0;
+					g_sector[searchsector].ceilingheinum = std::min(static_cast<int>(g_sector[searchsector].ceilingheinum) + i, 32767);
 				}
 				if (searchstat == 2)
 				{
-					if (!(sector[searchsector].floorstat&2))
-						sector[searchsector].floorheinum = 0;
-					sector[searchsector].floorheinum = std::min(static_cast<int>(sector[searchsector].floorheinum) + i, 32767);
+					if (!(g_sector[searchsector].floorstat&2))
+						g_sector[searchsector].floorheinum = 0;
+					g_sector[searchsector].floorheinum = std::min(static_cast<int>(g_sector[searchsector].floorheinum) + i, 32767);
 				}
 			}
 
-			if (sector[searchsector].ceilingheinum == 0)
-				sector[searchsector].ceilingstat &= ~2;
+			if (g_sector[searchsector].ceilingheinum == 0)
+				g_sector[searchsector].ceilingstat &= ~2;
 			else
-				sector[searchsector].ceilingstat |= 2;
+				g_sector[searchsector].ceilingstat |= 2;
 
-			if (sector[searchsector].floorheinum == 0)
-				sector[searchsector].floorstat &= ~2;
+			if (g_sector[searchsector].floorheinum == 0)
+				g_sector[searchsector].floorstat &= ~2;
 			else
-				sector[searchsector].floorstat |= 2;
+				g_sector[searchsector].floorstat |= 2;
 
 			asksave = true;
 		}
@@ -1718,9 +1718,9 @@ void editinput()
 				if ((searchstat == 1) || (searchstat == 2))
 				{
 					if (searchstat == 1)
-						sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning, changedir, smooshyalign, false);
+						g_sector[searchsector].ceilingxpanning = changechar(g_sector[searchsector].ceilingxpanning, changedir, smooshyalign, false);
 					else
-						sector[searchsector].floorxpanning = changechar(sector[searchsector].floorxpanning, changedir, smooshyalign, false);
+						g_sector[searchsector].floorxpanning = changechar(g_sector[searchsector].floorxpanning, changedir, smooshyalign, false);
 				}
 				if (searchstat == 3)
 				{
@@ -1754,9 +1754,9 @@ void editinput()
 				if ((searchstat == 1) || (searchstat == 2))
 				{
 					if (searchstat == 1)
-						sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning, changedir, smooshyalign, false);
+						g_sector[searchsector].ceilingypanning = changechar(g_sector[searchsector].ceilingypanning, changedir, smooshyalign, false);
 					else
-						sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning, changedir, smooshyalign, false);
+						g_sector[searchsector].floorypanning = changechar(g_sector[searchsector].floorypanning, changedir, smooshyalign, false);
 				}
 				if (searchstat == 3)
 				{
@@ -1834,16 +1834,16 @@ void editinput()
 							if (nextsectnum == -1)
 							{
 								if ((wall[wallfind[k]].cstat&4) == 0)
-									daz[k] = sector[sectnum].ceilingz;
+									daz[k] = g_sector[sectnum].ceilingz;
 								else
-									daz[k] = sector[sectnum].floorz;
+									daz[k] = g_sector[sectnum].floorz;
 							}
 							else                                      //topstep
 							{
-								if (sector[nextsectnum].ceilingz > sector[sectnum].ceilingz)
-									daz[k] = sector[nextsectnum].ceilingz;
-								else if (sector[nextsectnum].floorz < sector[sectnum].floorz)
-									daz[k] = sector[nextsectnum].floorz;
+								if (g_sector[nextsectnum].ceilingz > g_sector[sectnum].ceilingz)
+									daz[k] = g_sector[nextsectnum].ceilingz;
+								else if (g_sector[nextsectnum].floorz < g_sector[sectnum].floorz)
+									daz[k] = g_sector[nextsectnum].floorz;
 							}
 						}
 
@@ -1854,16 +1854,16 @@ void editinput()
 						wall[wallfind[1]].ypanning = j;
 						wall[wallfind[1]].yrepeat = wall[wallfind[0]].yrepeat;
 						if (nextsectnum >= 0)
-							if (sector[nextsectnum].ceilingz >= sector[sectnum].ceilingz)
-								if (sector[nextsectnum].floorz <= sector[sectnum].floorz)
+							if (g_sector[nextsectnum].ceilingz >= g_sector[sectnum].ceilingz)
+								if (g_sector[nextsectnum].floorz <= g_sector[sectnum].floorz)
 								{
 									if (wall[wall[wallfind[1]].nextwall].picnum == wall[searchwall].picnum)
 									{
 										wall[wall[wallfind[1]].nextwall].yrepeat = wall[wallfind[0]].yrepeat;
 										if ((wall[wall[wallfind[1]].nextwall].cstat&4) == 0)
-											daz[1] = sector[nextsectnum].floorz;
+											daz[1] = g_sector[nextsectnum].floorz;
 										else
-											daz[1] = sector[sectnum].ceilingz;
+											daz[1] = g_sector[sectnum].ceilingz;
 										wall[wall[wallfind[1]].nextwall].ypanning = j;
 									}
 								}
@@ -1901,17 +1901,17 @@ void editinput()
 			}
 			if (searchstat == 1)
 			{
-				sector[searchsector].ceilingxpanning = 0;
-				sector[searchsector].ceilingypanning = 0;
-				sector[searchsector].ceilingstat &= ~2;
-				sector[searchsector].ceilingheinum = 0;
+				g_sector[searchsector].ceilingxpanning = 0;
+				g_sector[searchsector].ceilingypanning = 0;
+				g_sector[searchsector].ceilingstat &= ~2;
+				g_sector[searchsector].ceilingheinum = 0;
 			}
 			if (searchstat == 2)
 			{
-				sector[searchsector].floorxpanning = 0;
-				sector[searchsector].floorypanning = 0;
-				sector[searchsector].floorstat &= ~2;
-				sector[searchsector].floorheinum = 0;
+				g_sector[searchsector].floorxpanning = 0;
+				g_sector[searchsector].floorypanning = 0;
+				g_sector[searchsector].floorstat &= ~2;
+				g_sector[searchsector].floorheinum = 0;
 			}
 			if (searchstat == 3)
 			{
@@ -1947,11 +1947,11 @@ void editinput()
 						break;
 					case 1:
 						std::strcpy((char *)buffer,"Ceiling pal: ");
-						sector[searchsector].ceilingpal = getnumber256((char *)buffer,sector[searchsector].ceilingpal,256L,0);
+						g_sector[searchsector].ceilingpal = getnumber256((char *)buffer,g_sector[searchsector].ceilingpal,256L,0);
 						break;
 					case 2:
 						std::strcpy((char *)buffer,"Floor pal: ");
-						sector[searchsector].floorpal = getnumber256((char *)buffer,sector[searchsector].floorpal,256L,0);
+						g_sector[searchsector].floorpal = getnumber256((char *)buffer,g_sector[searchsector].floorpal,256L,0);
 						break;
 					case 3:
 						std::strcpy((char *)buffer,"Sprite pal: ");
@@ -1963,12 +1963,12 @@ void editinput()
 			{
 				if ((searchstat == 0) || (searchstat == 1) || (searchstat == 4))
 				{
-					sector[searchsector].ceilingstat ^= 1;
+					g_sector[searchsector].ceilingstat ^= 1;
 					asksave = true;
 				}
 				else if (searchstat == 2)
 				{
-					sector[searchsector].floorstat ^= 1;
+					g_sector[searchsector].floorstat ^= 1;
 					asksave = true;
 				}
 			}
@@ -2014,27 +2014,27 @@ void editinput()
 		{
 			/*if (searchstat == 1)   //Set masked/transluscent ceilings/floors
 			{
-				i = (sector[searchsector].ceilingstat&(128+256));
-				sector[searchsector].ceilingstat &= ~(128+256);
+				i = (g_sector[searchsector].ceilingstat&(128+256));
+				g_sector[searchsector].ceilingstat &= ~(128+256);
 				switch(i)
 				{
-					case 0: sector[searchsector].ceilingstat |= 128; break;
-					case 128: sector[searchsector].ceilingstat |= 256; break;
-					case 256: sector[searchsector].ceilingstat |= 384; break;
-					case 384: sector[searchsector].ceilingstat |= 0; break;
+					case 0: g_sector[searchsector].ceilingstat |= 128; break;
+					case 128: g_sector[searchsector].ceilingstat |= 256; break;
+					case 256: g_sector[searchsector].ceilingstat |= 384; break;
+					case 384: g_sector[searchsector].ceilingstat |= 0; break;
 				}
 				asksave = true;
 			}
 			if (searchstat == 2)
 			{
-				i = (sector[searchsector].floorstat&(128+256));
-				sector[searchsector].floorstat &= ~(128+256);
+				i = (g_sector[searchsector].floorstat&(128+256));
+				g_sector[searchsector].floorstat &= ~(128+256);
 				switch(i)
 				{
-					case 0: sector[searchsector].floorstat |= 128; break;
-					case 128: sector[searchsector].floorstat |= 256; break;
-					case 256: sector[searchsector].floorstat |= 384; break;
-					case 384: sector[searchsector].floorstat |= 0; break;
+					case 0: g_sector[searchsector].floorstat |= 128; break;
+					case 128: g_sector[searchsector].floorstat |= 256; break;
+					case 256: g_sector[searchsector].floorstat |= 384; break;
+					case 384: g_sector[searchsector].floorstat |= 0; break;
 				}
 				asksave = true;
 			}*/
@@ -2191,12 +2191,12 @@ void editinput()
 		{
 			if (searchstat == 1)
 			{
-				sector[searchsector].ceilingstat ^= 8;
+				g_sector[searchsector].ceilingstat ^= 8;
 				asksave = true;
 			}
 			if (searchstat == 2)
 			{
-				sector[searchsector].floorstat ^= 8;
+				g_sector[searchsector].floorstat ^= 8;
 				asksave = true;
 			}
 			keystatus[0x12] = 0;
@@ -2205,12 +2205,12 @@ void editinput()
 		{
 			if (searchstat == 1)
 			{
-				sector[searchsector].ceilingstat ^= 64;
+				g_sector[searchsector].ceilingstat ^= 64;
 				asksave = true;
 			}
 			if (searchstat == 2)
 			{
-				sector[searchsector].floorstat ^= 64;
+				g_sector[searchsector].floorstat ^= 64;
 				asksave = true;
 			}
 			if (searchstat == 3)
@@ -2253,7 +2253,7 @@ void editinput()
 				}
 				if (searchstat == 1)         //8-way ceiling flipping (bits 2,4,5)
 				{
-					i = sector[searchsector].ceilingstat;
+					i = g_sector[searchsector].ceilingstat;
 					i = (i&0x4)+((i>>4)&3);
 					switch(i)
 					{
@@ -2267,13 +2267,13 @@ void editinput()
 						case 4: i = 0; break;
 					}
 					i = (i&0x4)+((i&3)<<4);
-					sector[searchsector].ceilingstat &= ~0x34;
-					sector[searchsector].ceilingstat |= i;
+					g_sector[searchsector].ceilingstat &= ~0x34;
+					g_sector[searchsector].ceilingstat |= i;
 					asksave = true;
 				}
 				if (searchstat == 2)         //8-way floor flipping (bits 2,4,5)
 				{
-					i = sector[searchsector].floorstat;
+					i = g_sector[searchsector].floorstat;
 					i = (i&0x4)+((i>>4)&3);
 					switch(i)
 					{
@@ -2287,8 +2287,8 @@ void editinput()
 						case 4: i = 0; break;
 					}
 					i = (i&0x4)+((i&3)<<4);
-					sector[searchsector].floorstat &= ~0x34;
-					sector[searchsector].floorstat |= i;
+					g_sector[searchsector].floorstat &= ~0x34;
+					g_sector[searchsector].floorstat |= i;
 					asksave = true;
 				}
 				if (searchstat == 3)
@@ -2515,8 +2515,8 @@ int gettile(int tilenum)
 	if ((searchstat == 1) || (searchstat == 2))
 		for(i=0;i<numsectors;i++)
 		{
-			localartfreq[sector[i].ceilingpicnum]++;
-			localartfreq[sector[i].floorpicnum]++;
+			localartfreq[g_sector[i].ceilingpicnum]++;
+			localartfreq[g_sector[i].floorpicnum]++;
 		}
 	if (searchstat == 0)
 		for(i=0;i<numwalls;i++)
@@ -2906,8 +2906,8 @@ void overheadeditor()
 		//not highlighted on both sides
 	for(i=highlightsectorcnt-1;i>=0;i--)
 	{
-		startwall = sector[highlightsector[i]].wallptr;
-		endwall = startwall + sector[highlightsector[i]].wallnum;
+		startwall = g_sector[highlightsector[i]].wallptr;
+		endwall = startwall + g_sector[highlightsector[i]].wallnum;
 		for(j=startwall;j<endwall;j++)
 		{
 			if (wall[j].nextwall >= 0)
@@ -3036,8 +3036,8 @@ void overheadeditor()
 				{
 					dax = 0;   //Get average point of sector
 					day = 0;
-					startwall = sector[i].wallptr;
-					endwall = startwall + sector[i].wallnum - 1;
+					startwall = g_sector[i].wallptr;
+					endwall = startwall + g_sector[i].wallnum - 1;
 					for(j=startwall;j<=endwall;j++)
 					{
 						dax += wall[j].x;
@@ -3206,7 +3206,7 @@ void overheadeditor()
 				{
 					setfirstwall(sectorofwall(linehighlight),linehighlight);
 					asksave = true;
-					printmessage16("This wall now sector's first wall (sector[].wallptr)");
+					printmessage16("This wall now sector's first wall (g_sector[].wallptr)");
 				}
 			}
 		}
@@ -3251,8 +3251,8 @@ void overheadeditor()
 				day = 0;
 				for(i=0;i<highlightsectorcnt;i++)
 				{
-					startwall = sector[highlightsector[i]].wallptr;
-					endwall = startwall+sector[highlightsector[i]].wallnum-1;
+					startwall = g_sector[highlightsector[i]].wallptr;
+					endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 					for(j=startwall;j<=endwall;j++)
 					{
 						dax += wall[j].x;
@@ -3279,8 +3279,8 @@ void overheadeditor()
 
 				for(i=0;i<highlightsectorcnt;i++)
 				{
-					startwall = sector[highlightsector[i]].wallptr;
-					endwall = startwall+sector[highlightsector[i]].wallnum-1;
+					startwall = g_sector[highlightsector[i]].wallptr;
+					endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 					for(j=startwall;j<=endwall;j++)
 					{
 						if (k == 0)
@@ -3346,8 +3346,8 @@ void overheadeditor()
 				day = 0;
 				for(i=0;i<highlightsectorcnt;i++)
 				{
-					startwall = sector[highlightsector[i]].wallptr;
-					endwall = startwall+sector[highlightsector[i]].wallnum-1;
+					startwall = g_sector[highlightsector[i]].wallptr;
+					endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 					for(j=startwall;j<=endwall;j++)
 					{
 						dax += wall[j].x;
@@ -3374,8 +3374,8 @@ void overheadeditor()
 
 				for(i=0;i<highlightsectorcnt;i++)
 				{
-					startwall = sector[highlightsector[i]].wallptr;
-					endwall = startwall+sector[highlightsector[i]].wallnum-1;
+					startwall = g_sector[highlightsector[i]].wallptr;
+					endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 					for(j=startwall;j<=endwall;j++)
 					{
 						if (k == 0)
@@ -3535,7 +3535,7 @@ void overheadeditor()
 					if (inside(mousxplc,mousyplc,i) == 1)
 					{
 						fmt::format_to(buffer, "Sector ({}) Lo-tag: ", i);
-						sector[i].lotag = getnumber16(buffer,sector[i].lotag,65536L,0);
+						g_sector[i].lotag = getnumber16(buffer,g_sector[i].lotag,65536L,0);
 						clearmidstatbar16();
 						showsectordata((short)i);
 						break;
@@ -3592,7 +3592,7 @@ void overheadeditor()
 					if (inside(mousxplc,mousyplc,i) == 1)
 					{
 						fmt::format_to(buffer, "Sector ({}) Hi-tag: ", i);
-						sector[i].hitag = getnumber16(buffer,sector[i].hitag,65536L,0);
+						g_sector[i].hitag = getnumber16(buffer,g_sector[i].hitag,65536L,0);
 						clearmidstatbar16();
 						showsectordata((short)i);
 						break;
@@ -3608,12 +3608,12 @@ void overheadeditor()
 				if (inside(mousxplc,mousyplc,i) == 1)
 				{
 					fmt::format_to(buffer, "Sector ({}) Ceilingpal: ", i);
-					sector[i].ceilingpal = getnumber16(buffer,sector[i].ceilingpal,256L,0);
+					g_sector[i].ceilingpal = getnumber16(buffer,g_sector[i].ceilingpal,256L,0);
 					clearmidstatbar16();
 					showsectordata((short)i);
 
 					fmt::format_to(buffer, "Sector ({}) Floorpal: ", i);
-					sector[i].floorpal = getnumber16(buffer,sector[i].floorpal,256L,0);
+					g_sector[i].floorpal = getnumber16(buffer,g_sector[i].floorpal,256L,0);
 					clearmidstatbar16();
 					showsectordata((short)i);
 
@@ -3765,8 +3765,8 @@ void overheadeditor()
 				{
 					for(i=0;i<highlightsectorcnt;i++)
 					{
-						startwall = sector[highlightsector[i]].wallptr;
-						endwall = startwall+sector[highlightsector[i]].wallnum-1;
+						startwall = g_sector[highlightsector[i]].wallptr;
+						endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 						for(j=startwall;j<=endwall;j++)
 						{
 							if (wall[j].nextwall >= 0)
@@ -3798,8 +3798,8 @@ void overheadeditor()
 
 					for(i=0;i<numsectors;i++)
 					{
-						startwall = sector[i].wallptr;
-						endwall = startwall + sector[i].wallnum;
+						startwall = g_sector[i].wallptr;
+						endwall = startwall + g_sector[i].wallnum;
 						bad = 0;
 						for(j=startwall;j<endwall;j++)
 						{
@@ -3819,8 +3819,8 @@ void overheadeditor()
 						//not highlighted on both sides
 					for(i=highlightsectorcnt-1;i>=0;i--)
 					{
-						startwall = sector[highlightsector[i]].wallptr;
-						endwall = startwall + sector[highlightsector[i]].wallnum;
+						startwall = g_sector[highlightsector[i]].wallptr;
+						endwall = startwall + g_sector[highlightsector[i]].wallnum;
 						for(j=startwall;j<endwall;j++)
 						{
 							if (wall[j].nextwall >= 0)
@@ -3969,8 +3969,8 @@ void overheadeditor()
 
 					for(i=0;i<highlightsectorcnt;i++)
 					{
-						startwall = sector[highlightsector[i]].wallptr;
-						endwall = startwall+sector[highlightsector[i]].wallnum-1;
+						startwall = g_sector[highlightsector[i]].wallptr;
+						endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 						for(j=startwall;j<=endwall;j++)
 							{ wall[j].x += dax; wall[j].y += day; }
 
@@ -3980,8 +3980,8 @@ void overheadeditor()
 
 					//for(i=0;i<highlightsectorcnt;i++)
 					//{
-					//   startwall = sector[highlightsector[i]].wallptr;
-					//   endwall = startwall+sector[highlightsector[i]].wallnum-1;
+					//   startwall = g_sector[highlightsector[i]].wallptr;
+					//   endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 					//   for(j=startwall;j<=endwall;j++)
 					//   {
 					//      if (wall[j].nextwall >= 0)
@@ -4114,8 +4114,8 @@ void overheadeditor()
 
 					for(k=0;k<2;k++)
 					{
-						startwall = sector[joinsector[k]].wallptr;
-						endwall = startwall + sector[joinsector[k]].wallnum - 1;
+						startwall = g_sector[joinsector[k]].wallptr;
+						endwall = startwall + g_sector[joinsector[k]].wallnum - 1;
 						for(j=startwall;j<=endwall;j++)
 						{
 							if (wall[j].cstat == 255)
@@ -4150,9 +4150,9 @@ void overheadeditor()
 
 					if (newnumwalls > numwalls)
 					{
-						std::memcpy(&sector[numsectors],&sector[joinsector[0]],sizeof(sectortype));
-						sector[numsectors].wallptr = numwalls;
-						sector[numsectors].wallnum = newnumwalls-numwalls;
+						std::memcpy(&g_sector[numsectors],&g_sector[joinsector[0]],sizeof(sectortype));
+						g_sector[numsectors].wallptr = numwalls;
+						g_sector[numsectors].wallnum = newnumwalls-numwalls;
 
 						//fix sprites
 						for(i=0;i<2;i++)
@@ -4182,8 +4182,8 @@ void overheadeditor()
 
 						for(k=0;k<2;k++)
 						{
-							startwall = sector[joinsector[k]].wallptr;
-							endwall = startwall + sector[joinsector[k]].wallnum - 1;
+							startwall = g_sector[joinsector[k]].wallptr;
+							endwall = startwall + g_sector[joinsector[k]].wallnum - 1;
 							for(j=startwall;j<=endwall;j++)
 							{
 								wall[j].nextwall = -1;
@@ -4475,8 +4475,8 @@ void overheadeditor()
 								if (inside(dax,day,i) == 1)
 								{    //check if first point at point of sector
 									m = -1;
-									startwall = sector[i].wallptr;
-									endwall = startwall + sector[i].wallnum - 1;
+									startwall = g_sector[i].wallptr;
+									endwall = startwall + g_sector[i].wallnum - 1;
 									for(k=startwall;k<=endwall;k++)
 										if (wall[k].x == wall[numwalls].x)
 											if (wall[k].y == wall[numwalls].y)
@@ -4552,14 +4552,14 @@ void overheadeditor()
 							if (clockdir(numwalls) == ClockDir_t::CCW)
 								flipwalls(numwalls,newnumwalls);
 
-							//clearbufbyte(&sector[numsectors],sizeof(sectortype),0L);
-							std::memset(&sector[numsectors], 0, sizeof(sectortype));
-							sector[numsectors].extra = -1;
+							//clearbufbyte(&g_sector[numsectors],sizeof(sectortype),0L);
+							std::memset(&g_sector[numsectors], 0, sizeof(sectortype));
+							g_sector[numsectors].extra = -1;
 
-							sector[numsectors].wallptr = numwalls;
-							sector[numsectors].wallnum = newnumwalls-numwalls;
-							sector[numsectors].ceilingz = -(32<<8);
-							sector[numsectors].floorz = (32<<8);
+							g_sector[numsectors].wallptr = numwalls;
+							g_sector[numsectors].wallnum = newnumwalls-numwalls;
+							g_sector[numsectors].ceilingz = -(32<<8);
+							g_sector[numsectors].floorz = (32<<8);
 							for(i=numwalls;i<newnumwalls;i++)
 							{
 								wall[i].cstat = 0;
@@ -4581,10 +4581,10 @@ void overheadeditor()
 
 							j = newnumwalls-numwalls;
 
-							sector[k].wallnum += j;
+							g_sector[k].wallnum += j;
 							for(i=k+1;i<numsectors;i++)
-								sector[i].wallptr += j;
-							suckwall = sector[k].wallptr;
+								g_sector[i].wallptr += j;
+							suckwall = g_sector[k].wallptr;
 
 							for(i=0;i<numwalls;i++)
 							{
@@ -4621,25 +4621,25 @@ void overheadeditor()
 						if (clockdir(numwalls) == ClockDir_t::CCW)
 							flipwalls(numwalls,newnumwalls);
 
-						//clearbufbyte(&sector[numsectors],sizeof(sectortype),0L);
-						std::memset(&sector[numsectors],0,sizeof(sectortype));
-						sector[numsectors].extra = -1;
+						//clearbufbyte(&g_sector[numsectors],sizeof(sectortype),0L);
+						std::memset(&g_sector[numsectors],0,sizeof(sectortype));
+						g_sector[numsectors].extra = -1;
 
-						sector[numsectors].wallptr = numwalls;
-						sector[numsectors].wallnum = newnumwalls-numwalls;
+						g_sector[numsectors].wallptr = numwalls;
+						g_sector[numsectors].wallnum = newnumwalls-numwalls;
 						sucksect = sectorofwall(suckwall);
-						sector[numsectors].ceilingstat = sector[sucksect].ceilingstat;
-						sector[numsectors].floorstat = sector[sucksect].floorstat;
-						sector[numsectors].ceilingxpanning = sector[sucksect].ceilingxpanning;
-						sector[numsectors].floorxpanning = sector[sucksect].floorxpanning;
-						sector[numsectors].ceilingshade = sector[sucksect].ceilingshade;
-						sector[numsectors].floorshade = sector[sucksect].floorshade;
-						sector[numsectors].ceilingz = sector[sucksect].ceilingz;
-						sector[numsectors].floorz = sector[sucksect].floorz;
-						sector[numsectors].ceilingpicnum = sector[sucksect].ceilingpicnum;
-						sector[numsectors].floorpicnum = sector[sucksect].floorpicnum;
-						sector[numsectors].ceilingheinum = sector[sucksect].ceilingheinum;
-						sector[numsectors].floorheinum = sector[sucksect].floorheinum;
+						g_sector[numsectors].ceilingstat = g_sector[sucksect].ceilingstat;
+						g_sector[numsectors].floorstat = g_sector[sucksect].floorstat;
+						g_sector[numsectors].ceilingxpanning = g_sector[sucksect].ceilingxpanning;
+						g_sector[numsectors].floorxpanning = g_sector[sucksect].floorxpanning;
+						g_sector[numsectors].ceilingshade = g_sector[sucksect].ceilingshade;
+						g_sector[numsectors].floorshade = g_sector[sucksect].floorshade;
+						g_sector[numsectors].ceilingz = g_sector[sucksect].ceilingz;
+						g_sector[numsectors].floorz = g_sector[sucksect].floorz;
+						g_sector[numsectors].ceilingpicnum = g_sector[sucksect].ceilingpicnum;
+						g_sector[numsectors].floorpicnum = g_sector[sucksect].floorpicnum;
+						g_sector[numsectors].ceilingheinum = g_sector[sucksect].ceilingheinum;
+						g_sector[numsectors].floorheinum = g_sector[sucksect].floorheinum;
 						for(i=numwalls;i<newnumwalls;i++)
 						{
 							wall[i].cstat = wall[suckwall].cstat;
@@ -4660,8 +4660,8 @@ void overheadeditor()
 				if (split == 1)
 				{
 						 //split sector
-					startwall = sector[splitsect].wallptr;
-					endwall = startwall + sector[splitsect].wallnum - 1;
+					startwall = g_sector[splitsect].wallptr;
+					endwall = startwall + g_sector[splitsect].wallnum - 1;
 					for(k=startwall;k<=endwall;k++)
 						if (wall[k].x == wall[newnumwalls-1].x)
 							if (wall[k].y == wall[newnumwalls-1].y)
@@ -4797,12 +4797,12 @@ void overheadeditor()
 										wall[m].nextsector = numsectors;
 									}
 										//copy sector attributes & fix wall pointers
-									std::memcpy(&sector[numsectors],&sector[splitsect],sizeof(sectortype));
-									std::memcpy(&sector[numsectors+1],&sector[splitsect],sizeof(sectortype));
-									sector[numsectors].wallptr = numwalls;
-									sector[numsectors].wallnum = secondstartwall-numwalls;
-									sector[numsectors+1].wallptr = secondstartwall;
-									sector[numsectors+1].wallnum = danumwalls-secondstartwall;
+									std::memcpy(&g_sector[numsectors],&g_sector[splitsect],sizeof(sectortype));
+									std::memcpy(&g_sector[numsectors+1],&g_sector[splitsect],sizeof(sectortype));
+									g_sector[numsectors].wallptr = numwalls;
+									g_sector[numsectors].wallnum = secondstartwall-numwalls;
+									g_sector[numsectors+1].wallptr = secondstartwall;
+									g_sector[numsectors+1].wallnum = danumwalls-secondstartwall;
 
 										//fix sprites
 									j = headspritesect[splitsect];
@@ -4938,9 +4938,9 @@ void overheadeditor()
 									}
 
 										//copy sector attributes & fix wall pointers
-									std::memcpy(&sector[numsectors], &sector[splitsect], sizeof(sectortype));
-									sector[numsectors].wallptr = numwalls;
-									sector[numsectors].wallnum = danumwalls-numwalls;
+									std::memcpy(&g_sector[numsectors], &g_sector[splitsect], sizeof(sectortype));
+									g_sector[numsectors].wallptr = numwalls;
+									g_sector[numsectors].wallnum = danumwalls-numwalls;
 
 										//fix sprites
 									j = headspritesect[splitsect];
@@ -4990,14 +4990,14 @@ void overheadeditor()
 				printmessage16("CHECKING ALL POINTERS!");
 				for(i=0;i<numsectors;i++)
 				{
-					startwall = sector[i].wallptr;
+					startwall = g_sector[i].wallptr;
 					for(j=startwall;j<numwalls;j++)
 						if (wall[j].point2 < startwall) startwall = wall[j].point2;
-					sector[i].wallptr = startwall;
+					g_sector[i].wallptr = startwall;
 				}
 				for(i=numsectors-2;i>=0;i--)
-					sector[i].wallnum = sector[i+1].wallptr-sector[i].wallptr;
-				sector[numsectors-1].wallnum = numwalls-sector[numsectors-1].wallptr;
+					g_sector[i].wallnum = g_sector[i+1].wallptr-g_sector[i].wallptr;
+				g_sector[numsectors-1].wallnum = numwalls-g_sector[numsectors-1].wallptr;
 
 				for(i=0;i<numwalls;i++)
 				{
@@ -5006,8 +5006,8 @@ void overheadeditor()
 				}
 				for(i=0;i<numsectors;i++)
 				{
-					startwall = sector[i].wallptr;
-					endwall = startwall + sector[i].wallnum;
+					startwall = g_sector[i].wallptr;
+					endwall = startwall + g_sector[i].wallnum;
 					for(j=startwall;j<endwall;j++)
 						checksectorpointer((short)j,(short)i);
 				}
@@ -5101,13 +5101,13 @@ void overheadeditor()
 				{
 					copysector(highlightsector[i], newnumsectors, newnumwalls, true);
 					newnumsectors++;
-					newnumwalls += sector[highlightsector[i]].wallnum;
+					newnumwalls += g_sector[highlightsector[i]].wallnum;
 				}
 
 				for(i=0;i<highlightsectorcnt;i++)
 				{
-					startwall = sector[highlightsector[i]].wallptr;
-					endwall = startwall+sector[highlightsector[i]].wallnum-1;
+					startwall = g_sector[highlightsector[i]].wallptr;
+					endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 					for(j=startwall;j<=endwall;j++)
 					{
 						if (wall[j].nextwall >= 0)
@@ -5259,7 +5259,7 @@ void overheadeditor()
 							std::ranges::fill(show2dwall, 0); //Clear all highlights
 							std::ranges::fill(show2dsprite, 0);
 
-							for(auto& aSector : sector) {
+							for(auto& aSector : g_sector) {
 								aSector.extra = -1;
 							}
 
@@ -5356,7 +5356,7 @@ void overheadeditor()
 							j = 0; k = 0;
 							for(i=0;i<highlightsectorcnt;i++)
 							{
-								j += sector[highlightsector[i]].wallnum;
+								j += g_sector[highlightsector[i]].wallnum;
 
 								m = headspritesect[highlightsector[i]];
 								while (m != -1)
@@ -5377,7 +5377,7 @@ void overheadeditor()
 								j = MAXWALLS;
 								for(i=0;i<highlightsectorcnt;i++)
 								{
-									j -= sector[highlightsector[i]].wallnum;
+									j -= g_sector[highlightsector[i]].wallnum;
 									copysector(highlightsector[i], (short)(MAXSECTORS - highlightsectorcnt + i), (short)j, false);
 								}
 
@@ -5417,7 +5417,7 @@ void overheadeditor()
 						circlewall = -1;
 						circlepoints = 7;
 
-						for(auto& aSector : sector) {
+						for(auto& aSector : g_sector) {
 							aSector.extra = -1;
 						}
 
@@ -5443,7 +5443,7 @@ void overheadeditor()
 
 							if (highlightsectorcnt >= 0)
 							{
-								if ((numsectors+highlightsectorcnt > MAXSECTORS) || (sector[MAXSECTORS-highlightsectorcnt].wallptr < numwalls))
+								if ((numsectors+highlightsectorcnt > MAXSECTORS) || (g_sector[MAXSECTORS-highlightsectorcnt].wallptr < numwalls))
 								{
 									highlightsectorcnt = -1;
 								}
@@ -5454,7 +5454,7 @@ void overheadeditor()
 									{
 										copysector((short)(MAXSECTORS - highlightsectorcnt + i), numsectors, numwalls, false);
 										highlightsector[i] = numsectors;
-										numwalls += sector[numsectors].wallnum;
+										numwalls += g_sector[numsectors].wallnum;
 										numsectors++;
 									}
 										//Re-attach sprites
@@ -5480,8 +5480,8 @@ void overheadeditor()
 
 									for(i=0;i<highlightsectorcnt;i++)
 									{
-										startwall = sector[highlightsector[i]].wallptr;
-										endwall = startwall+sector[highlightsector[i]].wallnum-1;
+										startwall = g_sector[highlightsector[i]].wallptr;
+										endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 										for(j=startwall;j<=endwall;j++)
 										{
 											if (wall[j].nextwall >= 0)
@@ -5737,8 +5737,8 @@ void overheadeditor()
 
 	for(i=0;i<highlightsectorcnt;i++)
 	{
-		startwall = sector[highlightsector[i]].wallptr;
-		endwall = startwall+sector[highlightsector[i]].wallnum-1;
+		startwall = g_sector[highlightsector[i]].wallptr;
+		endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 		for(j=startwall;j<=endwall;j++)
 		{
 			if (wall[j].nextwall >= 0)
@@ -5960,10 +5960,10 @@ void insertpoint(short linehighlight, int dax, int day)
 	int j = linehighlight;
 	short sucksect = sectorofwall((short)j);
 
-	++sector[sucksect].wallnum;
+	++g_sector[sucksect].wallnum;
 
 	for(int i = sucksect + 1; i < numsectors; ++i) {
-		++sector[i].wallptr;
+		++g_sector[i].wallptr;
 	}
 
 	movewalls((int)j+1,+1L);
@@ -5981,9 +5981,9 @@ void insertpoint(short linehighlight, int dax, int day)
 
 		sucksect = sectorofwall((short)k);
 
-		sector[sucksect].wallnum++;
+		g_sector[sucksect].wallnum++;
 		for(int i = sucksect + 1; i < numsectors; ++i) {
-			++sector[i].wallptr;
+			++g_sector[i].wallptr;
 		}
 
 		movewalls((int)k+1,+1L);
@@ -6007,10 +6007,10 @@ void deletepoint(short point)
 {
 	const int sucksect = sectorofwall(point);
 
-	--sector[sucksect].wallnum;
+	--g_sector[sucksect].wallnum;
 
 	for(int i = sucksect + 1; i < numsectors; ++i) {
-		--sector[i].wallptr;
+		--g_sector[i].wallptr;
 	}
 
 	const int j = lastwall(point);
@@ -6042,9 +6042,9 @@ void deletesector(short sucksect)
 
 	updatenumsprites();
 
-	const int startwall = sector[sucksect].wallptr;
-	const int endwall = startwall + sector[sucksect].wallnum - 1;
-	int j = sector[sucksect].wallnum;
+	const int startwall = g_sector[sucksect].wallptr;
+	const int endwall = startwall + g_sector[sucksect].wallnum - 1;
+	int j = g_sector[sucksect].wallnum;
 
 	for(int i{sucksect}; i < numsectors - 1; ++i)
 	{
@@ -6057,8 +6057,8 @@ void deletesector(short sucksect)
 			k = nextk;
 		}
 
-		std::memcpy(&sector[i],&sector[i+1],sizeof(sectortype));
-		sector[i].wallptr -= j;
+		std::memcpy(&g_sector[i],&g_sector[i+1],sizeof(sectortype));
+		g_sector[i].wallptr -= j;
 	}
 	
 	numsectors--;
@@ -6084,7 +6084,7 @@ void deletesector(short sucksect)
 void fixspritesectors()
 {
 	for(int i = numsectors - 1; i >= 0; --i) {
-		if ((sector[i].wallnum <= 0) || (sector[i].wallptr >= numwalls))
+		if ((g_sector[i].wallnum <= 0) || (g_sector[i].wallptr >= numwalls))
 			deletesector((short)i);
 	}
 
@@ -6159,8 +6159,8 @@ void checksectorpointer(short i, short sectnum)
 
 	for(int j{0}; j < numsectors; ++j)
 	{
-		const int startwall = sector[j].wallptr;
-		const int endwall = startwall + sector[j].wallnum - 1;
+		const int startwall = g_sector[j].wallptr;
+		const int endwall = startwall + g_sector[j].wallnum - 1;
 
 		for(int k{startwall}; k <= endwall; ++k)
 		{
@@ -6231,8 +6231,8 @@ short loopinside(int x, int y, short startwall)
 int numloopsofsector(short sectnum)
 {
 	int numloops{0};
-	const int startwall = sector[sectnum].wallptr;
-	const int endwall = startwall + sector[sectnum].wallnum;
+	const int startwall = g_sector[sectnum].wallptr;
+	const int endwall = startwall + g_sector[sectnum].wallnum;
 
 	for(int i{startwall}; i < endwall; ++i)
 		if (wall[i].point2 < i)
@@ -6557,8 +6557,8 @@ void fillsector(short sectnum, unsigned char fillcolor)
 	int miny = dborder - 1;
 	int maxy{ uborder };
 
-	const short startwall = sector[sectnum].wallptr;
-	const short endwall = startwall + sector[sectnum].wallnum - 1;
+	const short startwall = g_sector[sectnum].wallptr;
+	const short endwall = startwall + g_sector[sectnum].wallnum - 1;
 
 	for(short z{startwall}; z <= endwall; ++z)
 	{
@@ -6642,9 +6642,9 @@ short whitelinescan(short dalinehighlight)
 {
 	const short sucksect = sectorofwall(dalinehighlight);
 
-	std::memcpy(&sector[numsectors],&sector[sucksect],sizeof(sectortype));
-	sector[numsectors].wallptr = numwalls;
-	sector[numsectors].wallnum = 0;
+	std::memcpy(&g_sector[numsectors],&g_sector[sucksect],sizeof(sectortype));
+	g_sector[numsectors].wallptr = numwalls;
+	g_sector[numsectors].wallnum = 0;
 	
 	int i = dalinehighlight;
 
@@ -6674,7 +6674,7 @@ short whitelinescan(short dalinehighlight)
 		wall[newnumwalls].nextsector = sectorofwall((short)j);
 
 		newnumwalls++;
-		sector[numsectors].wallnum++;
+		g_sector[numsectors].wallnum++;
 
 		i = j;
 	} while (i != dalinehighlight);
@@ -7437,8 +7437,8 @@ void copysector(short soursector, short destsector, short deststartwall, bool co
 	short newnumwalls = deststartwall;  //erase existing sector fragments
 
 		//duplicate walls
-	const short startwall = sector[soursector].wallptr;
-	const short endwall = startwall + sector[soursector].wallnum;
+	const short startwall = g_sector[soursector].wallptr;
+	const short endwall = startwall + g_sector[soursector].wallnum;
 
 	for(short j{startwall}; j < endwall; ++j)
 	{
@@ -7464,9 +7464,9 @@ void copysector(short soursector, short destsector, short deststartwall, bool co
 	if (newnumwalls > deststartwall)
 	{
 			//duplicate sectors
-		std::memcpy(&sector[destsector],&sector[soursector],sizeof(sectortype));
-		sector[destsector].wallptr = deststartwall;
-		sector[destsector].wallnum = newnumwalls-deststartwall;
+		std::memcpy(&g_sector[destsector],&g_sector[soursector],sizeof(sectortype));
+		g_sector[destsector].wallptr = deststartwall;
+		g_sector[destsector].wallnum = newnumwalls-deststartwall;
 
 		if (copystat)
 		{
@@ -7495,53 +7495,53 @@ void showsectordata(short sectnum)
 
 	fmt::format_to(&snotbuf[0],"Sector {}",sectnum);
 	printext16(8,32,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Firstwall: {}",sector[sectnum].wallptr);
+	fmt::format_to(&snotbuf[0],"Firstwall: {}",g_sector[sectnum].wallptr);
 	printext16(8,48,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Numberofwalls: {}",sector[sectnum].wallnum);
+	fmt::format_to(&snotbuf[0],"Numberofwalls: {}",g_sector[sectnum].wallnum);
 	printext16(8,56,11,-1,&snotbuf[0],0);
 	fmt::format_to(&snotbuf[0],"Firstsprite: {}",headspritesect[sectnum]);
 	printext16(8,64,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Tags: {}, {}",sector[sectnum].hitag,sector[sectnum].lotag);
+	fmt::format_to(&snotbuf[0],"Tags: {}, {}",g_sector[sectnum].hitag,g_sector[sectnum].lotag);
 	printext16(8,72,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"     (0x{}), (0x{})",sector[sectnum].hitag,sector[sectnum].lotag);
+	fmt::format_to(&snotbuf[0],"     (0x{}), (0x{})",g_sector[sectnum].hitag,g_sector[sectnum].lotag);
 	printext16(8,80,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Extra: {}",sector[sectnum].extra);
+	fmt::format_to(&snotbuf[0],"Extra: {}",g_sector[sectnum].extra);
 	printext16(8,88,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Visibility: {}",sector[sectnum].visibility);
+	fmt::format_to(&snotbuf[0],"Visibility: {}",g_sector[sectnum].visibility);
 	printext16(8,96,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Pixel height: {}",(sector[sectnum].floorz-sector[sectnum].ceilingz)>>8);
+	fmt::format_to(&snotbuf[0],"Pixel height: {}",(g_sector[sectnum].floorz-g_sector[sectnum].ceilingz)>>8);
 	printext16(8,104,11,-1,&snotbuf[0],0);
 
 	printext16(200,32,11,-1,"CEILINGS:",0);
-	fmt::format_to(&snotbuf[0],"Flags (hex): {}",sector[sectnum].ceilingstat);
+	fmt::format_to(&snotbuf[0],"Flags (hex): {}",g_sector[sectnum].ceilingstat);
 	printext16(200,48,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"(X,Y)pan: {}, {}",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning);
+	fmt::format_to(&snotbuf[0],"(X,Y)pan: {}, {}",g_sector[sectnum].ceilingxpanning,g_sector[sectnum].ceilingypanning);
 	printext16(200,56,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Shade byte: {}",sector[sectnum].ceilingshade);
+	fmt::format_to(&snotbuf[0],"Shade byte: {}",g_sector[sectnum].ceilingshade);
 	printext16(200,64,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Z-coordinate: {}",sector[sectnum].ceilingz);
+	fmt::format_to(&snotbuf[0],"Z-coordinate: {}",g_sector[sectnum].ceilingz);
 	printext16(200,72,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Tile number: {}",sector[sectnum].ceilingpicnum);
+	fmt::format_to(&snotbuf[0],"Tile number: {}",g_sector[sectnum].ceilingpicnum);
 	printext16(200,80,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Ceiling heinum: {}",sector[sectnum].ceilingheinum);
+	fmt::format_to(&snotbuf[0],"Ceiling heinum: {}",g_sector[sectnum].ceilingheinum);
 	printext16(200,88,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Palookup number: {}",sector[sectnum].ceilingpal);
+	fmt::format_to(&snotbuf[0],"Palookup number: {}",g_sector[sectnum].ceilingpal);
 	printext16(200,96,11,-1,&snotbuf[0],0);
 
 	printext16(400,32,11,-1,"FLOORS:",0);
-	fmt::format_to(&snotbuf[0],"Flags (hex): {}",sector[sectnum].floorstat);
+	fmt::format_to(&snotbuf[0],"Flags (hex): {}",g_sector[sectnum].floorstat);
 	printext16(400,48,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"(X,Y)pan: {}, {}",sector[sectnum].floorxpanning,sector[sectnum].floorypanning);
+	fmt::format_to(&snotbuf[0],"(X,Y)pan: {}, {}",g_sector[sectnum].floorxpanning,g_sector[sectnum].floorypanning);
 	printext16(400,56,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Shade byte: {}",sector[sectnum].floorshade);
+	fmt::format_to(&snotbuf[0],"Shade byte: {}",g_sector[sectnum].floorshade);
 	printext16(400,64,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Z-coordinate: {}",sector[sectnum].floorz);
+	fmt::format_to(&snotbuf[0],"Z-coordinate: {}",g_sector[sectnum].floorz);
 	printext16(400,72,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Tile number: {}",sector[sectnum].floorpicnum);
+	fmt::format_to(&snotbuf[0],"Tile number: {}",g_sector[sectnum].floorpicnum);
 	printext16(400,80,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Floor heinum: {}",sector[sectnum].floorheinum);
+	fmt::format_to(&snotbuf[0],"Floor heinum: {}",g_sector[sectnum].floorheinum);
 	printext16(400,88,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Palookup number: {}",sector[sectnum].floorpal);
+	fmt::format_to(&snotbuf[0],"Palookup number: {}",g_sector[sectnum].floorpal);
 	printext16(400,96,11,-1,&snotbuf[0],0);
 
 	restoreviewport();
@@ -7600,7 +7600,7 @@ void showwalldata(short wallnum)
 	printext16(400,96,11,-1,&snotbuf[0],0);
 
 	dax = (int)sectorofwall(wallnum);
-	fmt::format_to(&snotbuf[0],"Pixel height: {}",(sector[dax].floorz-sector[dax].ceilingz)>>8);
+	fmt::format_to(&snotbuf[0],"Pixel height: {}",(g_sector[dax].floorz-g_sector[dax].ceilingz)>>8);
 	printext16(400,104,11,-1,&snotbuf[0],0);
 
 	restoreviewport();
@@ -7827,22 +7827,22 @@ int GetWallZPeg(int nWall)
 	{
 		//1-sided wall
 		if (wall[nWall].cstat & 4)
-			return sector[nSector].floorz;
+			return g_sector[nSector].floorz;
 		else
-			return sector[nSector].ceilingz;
+			return g_sector[nSector].ceilingz;
 	}
 	else
 	{
 			//2-sided wall
 		if (wall[nWall].cstat & 4)
-			return sector[nSector].ceilingz;
+			return g_sector[nSector].ceilingz;
 		else
 		{
-			if (sector[nNextSector].ceilingz > sector[nSector].ceilingz)
-				return sector[nNextSector].ceilingz;   //top step
+			if (g_sector[nNextSector].ceilingz > g_sector[nSector].ceilingz)
+				return g_sector[nNextSector].ceilingz;   //top step
 
-			if (sector[nNextSector].floorz < sector[nSector].floorz)
-				return sector[nNextSector].floorz;   //bottom step
+			if (g_sector[nNextSector].floorz < g_sector[nSector].floorz)
+				return g_sector[nNextSector].floorz;   //bottom step
 		}
 	}
 
