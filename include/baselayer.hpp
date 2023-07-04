@@ -79,7 +79,7 @@ int initinput();
 void uninitinput();
 void releaseallbuttons();
 const char *getkeyname(int num);
-const char *getjoyname(int what, int num);	// what: 0=axis, 1=button, 2=hat
+std::string_view getjoyname(int what, int num);	// what: 0=axis, 1=button, 2=hat
 
 unsigned char bgetchar();
 int bkbhit();

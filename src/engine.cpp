@@ -12735,15 +12735,15 @@ void buildputs(std::string_view str)
     OSD_Puts(str);  // the onscreen-display
 }
 
-void buildsetlogfile(const char *fn)
+void buildsetlogfile(const std::string& fn)
 {
 	if (logfile)
 		std::fclose(logfile);
 
 	logfile = nullptr;
 
-	if (fn)
-		logfile = std::fopen(fn, "w");
+	if (!fn.empty())
+		logfile = std::fopen(fn.c_str(), "w");
 
 	if (logfile)
 		setvbuf(logfile, (char*)nullptr, _IONBF, 0);

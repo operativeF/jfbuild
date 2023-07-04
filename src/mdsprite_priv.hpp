@@ -349,7 +349,7 @@ extern int nextmodelid;
 void freeallmodels ();
 void clearskins ();
 void voxfree (voxmodel *m);
-std::unique_ptr<voxmodel> voxload (const char *filnam);
+std::unique_ptr<voxmodel> voxload (const std::string& filnam);
 int voxdraw (voxmodel *m, const spritetype *tspr, int method);
 
 void mdinit ();

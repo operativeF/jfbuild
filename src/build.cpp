@@ -6428,7 +6428,7 @@ int menuselect(int newpathmode)
 			for(i=0; i<listsize && dir; i++, dir=dir->next) {
 				const int c = dir->type == CACHE1D_FIND_DIR ? 4 : 3;
 				std::ranges::fill(buffer, 0);
-				strncpy(&buffer[0], dir->name, 25);
+				dir->name.copy(&buffer[0], 25);
 				if (std::strlen(&buffer[0]) == 25)
 					buffer[21] = buffer[22] = buffer[23] = '.', buffer[24] = 0;
 				if (dir == finddirshigh) {

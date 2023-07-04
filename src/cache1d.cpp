@@ -895,7 +895,7 @@ int klistaddentry(CACHE1D_FIND_REC **rec, const std::string& name, int type, int
 				insensitive = false;
 #endif
 			if (insensitive) v = CmpNoCase(name, attach->name);
-			else v = std::strcmp(name.c_str(), attach->name);
+			else v = name.compare(attach->name);
 			
 			// sorted list
 			if (v > 0) continue;	// item to add is bigger than the current one
@@ -926,7 +926,7 @@ int klistaddentry(CACHE1D_FIND_REC **rec, const std::string& name, int type, int
 	if (!r)
 		return -1;
 	
-	r->name = (char*)r + sizeof(CACHE1D_FIND_REC); std::strcpy(r->name, name.c_str());
+	r->name = name;
 	r->type = type;
 	r->source = source;
 	r->usera = r->userb = nullptr;

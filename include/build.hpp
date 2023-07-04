@@ -638,7 +638,7 @@ int hicsetsubsttex(int picnum, int palnum, const std::string& filen, float alpha
 int hicsetskybox(int picnum, int palnum, std::span<const std::string> faces);
 int hicclearsubst(int picnum, int palnum);
 
-int md_loadmodel(const char *fn);
+int md_loadmodel(const std::string& fn);
 int md_setmisc(int modelid, float scale, int shadeoff, float zadd);
 int md_tilehasmodel(int tilenume);
 int md_defineframe(int modelid, std::string_view framename, int tilenume, int skinnum);
@@ -672,7 +672,7 @@ void buildprintf(std::string_view form, Args&&... args)
 }
 
 void buildputs(std::string_view str);
-void buildsetlogfile(const char *fn);
+void buildsetlogfile(const std::string& fn);
 
 #ifdef _MSC_VER
 #pragma pack()

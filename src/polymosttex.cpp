@@ -197,7 +197,7 @@ namespace {
  * @param effects HICEFFECT_* effects
  * @return 0 on success, <0 on error
  */
-int ptm_loadcachedtexturefile(const char* filename, PTMHead* ptmh, int flags, int effects)
+int ptm_loadcachedtexturefile(const std::string& filename, PTMHead* ptmh, int flags, int effects)
 {
 	auto tdef = PTCacheLoadTile(filename, effects, flags & (PTH_CLAMPED));
 

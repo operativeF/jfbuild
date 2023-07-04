@@ -53,7 +53,7 @@ struct polymostvboitem *elementvbo{nullptr};	 // 3 per triangle.
 
 } // namespace
 
-mdmodel *mdload (const char *);
+mdmodel *mdload (const std::string&);
 void mdfree (mdmodel *);
 
 void freeallmodels ()
@@ -148,7 +148,7 @@ void mdinit ()
 	mdinited = 1;
 }
 
-int md_loadmodel (const char *fn)
+int md_loadmodel (const std::string& fn)
 {
 	mdmodel *vm;
 	mdmodel **ml;
@@ -600,7 +600,7 @@ void md2free(md2model *m)
 	std::free(m);
 }
 
-md2model *md2load(int fil, const char *filnam)
+md2model *md2load(int fil, const std::string& filnam)
 {
 	auto* m = (md2model *) std::calloc(1, sizeof(md2model));
 	
@@ -660,7 +660,7 @@ md2model *md2load(int fil, const char *filnam)
 
 	char st[BMAX_PATH];
 	
-	std::strcpy(st, filnam);
+	std::strcpy(st, filnam.c_str());
 	std::size_t i = std::strlen(st) - 1;
 	for(; i > 0; --i) {
 		if ((st[i] == '/') || (st[i] == '\\')) {
@@ -1994,7 +1994,7 @@ skindidntfit:;
 	return gvox;
 }
 
-int loadvox (const char *filnam)
+int loadvox (const std::string& filnam)
 {
 	int i;
 	int j;
@@ -2005,7 +2005,7 @@ int loadvox (const char *filnam)
 	std::array<int, 256> pal;
 	std::array<unsigned char, 3> c;
 
-	const int fil = kopen4load(filnam, 0);
+	const int fil = kopen4load(filnam.c_str(), 0);
 
 	if (fil < 0) {
 		return -1;
@@ -2068,7 +2068,7 @@ int loadvox (const char *filnam)
 	return 0;
 }
 
-int loadkvx (const char *filnam)
+int loadkvx (const std::string& filnam)
 {
 	int i;
 	int j;
@@ -2085,7 +2085,7 @@ int loadkvx (const char *filnam)
 	std::array<unsigned char, 3> c;
 	unsigned char *cptr;
 
-	fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
+	fil = kopen4load(filnam.c_str(),0); if (fil < 0) return(-1);
 	kread(fil,&mip1leng,4);
 	kread(fil,&xsiz,4);
 	kread(fil,&ysiz,4);
@@ -2141,7 +2141,7 @@ int loadkvx (const char *filnam)
 	return(0);
 }
 
-int loadkv6 (const char *filnam)
+int loadkv6 (const std::string& filnam)
 {
 	int i;
 	int j;
@@ -2153,7 +2153,7 @@ int loadkv6 (const char *filnam)
 	float f;
 	std::array<unsigned char, 8> c;
 
-	const int fil = kopen4load(filnam, 0);
+	const int fil = kopen4load(filnam.c_str(), 0);
 
 	if (fil < 0) {
 		return -1;
@@ -2272,9 +2272,9 @@ void voxfree (voxmodel *m)
 	if (m->texid) std::free(m->texid);
 }
 
-std::unique_ptr<voxmodel> voxload(const char *filnam)
+std::unique_ptr<voxmodel> voxload(const std::string& filnam)
 {
-	auto* dot = std::strrchr(filnam, '.');
+	auto* dot = std::strrchr(filnam.c_str(), '.');
 	
 	if (!dot)
 		return nullptr;
@@ -2650,14 +2650,14 @@ int voxloadbufs(voxmodel *m)
 //---------------------------------------- VOX LIBRARY ENDS ----------------------------------------
 //--------------------------------------- MD LIBRARY BEGINS  ---------------------------------------
 
-mdmodel *mdload (const char *filnam)
+mdmodel *mdload (const std::string& filnam)
 {
-	auto vm = (mdmodel*)voxload(filnam).release();
+	auto vm = (mdmodel*)voxload(filnam.c_str()).release();
 	
 	if (vm)
 		return(vm);
 
-	const int fil = kopen4load((char *)filnam,0);
+	const int fil = kopen4load(filnam.c_str(), 0);
 	
 	if (fil < 0)
 		return nullptr;
@@ -2669,7 +2669,7 @@ mdmodel *mdload (const char *filnam)
 	switch(i)
 	{
 		case 0x32504449:
-			vm = (mdmodel*)md2load(fil,filnam);
+			vm = (mdmodel*)md2load(fil, filnam);
 			break; //IDP2
 		case 0x33504449:
 			vm = (mdmodel*)md3load(fil);

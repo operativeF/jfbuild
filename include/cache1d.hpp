@@ -54,7 +54,7 @@ enum {
 };
 
 struct CACHE1D_FIND_REC {
-	char *name;
+	std::string name;
 	int type;
 	int source;
 	CACHE1D_FIND_REC* next;

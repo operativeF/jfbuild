@@ -16,6 +16,7 @@
 #include <array>
 #include <cmath>
 #include <numbers>
+#include <string>
 
 constexpr auto NUMCHANNELS{16};
 constexpr auto MAXWAVES{256};
@@ -194,7 +195,7 @@ void setears(int daposx, int daposy, int daxvect, int dayvect)
     unlockkdm();
 }
 
-void wsayfollow(const char *dafilename, int dafreq, int davol, int *daxplc, int *dayplc, char followstat)
+void wsayfollow(const std::string& dafilename, int dafreq, int davol, int *daxplc, int *dayplc, char followstat)
 {
     char ch1;
     char ch2;
@@ -256,7 +257,7 @@ void wsayfollow(const char *dafilename, int dafreq, int davol, int *daxplc, int 
     }
 }
 
-void wsay(const char* dafilename, int dafreq, int volume1, int volume2)
+void wsay(const std::string& dafilename, int dafreq, int volume1, int volume2)
 {
     char ch1;
     char ch2;
@@ -349,7 +350,7 @@ void loadwaves(const char *wavename)
     snd[totsndbytes] = snd[totsndbytes+1] = 128;
 }
 
-int loadsong(const char* filename)
+int loadsong(const std::string& filename)
 {
     int i;
     int fil;
@@ -358,7 +359,7 @@ int loadsong(const char* filename)
     if (musistat != 1) return(0);
     musicoff();
 
-    if ((fil = kopen4load(filename,0)) == -1)
+    if ((fil = kopen4load(filename.c_str(), 0)) == -1)
     {
         return(-1);
     }

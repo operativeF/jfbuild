@@ -1077,9 +1077,9 @@ const char *getkeyname(int num)
 	return keynames[num];
 }
 
-const char* getjoyname(int what, int num)
+std::string_view getjoyname(int what, int num)
 {
-	static const char* axisnames[6] = {
+	static constexpr std::array<std::string_view, 6> axisnames = {
 		"Left Stick X",
 		"Left Stick Y",
 		"Right Stick X",
@@ -1088,7 +1088,7 @@ const char* getjoyname(int what, int num)
 		"Right Trigger",
 	};
 
-	static const char* buttonnames[15] = {
+	static constexpr std::array<std::string_view, 15> buttonnames = {
 		"A",
 		"B",
 		"X",
@@ -1108,15 +1108,15 @@ const char* getjoyname(int what, int num)
 
 	switch (what) {
 		case 0:	// axis
-			if ((unsigned)num >= (unsigned)6) return nullptr;
+			if ((unsigned)num >= (unsigned)6) return {};
 			return axisnames[num];
 
 		case 1: // button
-			if ((unsigned)num >= (unsigned)15) return nullptr;
+			if ((unsigned)num >= (unsigned)15) return {};
 			return buttonnames[num];
 
 		default:
-			return nullptr;
+			return {};
 	}
 }
 
