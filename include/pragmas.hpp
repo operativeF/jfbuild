@@ -5,6 +5,8 @@
 #ifndef __pragmas_h__
 #define __pragmas_h__
 
+#include "point.hpp"
+
 #include <algorithm>
 #include <cstdint>
 #include <limits>
@@ -3599,9 +3601,28 @@ static __inline void swapchar2(void *a, void *b, int s)
 #define by(x)	(static_cast<int8_t>(x))		// byte cast
 
 template<std::uint8_t N>
+inline constexpr point2di mulscalen(point2di pt, int edx) {
+	pt.x = dw((qw(pt.x) * qw(edx)) >> N);
+	pt.y = dw((qw(pt.y) * qw(edx)) >> N);
+
+	return pt;
+}
+
+template<std::uint8_t N>
+inline constexpr point3di mulscalen(point3di pt, int edx) {
+	pt.x = dw((qw(pt.x) * qw(edx)) >> N);
+	pt.y = dw((qw(pt.y) * qw(edx)) >> N);
+	pt.z = dw((qw(pt.z) * qw(edx)) >> N);
+
+	return pt;
+}
+
+
+template<std::uint8_t N>
 inline constexpr int mulscalen(int eax, int edx) {
 	return dw((qw(eax) * qw(edx)) >> N);
 }
+
 
 template<std::uint8_t N>
 inline constexpr int divscalen(int eax, int ebx) {
