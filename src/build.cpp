@@ -1307,11 +1307,11 @@ void editinput()
 					}
 					while (i != searchwall);
 
-					daang = getangle(wall[wall[searchwall].point2].x-wall[searchwall].x,wall[wall[searchwall].point2].y-wall[searchwall].y);
+					daang = getangle(wall[wall[searchwall].point2].pt.x - wall[searchwall].pt.x, wall[wall[searchwall].point2].pt.y - wall[searchwall].pt.y);
 					i = searchwall;
 					do
 					{
-						j = getangle(wall[wall[i].point2].x-wall[i].x,wall[wall[i].point2].y-wall[i].y);
+						j = getangle(wall[wall[i].point2].pt.x - wall[i].pt.x, wall[wall[i].point2].pt.y - wall[i].pt.y);
 						k = ((j+2048-daang)&2047);
 						if (k > 1024)
 							k = 2048-k;
@@ -1610,10 +1610,10 @@ void editinput()
 					switch(searchstat)
 					{
 						case 0: case 1: case 4:
-							alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
+							alignceilslope(searchsector,wall[searchwall].pt.x, wall[searchwall].pt.y,getceilzofslope(i,wall[searchwall].pt.x,wall[searchwall].pt.y));
 							break;
 						case 2:
-							alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
+							alignflorslope(searchsector,wall[searchwall].pt.x, wall[searchwall].pt.y, getflorzofslope(i,wall[searchwall].pt.x, wall[searchwall].pt.y));
 							break;
 					}
 			}
@@ -1658,10 +1658,10 @@ void editinput()
 					switch(searchstat)
 					{
 						case 1:
-							alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
+							alignceilslope(searchsector, wall[searchwall].pt.x, wall[searchwall].pt.y, getceilzofslope(i,wall[searchwall].pt.x, wall[searchwall].pt.y));
 							break;
 						case 0: case 2: case 4:
-							alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
+							alignflorslope(searchsector, wall[searchwall].pt.x, wall[searchwall].pt.y,getflorzofslope(i,wall[searchwall].pt.x, wall[searchwall].pt.y));
 							break;
 					}
 			}
@@ -2121,14 +2121,14 @@ void editinput()
 				sprite[i].z = hitz;
 				changespritesect(i,hitsect);
 				if (hitwall >= 0)
-					sprite[i].ang = ((getangle(wall[wall[hitwall].point2].x-wall[hitwall].x,wall[wall[hitwall].point2].y-wall[hitwall].y)+512)&2047);
+					sprite[i].ang = ((getangle(wall[wall[hitwall].point2].pt.x - wall[hitwall].pt.x, wall[wall[hitwall].point2].pt.y - wall[hitwall].pt.y) + 512) & 2047);
 
 					//Make sure sprite's in right sector
 				if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
 				{
 					j = wall[hitwall].point2;
-					sprite[i].x -= ksgn(wall[j].y-wall[hitwall].y);
-					sprite[i].y += ksgn(wall[j].x-wall[hitwall].x);
+					sprite[i].x -= ksgn(wall[j].pt.y - wall[hitwall].pt.y);
+					sprite[i].y += ksgn(wall[j].pt.x - wall[hitwall].pt.x);
 				}
 			}
 			keystatus[0x18] = 0;
@@ -2406,14 +2406,14 @@ void editinput()
 				{
 					sprite[i].cstat = (sprite[i].cstat&~48)|(16+64);
 					if (hitwall >= 0)
-						sprite[i].ang = ((getangle(wall[wall[hitwall].point2].x-wall[hitwall].x,wall[wall[hitwall].point2].y-wall[hitwall].y)+512)&2047);
+						sprite[i].ang = ((getangle(wall[wall[hitwall].point2].pt.x-wall[hitwall].pt.x,wall[wall[hitwall].point2].pt.y-wall[hitwall].pt.y)+512)&2047);
 
 						//Make sure sprite's in right sector
 					if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
 					{
 						j = wall[hitwall].point2;
-						sprite[i].x -= ksgn(wall[j].y-wall[hitwall].y);
-						sprite[i].y += ksgn(wall[j].x-wall[hitwall].x);
+						sprite[i].x -= ksgn(wall[j].pt.y-wall[hitwall].pt.y);
+						sprite[i].y += ksgn(wall[j].pt.x-wall[hitwall].pt.x);
 					}
 				}
 				else
@@ -3001,8 +3001,8 @@ void overheadeditor()
 			dax = mousxplc;
 			day = mousyplc;
 			adjustmark(&dax,&day,newnumwalls);
-			wall[newnumwalls].x = dax;
-			wall[newnumwalls].y = day;
+			wall[newnumwalls].pt.x = dax;
+			wall[newnumwalls].pt.y = day;
 		}
 
 		templong = numwalls;
@@ -3040,8 +3040,8 @@ void overheadeditor()
 					endwall = startwall + g_sector[i].wallnum - 1;
 					for(j=startwall;j<=endwall;j++)
 					{
-						dax += wall[j].x;
-						day += wall[j].y;
+						dax += wall[j].pt.x;
+						day += wall[j].pt.y;
 					}
 					if (endwall > startwall)
 					{
@@ -3070,8 +3070,8 @@ void overheadeditor()
 			for(i=numwalls-1,wal=&wall[i];i>=0;i--,wal--)
 			{
 					//Get average point of wall
-				dax = ((wal->x+wall[wal->point2].x)>>1);
-				day = ((wal->y+wall[wal->point2].y)>>1);
+				dax = ((wal->pt.x + wall[wal->point2].pt.x)>>1);
+				day = ((wal->pt.y + wall[wal->point2].pt.y)>>1);
 				if ((dax > x3) && (dax < x4) && (day > y3) && (day < y4))
 				{
 					dabuffer = ExtGetWallCaption(i);
@@ -3230,14 +3230,14 @@ void overheadeditor()
 				sprite[i].z = hitz;
 				changespritesect(i,hitsect);
 				if (hitwall >= 0)
-					sprite[i].ang = ((getangle(wall[wall[hitwall].point2].x-wall[hitwall].x,wall[wall[hitwall].point2].y-wall[hitwall].y)+512)&2047);
+					sprite[i].ang = ((getangle(wall[wall[hitwall].point2].pt.x - wall[hitwall].pt.x, wall[wall[hitwall].point2].pt.y - wall[hitwall].pt.y) + 512) & 2047);
 
 					//Make sure sprite's in right sector
 				if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
 				{
 					j = wall[hitwall].point2;
-					sprite[i].x -= ksgn(wall[j].y-wall[hitwall].y);
-					sprite[i].y += ksgn(wall[j].x-wall[hitwall].x);
+					sprite[i].x -= ksgn(wall[j].pt.y-wall[hitwall].pt.y);
+					sprite[i].y += ksgn(wall[j].pt.x-wall[hitwall].pt.x);
 				}
 			}
 		}
@@ -3255,8 +3255,8 @@ void overheadeditor()
 					endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 					for(j=startwall;j<=endwall;j++)
 					{
-						dax += wall[j].x;
-						day += wall[j].y;
+						dax += wall[j].pt.x;
+						day += wall[j].pt.y;
 						k++;
 					}
 				}
@@ -3285,14 +3285,14 @@ void overheadeditor()
 					{
 						if (k == 0)
 						{
-							x3 = wall[j].x;
-							y3 = wall[j].y;
-							wall[j].x = dax+day-y3;
-							wall[j].y = day+x3-dax;
+							x3 = wall[j].pt.x;
+							y3 = wall[j].pt.y;
+							wall[j].pt.x = dax+day-y3;
+							wall[j].pt.y = day+x3-dax;
 						}
 						else
 						{
-							rotatepoint(dax,day,wall[j].x,wall[j].y,1,&wall[j].x,&wall[j].y);
+							rotatepoint(dax,day,wall[j].pt.x, wall[j].pt.y, 1, &wall[j].pt.x, &wall[j].pt.y);
 						}
 					}
 
@@ -3350,8 +3350,8 @@ void overheadeditor()
 					endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 					for(j=startwall;j<=endwall;j++)
 					{
-						dax += wall[j].x;
-						day += wall[j].y;
+						dax += wall[j].pt.x;
+						day += wall[j].pt.y;
 						k++;
 					}
 				}
@@ -3380,14 +3380,14 @@ void overheadeditor()
 					{
 						if (k == 0)
 						{
-							x3 = wall[j].x;
-							y3 = wall[j].y;
-							wall[j].x = dax+y3-day;
-							wall[j].y = day+dax-x3;
+							x3 = wall[j].pt.x;
+							y3 = wall[j].pt.y;
+							wall[j].pt.x = dax+y3-day;
+							wall[j].pt.y = day+dax-x3;
 						}
 						else
 						{
-							rotatepoint(dax,day,wall[j].x,wall[j].y,2047,&wall[j].x,&wall[j].y);
+							rotatepoint(dax,day,wall[j].pt.x,wall[j].pt.y,2047,&wall[j].pt.x,&wall[j].pt.y);
 						}
 					}
 
@@ -3712,8 +3712,8 @@ void overheadeditor()
 								show2dwall[i>>3] |= (1<<(i&7));
 
 								for(j=0;j<numwalls;j++)
-									if (wall[j].x == wall[i].x)
-										if (wall[j].y == wall[i].y)
+									if (wall[j].pt.x == wall[i].pt.x)
+										if (wall[j].pt.y == wall[i].pt.y)
 											if (i != j)
 											{
 												highlight[highlightcnt++] = j;
@@ -3728,8 +3728,8 @@ void overheadeditor()
 					else
 					{
 						for(i=0;i<numwalls;i++)
-							if ((wall[i].x >= highlightx1) && (wall[i].x <= highlightx2))
-								if ((wall[i].y >= highlighty1) && (wall[i].y <= highlighty2))
+							if ((wall[i].pt.x >= highlightx1) && (wall[i].pt.x <= highlightx2))
+								if ((wall[i].pt.y >= highlighty1) && (wall[i].pt.y <= highlighty2))
 								{
 									highlight[highlightcnt++] = i;
 									show2dwall[i>>3] |= (1<<(i&7));
@@ -3803,10 +3803,10 @@ void overheadeditor()
 						bad = 0;
 						for(j=startwall;j<endwall;j++)
 						{
-							if (wall[j].x < highlightx1) bad = 1;
-							if (wall[j].x > highlightx2) bad = 1;
-							if (wall[j].y < highlighty1) bad = 1;
-							if (wall[j].y > highlighty2) bad = 1;
+							if (wall[j].pt.x < highlightx1) bad = 1;
+							if (wall[j].pt.x > highlightx2) bad = 1;
+							if (wall[j].pt.y < highlighty1) bad = 1;
+							if (wall[j].pt.y > highlighty2) bad = 1;
 							if (bad == 1) break;
 						}
 						if (bad == 0)
@@ -3884,8 +3884,8 @@ void overheadeditor()
 
 			if ((pointhighlight&0xc000) == 0)
 			{
-				dax = wall[pointhighlight].x;
-				day = wall[pointhighlight].y;
+				dax = wall[pointhighlight].pt.x;
+				day = wall[pointhighlight].pt.y;
 			}
 			else if ((pointhighlight&0xc000) == 16384)
 			{
@@ -3895,8 +3895,8 @@ void overheadeditor()
 
 			for(i=numwalls-1;i>=0;i--)     //delete points
 			{
-				if (wall[i].x == wall[wall[i].point2].x)
-					if (wall[i].y == wall[wall[i].point2].y)
+				if (wall[i].pt.x == wall[wall[i].point2].pt.x)
+					if (wall[i].pt.y == wall[wall[i].point2].pt.y)
 					{
 						deletepoint((short)i);
 						printmessage16("Point deleted.");
@@ -3905,13 +3905,13 @@ void overheadeditor()
 			}
 			for(i=0;i<numwalls;i++)        //make new red lines?
 			{
-				if ((wall[i].x == dax) && (wall[i].y == day))
+				if ((wall[i].pt.x == dax) && (wall[i].pt.y == day))
 				{
 					checksectorpointer((short)i,sectorofwall((short)i));
 					fixrepeats((short)i);
 					asksave = true;
 				}
-				else if ((wall[wall[i].point2].x == dax) && (wall[wall[i].point2].y == day))
+				else if ((wall[wall[i].point2].pt.x == dax) && (wall[wall[i].point2].pt.y == day))
 				{
 					checksectorpointer((short)i,sectorofwall((short)i));
 					fixrepeats((short)i);
@@ -3972,7 +3972,7 @@ void overheadeditor()
 						startwall = g_sector[highlightsector[i]].wallptr;
 						endwall = startwall+g_sector[highlightsector[i]].wallnum-1;
 						for(j=startwall;j<=endwall;j++)
-							{ wall[j].x += dax; wall[j].y += day; }
+							{ wall[j].pt.x += dax; wall[j].pt.y += day; }
 
 						for(j=headspritesect[highlightsector[i]];j>=0;j=nextspritesect[j])
 							{ sprite[j].x += dax; sprite[j].y += day; }
@@ -4018,8 +4018,8 @@ void overheadeditor()
 					{
 						if ((pointhighlight&0xc000) == 0)
 						{
-							dax -= wall[pointhighlight].x;
-							day -= wall[pointhighlight].y;
+							dax -= wall[pointhighlight].pt.x;
+							day -= wall[pointhighlight].pt.y;
 						}
 						else
 						{
@@ -4030,8 +4030,8 @@ void overheadeditor()
 						{
 							if ((highlight[i]&0xc000) == 0)
 							{
-								wall[highlight[i]].x += dax;
-								wall[highlight[i]].y += day;
+								wall[highlight[i]].pt.x += dax;
+								wall[highlight[i]].pt.y += day;
 							}
 							else
 							{
@@ -4354,10 +4354,10 @@ void overheadeditor()
 
 		if (circlewall >= 0)
 		{
-			x1 = wall[circlewall].x;
-			y1 = wall[circlewall].y;
-			x2 = wall[wall[circlewall].point2].x;
-			y2 = wall[wall[circlewall].point2].y;
+			x1 = wall[circlewall].pt.x;
+			y1 = wall[circlewall].pt.y;
+			x2 = wall[wall[circlewall].point2].pt.x;
+			y2 = wall[wall[circlewall].point2].pt.y;
 			x3 = mousxplc;
 			y3 = mousyplc;
 			adjustmark(&x3,&y3,newnumwalls);
@@ -4445,12 +4445,12 @@ void overheadeditor()
 				std::memset(&wall[newnumwalls],0,sizeof(walltype));
 				wall[newnumwalls].extra = -1;
 
-				wall[newnumwalls].x = mousxplc;
-				wall[newnumwalls].y = mousyplc;
+				wall[newnumwalls].pt.x = mousxplc;
+				wall[newnumwalls].pt.y = mousyplc;
 				wall[newnumwalls].nextsector = -1;
 				wall[newnumwalls].nextwall = -1;
 				for(i=0;i<numwalls;i++)
-					if ((wall[i].x == mousxplc) && (wall[i].y == mousyplc))
+					if ((wall[i].pt.x == mousxplc) && (wall[i].pt.y == mousyplc))
 						suckwall = i;
 				wall[newnumwalls].point2 = newnumwalls+1;
 				printmessage16("Sector drawing started.");
@@ -4462,15 +4462,15 @@ void overheadeditor()
 				{
 					j = 0;
 					for(i=numwalls;i<newnumwalls;i++)
-						if ((mousxplc == wall[i].x) && (mousyplc == wall[i].y))
+						if ((mousxplc == wall[i].pt.x) && (mousyplc == wall[i].pt.y))
 							j = 1;
 					if (j == 0)
 					{
 							//check if starting to split a sector
 						if (newnumwalls == numwalls+1)
 						{
-							dax = ((wall[numwalls].x+mousxplc)>>1);
-							day = ((wall[numwalls].y+mousyplc)>>1);
+							dax = ((wall[numwalls].pt.x + mousxplc)>>1);
+							day = ((wall[numwalls].pt.y + mousyplc)>>1);
 							for(i=0;i<numsectors;i++)
 								if (inside(dax,day,i) == 1)
 								{    //check if first point at point of sector
@@ -4478,15 +4478,15 @@ void overheadeditor()
 									startwall = g_sector[i].wallptr;
 									endwall = startwall + g_sector[i].wallnum - 1;
 									for(k=startwall;k<=endwall;k++)
-										if (wall[k].x == wall[numwalls].x)
-											if (wall[k].y == wall[numwalls].y)
+										if (wall[k].pt.x == wall[numwalls].pt.x)
+											if (wall[k].pt.y == wall[numwalls].pt.y)
 											{
 												m = k;
 												break;
 											}
 									if (m >= 0)
-										if ((wall[wall[k].point2].x != mousxplc) || (wall[wall[k].point2].y != mousyplc))
-											if ((wall[lastwall((short)k)].x != mousxplc) || (wall[lastwall((short)k)].y != mousyplc))
+										if ((wall[wall[k].point2].pt.x != mousxplc) || (wall[wall[k].point2].pt.y != mousyplc))
+											if ((wall[lastwall((short)k)].pt.x != mousxplc) || (wall[lastwall((short)k)].pt.y != mousyplc))
 											{
 												split = 1;
 												splitsect = i;
@@ -4504,11 +4504,11 @@ void overheadeditor()
 						{
 							if (wall[i].nextwall >= 0)
 							{
-								if ((wall[i].x == mousxplc) && (wall[i].y == mousyplc))
-									if ((wall[wall[i].point2].x == wall[newnumwalls-1].x) && (wall[wall[i].point2].y == wall[newnumwalls-1].y))
+								if ((wall[i].pt.x == mousxplc) && (wall[i].pt.y == mousyplc))
+									if ((wall[wall[i].point2].pt.x == wall[newnumwalls-1].pt.x) && (wall[wall[i].point2].pt.y == wall[newnumwalls-1].pt.y))
 										bad = 1;
-								if ((wall[i].x == wall[newnumwalls-1].x) && (wall[i].y == wall[newnumwalls-1].y))
-									if ((wall[wall[i].point2].x == mousxplc) && (wall[wall[i].point2].y == mousyplc))
+								if ((wall[i].pt.x == wall[newnumwalls-1].pt.x) && (wall[i].pt.y == wall[newnumwalls-1].pt.y))
+									if ((wall[wall[i].point2].pt.x == mousxplc) && (wall[wall[i].point2].pt.y == mousyplc))
 										bad = 1;
 							}
 						}
@@ -4519,12 +4519,12 @@ void overheadeditor()
 							std::memset(&wall[newnumwalls], 0, sizeof(walltype));
 							wall[newnumwalls].extra = -1;
 
-							wall[newnumwalls].x = mousxplc;
-							wall[newnumwalls].y = mousyplc;
+							wall[newnumwalls].pt.x = mousxplc;
+							wall[newnumwalls].pt.y = mousyplc;
 							wall[newnumwalls].nextsector = -1;
 							wall[newnumwalls].nextwall = -1;
 							for(i=0;i<numwalls;i++)
-								if ((wall[i].x == mousxplc) && (wall[i].y == mousyplc))
+								if ((wall[i].pt.x == mousxplc) && (wall[i].pt.y == mousyplc))
 									suckwall = i;
 							wall[newnumwalls].point2 = newnumwalls+1;
 							newnumwalls++;
@@ -4663,8 +4663,8 @@ void overheadeditor()
 					startwall = g_sector[splitsect].wallptr;
 					endwall = startwall + g_sector[splitsect].wallnum - 1;
 					for(k=startwall;k<=endwall;k++)
-						if (wall[k].x == wall[newnumwalls-1].x)
-							if (wall[k].y == wall[newnumwalls-1].y)
+						if (wall[k].pt.x == wall[newnumwalls-1].pt.x)
+							if (wall[k].pt.y == wall[newnumwalls-1].pt.y)
 							{
 								bad = 0;
 								if (loopnumofsector(splitsect,splitstartwall) != loopnumofsector(splitsect,(short)k))
@@ -4712,7 +4712,7 @@ void overheadeditor()
 										if ((k != i) && (k != loopnum))
 										{
 											i = k;
-											if (loopinside(wall[j].x,wall[j].y,numwalls) == 1)
+											if (loopinside(wall[j].pt.x,wall[j].pt.y,numwalls) == 1)
 											{
 												m = j;          //copy loop
 												k = danumwalls;
@@ -4758,7 +4758,7 @@ void overheadeditor()
 										if ((k != i) && (k != loopnum))
 										{
 											i = k;
-											if (loopinside(wall[j].x,wall[j].y,secondstartwall) == 1)
+											if (loopinside(wall[j].pt.x,wall[j].pt.y,secondstartwall) == 1)
 											{
 												m = j;          //copy loop
 												k = danumwalls;
@@ -5152,20 +5152,20 @@ void overheadeditor()
 				j = 0;
 					//Check to see if point was inserted over another point
 				for(i=numwalls-1;i>=0;i--)     //delete points
-					if (wall[i].x == wall[wall[i].point2].x)
-						if (wall[i].y == wall[wall[i].point2].y)
+					if (wall[i].pt.x == wall[wall[i].point2].pt.x)
+						if (wall[i].pt.y == wall[wall[i].point2].pt.y)
 						{
 							deletepoint((short)i);
 							j++;
 						}
 				for(i=0;i<numwalls;i++)        //make new red lines?
 				{
-					if ((wall[i].x == dax) && (wall[i].y == day))
+					if ((wall[i].pt.x == dax) && (wall[i].pt.y == day))
 					{
 						checksectorpointer((short)i,sectorofwall((short)i));
 						fixrepeats((short)i);
 					}
-					else if ((wall[wall[i].point2].x == dax) && (wall[wall[i].point2].y == day))
+					else if ((wall[wall[i].point2].pt.x == dax) && (wall[wall[i].point2].pt.y == day))
 					{
 						checksectorpointer((short)i,sectorofwall((short)i));
 						fixrepeats((short)i);
@@ -5173,10 +5173,10 @@ void overheadeditor()
 				}
 				//if (j != 0)
 				//{
-				//   dax = ((wall[linehighlight].x + wall[wall[linehighlight].point2].x)>>1);
-				//   day = ((wall[linehighlight].y + wall[wall[linehighlight].point2].y)>>1);
-				//   if ((dax != wall[linehighlight].x) || (day != wall[linehighlight].y))
-				//      if ((dax != wall[wall[linehighlight].point2].x) || (day != wall[wall[linehighlight].point2].y))
+				//   dax = ((wall[linehighlight].pt.x + wall[wall[linehighlight].point2].pt.x)>>1);
+				//   day = ((wall[linehighlight].pt.y + wall[wall[linehighlight].point2].pt.y)>>1);
+				//   if ((dax != wall[linehighlight].pt.x) || (day != wall[linehighlight].pt.y))
+				//      if ((dax != wall[wall[linehighlight].point2].pt.x) || (day != wall[wall[linehighlight].point2].pt.y))
 				//      {
 				//         insertpoint(linehighlight,dax,day);
 				//         printmessage16("Point inserted at midpoint.");
@@ -5802,10 +5802,10 @@ int getlinehighlight(int xplc, int yplc)
 
 	if (wall[closest].nextwall >= 0)
 	{    //if red line, allow highlighting of both sides
-		const int x1 = wall[closest].x;
-		const int y1 = wall[closest].y;
-		const int x2 = wall[wall[closest].point2].x;
-		const int y2 = wall[wall[closest].point2].y;
+		const int x1 = wall[closest].pt.x;
+		const int y1 = wall[closest].pt.y;
+		const int x2 = wall[wall[closest].point2].pt.x;
+		const int y2 = wall[wall[closest].point2].pt.y;
 
 		if (dmulscalen<32>(xplc - x1, y2 - y1, -(x2 - x1), yplc - y1) >= 0)
 			closest = wall[closest].nextwall;
@@ -5827,7 +5827,7 @@ int getpointhighlight(int xplc, int yplc)
 	
 	for(int i{0}; i < numwalls; ++i)
 	{
-		const int dst = std::abs(xplc-wall[i].x) + std::abs(yplc-wall[i].y);
+		const int dst = std::abs(xplc-wall[i].pt.x) + std::abs(yplc-wall[i].pt.y);
 		if (dst <= dist) {
 			dist = dst;
 			closest = i;
@@ -5864,13 +5864,13 @@ void adjustmark(int *xplc, int *yplc, short danumwalls)
 	
 	for(int i{0}; i < danumwalls; ++i)
 	{
-		const int dst = std::abs((*xplc)-wall[i].x) + std::abs((*yplc)-wall[i].y);
+		const int dst = std::abs((*xplc)-wall[i].pt.x) + std::abs((*yplc)-wall[i].pt.y);
 		
 		if (dst < dist)
 		{
 			dist = dst;
-			dax = wall[i].x;
-			day = wall[i].y;
+			dax = wall[i].pt.x;
+			day = wall[i].pt.y;
 		}
 	}
 
@@ -5892,10 +5892,10 @@ bool checkautoinsert(int dax, int day, short danumwalls)
 
 	for(int i{0}; i < danumwalls; ++i)       // Check if a point should be inserted
 	{
-		const int x1 = wall[i].x;
-		const int y1 = wall[i].y;
-		const int x2 = wall[wall[i].point2].x;
-		const int y2 = wall[wall[i].point2].y;
+		const int x1 = wall[i].pt.x;
+		const int y1 = wall[i].pt.y;
+		const int x2 = wall[wall[i].point2].pt.x;
+		const int y2 = wall[wall[i].point2].pt.y;
 
 		// FIXME: Fastest way to check this?
 		if ((x1 != dax) || (y1 != day))
@@ -5918,19 +5918,19 @@ ClockDir_t clockdir(short wallstart)   //Returns: 0 is CW, 1 is CCW
 	do
 	{
 		i++;
-		if (wall[wall[i].point2].x < minx)
+		if (wall[wall[i].point2].pt.x < minx)
 		{
-			minx = wall[wall[i].point2].x;
+			minx = wall[wall[i].point2].pt.x;
 			themin = i;
 		}
 	} while ((wall[i].point2 != wallstart) && (i < MAXWALLS));
 
-	const int x0 = wall[themin].x;
-	const int y0 = wall[themin].y;
-	const int x1 = wall[wall[themin].point2].x;
-	const int y1 = wall[wall[themin].point2].y;
-	const int x2 = wall[wall[wall[themin].point2].point2].x;
-	const int y2 = wall[wall[wall[themin].point2].point2].y;
+	const int x0 = wall[themin].pt.x;
+	const int y0 = wall[themin].pt.y;
+	const int x1 = wall[wall[themin].point2].pt.x;
+	const int y1 = wall[wall[themin].point2].pt.y;
+	const int x2 = wall[wall[wall[themin].point2].point2].pt.x;
+	const int y2 = wall[wall[wall[themin].point2].point2].pt.y;
 
 	if ((y1 >= y2) && (y1 <= y0)) return ClockDir_t::CW;
 	if ((y1 >= y0) && (y1 <= y2)) return ClockDir_t::CCW;
@@ -5950,8 +5950,8 @@ void flipwalls(short numwalls, short newnumwalls)
 	for(int i{numwalls}; i < numwalls + (nume >> 1); ++i)
 	{
 		const int j = numwalls + newnumwalls - i - 1;
-		std::swap(wall[i].x, wall[j].x);
-		std::swap(wall[i].y, wall[j].y);
+		std::swap(wall[i].pt.x, wall[j].pt.x);
+		std::swap(wall[i].pt.y, wall[j].pt.y);
 	}
 }
 
@@ -5970,8 +5970,8 @@ void insertpoint(short linehighlight, int dax, int day)
 	std::memcpy(&wall[j+1],&wall[j],sizeof(walltype));
 
 	wall[j].point2 = j+1;
-	wall[j+1].x = dax;
-	wall[j+1].y = day;
+	wall[j+1].pt.x = dax;
+	wall[j+1].pt.y = day;
 	fixrepeats((short)j);
 	fixrepeats((short)j+1);
 
@@ -5990,8 +5990,8 @@ void insertpoint(short linehighlight, int dax, int day)
 		std::memcpy(&wall[k+1],&wall[k],sizeof(walltype));
 
 		wall[k].point2 = k+1;
-		wall[k+1].x = dax;
-		wall[k+1].y = day;
+		wall[k+1].pt.x = dax;
+		wall[k+1].pt.y = day;
 		fixrepeats((short)k);
 		fixrepeats((short)k+1);
 
@@ -6141,16 +6141,16 @@ void movewalls(int start, int offs)
 
 void checksectorpointer(short i, short sectnum)
 {
-	const int x1 = wall[i].x;
-	const int y1 = wall[i].y;
-	const int x2 = wall[wall[i].point2].x;
-	const int y2 = wall[wall[i].point2].y;
+	const int x1 = wall[i].pt.x;
+	const int y1 = wall[i].pt.y;
+	const int x2 = wall[wall[i].point2].pt.x;
+	const int y2 = wall[wall[i].point2].pt.y;
 
 	if (wall[i].nextwall >= 0)          //Check for early exit
 	{
 		const int k = wall[i].nextwall;
-		if ((wall[k].x == x2) && (wall[k].y == y2))
-			if ((wall[wall[k].point2].x == x1) && (wall[wall[k].point2].y == y1))
+		if ((wall[k].pt.x == x2) && (wall[k].pt.y == y2))
+			if ((wall[wall[k].point2].pt.x == x1) && (wall[wall[k].point2].pt.y == y1))
 				return;
 	}
 
@@ -6164,8 +6164,8 @@ void checksectorpointer(short i, short sectnum)
 
 		for(int k{startwall}; k <= endwall; ++k)
 		{
-			if ((wall[k].x == x2) && (wall[k].y == y2))
-				if ((wall[wall[k].point2].x == x1) && (wall[wall[k].point2].y == y1))
+			if ((wall[k].pt.x == x2) && (wall[k].pt.y == y2))
+				if ((wall[wall[k].point2].pt.x == x1) && (wall[wall[k].point2].pt.y == y1))
 					if (j != sectnum)
 					{
 						wall[i].nextsector = j;
@@ -6179,8 +6179,8 @@ void checksectorpointer(short i, short sectnum)
 
 void fixrepeats(short i)
 {
-	int dax = wall[wall[i].point2].x-wall[i].x;
-	int day = wall[wall[i].point2].y-wall[i].y;
+	int dax = wall[wall[i].point2].pt.x - wall[i].pt.x;
+	int day = wall[wall[i].point2].pt.y - wall[i].pt.y;
 	const int dist = static_cast<int>(std::hypot(dax, day));
 	dax = wall[i].xrepeat; // TODO: Why set this again?
 	day = wall[i].yrepeat;
@@ -6203,13 +6203,13 @@ short loopinside(int x, int y, short startwall)
 
 	do
 	{
-		int x1 = wall[i].x;
-		int x2 = wall[wall[i].point2].x;
+		int x1 = wall[i].pt.x;
+		int x2 = wall[wall[i].point2].pt.x;
 
 		if ((x1 >= x) || (x2 >= x))
 		{
-			int y1 = wall[i].y;
-			int y2 = wall[wall[i].point2].y;
+			int y1 = wall[i].pt.y;
+			int y2 = wall[wall[i].point2].pt.y;
 
 			if (y1 > y2)
 			{
@@ -6562,8 +6562,8 @@ void fillsector(short sectnum, unsigned char fillcolor)
 
 	for(short z{startwall}; z <= endwall; ++z)
 	{
-		const short y1 = (((wall[z].y-posy)*zoom)>>14)+midydim16;
-		const short y2 = (((wall[wall[z].point2].y-posy)*zoom)>>14)+midydim16;
+		const short y1 = (((wall[z].pt.y-posy)*zoom)>>14)+midydim16;
+		const short y2 = (((wall[wall[z].point2].pt.y-posy)*zoom)>>14)+midydim16;
 
 		if (y1 < miny)
 			miny = y1;
@@ -6593,10 +6593,10 @@ void fillsector(short sectnum, unsigned char fillcolor)
 
 		for(short z{startwall}; z <= endwall; ++z)
 		{
-			int x1 = wall[z].x;
-			int x2 = wall[wall[z].point2].x;
-			int y1 = wall[z].y;
-			int y2 = wall[wall[z].point2].y;
+			int x1 = wall[z].pt.x;
+			int x2 = wall[wall[z].point2].pt.x;
+			int y1 = wall[z].pt.y;
+			int y2 = wall[wall[z].point2].pt.y;
 			
 			if (y1 > y2)
 			{
@@ -6658,8 +6658,8 @@ short whitelinescan(short dalinehighlight)
 			j = wall[j].point2;
 			for(int k{0}; k < numwalls; ++k)
 			{
-				if (wall[wall[k].point2].x == wall[j].x)
-					if (wall[wall[k].point2].y == wall[j].y)
+				if (wall[wall[k].point2].pt.x == wall[j].pt.x)
+					if (wall[wall[k].point2].pt.y == wall[j].pt.y)
 						if (wall[k].nextwall == -1)
 						{
 							j = k;
@@ -7132,10 +7132,10 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 				if (totalclock & 8) col += (2<<2);
 		}
 
-		xp1 = mulscalen<14>(wal->x-posxe,zoome);
-		yp1 = mulscalen<14>(wal->y-posye,zoome);
-		xp2 = mulscalen<14>(wall[wal->point2].x-posxe,zoome);
-		yp2 = mulscalen<14>(wall[wal->point2].y-posye,zoome);
+		xp1 = mulscalen<14>(wal->pt.x-posxe,zoome);
+		yp1 = mulscalen<14>(wal->pt.y-posye,zoome);
+		xp2 = mulscalen<14>(wall[wal->point2].pt.x-posxe,zoome);
+		yp2 = mulscalen<14>(wall[wal->point2].pt.y-posye,zoome);
 
 		if ((wal->cstat&64) > 0)
 		{
@@ -7555,9 +7555,9 @@ void showwalldata(short wallnum)
 
 	fmt::format_to(&snotbuf[0],"Wall {}",wallnum);
 	printext16(8,32,11,-1, &snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"X-coordinate: {}",wall[wallnum].x);
+	fmt::format_to(&snotbuf[0],"X-coordinate: {}",wall[wallnum].pt.x);
 	printext16(8,48,11,-1,&snotbuf[0],0);
-	fmt::format_to(&snotbuf[0],"Y-coordinate: {}",wall[wallnum].y);
+	fmt::format_to(&snotbuf[0],"Y-coordinate: {}",wall[wallnum].pt.y);
 	printext16(8,56,11,-1,&snotbuf[0],0);
 	fmt::format_to(&snotbuf[0],"Point2: {}",wall[wallnum].point2);
 	printext16(8,64,11,-1,&snotbuf[0],0);
@@ -7593,8 +7593,8 @@ void showwalldata(short wallnum)
 	fmt::format_to(&snotbuf[0],"Extra: {}",wall[wallnum].extra);
 	printext16(400,72,11,-1,&snotbuf[0],0);
 
-	int dax = wall[wallnum].x-wall[wall[wallnum].point2].x;
-	const int day = wall[wallnum].y-wall[wall[wallnum].point2].y;
+	int dax = wall[wallnum].pt.x-wall[wall[wallnum].point2].pt.x;
+	const int day = wall[wallnum].pt.y-wall[wall[wallnum].point2].pt.y;
 	const int dist = static_cast<int>(std::hypot(dax, day));
 	fmt::format_to(&snotbuf[0],"Wall length: {}",dist>>4);
 	printext16(400,96,11,-1,&snotbuf[0],0);
@@ -7775,27 +7775,27 @@ void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny)
 	}
 
 	walltype* wal = &wall[dawall];
-	const int dx = wall[wal->point2].x-wal->x;
-	const int dy = wall[wal->point2].y-wal->y;
-	int i = dx*(x-wal->x) + dy*(y-wal->y);
+	const int dx = wall[wal->point2].pt.x-wal->pt.x;
+	const int dy = wall[wal->point2].pt.y-wal->pt.y;
+	int i = dx*(x-wal->pt.x) + dy*(y-wal->pt.y);
 
 	if (i <= 0) {
-		*nx = wal->x;
-		*ny = wal->y;
+		*nx = wal->pt.x;
+		*ny = wal->pt.y;
 		return;
 	}
 
 	const int j = dx * dx + dy * dy;
 
 	if (i >= j) {
-		*nx = wal->x + dx;
-		*ny = wal->y + dy;
+		*nx = wal->pt.x + dx;
+		*ny = wal->pt.y + dy;
 		return;
 	}
 
 	i = divscalen<30>(i, j);
-	*nx = wal->x + mulscalen<30>(dx, i);
-	*ny = wal->y + mulscalen<30>(dy, i);
+	*nx = wal->pt.x + mulscalen<30>(dx, i);
+	*ny = wal->pt.y + mulscalen<30>(dy, i);
 }
 
 void initcrc()
@@ -7911,12 +7911,12 @@ void AutoAlignWalls(int nWall0, int ply)
 					//ignore two sided walls that have no visible face
 				const int nSector = wall[wall[nWall1].nextwall].nextsector;
 
-				if (getceilzofslope((short)nSector, wall[nWall1].x, wall[nWall1].y) <
-					getceilzofslope((short)nNextSector, wall[nWall1].x, wall[nWall1].y))
+				if (getceilzofslope((short)nSector, wall[nWall1].pt.x, wall[nWall1].pt.y) <
+					getceilzofslope((short)nNextSector, wall[nWall1].pt.x, wall[nWall1].pt.y))
 					visible = true;
 
-				if (getflorzofslope((short)nSector, wall[nWall1].x, wall[nWall1].y) >
-					getflorzofslope((short)nNextSector, wall[nWall1].x, wall[nWall1].y))
+				if (getflorzofslope((short)nSector, wall[nWall1].pt.x, wall[nWall1].pt.y) >
+					getflorzofslope((short)nNextSector, wall[nWall1].pt.x, wall[nWall1].pt.y))
 					visible = true;
 			}
 

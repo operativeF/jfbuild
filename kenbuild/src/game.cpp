@@ -815,8 +815,8 @@ void operatesector(short dasector)
 	centx = 0L, centy = 0L;
 	for(i=startwall;i<endwall;i++)
 	{
-		centx += wall[i].x;
-		centy += wall[i].y;
+		centx += wall[i].pt.x;
+		centy += wall[i].pt.y;
 	}
 	centx /= (endwall-startwall);
 	centy /= (endwall-startwall);
@@ -893,7 +893,7 @@ void operatesector(short dasector)
 		wallfind[0] = -1;
 		wallfind[1] = -1;
 		for(i=startwall;i<endwall;i++)
-			if ((wall[i].x == centx) || (wall[i].y == centy))
+			if ((wall[i].pt.x == centx) || (wall[i].pt.y == centy))
 			{
 				if (wallfind[0] == -1)
 					wallfind[0] = i;
@@ -903,46 +903,46 @@ void operatesector(short dasector)
 
 		for(j=0;j<2;j++)
 		{
-			if ((wall[wallfind[j]].x == centx) && (wall[wallfind[j]].y == centy))
+			if ((wall[wallfind[j]].pt.x == centx) && (wall[wallfind[j]].pt.y == centy))
 			{
 				//find what direction door should open by averaging the
 				//  2 neighboring points of wallfind[0] & wallfind[1].
 				i = wallfind[j]-1; if (i < startwall) i = endwall-1;
-				dax2 = ((wall[i].x+wall[wall[wallfind[j]].point2].x)>>1)-wall[wallfind[j]].x;
-				day2 = ((wall[i].y+wall[wall[wallfind[j]].point2].y)>>1)-wall[wallfind[j]].y;
+				dax2 = ((wall[i].pt.x+wall[wall[wallfind[j]].point2].pt.x)>>1)-wall[wallfind[j]].pt.x;
+				day2 = ((wall[i].pt.y+wall[wall[wallfind[j]].point2].pt.y)>>1)-wall[wallfind[j]].pt.y;
 				if (dax2 != 0)
 				{
-					dax2 = wall[wall[wall[wallfind[j]].point2].point2].x;
-					dax2 -= wall[wall[wallfind[j]].point2].x;
-					setanimation(&wall[wallfind[j]].x,wall[wallfind[j]].x+dax2,4L,0L);
-					setanimation(&wall[i].x,wall[i].x+dax2,4L,0L);
-					setanimation(&wall[wall[wallfind[j]].point2].x,wall[wall[wallfind[j]].point2].x+dax2,4L,0L);
+					dax2 = wall[wall[wall[wallfind[j]].point2].point2].pt.x;
+					dax2 -= wall[wall[wallfind[j]].point2].pt.x;
+					setanimation(&wall[wallfind[j]].pt.x, wall[wallfind[j]].pt.x + dax2,4L,0L);
+					setanimation(&wall[i].pt.x,wall[i].pt.x+dax2,4L,0L);
+					setanimation(&wall[wall[wallfind[j]].point2].pt.x, wall[wall[wallfind[j]].point2].pt.x + dax2,4L,0L);
 				}
 				else if (day2 != 0)
 				{
-					day2 = wall[wall[wall[wallfind[j]].point2].point2].y;
-					day2 -= wall[wall[wallfind[j]].point2].y;
-					setanimation(&wall[wallfind[j]].y,wall[wallfind[j]].y+day2,4L,0L);
-					setanimation(&wall[i].y,wall[i].y+day2,4L,0L);
-					setanimation(&wall[wall[wallfind[j]].point2].y,wall[wall[wallfind[j]].point2].y+day2,4L,0L);
+					day2 = wall[wall[wall[wallfind[j]].point2].point2].pt.y;
+					day2 -= wall[wall[wallfind[j]].point2].pt.y;
+					setanimation(&wall[wallfind[j]].pt.y,wall[wallfind[j]].pt.y+day2,4L,0L);
+					setanimation(&wall[i].pt.y,wall[i].pt.y+day2,4L,0L);
+					setanimation(&wall[wall[wallfind[j]].point2].pt.y,wall[wall[wallfind[j]].point2].pt.y+day2,4L,0L);
 				}
 			}
 			else
 			{
 				i = wallfind[j]-1; if (i < startwall) i = endwall-1;
-				dax2 = ((wall[i].x+wall[wall[wallfind[j]].point2].x)>>1)-wall[wallfind[j]].x;
-				day2 = ((wall[i].y+wall[wall[wallfind[j]].point2].y)>>1)-wall[wallfind[j]].y;
+				dax2 = ((wall[i].pt.x+wall[wall[wallfind[j]].point2].pt.x)>>1)-wall[wallfind[j]].pt.x;
+				day2 = ((wall[i].pt.y+wall[wall[wallfind[j]].point2].pt.y)>>1)-wall[wallfind[j]].pt.y;
 				if (dax2 != 0)
 				{
-					setanimation(&wall[wallfind[j]].x,centx,4L,0L);
-					setanimation(&wall[i].x,centx+dax2,4L,0L);
-					setanimation(&wall[wall[wallfind[j]].point2].x,centx+dax2,4L,0L);
+					setanimation(&wall[wallfind[j]].pt.x,centx,4L,0L);
+					setanimation(&wall[i].pt.x,centx+dax2,4L,0L);
+					setanimation(&wall[wall[wallfind[j]].point2].pt.x,centx+dax2,4L,0L);
 				}
 				else if (day2 != 0)
 				{
-					setanimation(&wall[wallfind[j]].y,centy,4L,0L);
-					setanimation(&wall[i].y,centy+day2,4L,0L);
-					setanimation(&wall[wall[wallfind[j]].point2].y,centy+day2,4L,0L);
+					setanimation(&wall[wallfind[j]].pt.y,centy,4L,0L);
+					setanimation(&wall[i].pt.y,centy+day2,4L,0L);
+					setanimation(&wall[wall[wallfind[j]].point2].pt.y,centy+day2,4L,0L);
 				}
 			}
 		}
@@ -971,8 +971,8 @@ void operatesector(short dasector)
 
 				for(j=1;j<=3;j++)
 				{
-					setinterpolation(&wall[swingwall[i][j]].x);
-					setinterpolation(&wall[swingwall[i][j]].y);
+					setinterpolation(&wall[swingwall[i][j]].pt.x);
+					setinterpolation(&wall[swingwall[i][j]].pt.y);
 				}
 			}
 		}
@@ -994,49 +994,49 @@ void operatesector(short dasector)
 
 		for(j=0;j<2;j++)
 		{
-			if ((((wall[wallfind[j]].x+wall[wall[wallfind[j]].point2].x)>>1) == centx) && (((wall[wallfind[j]].y+wall[wall[wallfind[j]].point2].y)>>1) == centy))
+			if ((((wall[wallfind[j]].pt.x + wall[wall[wallfind[j]].point2].pt.x)>>1) == centx) && (((wall[wallfind[j]].pt.y + wall[wall[wallfind[j]].point2].pt.y)>>1) == centy))
 			{     //door was closed
 					//find what direction door should open
 				i = wallfind[j]-1; if (i < startwall) i = endwall-1;
-				dax2 = wall[i].x-wall[wallfind[j]].x;
-				day2 = wall[i].y-wall[wallfind[j]].y;
+				dax2 = wall[i].pt.x-wall[wallfind[j]].pt.x;
+				day2 = wall[i].pt.y-wall[wallfind[j]].pt.y;
 				if (dax2 != 0)
 				{
-					dax2 = wall[wall[wall[wall[wallfind[j]].point2].point2].point2].x;
-					dax2 -= wall[wall[wall[wallfind[j]].point2].point2].x;
-					setanimation(&wall[wallfind[j]].x,wall[wallfind[j]].x+dax2,4L,0L);
-					setanimation(&wall[i].x,wall[i].x+dax2,4L,0L);
-					setanimation(&wall[wall[wallfind[j]].point2].x,wall[wall[wallfind[j]].point2].x+dax2,4L,0L);
-					setanimation(&wall[wall[wall[wallfind[j]].point2].point2].x,wall[wall[wall[wallfind[j]].point2].point2].x+dax2,4L,0L);
+					dax2 = wall[wall[wall[wall[wallfind[j]].point2].point2].point2].pt.x;
+					dax2 -= wall[wall[wall[wallfind[j]].point2].point2].pt.x;
+					setanimation(&wall[wallfind[j]].pt.x,wall[wallfind[j]].pt.x+dax2,4L,0L);
+					setanimation(&wall[i].pt.x,wall[i].pt.x+dax2,4L,0L);
+					setanimation(&wall[wall[wallfind[j]].point2].pt.x,wall[wall[wallfind[j]].point2].pt.x+dax2,4L,0L);
+					setanimation(&wall[wall[wall[wallfind[j]].point2].point2].pt.x,wall[wall[wall[wallfind[j]].point2].point2].pt.x+dax2,4L,0L);
 				}
 				else if (day2 != 0)
 				{
-					day2 = wall[wall[wall[wall[wallfind[j]].point2].point2].point2].y;
-					day2 -= wall[wall[wall[wallfind[j]].point2].point2].y;
-					setanimation(&wall[wallfind[j]].y,wall[wallfind[j]].y+day2,4L,0L);
-					setanimation(&wall[i].y,wall[i].y+day2,4L,0L);
-					setanimation(&wall[wall[wallfind[j]].point2].y,wall[wall[wallfind[j]].point2].y+day2,4L,0L);
-					setanimation(&wall[wall[wall[wallfind[j]].point2].point2].y,wall[wall[wall[wallfind[j]].point2].point2].y+day2,4L,0L);
+					day2 = wall[wall[wall[wall[wallfind[j]].point2].point2].point2].pt.y;
+					day2 -= wall[wall[wall[wallfind[j]].point2].point2].pt.y;
+					setanimation(&wall[wallfind[j]].pt.y,wall[wallfind[j]].pt.y + day2,4L,0L);
+					setanimation(&wall[i].pt.y,wall[i].pt.y+day2,4L,0L);
+					setanimation(&wall[wall[wallfind[j]].point2].pt.y,wall[wall[wallfind[j]].point2].pt.y+day2,4L,0L);
+					setanimation(&wall[wall[wall[wallfind[j]].point2].point2].pt.y,wall[wall[wall[wallfind[j]].point2].point2].pt.y+day2,4L,0L);
 				}
 			}
 			else
 			{    //door was not closed
 				i = wallfind[j]-1; if (i < startwall) i = endwall-1;
-				dax2 = wall[i].x-wall[wallfind[j]].x;
-				day2 = wall[i].y-wall[wallfind[j]].y;
+				dax2 = wall[i].pt.x-wall[wallfind[j]].pt.x;
+				day2 = wall[i].pt.y-wall[wallfind[j]].pt.y;
 				if (dax2 != 0)
 				{
-					setanimation(&wall[wallfind[j]].x,centx,4L,0L);
-					setanimation(&wall[i].x,centx+dax2,4L,0L);
-					setanimation(&wall[wall[wallfind[j]].point2].x,centx,4L,0L);
-					setanimation(&wall[wall[wall[wallfind[j]].point2].point2].x,centx+dax2,4L,0L);
+					setanimation(&wall[wallfind[j]].pt.x,centx,4L,0L);
+					setanimation(&wall[i].pt.x,centx+dax2,4L,0L);
+					setanimation(&wall[wall[wallfind[j]].point2].pt.x,centx,4L,0L);
+					setanimation(&wall[wall[wall[wallfind[j]].point2].point2].pt.x,centx+dax2,4L,0L);
 				}
 				else if (day2 != 0)
 				{
-					setanimation(&wall[wallfind[j]].y,centy,4L,0L);
-					setanimation(&wall[i].y,centy+day2,4L,0L);
-					setanimation(&wall[wall[wallfind[j]].point2].y,centy,4L,0L);
-					setanimation(&wall[wall[wall[wallfind[j]].point2].point2].y,centy+day2,4L,0L);
+					setanimation(&wall[wallfind[j]].pt.y,centy,4L,0L);
+					setanimation(&wall[i].pt.y,centy+day2,4L,0L);
+					setanimation(&wall[wall[wallfind[j]].point2].pt.y,centy,4L,0L);
+					setanimation(&wall[wall[wall[wallfind[j]].point2].point2].pt.y,centy+day2,4L,0L);
 				}
 			}
 		}
@@ -1321,16 +1321,16 @@ void prepareboard(char *daboardfilename)
 				endwall = startwall+g_sector[i].wallnum;
 				for(j=startwall;j<endwall;j++)
 				{
-					if (wall[j].x < dax) dax = wall[j].x;
-					if (wall[j].y < day) day = wall[j].y;
-					if (wall[j].x > dax2) dax2 = wall[j].x;
-					if (wall[j].y > day2) day2 = wall[j].y;
+					if (wall[j].pt.x < dax) dax = wall[j].pt.x;
+					if (wall[j].pt.y < day) day = wall[j].pt.y;
+					if (wall[j].pt.x > dax2) dax2 = wall[j].pt.x;
+					if (wall[j].pt.y > day2) day2 = wall[j].pt.y;
 					if (wall[j].lotag == 3) k = j;
 				}
-				if (wall[k].x == dax) dragxdir[dragsectorcnt] = -16;
-				if (wall[k].y == day) dragydir[dragsectorcnt] = -16;
-				if (wall[k].x == dax2) dragxdir[dragsectorcnt] = 16;
-				if (wall[k].y == day2) dragydir[dragsectorcnt] = 16;
+				if (wall[k].pt.x == dax) dragxdir[dragsectorcnt] = -16;
+				if (wall[k].pt.y == day) dragydir[dragsectorcnt] = -16;
+				if (wall[k].pt.x == dax2) dragxdir[dragsectorcnt] = 16;
+				if (wall[k].pt.y == day2) dragydir[dragsectorcnt] = 16;
 
 				dasector = wall[startwall].nextsector;
 				dragx1[dragsectorcnt] = 0x7fffffff;
@@ -1341,22 +1341,22 @@ void prepareboard(char *daboardfilename)
 				endwall = startwall+g_sector[dasector].wallnum;
 				for(j=startwall;j<endwall;j++)
 				{
-					if (wall[j].x < dragx1[dragsectorcnt]) dragx1[dragsectorcnt] = wall[j].x;
-					if (wall[j].y < dragy1[dragsectorcnt]) dragy1[dragsectorcnt] = wall[j].y;
-					if (wall[j].x > dragx2[dragsectorcnt]) dragx2[dragsectorcnt] = wall[j].x;
-					if (wall[j].y > dragy2[dragsectorcnt]) dragy2[dragsectorcnt] = wall[j].y;
+					if (wall[j].pt.x < dragx1[dragsectorcnt]) dragx1[dragsectorcnt] = wall[j].pt.x;
+					if (wall[j].pt.y < dragy1[dragsectorcnt]) dragy1[dragsectorcnt] = wall[j].pt.y;
+					if (wall[j].pt.x > dragx2[dragsectorcnt]) dragx2[dragsectorcnt] = wall[j].pt.x;
+					if (wall[j].pt.y > dragy2[dragsectorcnt]) dragy2[dragsectorcnt] = wall[j].pt.y;
 
 					setinterpolation(&g_sector[dasector].floorz);
-					setinterpolation(&wall[j].x);
-					setinterpolation(&wall[j].y);
-					setinterpolation(&wall[wall[j].nextwall].x);
-					setinterpolation(&wall[wall[j].nextwall].y);
+					setinterpolation(&wall[j].pt.x);
+					setinterpolation(&wall[j].pt.y);
+					setinterpolation(&wall[wall[j].nextwall].pt.x);
+					setinterpolation(&wall[wall[j].nextwall].pt.y);
 				}
 
-				dragx1[dragsectorcnt] += (wall[g_sector[i].wallptr].x-dax);
-				dragy1[dragsectorcnt] += (wall[g_sector[i].wallptr].y-day);
-				dragx2[dragsectorcnt] -= (dax2-wall[g_sector[i].wallptr].x);
-				dragy2[dragsectorcnt] -= (day2-wall[g_sector[i].wallptr].y);
+				dragx1[dragsectorcnt] += (wall[g_sector[i].wallptr].pt.x-dax);
+				dragy1[dragsectorcnt] += (wall[g_sector[i].wallptr].pt.y-day);
+				dragx2[dragsectorcnt] -= (dax2-wall[g_sector[i].wallptr].pt.x);
+				dragy2[dragsectorcnt] -= (day2-wall[g_sector[i].wallptr].pt.y);
 
 				dragfloorz[dragsectorcnt] = g_sector[i].floorz;
 
@@ -1370,7 +1370,7 @@ void prepareboard(char *daboardfilename)
 					if (wall[j].lotag == 4)
 					{
 						k = wall[wall[wall[wall[j].point2].point2].point2].point2;
-						if ((wall[j].x == wall[k].x) && (wall[j].y == wall[k].y))
+						if ((wall[j].pt.x == wall[k].pt.x) && (wall[j].pt.y == wall[k].pt.y))
 						{     //Door opens counterclockwise
 							swingwall[swingcnt][0] = j;
 							swingwall[swingcnt][1] = wall[j].point2;
@@ -1393,8 +1393,8 @@ void prepareboard(char *daboardfilename)
 						}
 						for(k=0;k<4;k++)
 						{
-							swingx[swingcnt][k] = wall[swingwall[swingcnt][k]].x;
-							swingy[swingcnt][k] = wall[swingwall[swingcnt][k]].y;
+							swingx[swingcnt][k] = wall[swingwall[swingcnt][k]].pt.x;
+							swingy[swingcnt][k] = wall[swingwall[swingcnt][k]].pt.y;
 						}
 
 						swingsector[swingcnt] = i;
@@ -1411,8 +1411,8 @@ void prepareboard(char *daboardfilename)
 				day = 0L;
 				for(j=startwall;j<endwall;j++)
 				{
-					dax += wall[j].x;
-					day += wall[j].y;
+					dax += wall[j].pt.x;
+					day += wall[j].pt.y;
 				}
 				revolvepivotx[revolvecnt] = dax / (endwall-startwall);
 				revolvepivoty[revolvecnt] = day / (endwall-startwall);
@@ -1420,13 +1420,13 @@ void prepareboard(char *daboardfilename)
 				k = 0;
 				for(j=startwall;j<endwall;j++)
 				{
-					revolvex[revolvecnt][k] = wall[j].x;
-					revolvey[revolvecnt][k] = wall[j].y;
+					revolvex[revolvecnt][k] = wall[j].pt.x;
+					revolvey[revolvecnt][k] = wall[j].pt.y;
 
-					setinterpolation(&wall[j].x);
-					setinterpolation(&wall[j].y);
-					setinterpolation(&wall[wall[j].nextwall].x);
-					setinterpolation(&wall[wall[j].nextwall].y);
+					setinterpolation(&wall[j].pt.x);
+					setinterpolation(&wall[j].pt.y);
+					setinterpolation(&wall[wall[j].nextwall].pt.x);
+					setinterpolation(&wall[wall[j].nextwall].pt.y);
 
 					k++;
 				}
@@ -1447,22 +1447,22 @@ void prepareboard(char *daboardfilename)
 				endwall = startwall+g_sector[i].wallnum;
 				for(j=startwall;j<endwall;j++)
 				{
-					if (wall[j].x < dax) dax = wall[j].x;
-					if (wall[j].y < day) day = wall[j].y;
-					if (wall[j].x > dax2) dax2 = wall[j].x;
-					if (wall[j].y > day2) day2 = wall[j].y;
+					if (wall[j].pt.x < dax) dax = wall[j].pt.x;
+					if (wall[j].pt.y < day) day = wall[j].pt.y;
+					if (wall[j].pt.x > dax2) dax2 = wall[j].pt.x;
+					if (wall[j].pt.y > day2) day2 = wall[j].pt.y;
 				}
 				for(j=startwall;j<endwall;j++)
 				{
 					if (wall[j].lotag == 5)
 					{
-						if ((wall[j].x > dax) && (wall[j].y > day) && (wall[j].x < dax2) && (wall[j].y < day2))
+						if ((wall[j].pt.x > dax) && (wall[j].pt.y > day) && (wall[j].pt.x < dax2) && (wall[j].pt.y < day2))
 						{
-							subwayx[subwaytrackcnt] = wall[j].x;
+							subwayx[subwaytrackcnt] = wall[j].pt.x;
 						}
 						else
 						{
-							subwaystop[subwaytrackcnt][subwaystopcnt[subwaytrackcnt]] = wall[j].x;
+							subwaystop[subwaytrackcnt][subwaystopcnt[subwaytrackcnt]] = wall[j].pt.x;
 							subwaystopcnt[subwaytrackcnt]++;
 						}
 					}
@@ -1492,10 +1492,10 @@ void prepareboard(char *daboardfilename)
 					if (j != i)
 					{
 						startwall = g_sector[j].wallptr;
-						if (wall[startwall].x > subwaytrackx1[subwaytrackcnt])
-							if (wall[startwall].y > subwaytracky1[subwaytrackcnt])
-								if (wall[startwall].x < subwaytrackx2[subwaytrackcnt])
-									if (wall[startwall].y < subwaytracky2[subwaytrackcnt])
+						if (wall[startwall].pt.x > subwaytrackx1[subwaytrackcnt])
+							if (wall[startwall].pt.y > subwaytracky1[subwaytrackcnt])
+								if (wall[startwall].pt.x < subwaytrackx2[subwaytrackcnt])
+									if (wall[startwall].pt.y < subwaytracky2[subwaytrackcnt])
 									{
 										if (g_sector[j].floorz != g_sector[i].floorz)
 										{
@@ -1513,11 +1513,11 @@ void prepareboard(char *daboardfilename)
 				startwall = g_sector[i].wallptr;
 				endwall = startwall+g_sector[i].wallnum;
 				for(k=startwall;k<endwall;k++)
-					if (wall[k].x > subwaytrackx1[subwaytrackcnt])
-						if (wall[k].y > subwaytracky1[subwaytrackcnt])
-							if (wall[k].x < subwaytrackx2[subwaytrackcnt])
-								if (wall[k].y < subwaytracky2[subwaytrackcnt])
-									setinterpolation(&wall[k].x);
+					if (wall[k].pt.x > subwaytrackx1[subwaytrackcnt])
+						if (wall[k].pt.y > subwaytracky1[subwaytrackcnt])
+							if (wall[k].pt.x < subwaytrackx2[subwaytrackcnt])
+								if (wall[k].pt.y < subwaytracky2[subwaytrackcnt])
+									setinterpolation(&wall[k].pt.x);
 
 				for(j=1;j<subwaynumsectors[subwaytrackcnt];j++)
 				{
@@ -1526,7 +1526,7 @@ void prepareboard(char *daboardfilename)
 					startwall = g_sector[dasector].wallptr;
 					endwall = startwall+g_sector[dasector].wallnum;
 					for(k=startwall;k<endwall;k++)
-						setinterpolation(&wall[k].x);
+						setinterpolation(&wall[k].pt.x);
 
 					for(k=headspritesect[dasector];k>=0;k=nextspritesect[k])
 						if (statrate[sprite[k].statnum] < 0)
@@ -1886,7 +1886,7 @@ void shootgun(short snum, int x, int y, int z,
 			if (wall[hitwall].picnum == KENPICTURE)
 			{
 				if (waloff[MAXTILES-1] != 0) wall[hitwall].picnum = MAXTILES-1;
-				wsayfollow("hello.wav",4096L+(krand()&127)-64,256L,&wall[hitwall].x,&wall[hitwall].y,0);
+				wsayfollow("hello.wav",4096L+(krand()&127)-64,256L,&wall[hitwall].pt.x,&wall[hitwall].pt.y,0);
 			}
 			else if (((hitwall < 0) && (hitsprite < 0) && (hitz >= z) && ((g_sector[hitsect].floorpicnum == SLIME) || (g_sector[hitsect].floorpicnum == FLOORMIRROR))) || ((hitwall >= 0) && (wall[hitwall].picnum == SLIME)))
 			{    //If you shoot slime, make a splash
@@ -2162,13 +2162,13 @@ void tagcode()
 		startwall = g_sector[dasector].wallptr;
 		endwall = startwall+g_sector[dasector].wallnum;
 
-		if (wall[startwall].x+dragxdir[i] < dragx1[i]) dragxdir[i] = 16;
-		if (wall[startwall].y+dragydir[i] < dragy1[i]) dragydir[i] = 16;
-		if (wall[startwall].x+dragxdir[i] > dragx2[i]) dragxdir[i] = -16;
-		if (wall[startwall].y+dragydir[i] > dragy2[i]) dragydir[i] = -16;
+		if (wall[startwall].pt.x+dragxdir[i] < dragx1[i]) dragxdir[i] = 16;
+		if (wall[startwall].pt.y+dragydir[i] < dragy1[i]) dragydir[i] = 16;
+		if (wall[startwall].pt.x+dragxdir[i] > dragx2[i]) dragxdir[i] = -16;
+		if (wall[startwall].pt.y+dragydir[i] > dragy2[i]) dragydir[i] = -16;
 
 		for(j=startwall;j<endwall;j++)
-			dragpoint(j,wall[j].x+dragxdir[i],wall[j].y+dragydir[i]);
+			dragpoint(j,wall[j].pt.x+dragxdir[i],wall[j].pt.y+dragydir[i]);
 		j = g_sector[dasector].floorz;
 		g_sector[dasector].floorz = dragfloorz[i]+(sintable[(lockclock<<4)&2047]>>3);
 
@@ -2203,7 +2203,7 @@ void tagcode()
 				if (swingang[i] == swingangopen[i]) swinganginc[i] = 0;
 			}
 			for(k=1;k<=3;k++)
-				rotatepoint(swingx[i][0],swingy[i][0],swingx[i][k],swingy[i][k],swingang[i],&wall[swingwall[i][k]].x,&wall[swingwall[i][k]].y);
+				rotatepoint(swingx[i][0],swingy[i][0],swingx[i][k],swingy[i][k],swingang[i],&wall[swingwall[i][k]].pt.x,&wall[swingwall[i][k]].pt.y);
 
 			if (swinganginc[i] != 0)
 			{
@@ -2235,7 +2235,7 @@ void tagcode()
 									swingang[i] = ((swingang[i]-swinganginc[i])&2047);
 								}
 								for(k=1;k<=3;k++)
-									rotatepoint(swingx[i][0],swingy[i][0],swingx[i][k],swingy[i][k],swingang[i],&wall[swingwall[i][k]].x,&wall[swingwall[i][k]].y);
+									rotatepoint(swingx[i][0],swingy[i][0],swingx[i][k],swingy[i][k],swingang[i],&wall[swingwall[i][k]].pt.x,&wall[swingwall[i][k]].pt.y);
 								if (swingang[i] == swingangclosed[i])
 								{
 									wsayfollow("closdoor.wav",4096L+(krand()&511)-256,256L,&swingx[i][0],&swingy[i][0],0);
@@ -2256,8 +2256,8 @@ void tagcode()
 		if (swinganginc[i] == 0)
 			for(j=1;j<=3;j++)
 			{
-				stopinterpolation(&wall[swingwall[i][j]].x);
-				stopinterpolation(&wall[swingwall[i][j]].y);
+				stopinterpolation(&wall[swingwall[i][j]].pt.x);
+				stopinterpolation(&wall[swingwall[i][j]].pt.y);
 			}
 	}
 
@@ -2282,11 +2282,11 @@ void tagcode()
 			startwall = g_sector[dasector].wallptr;
 			endwall = startwall+g_sector[dasector].wallnum;
 			for(k=startwall;k<endwall;k++)
-				if (wall[k].x > subwaytrackx1[i])
-					if (wall[k].y > subwaytracky1[i])
-						if (wall[k].x < subwaytrackx2[i])
-							if (wall[k].y < subwaytracky2[i])
-								wall[k].x += subwayvel[i];
+				if (wall[k].pt.x > subwaytrackx1[i])
+					if (wall[k].pt.y > subwaytracky1[i])
+						if (wall[k].pt.x < subwaytrackx2[i])
+							if (wall[k].pt.y < subwaytracky2[i])
+								wall[k].pt.x += subwayvel[i];
 
 			for(j=1;j<subwaynumsectors[i];j++)
 			{
@@ -2295,7 +2295,7 @@ void tagcode()
 				startwall = g_sector[dasector].wallptr;
 				endwall = startwall+g_sector[dasector].wallnum;
 				for(k=startwall;k<endwall;k++)
-					wall[k].x += subwayvel[i];
+					wall[k].pt.x += subwayvel[i];
 
 				for(s=headspritesect[dasector];s>=0;s=nextspritesect[s])
 					sprite[s].x += subwayvel[i];
@@ -2732,7 +2732,7 @@ void statuslistcode()
 				if ((g_sector[j].floorstat&2) && (sprite[i].z > globloz-(8<<8)))
 				{
 					k = g_sector[j].wallptr;
-					daang = getangle(wall[wall[k].point2].x-wall[k].x,wall[wall[k].point2].y-wall[k].y);
+					daang = getangle(wall[wall[k].point2].pt.x-wall[k].pt.x,wall[wall[k].point2].pt.y-wall[k].pt.y);
 					sprite[i].xvel += mulscalen<22>(sintable[(daang+1024)&2047],g_sector[j].floorheinum);
 					sprite[i].yvel += mulscalen<22>(sintable[(daang+512)&2047],g_sector[j].floorheinum);
 				}
@@ -2779,7 +2779,7 @@ void statuslistcode()
 			{
 				k = g_sector[hitobject&(MAXSECTORS-1)].wallptr;
 				l = wall[k].point2;
-				daang = getangle(wall[l].x-wall[k].x,wall[l].y-wall[k].y);
+				daang = getangle(wall[l].pt.x-wall[k].pt.x,wall[l].pt.y-wall[k].pt.y);
 				// both k, l overwritten here
 				auto klz = getzsofslope(hitobject&(MAXSECTORS-1),sprite[i].x,sprite[i].y);
 				
@@ -2814,7 +2814,7 @@ void statuslistcode()
 					if ((sprite[i].picnum != BOMB) || (dax*dax+day*day >= 512))
 					{
 						k = (hitobject&4095); l = wall[k].point2;
-						j = getangle(wall[l].x-wall[k].x,wall[l].y-wall[k].y)+512;
+						j = getangle(wall[l].pt.x-wall[k].pt.x,wall[l].pt.y-wall[k].pt.y)+512;
 
 							//k = cos(ang) * sin(ang) * 2
 						k = mulscalen<13>(sintable[(j+512)&2047],sintable[j&2047]);
@@ -3564,8 +3564,8 @@ void processinput(short snum)
 					if (j == SWITCH3OFF) wall[neartagwall].overpicnum = SWITCH3ON;
 
 					i = wall[neartagwall].point2;
-					dax = ((wall[neartagwall].x+wall[i].x)>>1);
-					day = ((wall[neartagwall].y+wall[i].y)>>1);
+					dax = ((wall[neartagwall].pt.x+wall[i].pt.x)>>1);
+					day = ((wall[neartagwall].pt.y+wall[i].pt.y)>>1);
 					wsayfollow("switch.wav", 4096L + (krand() & 255) - 128, 256L, &dax, &day, 0);
 				}
 
@@ -3700,8 +3700,8 @@ void view(short snum, int *vx, int *vy, int *vz, short *vsectnum, short ang, int
 		*vsectnum = hitsect;
 		if (hitwall >= 0)
 		{
-			daang = getangle(wall[wall[hitwall].point2].x-wall[hitwall].x,
-				  wall[wall[hitwall].point2].y-wall[hitwall].y);
+			daang = getangle(wall[wall[hitwall].point2].pt.x-wall[hitwall].pt.x,
+				  wall[wall[hitwall].point2].pt.y-wall[hitwall].pt.y);
 
 			i = nx*sintable[daang]+ny*sintable[(daang+1536)&2047];
 			if (std::abs(nx) > std::abs(ny)) hx -= mulscalen<28>(nx,i);
@@ -4034,8 +4034,8 @@ void drawscreen(short snum, int dasmoothratio)
 
 				for(k=floormirrorcnt-1;k>=0;k--)
 				{
-					int j = std::abs(wall[g_sector[floormirrorsector[k]].wallptr].x-cposx);
-					j += std::abs(wall[g_sector[floormirrorsector[k]].wallptr].y-cposy);
+					int j = std::abs(wall[g_sector[floormirrorsector[k]].wallptr].pt.x-cposx);
+					j += std::abs(wall[g_sector[floormirrorsector[k]].wallptr].pt.y-cposy);
 
 					if (j < dist) {
 						dist = j;
@@ -5092,12 +5092,12 @@ void findrandomspot(int *x, int *y, short *sectnum)
 
 		for(s=startwall;s<endwall;s++)
 		{
-			dax += wall[s].x;
-			day += wall[s].y;
-			if (wall[s].x < minx) minx = wall[s].x;
-			if (wall[s].x > maxx) maxx = wall[s].x;
-			if (wall[s].y < miny) miny = wall[s].y;
-			if (wall[s].y > maxy) maxy = wall[s].y;
+			dax += wall[s].pt.x;
+			day += wall[s].pt.y;
+			if (wall[s].pt.x < minx) minx = wall[s].pt.x;
+			if (wall[s].pt.x > maxx) maxx = wall[s].pt.x;
+			if (wall[s].pt.y < miny) miny = wall[s].pt.y;
+			if (wall[s].pt.y > maxy) maxy = wall[s].pt.y;
 		}
 
 		if ((maxx-minx <= 256) || (maxy-miny <= 256)) continue;
@@ -5148,7 +5148,7 @@ void warp(int *x, int *y, int *z, short *daang, short *dasector)
 	dax = 0L, day = 0L;
 	for(s=startwall;s<endwall;s++)
 	{
-		dax += wall[s].x, day += wall[s].y;
+		dax += wall[s].pt.x, day += wall[s].pt.y;
 		if (wall[s].nextsector >= 0)
 			i = s;
 	}
@@ -5156,8 +5156,8 @@ void warp(int *x, int *y, int *z, short *daang, short *dasector)
 	*y = day / (endwall-startwall);
 	*z = g_sector[*dasector].floorz-(32<<8);
 	updatesector(*x,*y,dasector);
-	dax = ((wall[i].x+wall[wall[i].point2].x)>>1);
-	day = ((wall[i].y+wall[wall[i].point2].y)>>1);
+	dax = ((wall[i].pt.x+wall[wall[i].point2].pt.x)>>1);
+	day = ((wall[i].pt.y+wall[wall[i].point2].pt.y)>>1);
 	*daang = getangle(dax-*x,day-*y);
 
 	wsayfollow("warp.wav",3072L+(krand()&127)-64,192L,&ox,&oy,0);
@@ -6191,12 +6191,12 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 				col = 12;
 			}
 
-			ox = wal->x-cposx; oy = wal->y-cposy;
+			ox = wal->pt.x-cposx; oy = wal->pt.y-cposy;
 			x1 = dmulscalen<16>(ox,xvect,-oy,yvect)+(xdim<<11);
 			y1 = dmulscalen<16>(oy,xvect2,ox,yvect2)+(ydim<<11);
 
 			wal2 = &wall[wal->point2];
-			ox = wal2->x-cposx; oy = wal2->y-cposy;
+			ox = wal2->pt.x-cposx; oy = wal2->pt.y-cposy;
 			x2 = dmulscalen<16>(ox,xvect,-oy,yvect)+(xdim<<11);
 			y2 = dmulscalen<16>(oy,xvect2,ox,yvect2)+(ydim<<11);
 
@@ -6372,13 +6372,13 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 				{ x1 = x2; y1 = y2; }
 			else
 			{
-				ox = wal->x-cposx; oy = wal->y-cposy;
+				ox = wal->pt.x-cposx; oy = wal->pt.y-cposy;
 				x1 = dmulscalen<16>(ox,xvect,-oy,yvect)+(xdim<<11);
 				y1 = dmulscalen<16>(oy,xvect2,ox,yvect2)+(ydim<<11);
 			}
 
 			k = wal->point2; wal2 = &wall[k];
-			ox = wal2->x-cposx; oy = wal2->y-cposy;
+			ox = wal2->pt.x-cposx; oy = wal2->pt.y-cposy;
 			x2 = dmulscalen<16>(ox,xvect,-oy,yvect)+(xdim<<11);
 			y2 = dmulscalen<16>(oy,xvect2,ox,yvect2)+(ydim<<11);
 

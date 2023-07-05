@@ -2337,12 +2337,12 @@ void polymost_drawalls (int bunch)
 		nextsectnum = wal->nextsector; nextsec = &g_sector[nextsectnum];
 
 			//Offset&Rotate 3D coordinates to screen 3D space
-		x = wal->x-globalposx;
-		y = wal->y-globalposy;
+		x = wal->pt.x-globalposx;
+		y = wal->pt.y-globalposy;
 		xp0 = (double)y*gcosang  - (double)x*gsinang;
 		yp0 = (double)x*gcosang2 + (double)y*gsinang2;
-		x = wal2->x-globalposx;
-		y = wal2->y-globalposy;
+		x = wal2->pt.x-globalposx;
+		y = wal2->pt.y-globalposy;
 		xp1 = (double)y*gcosang  - (double)x*gsinang;
 		yp1 = (double)x*gcosang2 + (double)y*gsinang2;
 
@@ -2358,13 +2358,13 @@ void polymost_drawalls (int bunch)
 			t0 = (SCISDIST-yp0)/(yp1-yp0);
 			xp0 = (xp1-xp0)*t0+xp0;
 			yp0 = SCISDIST;
-			nx0 = (wal2->x-wal->x)*t0+wal->x;
-			ny0 = (wal2->y-wal->y)*t0+wal->y;
+			nx0 = (wal2->pt.x-wal->pt.x)*t0+wal->pt.x;
+			ny0 = (wal2->pt.y-wal->pt.y)*t0+wal->pt.y;
 		}
 		else {
 			t0 = 0.F;
-			nx0 = wal->x;
-			ny0 = wal->y;
+			nx0 = wal->pt.x;
+			ny0 = wal->pt.y;
 		}
 
 		if (yp1 < SCISDIST)
@@ -2372,13 +2372,13 @@ void polymost_drawalls (int bunch)
 			t1 = (SCISDIST-oyp0)/(yp1-oyp0);
 			xp1 = (xp1-oxp0)*t1+oxp0;
 			yp1 = SCISDIST;
-			nx1 = (wal2->x-wal->x)*t1+wal->x;
-			ny1 = (wal2->y-wal->y)*t1+wal->y;
+			nx1 = (wal2->pt.x-wal->pt.x)*t1+wal->pt.x;
+			ny1 = (wal2->pt.y-wal->pt.y)*t1+wal->pt.y;
 		}
 		else {
 			t1 = 1.F;
-			nx1 = wal2->x;
-			ny1 = wal2->y;
+			nx1 = wal2->pt.x;
+			ny1 = wal2->pt.y;
 		}
 
 		ryp0 = 1.F/yp0;
@@ -2417,15 +2417,15 @@ void polymost_drawalls (int bunch)
 			else
 			{
 					//relative alignment
-				fx = (double)(wall[wall[sec->wallptr].point2].x-wall[sec->wallptr].x);
-				fy = (double)(wall[wall[sec->wallptr].point2].y-wall[sec->wallptr].y);
+				fx = (double)(wall[wall[sec->wallptr].point2].pt.x-wall[sec->wallptr].pt.x);
+				fy = (double)(wall[wall[sec->wallptr].point2].pt.y-wall[sec->wallptr].pt.y);
 				r = 1.0/std::hypot(fx, fy);
 				fx *= r;
 				fy *= r;
 				ft[2] = cosglobalang*fx + singlobalang*fy;
 				ft[3] = singlobalang*fx - cosglobalang*fy;
-				ft[0] = ((double)(globalposx-wall[sec->wallptr].x))*fx + ((double)(globalposy-wall[sec->wallptr].y))*fy;
-				ft[1] = ((double)(globalposy-wall[sec->wallptr].y))*fx - ((double)(globalposx-wall[sec->wallptr].x))*fy;
+				ft[0] = ((double)(globalposx-wall[sec->wallptr].pt.x))*fx + ((double)(globalposy-wall[sec->wallptr].pt.y))*fy;
+				ft[1] = ((double)(globalposy-wall[sec->wallptr].pt.y))*fx - ((double)(globalposx-wall[sec->wallptr].pt.x))*fy;
 				if (!(globalorientation&4)) globalorientation ^= 32; else globalorientation ^= 16;
 			}
 			gdx = 0;
@@ -2824,15 +2824,15 @@ void polymost_drawalls (int bunch)
 			else
 			{
 					//relative alignment
-				fx = (double)(wall[wall[sec->wallptr].point2].x-wall[sec->wallptr].x);
-				fy = (double)(wall[wall[sec->wallptr].point2].y-wall[sec->wallptr].y);
+				fx = (double)(wall[wall[sec->wallptr].point2].pt.x-wall[sec->wallptr].pt.x);
+				fy = (double)(wall[wall[sec->wallptr].point2].pt.y-wall[sec->wallptr].pt.y);
 				r = 1.0/std::hypot(fx, fy);
 				fx *= r;
 				fy *= r;
 				ft[2] = cosglobalang*fx + singlobalang*fy;
 				ft[3] = singlobalang*fx - cosglobalang*fy;
-				ft[0] = ((double)(globalposx-wall[sec->wallptr].x))*fx + ((double)(globalposy-wall[sec->wallptr].y))*fy;
-				ft[1] = ((double)(globalposy-wall[sec->wallptr].y))*fx - ((double)(globalposx-wall[sec->wallptr].x))*fy;
+				ft[0] = ((double)(globalposx-wall[sec->wallptr].pt.x))*fx + ((double)(globalposy-wall[sec->wallptr].pt.y))*fy;
+				ft[1] = ((double)(globalposy-wall[sec->wallptr].pt.y))*fx - ((double)(globalposx-wall[sec->wallptr].pt.x))*fy;
 				if (!(globalorientation&4)) globalorientation ^= 32; else globalorientation ^= 16;
 			}
 			gdx = 0;
@@ -3501,10 +3501,10 @@ void polymost_scansector (int sectnum)
 		for(z=startwall,wal=&wall[z];z<endwall;z++,wal++)
 		{
 			wal2 = &wall[wal->point2];
-			x1 = wal->x-globalposx;
-			y1 = wal->y-globalposy;
-			x2 = wal2->x-globalposx;
-			y2 = wal2->y-globalposy;
+			x1 = wal->pt.x-globalposx;
+			y1 = wal->pt.y-globalposy;
+			x2 = wal2->pt.x-globalposx;
+			y2 = wal2->pt.y-globalposy;
 
 			nextsectnum = wal->nextsector; //Scan close sectors
 			if ((nextsectnum >= 0) && (!(wal->cstat&32)) && (!(gotsector[nextsectnum >> 3] & pow2char[nextsectnum & 7])))
@@ -3903,8 +3903,8 @@ void polymost_drawmaskwall (int damaskwallcnt)
 	globalpal = (int)((unsigned char)wal->pal);
 	globalorientation = (int)wal->cstat;
 
-	sx0 = (float)(wal->x-globalposx); sx1 = (float)(wal2->x-globalposx);
-	sy0 = (float)(wal->y-globalposy); sy1 = (float)(wal2->y-globalposy);
+	sx0 = (float)(wal->pt.x-globalposx); sx1 = (float)(wal2->pt.x-globalposx);
+	sy0 = (float)(wal->pt.y-globalposy); sy1 = (float)(wal2->pt.y-globalposy);
 	yp0 = sx0*gcosang2 + sy0*gsinang2;
 	yp1 = sx1*gcosang2 + sy1*gsinang2;
 	if ((yp0 < SCISDIST) && (yp1 < SCISDIST)) return;
@@ -3919,10 +3919,10 @@ void polymost_drawmaskwall (int damaskwallcnt)
 						else { t1 = 1.F; }
 
 	std::array<ceilfloorz, 4> cfz;
-	cfz[0] = getzsofslope(sectnum,(int)((wal2->x-wal->x)*t0+wal->x),(int)((wal2->y-wal->y)*t0+wal->y));
-	cfz[1] = getzsofslope(wal->nextsector,(int)((wal2->x-wal->x)*t0+wal->x),(int)((wal2->y-wal->y)*t0+wal->y));
-	cfz[2] = getzsofslope(sectnum,(int)((wal2->x-wal->x)*t1+wal->x),(int)((wal2->y-wal->y)*t1+wal->y));
-	cfz[3] = getzsofslope(wal->nextsector,(int)((wal2->x-wal->x)*t1+wal->x),(int)((wal2->y-wal->y)*t1+wal->y));
+	cfz[0] = getzsofslope(sectnum,(int)((wal2->pt.x-wal->pt.x)*t0+wal->pt.x),(int)((wal2->pt.y-wal->pt.y)*t0+wal->pt.y));
+	cfz[1] = getzsofslope(wal->nextsector,(int)((wal2->pt.x-wal->pt.x)*t0+wal->pt.x),(int)((wal2->pt.y-wal->pt.y)*t0+wal->pt.y));
+	cfz[2] = getzsofslope(sectnum,(int)((wal2->pt.x-wal->pt.x)*t1+wal->pt.x),(int)((wal2->pt.y-wal->pt.y)*t1+wal->pt.y));
+	cfz[3] = getzsofslope(wal->nextsector,(int)((wal2->pt.x-wal->pt.x)*t1+wal->pt.x),(int)((wal2->pt.y-wal->pt.y)*t1+wal->pt.y));
 
 	ryp0 = 1.F/yp0; ryp1 = 1.F/yp1;
 

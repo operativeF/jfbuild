@@ -534,8 +534,10 @@ void scansector(short sectnum)
 			const short nextsectnum = wal->nextsector;
 
 			wal2 = &wall[wal->point2];
-			x1 = wal->x-globalposx; y1 = wal->y-globalposy;
-			x2 = wal2->x-globalposx; y2 = wal2->y-globalposy;
+			x1 = wal->pt.x - globalposx;
+			y1 = wal->pt.y - globalposy;
+			x2 = wal2->pt.x - globalposx;
+			y2 = wal2->pt.y - globalposy;
 
 			if ((nextsectnum >= 0) && ((wal->cstat&32) == 0))
 				if ((gotsector[nextsectnum>>3] & pow2char[nextsectnum & 7]) == 0)
@@ -824,20 +826,20 @@ void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<const s
 int wallfront(int l1, int l2)
 {
 	walltype* wal = &wall[thewall[l1]];
-	const int x11 = wal->x;
-	const int y11 = wal->y;
+	const int x11 = wal->pt.x;
+	const int y11 = wal->pt.y;
 
 	wal = &wall[wal->point2];
-	const int x21 = wal->x;
-	const int y21 = wal->y;
+	const int x21 = wal->pt.x;
+	const int y21 = wal->pt.y;
 
 	wal = &wall[thewall[l2]];
-	const int x12 = wal->x;
-	const int y12 = wal->y;
+	const int x12 = wal->pt.x;
+	const int y12 = wal->pt.y;
 
 	wal = &wall[wal->point2];
-	const int x22 = wal->x;
-	const int y22 = wal->y;
+	const int x22 = wal->pt.x;
+	const int y22 = wal->pt.y;
 
 	int dx = x21 - x11;
 	int dy = y21 - y11;
@@ -893,12 +895,12 @@ namespace {
 bool spritewallfront(const spritetype *s, int w)
 {
 	walltype* wal = &wall[w];
-	const int x1 = wal->x;
-	const int y1 = wal->y;
+	const int x1 = wal->pt.x;
+	const int y1 = wal->pt.y;
 
 	wal = &wall[wal->point2];
 
-	return dmulscalen<32>(wal->x - x1, s->y - y1, -(s->x - x1), wal->y - y1) >= 0;
+	return dmulscalen<32>(wal->pt.x - x1, s->y - y1, -(s->x - x1), wal->pt.y - y1) >= 0;
 }
 
 
@@ -1296,15 +1298,15 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	if (i == g_sector[sectnum].wallptr)
 		return(owallmost(mostbuf,w,z));
 
-	const int x1 = wall[i].x;
-	const int x2 = wall[wall[i].point2].x - x1;
-	const int y1 = wall[i].y;
-	const int y2 = wall[wall[i].point2].y - y1;
+	const int x1 = wall[i].pt.x;
+	const int x2 = wall[wall[i].point2].pt.x - x1;
+	const int y1 = wall[i].pt.y;
+	const int y2 = wall[wall[i].point2].pt.y - y1;
 
 	const int fw = g_sector[sectnum].wallptr;
 	i = wall[fw].point2;
-	const int dx = wall[i].x - wall[fw].x;
-	const int dy = wall[i].y - wall[fw].y;
+	const int dx = wall[i].pt.x - wall[fw].pt.x;
+	const int dy = wall[i].pt.y - wall[fw].pt.y;
 	const int dasqr = krecipasm(static_cast<int>(std::hypot(dx, dy)));
 
 	if (xb1[w] == 0) {
@@ -1331,8 +1333,8 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 		z1 = g_sector[sectnum].floorz;
 	}
 
-	z1 = dmulscalen<24>(dx*t,mulscalen<20>(y2,i)+((y1-wall[fw].y)<<8),
-						 -dy*t,mulscalen<20>(x2,i)+((x1-wall[fw].x)<<8))+((z1-globalposz)<<7);
+	z1 = dmulscalen<24>(dx*t,mulscalen<20>(y2,i)+((y1-wall[fw].pt.y)<<8),
+						 -dy*t,mulscalen<20>(x2,i)+((x1-wall[fw].pt.x)<<8))+((z1-globalposz)<<7);
 
 
 	if (xb2[w] == xdimen - 1) {
@@ -1361,8 +1363,8 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 		z2 = g_sector[sectnum].floorz;
 	}
 
-	z2 = dmulscalen<24>(dx*t,mulscalen<20>(y2,i)+((y1-wall[fw].y)<<8),
-						 -dy*t,mulscalen<20>(x2,i)+((x1-wall[fw].x)<<8))+((z2-globalposz)<<7);
+	z2 = dmulscalen<24>(dx*t,mulscalen<20>(y2,i)+((y1-wall[fw].pt.y)<<8),
+						 -dy*t,mulscalen<20>(x2,i)+((x1-wall[fw].pt.x)<<8))+((z2-globalposz)<<7);
 
 
 	s1 = mulscalen<20>(globaluclip,yb1[w]);
@@ -1559,8 +1561,8 @@ void ceilscan(int x1, int x2, int sectnum)
 	else
 	{
 		int j = sec->wallptr;
-		int ox = wall[wall[j].point2].x - wall[j].x;
-		int oy = wall[wall[j].point2].y - wall[j].y;
+		int ox = wall[wall[j].point2].pt.x - wall[j].pt.x;
+		int oy = wall[wall[j].point2].pt.y - wall[j].pt.y;
 		int i = static_cast<int>(std::hypot(ox, oy));
 		
 		if (i == 0)
@@ -1573,8 +1575,8 @@ void ceilscan(int x1, int x2, int sectnum)
 		globalx2 = -globalx1;
 		globaly2 = -globaly1;
 
-		ox = ((wall[j].x-globalposx)<<6);
-		oy = ((wall[j].y-globalposy)<<6);
+		ox = ((wall[j].pt.x-globalposx)<<6);
+		oy = ((wall[j].pt.y-globalposy)<<6);
 		i = dmulscalen<14>(oy, cosglobalang,-ox, singlobalang);
 		j = dmulscalen<14>(ox, cosglobalang, oy, singlobalang);
 		ox = i;
@@ -1838,8 +1840,8 @@ void florscan(int x1, int x2, int sectnum)
 	else
 	{
 		j = sec->wallptr;
-		ox = wall[wall[j].point2].x - wall[j].x;
-		oy = wall[wall[j].point2].y - wall[j].y;
+		ox = wall[wall[j].point2].pt.x - wall[j].pt.x;
+		oy = wall[wall[j].point2].pt.y - wall[j].pt.y;
 		i = static_cast<int>(std::hypot(ox, oy));
 		
 		if (i == 0)
@@ -1852,11 +1854,12 @@ void florscan(int x1, int x2, int sectnum)
 		globalx2 = -globalx1;
 		globaly2 = -globaly1;
 
-		ox = ((wall[j].x - globalposx) << 6);
-		oy = ((wall[j].y - globalposy) << 6);
+		ox = ((wall[j].pt.x - globalposx) << 6);
+		oy = ((wall[j].pt.y - globalposy) << 6);
 		i = dmulscalen<14>(oy,cosglobalang,-ox,singlobalang);
 		j = dmulscalen<14>(ox,cosglobalang,oy,singlobalang);
-		ox = i; oy = j;
+		ox = i;
+		oy = j;
 		globalxpanning = globalx1*ox - globaly1*oy;
 		globalypanning = globaly2*ox + globalx2*oy;
 	}
@@ -2488,8 +2491,8 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		loadtile(globalpicnum);
 
 	auto* wal = &wall[sec->wallptr];
-	int wx = wall[wal->point2].x - wal->x;
-	int wy = wall[wal->point2].y - wal->y;
+	int wx = wall[wal->point2].pt.x - wal->pt.x;
+	int wy = wall[wal->point2].pt.y - wal->pt.y;
 	const int dasqr = krecipasm(static_cast<int>(std::hypot(wx, wy)));
 	int i = mulscalen<21>(daslope, dasqr);
 	wx *= i;
@@ -2508,8 +2511,8 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 
 	if (globalorientation&64)  //Relative alignment
 	{
-		const int dx = mulscalen<14>(wall[wal->point2].x-wal->x, dasqr);
-		const int dy = mulscalen<14>(wall[wal->point2].y-wal->y, dasqr);
+		const int dx = mulscalen<14>(wall[wal->point2].pt.x - wal->pt.x, dasqr);
+		const int dy = mulscalen<14>(wall[wal->point2].pt.y - wal->pt.y, dasqr);
 
 		i = static_cast<int>(std::sqrt(daslope * daslope+16777216)); // FIXME: Magic number.
 
@@ -2519,11 +2522,13 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		globalx = dmulscalen<16>(x,dx,y,dy);
 		globaly = mulscalen<12>(dmulscalen<16>(-y,dx,x,dy),i);
 
-		x = ((wal->x-globalposx)<<8); y = ((wal->y-globalposy)<<8);
+		x = ((wal->pt.x - globalposx)<<8);
+		y = ((wal->pt.y - globalposy)<<8);
 		globalx1 = dmulscalen<16>(-x,dx,-y,dy);
 		globaly1 = mulscalen<12>(dmulscalen<16>(-y,dx,x,dy),i);
 
-		x = globalx2; y = globaly2;
+		x = globalx2;
+		y = globaly2;
 		globalx2 = dmulscalen<16>(x,dx,y,dy);
 		globaly2 = mulscalen<12>(dmulscalen<16>(-y,dx,x,dy),i);
 	}
@@ -2552,7 +2557,7 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		globaly = -globaly;
 	}
 
-	daz = dmulscalen<9>(wx,globalposy-wal->y,-wy,globalposx-wal->x) + ((daz-globalposz)<<8);
+	daz = dmulscalen<9>(wx,globalposy-wal->pt.y, -wy,globalposx-wal->pt.x) + ((daz-globalposz)<<8);
 	globalx2 = mulscalen<20>(globalx2,daz); globalx = mulscalen<28>(globalx,daz);
 	globaly2 = mulscalen<20>(globaly2,-daz); globaly = mulscalen<28>(globaly,-daz);
 
@@ -2938,10 +2943,10 @@ void drawalls(int bunch)
 	
 		if (nextsectnum >= 0)
 		{
-			cfz[0] = getzsofslope((short)sectnum,wal->x,wal->y);
-			cfz[1] = getzsofslope((short)sectnum,wall[wal->point2].x,wall[wal->point2].y);
-			cfz[2] = getzsofslope((short)nextsectnum,wal->x,wal->y);
-			cfz[3] = getzsofslope((short)nextsectnum,wall[wal->point2].x,wall[wal->point2].y);
+			cfz[0] = getzsofslope((short)sectnum,wal->pt.x, wal->pt.y);
+			cfz[1] = getzsofslope((short)sectnum,wall[wal->point2].pt.x, wall[wal->point2].pt.y);
+			cfz[2] = getzsofslope((short)nextsectnum,wal->pt.x, wal->pt.y);
+			cfz[3] = getzsofslope((short)nextsectnum,wall[wal->point2].pt.x, wall[wal->point2].pt.y);
 			cfz[4] = getzsofslope((short)nextsectnum,globalposx,globalposy);
 
 			if ((wal->cstat&48) == 16)
@@ -4067,11 +4072,11 @@ void drawsprite(int snum)
 				else
 				{
 					x = thewall[j];
-					xp1 = wall[x].x;
-					yp1 = wall[x].y;
+					xp1 = wall[x].pt.x;
+					yp1 = wall[x].pt.y;
 					x = wall[x].point2;
-					xp2 = wall[x].x;
-					yp2 = wall[x].y;
+					xp2 = wall[x].pt.x;
+					yp2 = wall[x].pt.y;
 
 					z1 = (xp2-xp1)*(y1-yp1) - (yp2-yp1)*(x1-xp1);
 					z2 = (xp2-xp1)*(y2-yp1) - (yp2-yp1)*(x2-xp1);
@@ -4433,11 +4438,11 @@ void drawsprite(int snum)
 
 				//if (spritewallfront(tspr,thewall[j]) == 0)
 			x = thewall[j];
-			xp1 = wall[x].x;
-			yp1 = wall[x].y;
+			xp1 = wall[x].pt.x;
+			yp1 = wall[x].pt.y;
 			x = wall[x].point2;
-			xp2 = wall[x].x;
-			yp2 = wall[x].y;
+			xp2 = wall[x].pt.x;
+			yp2 = wall[x].pt.y;
 			x = (xp2-xp1)*(tspr->y-yp1)-(tspr->x-xp1)*(yp2-yp1);
 			if ((yp > yb1[j]) && (yp > yb2[j])) x = -1;
 			if ((x >= 0) && ((x != 0) || (wall[thewall[j]].nextsector != tspr->sectnum))) continue;
@@ -7162,7 +7167,7 @@ void drawmapview(int dax, int day, int zoome, short ang)
 #if 0
 			for(w=sec->wallnum,wal=&wall[startwall];w>0;w--,wal++)
 			{
-				ox = wal->x - dax; oy = wal->y - day;
+				ox = wal->pt.x - dax; oy = wal->pt.y - day;
 				x = dmulscalen<16>(ox,xvect,-oy,yvect) + (xdim<<11);
 				y = dmulscalen<16>(oy,xvect2,ox,yvect2) + (ydim<<11);
 				i |= getclipmask(x-cx1,cx2-x,y-cy1,cy2-y);
@@ -7179,10 +7184,11 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			{
 				k = lastwall(j);
 				if ((k > j) && (npoints > 0)) { xb1[npoints-1] = l; l = npoints; } //overwrite point2
-					//wall[k].x wal->x wall[wal->point2].x
-					//wall[k].y wal->y wall[wal->point2].y
-				if (!dmulscalen<1>(wal->x-wall[k].x,wall[wal->point2].y-wal->y,-(wal->y-wall[k].y),wall[wal->point2].x-wal->x)) continue;
-				ox = wal->x - dax; oy = wal->y - day;
+					//wall[k].x wal->pt.x wall[wal->point2].x
+					//wall[k].y wal->pt.y wall[wal->point2].y
+				if (!dmulscalen<1>(wal->pt.x - wall[k].pt.x, wall[wal->point2].pt.y - wal->pt.y, -(wal->pt.y - wall[k].pt.y),wall[wal->point2].pt.x - wal->pt.x)) continue;
+				ox = wal->pt.x - dax;
+				oy = wal->pt.y - day;
 				x = dmulscalen<16>(ox,xvect,-oy,yvect) + (xdim<<11);
 				y = dmulscalen<16>(oy,xvect2,ox,yvect2) + (ydim<<11);
 				i |= getclipmask(x-cx1,cx2-x,y-cy1,cy2-y);
@@ -7251,8 +7257,8 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			}
 			else
 			{
-				ox = wall[wall[startwall].point2].x - wall[startwall].x;
-				oy = wall[wall[startwall].point2].y - wall[startwall].y;
+				ox = wall[wall[startwall].point2].pt.x - wall[startwall].pt.x;
+				oy = wall[wall[startwall].point2].pt.y - wall[startwall].pt.y;
 				i = static_cast<int>(std::hypot(ox, oy)); 
 				
 				if (i == 0)
@@ -8238,8 +8244,8 @@ int writev6wall(int fil, struct walltypev6 const *wall)
 
 void convertv6wallv7(struct walltypev6 const *from, walltype *to)
 {
-	to->x = from->x;
-	to->y = from->y;
+	to->pt.x = from->x;
+	to->pt.y = from->y;
 	to->point2 = from->point2;
 	to->nextwall = from->nextwall;
 	to->nextsector = from->nextsector;
@@ -8259,8 +8265,8 @@ void convertv6wallv7(struct walltypev6 const *from, walltype *to)
 
 void convertv7wallv6(const walltype *from, struct walltypev6 *to)
 {
-	to->x = from->x;
-	to->y = from->y;
+	to->x = from->pt.x;
+	to->y = from->pt.y;
 	to->point2 = from->point2;
 	to->nextwall = from->nextwall;
 	to->nextsector = from->nextsector;
@@ -9356,13 +9362,13 @@ int clipinsidebox(int x, int y, short wallnum, int walldist)
 	
 	walltype* wal = &wall[wallnum];
 
-	const int x1 = wal->x + walldist - x;
-	const int y1 = wal->y + walldist - y;
+	const int x1 = wal->pt.x + walldist - x;
+	const int y1 = wal->pt.y + walldist - y;
 
 	wal = &wall[wal->point2];
 
-	int x2 = wal->x+walldist - x;
-	int y2 = wal->y+walldist - y;
+	int x2 = wal->pt.x+walldist - x;
+	int y2 = wal->pt.y+walldist - y;
 
 	if (((x1 < 0)  && (x2 < 0))  || 
 		((y1 < 0)  && (y2 < 0))  ||
@@ -9496,13 +9502,13 @@ int inside(int x, int y, short sectnum)
 
 	do
 	{
-		const int y1 = wal->y - y;
-		const int y2 = wall[wal->point2].y - y;
+		const int y1 = wal->pt.y - y;
+		const int y2 = wall[wal->point2].pt.y - y;
 
 		if ((y1 ^ y2) < 0)
 		{
-			const int x1 = wal->x - x;
-			const int x2 = wall[wal->point2].x - x;
+			const int x1 = wal->pt.x - x;
+			const int x2 = wall[wal->point2].pt.x - x;
 
 			if ((x1 ^ x2) >= 0) {
 				cnt ^= x1;
@@ -9775,10 +9781,10 @@ bool cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short s
 		for(auto* wal = &wall[sec->wallptr]; cnt > 0; --cnt, ++wal)
 		{
 			auto* wal2 = &wall[wal->point2];
-			const int x31 = wal->x-x1;
-			const int x34 = wal->x-wal2->x;
-			const int y31 = wal->y-y1;
-			const int y34 = wal->y-wal2->y;
+			const int x31 = wal->pt.x-x1;
+			const int x34 = wal->pt.x-wal2->pt.x;
+			const int y31 = wal->pt.y-y1;
+			const int y34 = wal->pt.y-wal2->pt.y;
 
 			const int bot = y21 * x34 - x21 * y34;
 			
@@ -9878,8 +9884,8 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 		{
 			const auto* wal = &wall[sec->wallptr];
 			const auto* wal2 = &wall[wal->point2];
-			auto dax = wal2->x-wal->x;
-			auto day = wal2->y-wal->y;
+			auto dax = wal2->pt.x-wal->pt.x;
+			auto day = wal2->pt.y-wal->pt.y;
 			int i = static_cast<int>(std::hypot(dax, day)); 
 			
 			if (i == 0) {
@@ -9895,7 +9901,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			
 			if (j != 0)
 			{
-				i = ((sec->ceilingz-zs)<<8)+dmulscalen<15>(dax,ys-wal->y,-day,xs-wal->x);
+				i = ((sec->ceilingz-zs)<<8)+dmulscalen<15>(dax,ys-wal->pt.y,-day,xs-wal->pt.x);
 				if (((i^j) >= 0) && ((std::abs(i)>>1) < std::abs(j))) {
 					i = divscalen<30>(i,j);
 					x1 = xs + mulscalen<30>(vx,i);
@@ -9932,8 +9938,8 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 		{
 			const auto* wal = &wall[sec->wallptr];
 			const auto* wal2 = &wall[wal->point2];
-			int dax = wal2->x-wal->x;
-			int day = wal2->y-wal->y;
+			int dax = wal2->pt.x-wal->pt.x;
+			int day = wal2->pt.y-wal->pt.y;
 			int i = static_cast<int>(std::hypot(dax, day));
 			
 			if (i == 0) {
@@ -9947,7 +9953,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 			const int j = (vz<<8) - dmulscalen<15>(dax, vy, -day, vx);
 			if (j != 0)
 			{
-				i = ((sec->floorz-zs)<<8)+dmulscalen<15>(dax,ys-wal->y,-day,xs-wal->x);
+				i = ((sec->floorz-zs)<<8)+dmulscalen<15>(dax,ys-wal->pt.y,-day,xs-wal->pt.x);
 				if (((i^j) >= 0) && ((std::abs(i)>>1) < std::abs(j)))
 				{
 					i = divscalen<30>(i,j);
@@ -9988,10 +9994,10 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz,
 		for(int z{startwall}; z < endwall; ++z, ++wal)
 		{
 			const auto* wal2 = &wall[wal->point2];
-			x1 = wal->x;
-			y1 = wal->y;
-			const int x2 = wal2->x;
-			const int y2 = wal2->y;
+			x1 = wal->pt.x;
+			y1 = wal->pt.y;
+			const int x2 = wal2->pt.x;
+			const int y2 = wal2->pt.y;
 
 			if ((x1-xs)*(y2-ys) < (x2-xs)*(y1-ys)) continue;
 
@@ -10322,10 +10328,10 @@ int neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsec
 		for(z=startwall,wal=&wall[startwall];z<=endwall;z++,wal++)
 		{
 			wal2 = &wall[wal->point2];
-			x1 = wal->x;
-			y1 = wal->y;
-			x2 = wal2->x;
-			y2 = wal2->y;
+			x1 = wal->pt.x;
+			y1 = wal->pt.y;
+			x2 = wal2->pt.x;
+			y2 = wal2->pt.y;
 
 			nextsector = wal->nextsector;
 
@@ -10439,8 +10445,8 @@ int neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsec
 //
 void dragpoint(short pt_highlight, int dax, int day)
 {
-	wall[pt_highlight].x = dax;
-	wall[pt_highlight].y = day;
+	wall[pt_highlight].pt.x = dax;
+	wall[pt_highlight].pt.y = day;
 
 	short cnt{MAXWALLS};
 	short tempshort{pt_highlight};    //search points CCW
@@ -10450,8 +10456,8 @@ void dragpoint(short pt_highlight, int dax, int day)
 		if (wall[tempshort].nextwall >= 0)
 		{
 			tempshort = wall[wall[tempshort].nextwall].point2;
-			wall[tempshort].x = dax;
-			wall[tempshort].y = day;
+			wall[tempshort].pt.x = dax;
+			wall[tempshort].pt.y = day;
 		}
 		else
 		{
@@ -10461,8 +10467,8 @@ void dragpoint(short pt_highlight, int dax, int day)
 				if (wall[lastwall(tempshort)].nextwall >= 0)
 				{
 					tempshort = wall[lastwall(tempshort)].nextwall;
-					wall[tempshort].x = dax;
-					wall[tempshort].y = day;
+					wall[tempshort].pt.x = dax;
+					wall[tempshort].pt.y = day;
 				}
 				else
 				{
@@ -10571,19 +10577,19 @@ int clipmove (int *x, int *y, const int *z, short *sectnum,
 		{
 			auto* wal2 = &wall[wal->point2];
 
-			if ((wal->x < xmin) && (wal2->x < xmin))
+			if ((wal->pt.x < xmin) && (wal2->pt.x < xmin))
 				continue;
-			if ((wal->x > xmax) && (wal2->x > xmax))
+			if ((wal->pt.x > xmax) && (wal2->pt.x > xmax))
 				continue;
-			if ((wal->y < ymin) && (wal2->y < ymin))
+			if ((wal->pt.y < ymin) && (wal2->pt.y < ymin))
 				continue;
-			if ((wal->y > ymax) && (wal2->y > ymax))
+			if ((wal->pt.y > ymax) && (wal2->pt.y > ymax))
 				continue;
 
-			const int x1 = wal->x;
-			const int y1 = wal->y;
-			const int x2 = wal2->x;
-			const int y2 = wal2->y;
+			const int x1 = wal->pt.x;
+			const int y1 = wal->pt.y;
+			const int x2 = wal2->pt.x;
+			const int y2 = wal2->pt.y;
 
 			const int dx = x2-x1;
 			const int dy = y2-y1;
@@ -11028,9 +11034,9 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 
 
 							//Find closest point on wall (dax, day) to (*x, *y)
-						int dax = wall[wal->point2].x - wal->x;
-						int day = wall[wal->point2].y - wal->y;
-						int daz = dax * ((*x) - wal->x) + day * ((*y) - wal->y);
+						int dax = wall[wal->point2].pt.x - wal->pt.x;
+						int day = wall[wal->point2].pt.y - wal->pt.y;
+						int daz = dax * ((*x) - wal->pt.x) + day * ((*y) - wal->pt.y);
 						int t{0};
 
 						if (daz > 0)
@@ -11043,8 +11049,8 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 								t = divscalen<30>(daz, daz2);
 						}
 
-						dax = wal->x + mulscalen<30>(dax,t);
-						day = wal->y + mulscalen<30>(day,t);
+						dax = wal->pt.x + mulscalen<30>(dax,t);
+						day = wal->pt.y + mulscalen<30>(day,t);
 
 
 						daz = getflorzofslope(clipsectorlist[clipsectcnt],dax,day);
@@ -11062,7 +11068,7 @@ int pushmove (int *x, int *y, const int *z, short *sectnum,
 
 					if (j != 0)
 					{
-						j = getangle(wall[wal->point2].x-wal->x,wall[wal->point2].y-wal->y);
+						j = getangle(wall[wal->point2].pt.x-wal->pt.x,wall[wal->point2].pt.y-wal->pt.y);
 						int dx = (sintable[(j+1024)&2047]>>11);
 						int dy = (sintable[(j+512)&2047]>>11);
 						char bad2 = 16;
@@ -11271,16 +11277,16 @@ void getzrange(int x, int y, int z, short sectnum,
 			if (k >= 0)
 			{
 				auto* wal2 = &wall[wal->point2];
-				const int x1 = wal->x;
-				const int x2 = wal2->x;
+				const int x1 = wal->pt.x;
+				const int x2 = wal2->pt.x;
 
 				if ((x1 < xmin) && (x2 < xmin))
 					continue;
 				if ((x1 > xmax) && (x2 > xmax))
 					continue;
 
-				const int y1 = wal->y;
-				const int y2 = wal2->y;
+				const int y1 = wal->pt.y;
+				const int y2 = wal2->pt.y;
 
 				if ((y1 < ymin) && (y2 < ymin))
 					continue;
@@ -12143,10 +12149,10 @@ void preparemirror(int dax, int day, int daz, short daang, int dahoriz, short da
 	std::ignore = dahoriz;
 	std::ignore = dasector;
 
-	const int x = wall[dawall].x;
-	const int dx = wall[wall[dawall].point2].x - x;
-	const int y = wall[dawall].y;
-	const int dy = wall[wall[dawall].point2].y - y;
+	const int x = wall[dawall].pt.x;
+	const int dx = wall[wall[dawall].point2].pt.x - x;
+	const int y = wall[dawall].pt.y;
+	const int dy = wall[wall[dawall].point2].pt.y - y;
 	const int j = dx * dx + dy * dy;
 	
 	if (j == 0) {
@@ -12251,14 +12257,14 @@ int getceilzofslope(short sectnum, int dax, int day)
 		return g_sector[sectnum].ceilingz;
 
 	const walltype* wal = &wall[g_sector[sectnum].wallptr];
-	const int dx = wall[wal->point2].x - wal->x;
-	const int dy = wall[wal->point2].y - wal->y;
+	const int dx = wall[wal->point2].pt.x - wal->pt.x;
+	const int dy = wall[wal->point2].pt.y - wal->pt.y;
 	const int i = static_cast<int>(std::hypot(dx, dy)) << 5;
 	
 	if (i == 0)
 		return g_sector[sectnum].ceilingz;
 	
-	const int j = dmulscalen<3>(dx, day - wal->y, -dy, dax - wal->x);
+	const int j = dmulscalen<3>(dx, day - wal->pt.y, -dy, dax - wal->pt.x);
 
 	return g_sector[sectnum].ceilingz + scale(g_sector[sectnum].ceilingheinum, j, i);
 }
@@ -12273,14 +12279,14 @@ int getflorzofslope(short sectnum, int dax, int day)
 		return g_sector[sectnum].floorz;
 
 	const walltype* wal = &wall[g_sector[sectnum].wallptr];
-	const int dx = wall[wal->point2].x - wal->x;
-	const int dy = wall[wal->point2].y - wal->y;
+	const int dx = wall[wal->point2].pt.x - wal->pt.x;
+	const int dy = wall[wal->point2].pt.y - wal->pt.y;
 	const int i = static_cast<int>(std::hypot(dx, dy)) << 5;
 	
 	if (i == 0)
 		return g_sector[sectnum].floorz;
 
-	const int j = dmulscalen<3>(dx, day - wal->y, -dy, dax - wal->x);
+	const int j = dmulscalen<3>(dx, day - wal->pt.y, -dy, dax - wal->pt.x);
 
 	return g_sector[sectnum].floorz + scale(g_sector[sectnum].floorheinum, j, i);
 }
@@ -12299,14 +12305,14 @@ ceilfloorz getzsofslope(short sectnum, int dax, int day)
 	{
 		const walltype* wal = &wall[sec->wallptr];
 		const walltype* wal2 = &wall[wal->point2];
-		const int dx = wal2->x - wal->x;
-		const int dy = wal2->y - wal->y;
+		const int dx = wal2->pt.x - wal->pt.x;
+		const int dy = wal2->pt.y - wal->pt.y;
 		const int i = static_cast<int>(std::hypot(dx, dy)) << 5;
 		
 		if (i == 0)
 			return cfz;
 		
-		const int j = dmulscalen<3>(dx, day - wal->y, -dy, dax - wal->x);
+		const int j = dmulscalen<3>(dx, day - wal->pt.y, -dy, dax - wal->pt.x);
 
 		if (sec->ceilingstat&2)
 			cfz.ceilz = cfz.ceilz + scale(sec->ceilingheinum, j, i);
@@ -12325,10 +12331,10 @@ ceilfloorz getzsofslope(short sectnum, int dax, int day)
 void alignceilslope(short dasect, int x, int y, int z)
 {
 	const walltype* wal = &wall[g_sector[dasect].wallptr];
-	const int dax = wall[wal->point2].x-wal->x;
-	const int day = wall[wal->point2].y-wal->y;
+	const int dax = wall[wal->point2].pt.x-wal->pt.x;
+	const int day = wall[wal->point2].pt.y-wal->pt.y;
 
-	const int i = (y-wal->y) * dax - (x-wal->x) * day;
+	const int i = (y-wal->pt.y) * dax - (x-wal->pt.x) * day;
 	
 	if (i == 0) {
 		return;
@@ -12352,10 +12358,10 @@ void alignceilslope(short dasect, int x, int y, int z)
 void alignflorslope(short dasect, int x, int y, int z)
 {
 	const walltype* wal = &wall[g_sector[dasect].wallptr];
-	const int dax = wall[wal->point2].x-wal->x;
-	const int day = wall[wal->point2].y-wal->y;
+	const int dax = wall[wal->point2].pt.x-wal->pt.x;
+	const int day = wall[wal->point2].pt.y-wal->pt.y;
 
-	const int i = (y - wal->y) * dax - (x - wal->x) * day;
+	const int i = (y - wal->pt.y) * dax - (x - wal->pt.x) * day;
 
 	if (i == 0) {
 		return;

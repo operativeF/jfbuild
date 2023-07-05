@@ -22,6 +22,7 @@
 #include "baselayer.hpp"
 #include "compat.hpp"
 #include "osd.hpp"
+#include "point.hpp"
 
 #include <fmt/core.h>
 
@@ -159,8 +160,7 @@ struct sectortype
 	//32 bytes
 struct walltype
 {
-	int x;
-	int y;
+	point2di pt;
 	short point2;
 	short nextwall;
 	short nextsector;
