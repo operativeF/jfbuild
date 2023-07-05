@@ -15,6 +15,7 @@
 #include "polymosttex_priv.hpp"
 #include "mdsprite_priv.hpp"
 #include "string_utils.hpp"
+#include "point.hpp"
 
 #include <algorithm>
 #include <array>

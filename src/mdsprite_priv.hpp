@@ -8,6 +8,8 @@
 #ifndef MDSPRITE_PRIV_H
 #define MDSPRITE_PRIV_H
 
+#include "point.hpp"
+
 #include <array>
 #include <memory>
 #include <string>
@@ -50,72 +52,6 @@ struct mdanim_t
 	//   Available from http://web.archive.org/web/20030816010242/http://tfc.duke.free.fr/us/tutorials/models/md2.htm
 	//   Now at http://tfc.duke.free.fr/coding/md2.html (in French)
 	//He probably wouldn't recognize it if he looked at it though :)
-struct point3d {
-	float x;
-	float y;
-	float z;
-
-	constexpr point3d& operator+=(const point3d& pt) {
-		x += pt.x;
-		y += pt.y;
-		z += pt.z;
-		return *this;
-	}
-
-	constexpr point3d& operator-() {
-		x = -x;
-		y = -y;
-		z = -z;
-		return *this;
-	}
-
-	constexpr point3d& operator-=(const point3d& pt) {
-		x -= pt.x;
-		y -= pt.y;
-		z -= pt.z;
-		return *this;
-	}
-
-	constexpr point3d& operator*=(auto val) {
-		x *= val;
-		y *= val;
-		z *= val;
-		return *this;
-	}
-
-	constexpr point3d& operator/=(auto val) {
-		x /= val;
-		y /= val;
-		z /= val;
-		return *this;
-	}
-
-};
-
-inline constexpr point3d operator+(point3d lhp, const point3d& rhp) {
-	lhp += rhp;
-	return lhp;
-}
-
-inline constexpr point3d operator-(point3d lhp, const point3d& rhp) {
-	lhp -= rhp;
-	return lhp;
-}
-
-// TODO: Add constraints
-inline constexpr point3d operator*(point3d pt, auto val) {
-	pt *= val;
-	return pt;
-}
-
-inline constexpr point3d operator*(auto val, point3d pt) {
-	return pt * val;
-}
-
-inline constexpr point3d operator/(point3d pt, auto val) {
-	pt /= val;
-	return pt;
-}
 
 struct md2head_t
 {

@@ -13,6 +13,7 @@
 #include "mmulti.hpp"
 #include "kdmsound.hpp"
 #include "string_utils.hpp"
+#include "point.hpp"
 
 #include "baselayer.hpp"
 
@@ -97,11 +98,6 @@ KEN'S STATUS DEFINITIONS:  (Please define your own statuses for your games)
  status = MAXSTATUS    Non-existent sprite (this will be true for your
 			code also)
 **************************************************************************/
-
-struct point3di
-{
-	int x, y, z;
-};
 
 struct input
 {
