@@ -43,6 +43,42 @@ struct point2d_base {
 		y /= val;
 		return *this;
 	}
+
+	constexpr point2d_base& operator<<=(auto val) {
+		x <<= val;
+		y <<= val;
+		return *this;
+	}
+
+	constexpr point2d_base& operator>>=(auto val) {
+		x >>= val;
+		y >>= val;
+		return *this;
+	}
+
+	constexpr point2d_base& operator++() {
+		++x;
+		++y;
+		return *this;
+	}
+
+	constexpr point2d_base& operator++(int) {
+		auto temp = *this;
+		++*this;
+		return temp;
+	}
+
+	constexpr point2d_base& operator--() {
+		--x;
+		--y;
+		return *this;
+	}
+
+	constexpr point2d_base& operator--(int) {
+		auto temp = *this;
+		--*this;
+		return temp;
+	}
 };
 
 template<typename T>
@@ -71,6 +107,18 @@ inline constexpr point2d_base<T> operator*(auto val, point2d_base<T> pt) {
 template<typename T>
 inline constexpr point2d_base<T> operator/(point2d_base<T> pt, auto val) {
 	pt /= val;
+	return pt;
+}
+
+template<typename T>
+inline constexpr point2d_base<T> operator>>(point2d_base<T> pt, auto val) {
+	pt >>= val;
+	return pt;
+}
+
+template<typename T>
+inline constexpr point2d_base<T> operator<<(point2d_base<T> pt, auto val) {
+	pt <<= val;
 	return pt;
 }
 
@@ -116,6 +164,47 @@ struct point3d_base {
 		z /= val;
 		return *this;
 	}
+
+	constexpr point3d_base& operator<<=(auto val) {
+		x <<= val;
+		y <<= val;
+		z <<= val;
+		return *this;
+	}
+
+	constexpr point3d_base& operator>>=(auto val) {
+		x >>= val;
+		y >>= val;
+		z >>= val;
+		return *this;
+	}
+
+	constexpr point3d_base& operator++() {
+		++x;
+		++y;
+		++z;
+		return *this;
+	}
+
+	constexpr point3d_base& operator++(int) {
+		auto temp = *this;
+		++*this;
+		return temp;
+	}
+
+	constexpr point3d_base& operator--() {
+		--x;
+		--y;
+		--z;
+		return *this;
+	}
+
+	constexpr point3d_base& operator--(int) {
+		auto temp = *this;
+		--*this;
+		return temp;
+	}
+
 };
 
 template<typename T>
@@ -147,6 +236,17 @@ inline constexpr point3d_base<T> operator/(point3d_base<T> pt, auto val) {
 	return pt;
 }
 
+template<typename T>
+inline constexpr point3d_base<T> operator>>(point3d_base<T> pt, auto val) {
+	pt >>= val;
+	return pt;
+}
+
+template<typename T>
+inline constexpr point3d_base<T> operator<<(point3d_base<T> pt, auto val) {
+	pt <<= val;
+	return pt;
+}
 
 using point2d  = point2d_base<float>;
 using point2di = point2d_base<int>;

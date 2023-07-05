@@ -1610,10 +1610,8 @@ void ceilscan(int x1, int x2, int sectnum)
 		globalypanning = -globalypanning;
 	}
 
-	g_pt1.x <<= globalxshift;
-	g_pt1.y <<= globalxshift;
-	g_pt2.x <<= globalyshift;
-	g_pt2.y <<= globalyshift;
+	g_pt1 <<= globalxshift;
+	g_pt2 <<= globalyshift;
 	globalxpanning <<= globalxshift;
 	globalypanning <<= globalyshift;
 	globalxpanning += (((int)sec->ceilingxpanning)<<24);
@@ -1877,10 +1875,8 @@ void florscan(int x1, int x2, int sectnum)
 		globalypanning = -globalypanning;
 	}
 
-	g_pt1.x <<= globalxshift;
-	g_pt1.y <<= globalxshift;
-	g_pt2.x <<= globalyshift;
-	g_pt2.y <<= globalyshift;
+	g_pt1 <<= globalxshift;
+	g_pt2 <<= globalyshift;
 	globalxpanning <<= globalxshift;
 	globalypanning <<= globalyshift;
 	globalxpanning += (((int)sec->floorxpanning)<<24);
