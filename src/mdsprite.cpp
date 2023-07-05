@@ -798,16 +798,16 @@ int md2draw (md2model *m, spritetype *tspr, int method)
 	g = 32.0/((float)xdimen*gxyaspect);
 	m0.y *= f;
 	m1.y *= f;
-	a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
+	a0.y = (((float)(tspr->x-globalpos.x))/  1024.0 + a0.y)*f;
 	m0.x *=-f;
 	m1.x *=-f;
-	a0.x = (((float)(k1     -globalposy))/ -1024.0 + a0.x)*-f;
+	a0.x = (((float)(k1     -globalpos.y))/ -1024.0 + a0.x)*-f;
 	m0.z *= g;
 	m1.z *= g;
-	a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
+	a0.z = (((float)(k0     -globalpos.z))/-16384.0 + a0.z)*g;
 
-	k0 = ((float)(tspr->x-globalposx))*f/1024.0;
-	k1 = ((float)(tspr->y-globalposy))*f/1024.0;
+	k0 = ((float)(tspr->x-globalpos.x))*f/1024.0;
+	k1 = ((float)(tspr->y-globalpos.y))*f/1024.0;
 	f = gcosang2*gshang;
 	g = gsinang2*gshang;
 	k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0;
@@ -1150,16 +1150,16 @@ int md3draw (md3model *m, spritetype *tspr, int method)
 	g = 32.0/((float)xdimen*gxyaspect);
 	m0.y *= f;
 	m1.y *= f;
-	a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
+	a0.y = (((float)(tspr->x-globalpos.x))/  1024.0 + a0.y)*f;
 	m0.x *=-f;
 	m1.x *=-f;
-	a0.x = (((float)(k1     -globalposy))/ -1024.0 + a0.x)*-f;
+	a0.x = (((float)(k1     -globalpos.y))/ -1024.0 + a0.x)*-f;
 	m0.z *= g;
 	m1.z *= g;
-	a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
+	a0.z = (((float)(k0     -globalpos.z))/-16384.0 + a0.z)*g;
 
-	k0 = ((float)(tspr->x-globalposx))*f/1024.0;
-	k1 = ((float)(tspr->y-globalposy))*f/1024.0;
+	k0 = ((float)(tspr->x-globalpos.x))*f/1024.0;
+	k1 = ((float)(tspr->y-globalpos.y))*f/1024.0;
 	f = gcosang2*gshang;
 	g = gsinang2*gshang;
 	k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0;
@@ -2400,14 +2400,14 @@ int voxdraw (voxmodel *m, const spritetype *tspr, int method)
 	f = (65536.0*512.0)/((float)xdimen*viewingrange);
 	float g = 32.0/((float)xdimen*gxyaspect);
 	m0.y *= f;
-	a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
+	a0.y = (((float)(tspr->x-globalpos.x))/  1024.0 + a0.y)*f;
 	m0.x *=-f;
-	a0.x = (((float)(tspr->y-globalposy))/ -1024.0 + a0.x)*-f;
+	a0.x = (((float)(tspr->y-globalpos.y))/ -1024.0 + a0.x)*-f;
 	m0.z *= g;
-	a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
+	a0.z = (((float)(k0     -globalpos.z))/-16384.0 + a0.z)*g;
 
-	k0 = ((float)(tspr->x-globalposx))*f/1024.0;
-	const float k1 = ((float)(tspr->y-globalposy))*f/1024.0;
+	k0 = ((float)(tspr->x-globalpos.x))*f/1024.0;
+	const float k1 = ((float)(tspr->y-globalpos.y))*f/1024.0;
 	f = gcosang2*gshang;
 	g = gsinang2*gshang;
 	const float k4 = static_cast<float>(sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0);

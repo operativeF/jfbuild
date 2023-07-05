@@ -510,7 +510,7 @@ void scansector(short sectnum)
 				  (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
 				  (spritesortcnt < MAXSPRITESONSCREEN))
 			{
-				xs = spr->x-globalposx; ys = spr->y-globalposy;
+				xs = spr->x-globalpos.x; ys = spr->y-globalpos.y;
 				if ((spr->cstat&48) || (xs*cosglobalang+ys*singlobalang > 0))
 				{
 					copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
@@ -532,10 +532,10 @@ void scansector(short sectnum)
 			const short nextsectnum = wal->nextsector;
 
 			wal2 = &wall[wal->point2];
-			x1 = wal->pt.x - globalposx;
-			y1 = wal->pt.y - globalposy;
-			x2 = wal2->pt.x - globalposx;
-			y2 = wal2->pt.y - globalposy;
+			x1 = wal->pt.x - globalpos.x;
+			y1 = wal->pt.y - globalpos.y;
+			x2 = wal2->pt.x - globalpos.x;
+			y2 = wal2->pt.y - globalpos.y;
 
 			if ((nextsectnum >= 0) && ((wal->cstat&32) == 0))
 				if ((gotsector[nextsectnum>>3] & pow2char[nextsectnum & 7]) == 0)
@@ -856,7 +856,7 @@ int wallfront(int l1, int l2)
 	
 	if ((t1 ^ t2) >= 0)
 	{
-		t2 = dmulscalen<2>(globalposx-x11,dy,-dx,globalposy-y11); //pos vs. l1
+		t2 = dmulscalen<2>(globalpos.x-x11,dy,-dx,globalpos.y-y11); //pos vs. l1
 		return (t2 ^ t1) >= 0;
 	}
 
@@ -877,7 +877,7 @@ int wallfront(int l1, int l2)
 
 	if ((t1 ^ t2) >= 0)
 	{
-		t2 = dmulscalen<2>(globalposx - x12, dy, -dx, globalposy - y12); //pos vs. l2
+		t2 = dmulscalen<2>(globalpos.x - x12, dy, -dx, globalpos.y - y12); //pos vs. l2
 		return (t2 ^ t1) < 0;
 	}
 
@@ -1282,12 +1282,12 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 
 	if (dastat == 0)
 	{
-		z = g_sector[sectnum].ceilingz-globalposz;
+		z = g_sector[sectnum].ceilingz-globalpos.z;
 		if ((g_sector[sectnum].ceilingstat&2) == 0) return(owallmost(mostbuf,w,z));
 	}
 	else
 	{
-		z = g_sector[sectnum].floorz-globalposz;
+		z = g_sector[sectnum].floorz-globalpos.z;
 		if ((g_sector[sectnum].floorstat&2) == 0) return(owallmost(mostbuf,w,z));
 	}
 
@@ -1312,11 +1312,11 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 		yv = singlobalang-cosviewingrangeglobalang;
 	}
 	else {
-		xv = x1 - globalposx;
-		yv = y1 - globalposy;
+		xv = x1 - globalpos.x;
+		yv = y1 - globalpos.y;
 	}
 
-	i = xv * (y1 - globalposy) - yv * (x1 - globalposx);
+	i = xv * (y1 - globalpos.y) - yv * (x1 - globalpos.x);
 	j = yv * x2 - xv * y2;
 
 	if (std::abs(j) > std::abs(i >> 3))
@@ -1332,7 +1332,7 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	}
 
 	z1 = dmulscalen<24>(dx*t,mulscalen<20>(y2,i)+((y1-wall[fw].pt.y)<<8),
-						 -dy*t,mulscalen<20>(x2,i)+((x1-wall[fw].pt.x)<<8))+((z1-globalposz)<<7);
+						 -dy*t,mulscalen<20>(x2,i)+((x1-wall[fw].pt.x)<<8))+((z1-globalpos.z)<<7);
 
 
 	if (xb2[w] == xdimen - 1) {
@@ -1340,11 +1340,11 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 		yv = singlobalang + cosviewingrangeglobalang;
 	}
 	else {
-		xv = (x2 + x1) - globalposx;
-		yv = (y2 + y1) - globalposy;
+		xv = (x2 + x1) - globalpos.x;
+		yv = (y2 + y1) - globalpos.y;
 	}
 
-	i = xv * (y1 - globalposy) - yv * (x1 - globalposx);
+	i = xv * (y1 - globalpos.y) - yv * (x1 - globalpos.x);
 	j = yv * x2 - xv * y2;
 
 	if (std::abs(j) > std::abs(i >> 3))
@@ -1362,7 +1362,7 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	}
 
 	z2 = dmulscalen<24>(dx*t,mulscalen<20>(y2,i)+((y1-wall[fw].pt.y)<<8),
-						 -dy*t,mulscalen<20>(x2,i)+((x1-wall[fw].pt.x)<<8))+((z2-globalposz)<<7);
+						 -dy*t,mulscalen<20>(x2,i)+((x1-wall[fw].pt.x)<<8))+((z2-globalpos.z)<<7);
 
 
 	s1 = mulscalen<20>(globaluclip,yb1[w]);
@@ -1516,7 +1516,7 @@ void ceilscan(int x1, int x2, int sectnum)
 		setpalookupaddress(globalpalwritten);
 	}
 
-	globalzd = sec->ceilingz-globalposz;
+	globalzd = sec->ceilingz-globalpos.z;
 	
 	if (globalzd > 0)
 		return;
@@ -1551,8 +1551,8 @@ void ceilscan(int x1, int x2, int sectnum)
 	{
 		g_pt1 = {singlobalang, cosglobalang};
 		g_pt2 = {singlobalang, cosglobalang};
-		globalxpanning = (globalposx<<20);
-		globalypanning = -(globalposy<<20);
+		globalxpanning = (globalpos.x<<20);
+		globalypanning = -(globalpos.y<<20);
 	}
 	else
 	{
@@ -1569,8 +1569,8 @@ void ceilscan(int x1, int x2, int sectnum)
 		g_pt1.y = mulscalen<10>(dmulscalen<10>(opt.x,cosglobalang,opt.y,singlobalang),i);
 		g_pt2 = -g_pt1;
 		
-		opt.x = (wall[j].pt.x - globalposx);
-		opt.y = (wall[j].pt.y - globalposy);
+		opt.x = (wall[j].pt.x - globalpos.x);
+		opt.y = (wall[j].pt.y - globalpos.y);
 		opt <<= 6;
 
 		i = dmulscalen<14>(opt.y, cosglobalang,-opt.x, singlobalang);
@@ -1784,7 +1784,7 @@ void florscan(int x1, int x2, int sectnum)
 		setpalookupaddress(globalpalwritten);
 	}
 
-	globalzd = globalposz-sec->floorz;
+	globalzd = globalpos.z-sec->floorz;
 	
 	if (globalzd > 0)
 		return;
@@ -1821,8 +1821,8 @@ void florscan(int x1, int x2, int sectnum)
 	{
 		g_pt1 = {singlobalang, cosglobalang};
 		g_pt2 = {singlobalang, cosglobalang};
-		globalxpanning = globalposx << 20;
-		globalypanning = -(globalposy << 20);
+		globalxpanning = globalpos.x << 20;
+		globalypanning = -(globalpos.y << 20);
 	}
 	else
 	{
@@ -1839,8 +1839,8 @@ void florscan(int x1, int x2, int sectnum)
 		g_pt1.y = mulscalen<10>(dmulscalen<10>(opt.x, cosglobalang,  opt.y, singlobalang), i);
 		g_pt2 = -g_pt1;
 
-		opt.x = ((wall[j].pt.x - globalposx) << 6);
-		opt.y = ((wall[j].pt.y - globalposy) << 6);
+		opt.x = ((wall[j].pt.x - globalpos.x) << 6);
+		opt.y = ((wall[j].pt.y - globalpos.y) << 6);
 		i = dmulscalen<14>(opt.y,cosglobalang,-opt.x,singlobalang);
 		j = dmulscalen<14>(opt.x,cosglobalang,opt.y,singlobalang);
 		opt.x = i;
@@ -2443,7 +2443,7 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 	int daz{0};
 	if (dastat == 0)
 	{
-		if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy))
+		if (globalpos.z <= getceilzofslope(sectnum,globalpos.x,globalpos.y))
 			return;  //Back-face culling
 		globalorientation = sec->ceilingstat;
 		globalpicnum = sec->ceilingpicnum;
@@ -2454,7 +2454,7 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 	}
 	else
 	{
-		if (globalposz >= getflorzofslope(sectnum,globalposx,globalposy))
+		if (globalpos.z >= getflorzofslope(sectnum,globalpos.x,globalpos.y))
 			return;  //Back-face culling
 		globalorientation = sec->floorstat;
 		globalpicnum = sec->floorpicnum;
@@ -2487,8 +2487,8 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 
 	int globalx = -mulscalen<19>(singlobalang,xdimenrecip);
 	int globaly = mulscalen<19>(cosglobalang,xdimenrecip);
-	g_pt1.x = (globalposx<<8);
-	g_pt1.y = -(globalposy<<8);
+	g_pt1.x = (globalpos.x<<8);
+	g_pt1.y = -(globalpos.y<<8);
 	i = (dax1-halfxdimen)*xdimenrecip;
 	g_pt2.x = mulscalen<16>(cosglobalang<<4,viewingrangerecip) - mulscalen<27>(singlobalang,i);
 	g_pt2.y = mulscalen<16>(singlobalang<<4,viewingrangerecip) + mulscalen<27>(cosglobalang,i);
@@ -2509,8 +2509,8 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		globalx = dmulscalen<16>(x,dx,y,dy);
 		globaly = mulscalen<12>(dmulscalen<16>(-y,dx,x,dy),i);
 
-		x = ((wal->pt.x - globalposx)<<8);
-		y = ((wal->pt.y - globalposy)<<8);
+		x = ((wal->pt.x - globalpos.x)<<8);
+		y = ((wal->pt.y - globalpos.y)<<8);
 		g_pt1.x = dmulscalen<16>(-x,dx,-y,dy);
 		g_pt1.y = mulscalen<12>(dmulscalen<16>(-y,dx,x,dy),i);
 
@@ -2544,7 +2544,7 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		globaly = -globaly;
 	}
 
-	daz = dmulscalen<9>(wx,globalposy-wal->pt.y, -wy,globalposx-wal->pt.x) + ((daz-globalposz)<<8);
+	daz = dmulscalen<9>(wx,globalpos.y-wal->pt.y, -wy,globalpos.x-wal->pt.x) + ((daz-globalpos.z)<<8);
 	g_pt2.x = mulscalen<20>(g_pt2.x,daz);
 	globalx = mulscalen<28>(globalx,daz);
 	g_pt2.y = mulscalen<20>(g_pt2.y,-daz);
@@ -2936,7 +2936,7 @@ void drawalls(int bunch)
 			cfz[1] = getzsofslope((short)sectnum,wall[wal->point2].pt.x, wall[wal->point2].pt.y);
 			cfz[2] = getzsofslope((short)nextsectnum,wal->pt.x, wal->pt.y);
 			cfz[3] = getzsofslope((short)nextsectnum,wall[wal->point2].pt.x, wall[wal->point2].pt.y);
-			cfz[4] = getzsofslope((short)nextsectnum,globalposx,globalposy);
+			cfz[4] = getzsofslope((short)nextsectnum,globalpos.x,globalpos.y);
 
 			if ((wal->cstat&48) == 16)
 				maskwall[maskwallcnt++] = z;
@@ -2990,9 +2990,9 @@ void drawalls(int bunch)
 					if (palookup[globalpal].empty()) globalpal = 0;	// JBF: fixes crash
 					globalyscale = (wal->yrepeat<<(globalshiftval-19));
 					if ((globalorientation&4) == 0)
-						globalzd = (((globalposz-nextsec->ceilingz)*globalyscale)<<8);
+						globalzd = (((globalpos.z-nextsec->ceilingz)*globalyscale)<<8);
 					else
-						globalzd = (((globalposz-sec->ceilingz)*globalyscale)<<8);
+						globalzd = (((globalpos.z-sec->ceilingz)*globalyscale)<<8);
 					globalzd += (globalypanning<<24);
 					if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
 
@@ -3028,7 +3028,7 @@ void drawalls(int bunch)
 						}
 					}
 				}
-				if ((cfz[2].ceilz < cfz[0].ceilz) || (cfz[3].ceilz < cfz[1].ceilz) || (globalposz < cfz[4].ceilz))
+				if ((cfz[2].ceilz < cfz[0].ceilz) || (cfz[3].ceilz < cfz[1].ceilz) || (globalpos.z < cfz[4].ceilz))
 				{
 					const int i = x2 - x1 + 1;
 					if (smostcnt + i < MAXYSAVES)
@@ -3135,9 +3135,9 @@ void drawalls(int bunch)
 					globalyscale = (wal->yrepeat<<(globalshiftval-19));
 
 					if ((globalorientation&4) == 0)
-						globalzd = (((globalposz-nextsec->floorz)*globalyscale)<<8);
+						globalzd = (((globalpos.z-nextsec->floorz)*globalyscale)<<8);
 					else
-						globalzd = (((globalposz-sec->ceilingz)*globalyscale)<<8);
+						globalzd = (((globalpos.z-sec->ceilingz)*globalyscale)<<8);
 
 					globalzd += (globalypanning << 24);
 
@@ -3179,7 +3179,7 @@ void drawalls(int bunch)
 					}
 				}
 
-				if ((cfz[2].floorz > cfz[0].floorz) || (cfz[3].floorz > cfz[1].floorz) || (globalposz > cfz[4].floorz)) {
+				if ((cfz[2].floorz > cfz[0].floorz) || (cfz[3].floorz > cfz[1].floorz) || (globalpos.z > cfz[4].floorz)) {
 					const int i = x2 - x1 + 1;
 					
 					if (smostcnt + i < MAXYSAVES) {
@@ -3245,14 +3245,14 @@ void drawalls(int bunch)
 			globalshiftval = 32-globalshiftval;
 			globalyscale = (wal->yrepeat<<(globalshiftval-19));
 			if (nextsectnum >= 0) {
-				if ((globalorientation&4) == 0) globalzd = globalposz-nextsec->ceilingz;
-													else globalzd = globalposz-sec->ceilingz;
+				if ((globalorientation&4) == 0) globalzd = globalpos.z-nextsec->ceilingz;
+													else globalzd = globalpos.z-sec->ceilingz;
 			}
 			else {
 				if ((globalorientation&4) == 0)
-					globalzd = globalposz-sec->ceilingz;
+					globalzd = globalpos.z-sec->ceilingz;
 				else
-					globalzd = globalposz-sec->floorz;
+					globalzd = globalpos.z-sec->floorz;
 			}
 
 			globalzd = ((globalzd*globalyscale)<<8) + (globalypanning<<24);
@@ -3371,7 +3371,7 @@ void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	int sprcosang = sintable[(dasprang+512)&2047];
 	int sprsinang = sintable[dasprang&2047];
 
-	i = std::abs(dmulscalen<6>(dasprx-globalposx,cosang,daspry-globalposy,sinang));
+	i = std::abs(dmulscalen<6>(dasprx-globalpos.x,cosang,daspry-globalpos.y,sinang));
 	j = (int)(getpalookup((int)mulscalen<21>(globvis,i),(int)dashade)<<8);
 	setupdrawslab(ylookup[1], palookup[dapal].data() + j);
 	j = 1310720;
@@ -3416,8 +3416,8 @@ void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	dazpivot = longptr[5];
 	davoxptr += (6<<2);
 
-	x = mulscalen<16>(globalposx-dasprx,daxscalerecip);
-	y = mulscalen<16>(globalposy-daspry,daxscalerecip);
+	x = mulscalen<16>(globalpos.x-dasprx,daxscalerecip);
+	y = mulscalen<16>(globalpos.y-daspry,daxscalerecip);
 	backx = ((dmulscalen<10>(x,sprcosang,y,sprsinang)+daxpivot)>>8);
 	backy = ((dmulscalen<10>(y,sprcosang,x,-sprsinang)+daypivot)>>8);
 	cbackx = std::min(std::max(backx, 0), daxsiz - 1);
@@ -3426,8 +3426,8 @@ void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	sprcosang = mulscalen<14>(daxscale,sprcosang);
 	sprsinang = mulscalen<14>(daxscale,sprsinang);
 
-	x = (dasprx-globalposx) - dmulscalen<18>(daxpivot,sprcosang,daypivot,-sprsinang);
-	y = (daspry-globalposy) - dmulscalen<18>(daypivot,sprcosang,daxpivot,sprsinang);
+	x = (dasprx-globalpos.x) - dmulscalen<18>(daxpivot,sprcosang,daypivot,-sprsinang);
+	y = (daspry-globalpos.y) - dmulscalen<18>(daypivot,sprcosang,daxpivot,sprsinang);
 
 	cosang = mulscalen<16>(cosang,dayscalerecip);
 	sinang = mulscalen<16>(sinang,dayscalerecip);
@@ -3452,8 +3452,8 @@ void drawvox(int dasprx, int daspry, int dasprz, int dasprang,
 	const std::array<int, MAXYSIZ + 1> ggyinc = gg_gen(j, gyinc);
 
 
-	if ((std::abs(globalposz-dasprz)>>10) >= std::abs(odayscale)) return;
-	syoff = divscalen<21>(globalposz-dasprz,odayscale) + (dazpivot<<7);
+	if ((std::abs(globalpos.z-dasprz)>>10) >= std::abs(odayscale)) return;
+	syoff = divscalen<21>(globalpos.z-dasprz,odayscale) + (dazpivot<<7);
 	yoff = ((std::abs(gxinc)+std::abs(gyinc))>>1);
 	longptr = (int *)davoxptr;
 	xyvoxoffs = ((daxsiz+1)<<2);
@@ -3733,7 +3733,7 @@ void drawsprite(int snum)
 		i = mulscalen<30>(siz,xv*xoff);
 		if ((cstat&4) == 0) x1 -= i; else x1 += i;
 
-		y1 = mulscalen<16>(tspr->z-globalposz,siz);
+		y1 = mulscalen<16>(tspr->z-globalpos.z,siz);
 		y1 -= mulscalen<14>(siz,tspr->yrepeat*yoff);
 		y1 += (globalhoriz<<8)-ysiz;
 		if (cstat&128)
@@ -3753,11 +3753,11 @@ void drawsprite(int snum)
 		yinc = divscalen<32>(yspan,ysiz);
 
 		if ((sec->ceilingstat&3) == 0)
-			startum = globalhoriz+mulscalen<24>(siz,sec->ceilingz-globalposz)-1;
+			startum = globalhoriz+mulscalen<24>(siz,sec->ceilingz-globalpos.z)-1;
 		else
 			startum = 0;
 		if ((sec->floorstat&3) == 0)
-			startdm = globalhoriz+mulscalen<24>(siz,sec->floorz-globalposz)+1;
+			startdm = globalhoriz+mulscalen<24>(siz,sec->floorz-globalpos.z)+1;
 		else
 			startdm = 0x7fffffff;
 		if ((y1>>8) > startum) startum = (y1>>8);
@@ -3868,11 +3868,11 @@ void drawsprite(int snum)
 		if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
 		globalshiftval = 32-globalshiftval;
 		globalyscale = divscale(512,tspr->yrepeat,globalshiftval-19);
-		globalzd = (((globalposz-z1)*globalyscale)<<8);
+		globalzd = (((globalpos.z-z1)*globalyscale)<<8);
 		if ((cstat&8) > 0)
 		{
 			globalyscale = -globalyscale;
-			globalzd = (((globalposz-z2)*globalyscale)<<8);
+			globalzd = (((globalpos.z-z2)*globalyscale)<<8);
 		}
 
 		qinterpolatedown16(&lwall[lx],rx-lx+1,linum,linuminc);
@@ -3892,8 +3892,8 @@ void drawsprite(int snum)
 		xv = tspr->xrepeat*sintable[(tspr->ang+2560+1536)&2047];
 		yv = tspr->xrepeat*sintable[(tspr->ang+2048+1536)&2047];
 		i = (xspan>>1)+xoff;
-		x1 = tspr->x-globalposx-mulscalen<16>(xv,i); x2 = x1+mulscalen<16>(xv,xspan);
-		y1 = tspr->y-globalposy-mulscalen<16>(yv,i); y2 = y1+mulscalen<16>(yv,xspan);
+		x1 = tspr->x-globalpos.x-mulscalen<16>(xv,i); x2 = x1+mulscalen<16>(xv,xspan);
+		y1 = tspr->y-globalpos.y-mulscalen<16>(yv,i); y2 = y1+mulscalen<16>(yv,xspan);
 
 		yp1 = dmulscalen<6>(x1,cosviewingrangeglobalang,y1,sinviewingrangeglobalang);
 		yp2 = dmulscalen<6>(x2,cosviewingrangeglobalang,y2,sinviewingrangeglobalang);
@@ -3901,8 +3901,8 @@ void drawsprite(int snum)
 		xp1 = dmulscalen<6>(y1,cosglobalang,-x1,singlobalang);
 		xp2 = dmulscalen<6>(y2,cosglobalang,-x2,singlobalang);
 
-		x1 += globalposx; y1 += globalposy;
-		x2 += globalposx; y2 += globalposy;
+		x1 += globalpos.x; y1 += globalpos.y;
+		x2 += globalpos.x; y2 += globalpos.y;
 
 		swapped = 0;
 		if (dmulscalen<32>(xp1,yp2,-xp2,yp1) >= 0)  //If wall's NOT facing you
@@ -4028,11 +4028,11 @@ void drawsprite(int snum)
 		if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
 		globalshiftval = 32-globalshiftval;
 		globalyscale = divscale(512,tspr->yrepeat,globalshiftval-19);
-		globalzd = (((globalposz-z1)*globalyscale)<<8);
+		globalzd = (((globalpos.z-z1)*globalyscale)<<8);
 		if ((cstat&8) > 0)
 		{
 			globalyscale = -globalyscale;
-			globalzd = (((globalposz-z2)*globalyscale)<<8);
+			globalzd = (((globalpos.z-z2)*globalyscale)<<8);
 		}
 
 		if (((sec->ceilingstat&1) == 0) && (z1 < sec->ceilingz))
@@ -4040,8 +4040,8 @@ void drawsprite(int snum)
 		if (((sec->floorstat&1) == 0) && (z2 > sec->floorz))
 			z2 = sec->floorz;
 
-		owallmost(uwall,(int)(MAXWALLSB-1),z1-globalposz);
-		owallmost(dwall,(int)(MAXWALLSB-1),z2-globalposz);
+		owallmost(uwall,(int)(MAXWALLSB-1),z1-globalpos.z);
+		owallmost(dwall,(int)(MAXWALLSB-1),z2-globalpos.z);
 		for(i=xb1.back(); i <= xb2.back() ;i++)
 			{ swall[i] = (krecipasm(hplc)<<2); hplc += hinc; }
 
@@ -4090,8 +4090,8 @@ void drawsprite(int snum)
 							}
 							else
 							{     //INTERSECTION!
-								x = (xp1-globalposx) + scale(xp2-xp1,z1,z1-z2);
-								y = (yp1-globalposy) + scale(yp2-yp1,z1,z1-z2);
+								x = (xp1-globalpos.x) + scale(xp2-xp1,z1,z1-z2);
+								y = (yp1-globalpos.y) + scale(yp2-yp1,z1,z1-z2);
 
 								yp1 = dmulscalen<14>(x, cosglobalang, y, singlobalang);
 
@@ -4167,7 +4167,7 @@ void drawsprite(int snum)
 	else if ((cstat&48) == 32)
 	{
 		if ((cstat&64) != 0)
-			if ((globalposz > tspr->z) == ((cstat&8)==0))
+			if ((globalpos.z > tspr->z) == ((cstat&8)==0))
 				return;
 
 		if ((cstat&4) > 0)
@@ -4180,8 +4180,8 @@ void drawsprite(int snum)
 		yspan = tilesizy[tilenum];
 
 			//Rotate center point
-		dax = tspr->x-globalposx;
-		day = tspr->y-globalposy;
+		dax = tspr->x-globalpos.x;
+		day = tspr->y-globalpos.y;
 		rzi[0] = dmulscalen<10>(cosglobalang,dax,singlobalang,day);
 		rxi[0] = dmulscalen<10>(cosglobalang,day,-singlobalang,dax);
 
@@ -4206,7 +4206,7 @@ void drawsprite(int snum)
 		rxi[3] = rxi[0]+day;
 
 			//Put all points on same z
-		ryi[0] = scale((tspr->z-globalposz),yxaspect,320<<8);
+		ryi[0] = scale((tspr->z-globalpos.z),yxaspect,320<<8);
 		if (ryi[0] == 0) return;
 		ryi[1] = ryi[2] = ryi[3] = ryi[0];
 
@@ -4609,7 +4609,7 @@ void drawsprite(int snum)
 				i = mulscalen<30>(siz,xv*xoff);
 				if ((cstat&4) == 0) x1 -= i; else x1 += i;
 
-				y1 = mulscalen<16>(tspr->z-globalposz,siz);
+				y1 = mulscalen<16>(tspr->z-globalpos.z,siz);
 				//y1 -= mulscalen<30>(siz,nyrepeat*yoff);
 				y1 += (globalhoriz<<8)-ysiz;
 				//if (cstat&128)  //Already fixed up above
@@ -4620,11 +4620,11 @@ void drawsprite(int snum)
 				if (((y1|255) < (y2|255)) && (searchx >= (x1>>8)+1) && (searchx <= (x2>>8)))
 				{
 					if ((sec->ceilingstat&3) == 0)
-						startum = globalhoriz+mulscalen<24>(siz,sec->ceilingz-globalposz)-1;
+						startum = globalhoriz+mulscalen<24>(siz,sec->ceilingz-globalpos.z)-1;
 					else
 						startum = 0;
 					if ((sec->floorstat&3) == 0)
-						startdm = globalhoriz+mulscalen<24>(siz,sec->floorz-globalposz)+1;
+						startdm = globalhoriz+mulscalen<24>(siz,sec->floorz-globalpos.z)+1;
 					else
 						startdm = 0x7fffffff;
 
@@ -4709,9 +4709,9 @@ void drawmaskwall(short damaskwallcnt)
 	globalshiftval = 32-globalshiftval;
 	globalyscale = (wal->yrepeat<<(globalshiftval-19));
 	if ((globalorientation&4) == 0)
-		globalzd = (((globalposz-z1)*globalyscale)<<8);
+		globalzd = (((globalpos.z-z1)*globalyscale)<<8);
 	else
-		globalzd = (((globalposz-z2)*globalyscale)<<8);
+		globalzd = (((globalpos.z-z2)*globalyscale)<<8);
 	globalzd += (globalypanning<<24);
 	if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
 
@@ -4852,8 +4852,8 @@ void fillpolygon(int npoints)
 	g_pt2.y = mulscalen<16>(g_pt2.y,xyaspect);
 
 	const int oy = miny + 1 - (ydim >> 1);
-	globalposx += oy * g_pt1.x;
-	globalposy += oy * g_pt2.y;
+	globalpos.x += oy * g_pt1.x;
+	globalpos.y += oy * g_pt2.y;
 
 	setuphlineasm4(asm1, asm2);
 
@@ -4887,8 +4887,8 @@ void fillpolygon(int npoints)
 			if (globalpolytype < 1) {
 					//maphline
 				const int ox = x2 + 1 - (xdim >> 1);
-				const int bx = ox * asm1 + globalposx;
-				const int by = ox * asm2 - globalposy;
+				const int bx = ox * asm1 + globalpos.x;
+				const int by = ox * asm2 - globalpos.y;
 
 				intptr_t p = ylookup[y] + x2 + frameplace;
 				hlineasm4(x2 - x1, -1L, globalshade << 8, by, bx, (void *) p);
@@ -4896,8 +4896,8 @@ void fillpolygon(int npoints)
 			else {
 					//maphline
 				const int ox = x1 + 1 - (xdim >> 1);
-				const int bx = ox * asm1 + globalposx;
-				const int by = ox * asm2 - globalposy;
+				const int bx = ox * asm1 + globalpos.x;
+				const int by = ox * asm2 - globalpos.y;
 
 				intptr_t p = ylookup[y] + x1 + frameplace;
 				
@@ -4908,8 +4908,8 @@ void fillpolygon(int npoints)
 			}
 		}
 
-		globalposx += g_pt1.x;
-		globalposy += g_pt2.y;
+		globalpos.x += g_pt1.x;
+		globalpos.y += g_pt2.y;
 		ptr += MAXNODESPERLINE;
 	}
 
@@ -6721,9 +6721,9 @@ void drawrooms(int daposx, int daposy, int daposz,
 
 	beforedrawrooms = false;
 
-	globalposx = daposx;
-	globalposy = daposy;
-	globalposz = daposz;
+	globalpos.x = daposx;
+	globalpos.y = daposy;
+	globalpos.z = daposz;
 	globalang = (daang&2047);
 
 	globalhoriz = mulscalen<16>(dahoriz-100,xdimenscale)+(ydimen>>1);
@@ -6786,18 +6786,18 @@ void drawrooms(int daposx, int daposy, int daposz,
 	}
 	else {
 		i = globalcursectnum;
-		updatesector(globalposx,globalposy,&globalcursectnum);
+		updatesector(globalpos.x,globalpos.y,&globalcursectnum);
 		if (globalcursectnum < 0) globalcursectnum = i;
 	}
 
 	globparaceilclip = true;
 	globparaflorclip = true;
 
-	auto cfz = getzsofslope(globalcursectnum,globalposx,globalposy);
-	if (globalposz < cfz.ceilz)
+	auto cfz = getzsofslope(globalcursectnum,globalpos.x,globalpos.y);
+	if (globalpos.z < cfz.ceilz)
 		globparaceilclip = false;
 
-	if (globalposz > cfz.floorz)
+	if (globalpos.z > cfz.floorz)
 		globparaflorclip = false;
 
 	scansector(globalcursectnum);
@@ -6892,8 +6892,8 @@ void drawmasks()
 		tspriteptr[i] = &tsprite[i];
 	
 	for(i=spritesortcnt-1;i>=0;i--) {
-		xs = tspriteptr[i]->x-globalposx;
-		ys = tspriteptr[i]->y-globalposy;
+		xs = tspriteptr[i]->x-globalpos.x;
+		ys = tspriteptr[i]->y-globalpos.y;
 		yp = dmulscalen<6>(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
 		
 		if (yp > (4<<8)) {
@@ -6948,12 +6948,12 @@ killsprite:
 					spritesz[k] -= ((yoff*tspriteptr[k]->yrepeat)<<2);
 					yspan = (tilesizy[tspriteptr[k]->picnum]*tspriteptr[k]->yrepeat<<2);
 					if (!(tspriteptr[k]->cstat&128)) spritesz[k] -= (yspan>>1);
-					if (std::abs(spritesz[k]-globalposz) < (yspan>>1)) spritesz[k] = globalposz;
+					if (std::abs(spritesz[k]-globalpos.z) < (yspan>>1)) spritesz[k] = globalpos.z;
 				}
 			}
 			for(k=i+1;k<j;k++)
 				for(l=i;l<k;l++)
-					if (std::abs(spritesz[k]-globalposz) < std::abs(spritesz[l]-globalposz))
+					if (std::abs(spritesz[k]-globalpos.z) < std::abs(spritesz[l]-globalpos.z))
 					{
 						std::swap(tspriteptr[k], tspriteptr[l]);
 						std::swap(spritesx[k], spritesx[l]);
@@ -6974,9 +6974,9 @@ killsprite:
 
 	/*for(i=spritesortcnt-1;i>=0;i--)
 	{
-		xs = tspriteptr[i].x-globalposx;
-		ys = tspriteptr[i].y-globalposy;
-		zs = tspriteptr[i].z-globalposz;
+		xs = tspriteptr[i].x-globalpos.x;
+		ys = tspriteptr[i].y-globalpos.y;
+		zs = tspriteptr[i].z-globalpos.z;
 
 		xp = ys*cosglobalang-xs*singlobalang;
 		yp = (zs<<1);
@@ -7236,9 +7236,9 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			globalpolytype = 0;
 			if ((globalorientation&64) == 0)
 			{
-				globalposx = dax;
+				globalpos.x = dax;
 				g_pt1 = {bakgxvect, bakgyvect};
-				globalposy = day;
+				globalpos.y = day;
 				g_pt2.x = bakgxvect;
 				g_pt2.y = bakgyvect;
 			}
@@ -7256,13 +7256,13 @@ void drawmapview(int dax, int day, int zoome, short ang)
 				g_pt1.y = mulscalen<10>(dmulscalen<10>(ox, bakgyvect, -oy, bakgxvect), i);
 				ox = (bakx1 >> 4) - (xdim << 7);
 				oy = (baky1 >> 4) - (ydim << 7);
-				globalposx = dmulscalen<28>(-oy,g_pt1.x,-ox,g_pt1.y);
-				globalposy = dmulscalen<28>(-ox,g_pt1.x,oy,g_pt1.y);
+				globalpos.x = dmulscalen<28>(-oy,g_pt1.x,-ox,g_pt1.y);
+				globalpos.y = dmulscalen<28>(-ox,g_pt1.x,oy,g_pt1.y);
 				g_pt2 = -g_pt1;
 
 				daslope = g_sector[s].floorheinum;
 				i = static_cast<int>(std::sqrt(daslope * daslope+ 16777216)); // FIXME: Magic number.
-				globalposy = mulscalen<12>(globalposy,i);
+				globalpos.y = mulscalen<12>(globalpos.y,i);
 				g_pt2 = mulscalen<12>(g_pt2, i);
 			}
 			globalxshift = (8-(picsiz[globalpicnum]&15));
@@ -7273,9 +7273,9 @@ void drawmapview(int dax, int day, int zoome, short ang)
 
 			if ((globalorientation&0x4) > 0)
 			{
-				i = globalposx;
-				globalposx = -globalposy;
-				globalposy = -i;
+				i = globalpos.x;
+				globalpos.x = -globalpos.y;
+				globalpos.y = -i;
 				std::swap(g_pt2.x, g_pt1.y);
 
 				i = g_pt1.x;
@@ -7284,20 +7284,20 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			}
 			if ((globalorientation&0x10) > 0) {
 				g_pt1 = -g_pt1;
-				globalposx = -globalposx;
+				globalpos.x = -globalpos.x;
 			}
 
 			if ((globalorientation&0x20) > 0) {
 				g_pt2 = -g_pt2;
-				globalposy = -globalposy;
+				globalpos.y = -globalpos.y;
 			}
 
 			asm1 = (g_pt1.y<<globalxshift);
 			asm2 = (g_pt2.x<<globalyshift);
 			g_pt1.x <<= globalxshift;
 			g_pt2.y <<= globalyshift;
-			globalposx = (globalposx<<(20+globalxshift))+(((int)sec->floorxpanning)<<24);
-			globalposy = (globalposy<<(20+globalyshift))-(((int)sec->floorypanning)<<24);
+			globalpos.x = (globalpos.x<<(20+globalxshift))+(((int)sec->floorxpanning)<<24);
+			globalpos.y = (globalpos.y<<(20+globalyshift))-(((int)sec->floorypanning)<<24);
 
 			fillpolygon(npoints);
 		}
@@ -7455,8 +7455,8 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			}
 
 			bakx1 = (bakx1>>4)-(xdim<<7); baky1 = (baky1>>4)-(ydim<<7);
-			globalposx = dmulscalen<28>(-baky1,g_pt1.x,-bakx1,g_pt1.y);
-			globalposy = dmulscalen<28>(bakx1,g_pt2.x,-baky1,g_pt2.y);
+			globalpos.x = dmulscalen<28>(-baky1,g_pt1.x,-bakx1,g_pt1.y);
+			globalpos.y = dmulscalen<28>(bakx1,g_pt2.x,-baky1,g_pt2.y);
 
 			if ((spr->cstat&2) == 0)
 				msethlineshift(ox,oy);
@@ -7467,15 +7467,15 @@ void drawmapview(int dax, int day, int zoome, short ang)
 
 			if ((spr->cstat&0x4) > 0) {
 				g_pt1 = -g_pt1;
-				globalposx = -globalposx;
+				globalpos.x = -globalpos.x;
 			}
 
 			asm1 = (g_pt1.y<<2);
 			g_pt1.x <<= 2;
-			globalposx <<= (20+2);
+			globalpos.x <<= (20+2);
 			asm2 = (g_pt2.x<<2);
 			g_pt2.y <<= 2;
-			globalposy <<= (20+2);
+			globalpos.y <<= (20+2);
 
 			globalorientation = ((spr->cstat&2)<<7) | ((spr->cstat&512)>>2);	// so polymost can get the translucency. ignored in software mode.
 			fillpolygon(npoints);
