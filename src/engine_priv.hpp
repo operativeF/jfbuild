@@ -66,8 +66,8 @@ extern int asm1, asm2;
 extern intptr_t asm3;
 inline int globalshade{0};
 inline short globalpicnum{0};
-inline int globalx1{0};
-inline int globaly2{0};
+inline point2di g_pt1;
+inline point2di g_pt2;
 inline int globalorientation{0};
 
 extern "C" short searchwall;

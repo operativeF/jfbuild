@@ -118,8 +118,6 @@ short globalshiftval;
 int globalzd;
 int globalyscale;
 intptr_t globalbufplc;
-int globaly1;
-int globalx2;
 int globalx3;
 int globaly3;
 
@@ -952,11 +950,11 @@ void hline(int xr, int yp)
 	}
 
 	const int r = horizlookup2[yp - globalhoriz + horizycent];
-	asm1 = globalx1 * r;
-	asm2 = globaly2 * r;
+	asm1 = g_pt1.x * r;
+	asm2 = g_pt2.y * r;
 	const int s = ((int)getpalookup((int)mulscalen<16>(r,globvis),globalshade)<<8);
 
-	hlineasm4(xr - xl, 0L, s, globalx2 * r + globalypanning, globaly1 * r + globalxpanning,
+	hlineasm4(xr - xl, 0L, s, g_pt2.x * r + globalypanning, g_pt1.y * r + globalxpanning,
 		(void *)(ylookup[yp]+xr+frameoffset));
 }
 
@@ -974,19 +972,19 @@ void slowhline(int xr, int yp)
 
 	const int r = horizlookup2[yp-globalhoriz+horizycent];
 
-	asm1 = globalx1 * r;
-	asm2 = globaly2 * r;
+	asm1 = g_pt1.x * r;
+	asm2 = g_pt2.y * r;
 
 	asm3 = (intptr_t)globalpalwritten + ((int)getpalookup((int)mulscalen<16>(r,globvis),globalshade)<<8);
 	if ((globalorientation & 256) == 0)
 	{
-		mhline((void *)globalbufplc,globaly1*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
-			globalx2*r+globalypanning-asm2*(xr-xl),(void *)(ylookup[yp]+xl+frameoffset));
+		mhline((void *)globalbufplc,g_pt1.y*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
+			g_pt2.x*r+globalypanning-asm2*(xr-xl),(void *)(ylookup[yp]+xl+frameoffset));
 		return;
 	}
 
-	thline((void *)globalbufplc,globaly1*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
-		globalx2*r+globalypanning-asm2*(xr-xl),(void *)(ylookup[yp]+xl+frameoffset));
+	thline((void *)globalbufplc,g_pt1.y*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
+		g_pt2.x*r+globalypanning-asm2*(xr-xl),(void *)(ylookup[yp]+xl+frameoffset));
 }
 
 
@@ -1551,42 +1549,38 @@ void ceilscan(int x1, int x2, int sectnum)
 
 	if ((globalorientation&64) == 0)
 	{
-		globalx1 = singlobalang;
-		globalx2 = singlobalang;
-		globaly1 = cosglobalang;
-		globaly2 = cosglobalang;
+		g_pt1 = {singlobalang, cosglobalang};
+		g_pt2 = {singlobalang, cosglobalang};
 		globalxpanning = (globalposx<<20);
 		globalypanning = -(globalposy<<20);
 	}
 	else
 	{
 		int j = sec->wallptr;
-		int ox = wall[wall[j].point2].pt.x - wall[j].pt.x;
-		int oy = wall[wall[j].point2].pt.y - wall[j].pt.y;
-		int i = static_cast<int>(std::hypot(ox, oy));
+		auto opt = wall[wall[j].point2].pt - wall[j].pt;
+		int i = static_cast<int>(std::hypot(opt.x, opt.y));
 		
 		if (i == 0)
 			i = 1024;
 		else
 			i = 1048576 / i;
 
-		globalx1 = mulscalen<10>(dmulscalen<10>(ox,singlobalang,-oy,cosglobalang),i);
-		globaly1 = mulscalen<10>(dmulscalen<10>(ox,cosglobalang,oy,singlobalang),i);
-		globalx2 = -globalx1;
-		globaly2 = -globaly1;
-
-		ox = ((wall[j].pt.x-globalposx)<<6);
-		oy = ((wall[j].pt.y-globalposy)<<6);
-		i = dmulscalen<14>(oy, cosglobalang,-ox, singlobalang);
-		j = dmulscalen<14>(ox, cosglobalang, oy, singlobalang);
-		ox = i;
-		oy = j;
-		globalxpanning = globalx1 * ox - globaly1 * oy;
-		globalypanning = globaly2 * ox + globalx2 * oy;
+		g_pt1.x = mulscalen<10>(dmulscalen<10>(opt.x,singlobalang,-opt.y,cosglobalang),i);
+		g_pt1.y = mulscalen<10>(dmulscalen<10>(opt.x,cosglobalang,opt.y,singlobalang),i);
+		g_pt2 = -g_pt1;
+		
+		opt.x = ((wall[j].pt.x-globalposx)<<6);
+		opt.y = ((wall[j].pt.y-globalposy)<<6);
+		i = dmulscalen<14>(opt.y, cosglobalang,-opt.x, singlobalang);
+		j = dmulscalen<14>(opt.x, cosglobalang, opt.y, singlobalang);
+		opt.x = i;
+		opt.y = j;
+		globalxpanning = g_pt1.x * opt.x - g_pt1.y * opt.y;
+		globalypanning = g_pt2.y * opt.x + g_pt2.x * opt.y;
 	}
 
-	globalx2 = mulscalen<16>(globalx2,viewingrangerecip);
-	globaly1 = mulscalen<16>(globaly1,viewingrangerecip);
+	g_pt2.x = mulscalen<16>(g_pt2.x,viewingrangerecip);
+	g_pt1.y = mulscalen<16>(g_pt1.y,viewingrangerecip);
 	globalxshift = (8-(picsiz[globalpicnum]&15));
 	globalyshift = (8-(picsiz[globalpicnum]>>4));
 
@@ -1599,44 +1593,42 @@ void ceilscan(int x1, int x2, int sectnum)
 	{
 		std::swap(globalxpanning, globalypanning);
 
-		const int i = globalx2;
-		globalx2 = -globaly1;
-		globaly1 = -i;
+		const int i = g_pt2.x;
+		g_pt2.x = -g_pt1.y;
+		g_pt1.y = -i;
 
-		std::swap(globalx1, globaly2);
+		std::swap(g_pt1.x, g_pt2.y);
 	}
 
 	if ((globalorientation&0x10) > 0) {
-		globalx1 = -globalx1;
-		globaly1 = -globaly1;
+		g_pt1 = -g_pt1;
 		globalxpanning = -globalxpanning;
 	}
 
 	if ((globalorientation&0x20) > 0) {
-		globalx2 = -globalx2;
-		globaly2 = -globaly2;
+		g_pt2 = -g_pt2;
 		globalypanning = -globalypanning;
 	}
 
-	globalx1 <<= globalxshift;
-	globaly1 <<= globalxshift;
-	globalx2 <<= globalyshift;
-	globaly2 <<= globalyshift;
+	g_pt1.x <<= globalxshift;
+	g_pt1.y <<= globalxshift;
+	g_pt2.x <<= globalyshift;
+	g_pt2.y <<= globalyshift;
 	globalxpanning <<= globalxshift;
 	globalypanning <<= globalyshift;
 	globalxpanning += (((int)sec->ceilingxpanning)<<24);
 	globalypanning += (((int)sec->ceilingypanning)<<24);
-	globaly1 = (-globalx1-globaly1)*halfxdimen;
-	globalx2 = (globalx2-globaly2)*halfxdimen;
+	g_pt1.y = (-g_pt1.x-g_pt1.y)*halfxdimen;
+	g_pt2.x = (g_pt2.x-g_pt2.y)*halfxdimen;
 
 	sethlinesizes(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4,(void *)globalbufplc);
 
-	globalx2 += globaly2*(x1-1);
-	globaly1 += globalx1*(x1-1);
-	globalx1 = mulscalen<16>(globalx1,globalzd);
-	globalx2 = mulscalen<16>(globalx2,globalzd);
-	globaly1 = mulscalen<16>(globaly1,globalzd);
-	globaly2 = mulscalen<16>(globaly2,globalzd);
+	g_pt2.x += g_pt2.y*(x1-1);
+	g_pt1.y += g_pt1.x*(x1-1);
+	g_pt1.x = mulscalen<16>(g_pt1.x,globalzd);
+	g_pt2.x = mulscalen<16>(g_pt2.x,globalzd);
+	g_pt1.y = mulscalen<16>(g_pt1.y,globalzd);
+	g_pt2.y = mulscalen<16>(g_pt2.y,globalzd);
 	globvis = std::abs(mulscalen<10>(globvis,globalzd));
 
 	if (!(globalorientation&0x180))
@@ -1678,8 +1670,8 @@ void ceilscan(int x1, int x2, int sectnum)
 				}
 
 				if (x == x2) {
-					globalx2 += globaly2;
-					globaly1 += globalx1;
+					g_pt2.x += g_pt2.y;
+					g_pt1.y += g_pt1.x;
 					break;
 				}
 
@@ -1687,8 +1679,8 @@ void ceilscan(int x1, int x2, int sectnum)
 				y2 = y1;
 			}
 			
-			globalx2 += globaly2;
-			globaly1 += globalx1;
+			g_pt2.x += g_pt2.y;
+			g_pt1.y += g_pt1.x;
 		}
 		while (y1 < y2-1) {
 			hline(x2, ++y1);
@@ -1751,8 +1743,8 @@ void ceilscan(int x1, int x2, int sectnum)
 			}
 
 			if (x == x2) {
-				globalx2 += globaly2;
-				globaly1 += globalx1;
+				g_pt2.x += g_pt2.y;
+				g_pt1.y += g_pt1.x;
 				break;
 			}
 
@@ -1760,8 +1752,8 @@ void ceilscan(int x1, int x2, int sectnum)
 			y2 = y1;
 		}
 
-		globalx2 += globaly2;
-		globaly1 += globalx1;
+		g_pt2.x += g_pt2.y;
+		g_pt1.y += g_pt1.x;
 	}
 
 	while (y1 < y2-1) {
@@ -1779,8 +1771,6 @@ void florscan(int x1, int x2, int sectnum)
 {
 	int i;
 	int j;
-	int ox;
-	int oy;
 	int x;
 	int y1;
 	int y2;
@@ -1827,44 +1817,41 @@ void florscan(int x1, int x2, int sectnum)
 
 	globalorientation = (int)sec->floorstat;
 
+	point2di opt;
 
 	if ((globalorientation&64) == 0)
 	{
-		globalx1 = singlobalang;
-		globalx2 = singlobalang;
-		globaly1 = cosglobalang;
-		globaly2 = cosglobalang;
+		g_pt1 = {singlobalang, cosglobalang};
+		g_pt2 = {singlobalang, cosglobalang};
 		globalxpanning = globalposx << 20;
 		globalypanning = -(globalposy << 20);
 	}
 	else
 	{
 		j = sec->wallptr;
-		ox = wall[wall[j].point2].pt.x - wall[j].pt.x;
-		oy = wall[wall[j].point2].pt.y - wall[j].pt.y;
-		i = static_cast<int>(std::hypot(ox, oy));
+		opt = wall[wall[j].point2].pt - wall[j].pt;
+		i = static_cast<int>(std::hypot(opt.x, opt.y));
 		
 		if (i == 0)
 			i = 1024;
 		else
 			i = 1048576/i;
 
-		globalx1 = mulscalen<10>(dmulscalen<10>(ox, singlobalang, -oy, cosglobalang), i);
-		globaly1 = mulscalen<10>(dmulscalen<10>(ox, cosglobalang, oy, singlobalang), i);
-		globalx2 = -globalx1;
-		globaly2 = -globaly1;
+		g_pt1.x = mulscalen<10>(dmulscalen<10>(opt.x, singlobalang, -opt.y, cosglobalang), i);
+		g_pt1.y = mulscalen<10>(dmulscalen<10>(opt.x, cosglobalang,  opt.y, singlobalang), i);
+		g_pt2 = -g_pt1;
 
-		ox = ((wall[j].pt.x - globalposx) << 6);
-		oy = ((wall[j].pt.y - globalposy) << 6);
-		i = dmulscalen<14>(oy,cosglobalang,-ox,singlobalang);
-		j = dmulscalen<14>(ox,cosglobalang,oy,singlobalang);
-		ox = i;
-		oy = j;
-		globalxpanning = globalx1*ox - globaly1*oy;
-		globalypanning = globaly2*ox + globalx2*oy;
+		opt.x = ((wall[j].pt.x - globalposx) << 6);
+		opt.y = ((wall[j].pt.y - globalposy) << 6);
+		i = dmulscalen<14>(opt.y,cosglobalang,-opt.x,singlobalang);
+		j = dmulscalen<14>(opt.x,cosglobalang,opt.y,singlobalang);
+		opt.x = i;
+		opt.y = j;
+		globalxpanning = g_pt1.x*opt.x - g_pt1.y*opt.y;
+		globalypanning = g_pt2.y*opt.x + g_pt2.x*opt.y;
 	}
-	globalx2 = mulscalen<16>(globalx2,viewingrangerecip);
-	globaly1 = mulscalen<16>(globaly1,viewingrangerecip);
+	g_pt2.x = mulscalen<16>(g_pt2.x,viewingrangerecip);
+	g_pt1.y = mulscalen<16>(g_pt1.y,viewingrangerecip);
 	globalxshift = (8-(picsiz[globalpicnum]&15));
 	globalyshift = (8-(picsiz[globalpicnum]>>4));
 	if (globalorientation&8) { globalxshift++; globalyshift++; }
@@ -1873,44 +1860,42 @@ void florscan(int x1, int x2, int sectnum)
 	{
 		std::swap(globalxpanning, globalypanning);
 
-		i = globalx2;
-		globalx2 = -globaly1;
-		globaly1 = -i;
+		i = g_pt2.x;
+		g_pt2.x = -g_pt1.y;
+		g_pt1.y = -i;
 		
-		std::swap(globalx1, globaly2);
+		std::swap(g_pt1.x, g_pt2.y);
 	}
 
 	if ((globalorientation&0x10) > 0) {
-		globalx1 = -globalx1;
-		globaly1 = -globaly1;
+		g_pt1 = -g_pt1;
 		globalxpanning = -globalxpanning;
 	}
 
 	if ((globalorientation&0x20) > 0) {
-		globalx2 = -globalx2;
-		globaly2 = -globaly2;
+		g_pt2 = -g_pt2;
 		globalypanning = -globalypanning;
 	}
 
-	globalx1 <<= globalxshift;
-	globaly1 <<= globalxshift;
-	globalx2 <<= globalyshift;
-	globaly2 <<= globalyshift;
+	g_pt1.x <<= globalxshift;
+	g_pt1.y <<= globalxshift;
+	g_pt2.x <<= globalyshift;
+	g_pt2.y <<= globalyshift;
 	globalxpanning <<= globalxshift;
 	globalypanning <<= globalyshift;
 	globalxpanning += (((int)sec->floorxpanning)<<24);
 	globalypanning += (((int)sec->floorypanning)<<24);
-	globaly1 = (-globalx1-globaly1)*halfxdimen;
-	globalx2 = (globalx2-globaly2)*halfxdimen;
+	g_pt1.y = (-g_pt1.x-g_pt1.y)*halfxdimen;
+	g_pt2.x = (g_pt2.x-g_pt2.y)*halfxdimen;
 
 	sethlinesizes(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4,(void *)globalbufplc);
 
-	globalx2 += globaly2*(x1-1);
-	globaly1 += globalx1*(x1-1);
-	globalx1 = mulscalen<16>(globalx1, globalzd);
-	globalx2 = mulscalen<16>(globalx2, globalzd);
-	globaly1 = mulscalen<16>(globaly1, globalzd);
-	globaly2 = mulscalen<16>(globaly2, globalzd);
+	g_pt2.x += g_pt2.y*(x1-1);
+	g_pt1.y += g_pt1.x*(x1-1);
+	g_pt1.x = mulscalen<16>(g_pt1.x, globalzd);
+	g_pt2.x = mulscalen<16>(g_pt2.x, globalzd);
+	g_pt1.y = mulscalen<16>(g_pt1.y, globalzd);
+	g_pt2.y = mulscalen<16>(g_pt2.y, globalzd);
 	globvis = std::abs(mulscalen<10>(globvis,globalzd));
 
 	if (!(globalorientation&0x180))
@@ -1941,13 +1926,17 @@ void florscan(int x1, int x2, int sectnum)
 			else
 			{
 				while (y1 < y2-1) hline(x-1,++y1);
-				if (x == x2) { globalx2 += globaly2; globaly1 += globalx1; break; }
+				if (x == x2) {
+					g_pt2.x += g_pt2.y;
+					g_pt1.y += g_pt1.x;
+					break;
+				}
 				y1 = std::max(dplc[x + 1], umost[x + 1]);
 				y2 = y1;
 			}
 
-			globalx2 += globaly2;
-			globaly1 += globalx1;
+			g_pt2.x += g_pt2.y;
+			g_pt1.y += g_pt1.x;
 		}
 		while (y1 < y2-1) hline(x2,++y1);
 		faketimerhandler();
@@ -1993,12 +1982,16 @@ void florscan(int x1, int x2, int sectnum)
 		else
 		{
 			while (y1 < y2-1) slowhline(x-1,++y1);
-			if (x == x2) { globalx2 += globaly2; globaly1 += globalx1; break; }
+			if (x == x2) {
+				g_pt2.x += g_pt2.y;
+				g_pt1.y += g_pt1.x;
+				break;
+			}
 			y1 = std::max(dplc[x + 1], umost[x + 1]);
 			y2 = y1;
 		}
-		globalx2 += globaly2;
-		globaly1 += globalx1;
+		g_pt2.x += g_pt2.y;
+		g_pt1.y += g_pt1.x;
 	}
 
 	while (y1 < y2-1)
@@ -2373,11 +2366,11 @@ void ceilspritehline(int x2, int y)
 		return;
 
 	const int v = mulscalen<20>(globalzd, horizlookup[y - globalhoriz + horizycent]);
-	const int bx = mulscalen<14>(globalx2 * x1 + globalx1, v) + globalxpanning;
-	const int by = mulscalen<14>(globaly2 * x1 + globaly1, v) + globalypanning;
+	const int bx = mulscalen<14>(g_pt2.x * x1 + g_pt1.x, v) + globalxpanning;
+	const int by = mulscalen<14>(g_pt2.y * x1 + g_pt1.y, v) + globalypanning;
 
-	asm1 = mulscalen<14>(globalx2,v);
-	asm2 = mulscalen<14>(globaly2,v);
+	asm1 = mulscalen<14>(g_pt2.x,v);
+	asm2 = mulscalen<14>(g_pt2.y,v);
 
 	asm3 = (intptr_t)palookup[globalpal].data() + (getpalookup((int)mulscalen<28>(std::abs(v), globvis), globalshade) << 8);
 
@@ -2500,13 +2493,13 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 
 	int globalx = -mulscalen<19>(singlobalang,xdimenrecip);
 	int globaly = mulscalen<19>(cosglobalang,xdimenrecip);
-	globalx1 = (globalposx<<8);
-	globaly1 = -(globalposy<<8);
+	g_pt1.x = (globalposx<<8);
+	g_pt1.y = -(globalposy<<8);
 	i = (dax1-halfxdimen)*xdimenrecip;
-	globalx2 = mulscalen<16>(cosglobalang<<4,viewingrangerecip) - mulscalen<27>(singlobalang,i);
-	globaly2 = mulscalen<16>(singlobalang<<4,viewingrangerecip) + mulscalen<27>(cosglobalang,i);
+	g_pt2.x = mulscalen<16>(cosglobalang<<4,viewingrangerecip) - mulscalen<27>(singlobalang,i);
+	g_pt2.y = mulscalen<16>(singlobalang<<4,viewingrangerecip) + mulscalen<27>(cosglobalang,i);
 	globalzd = (xdimscale<<9);
-	int globalzx = -dmulscalen<17>(wx,globaly2,-wy,globalx2) + mulscalen<10>(1-globalhoriz,globalzd);
+	int globalzx = -dmulscalen<17>(wx,g_pt2.y,-wy,g_pt2.x) + mulscalen<10>(1-globalhoriz,globalzd);
 	const int globalz = -dmulscalen<25>(wx,globaly,-wy,globalx);
 
 	if (globalorientation&64)  //Relative alignment
@@ -2524,13 +2517,13 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 
 		x = ((wal->pt.x - globalposx)<<8);
 		y = ((wal->pt.y - globalposy)<<8);
-		globalx1 = dmulscalen<16>(-x,dx,-y,dy);
-		globaly1 = mulscalen<12>(dmulscalen<16>(-y,dx,x,dy),i);
+		g_pt1.x = dmulscalen<16>(-x,dx,-y,dy);
+		g_pt1.y = mulscalen<12>(dmulscalen<16>(-y,dx,x,dy),i);
 
-		x = globalx2;
-		y = globaly2;
-		globalx2 = dmulscalen<16>(x,dx,y,dy);
-		globaly2 = mulscalen<12>(dmulscalen<16>(-y,dx,x,dy),i);
+		x = g_pt2.x;
+		y = g_pt2.y;
+		g_pt2.x = dmulscalen<16>(x,dx,y,dy);
+		g_pt2.y = mulscalen<12>(dmulscalen<16>(-y,dx,x,dy),i);
 	}
 
 	if (globalorientation&0x4)
@@ -2538,28 +2531,28 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		i = globalx;
 		globalx = -globaly;
 		globaly = -i;
-		std::swap(globalx1, globaly1);
+		std::swap(g_pt1.x, g_pt1.y);
 
-		i = globalx2;
-		globalx2 = -globaly2;
-		globaly2 = -i;
+		i = g_pt2.x;
+		g_pt2.x = -g_pt2.y;
+		g_pt2.y = -i;
 	}
 
 	if (globalorientation & 0x10) {
-		globalx1 = -globalx1;
-		globalx2 = -globalx2;
+		g_pt1.x = -g_pt1.x;
+		g_pt2.x = -g_pt2.x;
 		globalx = -globalx;
 	}
 
 	if (globalorientation & 0x20) {
-		globaly1 = -globaly1;
-		globaly2 = -globaly2;
+		g_pt1.y = -g_pt1.y;
+		g_pt2.y = -g_pt2.y;
 		globaly = -globaly;
 	}
 
 	daz = dmulscalen<9>(wx,globalposy-wal->pt.y, -wy,globalposx-wal->pt.x) + ((daz-globalposz)<<8);
-	globalx2 = mulscalen<20>(globalx2,daz); globalx = mulscalen<28>(globalx,daz);
-	globaly2 = mulscalen<20>(globaly2,-daz); globaly = mulscalen<28>(globaly,-daz);
+	g_pt2.x = mulscalen<20>(g_pt2.x,daz); globalx = mulscalen<28>(globalx,daz);
+	g_pt2.y = mulscalen<20>(g_pt2.y,-daz); globaly = mulscalen<28>(globaly,-daz);
 
 	i = 8 - (picsiz[globalpicnum] & 15);
 	int j = 8 - (picsiz[globalpicnum] >> 4);
@@ -2569,22 +2562,22 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 		++j;
 	}
 
-	globalx1 <<= (i + 12);
-	globalx2 <<= i;
+	g_pt1.x <<= (i + 12);
+	g_pt2.x <<= i;
 	globalx <<= i;
-	globaly1 <<= (j + 12);
-	globaly2 <<= j;
+	g_pt1.y <<= (j + 12);
+	g_pt2.y <<= j;
 	globaly <<= j;
 
 	if (dastat == 0)
 	{
-		globalx1 += (((int)sec->ceilingxpanning) << 24);
-		globaly1 += (((int)sec->ceilingypanning) << 24);
+		g_pt1.x += (((int)sec->ceilingxpanning) << 24);
+		g_pt1.y += (((int)sec->ceilingypanning) << 24);
 	}
 	else
 	{
-		globalx1 += (((int)sec->floorxpanning) << 24);
-		globaly1 += (((int)sec->floorypanning) << 24);
+		g_pt1.x += (((int)sec->floorxpanning) << 24);
+		g_pt1.y += (((int)sec->floorypanning) << 24);
 	}
 
 	asm1 = -(globalzd>>(16-BITSOFPRECISION));
@@ -2668,15 +2661,15 @@ void grouscan(int dax1, int dax2, int sectnum, unsigned char dastat)
 				m2 += l;
 			}
 
-			globalx3 = (globalx2 >> 10);
-			globaly3 = (globaly2 >> 10);
+			globalx3 = (g_pt2.x >> 10);
+			globaly3 = (g_pt2.y >> 10);
 			asm3 = mulscalen<16>(y2, globalzd) + (globalzx >> 6);
-			slopevlin((void *)(ylookup[y2] + x + frameoffset), krecipasm((int)asm3 >> 3), nptr2, y2 - y1 + 1, globalx1, globaly1);
+			slopevlin((void *)(ylookup[y2] + x + frameoffset), krecipasm((int)asm3 >> 3), nptr2, y2 - y1 + 1, g_pt1.x, g_pt1.y);
 
 			if ((x & 15) == 0) faketimerhandler();
 		}
-		globalx2 += globalx;
-		globaly2 += globaly;
+		g_pt2.x += globalx;
+		g_pt2.y += globaly;
 		globalzx += globalz;
 		shoffs += shinc;
 	}
@@ -4236,14 +4229,14 @@ void drawsprite(int snum)
 		day = rxi[z1]-rxi[z];
 		bot = dmulscalen<8>(dax,dax,day,day);
 		if (((std::abs(dax)>>13) >= bot) || ((std::abs(day)>>13) >= bot)) return;
-		globalx1 = divscalen<18>(dax,bot);
-		globalx2 = divscalen<18>(day,bot);
+		g_pt1.x = divscalen<18>(dax,bot);
+		g_pt2.x = divscalen<18>(day,bot);
 
 		dax = rzi[z2]-rzi[z]; day = rxi[z2]-rxi[z];
 		bot = dmulscalen<8>(dax,dax,day,day);
 		if (((std::abs(dax)>>13) >= bot) || ((std::abs(day)>>13) >= bot)) return;
-		globaly1 = divscalen<18>(dax,bot);
-		globaly2 = divscalen<18>(day,bot);
+		g_pt1.y = divscalen<18>(dax,bot);
+		g_pt2.y = divscalen<18>(day,bot);
 
 			//Calculate globals for hline texture mapping function
 		globalxpanning = (rxi[z]<<12);
@@ -4498,21 +4491,21 @@ void drawsprite(int snum)
 		if (pow2long[x] != xspan)
 		{
 			x++;
-			globalx1 = mulscale(globalx1,xspan,x);
-			globalx2 = mulscale(globalx2,xspan,x);
+			g_pt1.x = mulscale(g_pt1.x,xspan,x);
+			g_pt2.x = mulscale(g_pt2.x,xspan,x);
 		}
 
 		dax = globalxpanning;
 		day = globalypanning;
-		globalxpanning = -dmulscalen<6>(globalx1,day,globalx2,dax);
-		globalypanning = -dmulscalen<6>(globaly1,day,globaly2,dax);
+		globalxpanning = -dmulscalen<6>(g_pt1.x,day,g_pt2.x,dax);
+		globalypanning = -dmulscalen<6>(g_pt1.y,day,g_pt2.y,dax);
 
-		globalx2 = mulscalen<16>(globalx2,viewingrange);
-		globaly2 = mulscalen<16>(globaly2,viewingrange);
+		g_pt2.x = mulscalen<16>(g_pt2.x,viewingrange);
+		g_pt2.y = mulscalen<16>(g_pt2.y,viewingrange);
 		globalzd = mulscalen<16>(globalzd,viewingrangerecip);
 
-		globalx1 = (globalx1-globalx2)*halfxdimen;
-		globaly1 = (globaly1-globaly2)*halfxdimen;
+		g_pt1.x = (g_pt1.x-g_pt2.x)*halfxdimen;
+		g_pt1.y = (g_pt1.y-g_pt2.y)*halfxdimen;
 
 		if ((cstat&2) == 0)
 			msethlineshift(x,y);
@@ -4860,12 +4853,12 @@ void fillpolygon(int npoints)
 		}
 	}
 
-	globalx1 = mulscalen<16>(globalx1,xyaspect);
-	globaly2 = mulscalen<16>(globaly2,xyaspect);
+	g_pt1.x = mulscalen<16>(g_pt1.x,xyaspect);
+	g_pt2.y = mulscalen<16>(g_pt2.y,xyaspect);
 
 	const int oy = miny + 1 - (ydim >> 1);
-	globalposx += oy * globalx1;
-	globalposy += oy * globaly2;
+	globalposx += oy * g_pt1.x;
+	globalposy += oy * g_pt2.y;
 
 	setuphlineasm4(asm1, asm2);
 
@@ -4920,8 +4913,8 @@ void fillpolygon(int npoints)
 			}
 		}
 
-		globalposx += globalx1;
-		globalposy += globaly2;
+		globalposx += g_pt1.x;
+		globalposy += g_pt2.y;
 		ptr += MAXNODESPERLINE;
 	}
 
@@ -7249,11 +7242,10 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			if ((globalorientation&64) == 0)
 			{
 				globalposx = dax;
-				globalx1 = bakgxvect;
-				globaly1 = bakgyvect;
+				g_pt1 = {bakgxvect, bakgyvect};
 				globalposy = day;
-				globalx2 = bakgxvect;
-				globaly2 = bakgyvect;
+				g_pt2.x = bakgxvect;
+				g_pt2.y = bakgyvect;
 			}
 			else
 			{
@@ -7265,20 +7257,19 @@ void drawmapview(int dax, int day, int zoome, short ang)
 					continue;
 
 				i = 1048576/i;
-				globalx1 = mulscalen<10>(dmulscalen<10>(ox, bakgxvect, oy, bakgyvect), i);
-				globaly1 = mulscalen<10>(dmulscalen<10>(ox, bakgyvect, -oy, bakgxvect), i);
+				g_pt1.x = mulscalen<10>(dmulscalen<10>(ox, bakgxvect, oy, bakgyvect), i);
+				g_pt1.y = mulscalen<10>(dmulscalen<10>(ox, bakgyvect, -oy, bakgxvect), i);
 				ox = (bakx1 >> 4) - (xdim << 7);
 				oy = (baky1 >> 4) - (ydim << 7);
-				globalposx = dmulscalen<28>(-oy,globalx1,-ox,globaly1);
-				globalposy = dmulscalen<28>(-ox,globalx1,oy,globaly1);
-				globalx2 = -globalx1;
-				globaly2 = -globaly1;
+				globalposx = dmulscalen<28>(-oy,g_pt1.x,-ox,g_pt1.y);
+				globalposy = dmulscalen<28>(-ox,g_pt1.x,oy,g_pt1.y);
+				g_pt2 = -g_pt1;
 
 				daslope = g_sector[s].floorheinum;
 				i = static_cast<int>(std::sqrt(daslope * daslope+ 16777216)); // FIXME: Magic number.
 				globalposy = mulscalen<12>(globalposy,i);
-				globalx2 = mulscalen<12>(globalx2,i);
-				globaly2 = mulscalen<12>(globaly2,i);
+				g_pt2.x = mulscalen<12>(g_pt2.x,i);
+				g_pt2.y = mulscalen<12>(g_pt2.y,i);
 			}
 			globalxshift = (8-(picsiz[globalpicnum]&15));
 			globalyshift = (8-(picsiz[globalpicnum]>>4));
@@ -7291,28 +7282,26 @@ void drawmapview(int dax, int day, int zoome, short ang)
 				i = globalposx;
 				globalposx = -globalposy;
 				globalposy = -i;
-				std::swap(globalx2, globaly1);
+				std::swap(g_pt2.x, g_pt1.y);
 
-				i = globalx1;
-				globalx1 = -globaly2;
-				globaly2 = -i;
+				i = g_pt1.x;
+				g_pt1.x = -g_pt2.y;
+				g_pt2.y = -i;
 			}
 			if ((globalorientation&0x10) > 0) {
-				globalx1 = -globalx1;
-				globaly1 = -globaly1;
+				g_pt1 = -g_pt1;
 				globalposx = -globalposx;
 			}
 
 			if ((globalorientation&0x20) > 0) {
-				globalx2 = -globalx2;
-				globaly2 = -globaly2;
+				g_pt2 = -g_pt2;
 				globalposy = -globalposy;
 			}
 
-			asm1 = (globaly1<<globalxshift);
-			asm2 = (globalx2<<globalyshift);
-			globalx1 <<= globalxshift;
-			globaly2 <<= globalyshift;
+			asm1 = (g_pt1.y<<globalxshift);
+			asm2 = (g_pt2.x<<globalyshift);
+			g_pt1.x <<= globalxshift;
+			g_pt2.y <<= globalyshift;
 			globalposx = (globalposx<<(20+globalxshift))+(((int)sec->floorxpanning)<<24);
 			globalposy = (globalposy<<(20+globalyshift))-(((int)sec->floorypanning)<<24);
 
@@ -7453,12 +7442,12 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			
 			i = (65536*16384)/i;
 
-			globalx1 = mulscalen<10>(dmulscalen<10>(ox,bakgxvect,oy,bakgyvect),i);
-			globaly1 = mulscalen<10>(dmulscalen<10>(ox,bakgyvect,-oy,bakgxvect),i);
+			g_pt1.x = mulscalen<10>(dmulscalen<10>(ox,bakgxvect,oy,bakgyvect),i);
+			g_pt1.y = mulscalen<10>(dmulscalen<10>(ox,bakgyvect,-oy,bakgxvect),i);
 			ox = y1-y4; oy = x4-x1;
 			i = ox*ox+oy*oy; if (i == 0) continue; i = (65536*16384)/i;
-			globalx2 = mulscalen<10>(dmulscalen<10>(ox,bakgxvect,oy,bakgyvect),i);
-			globaly2 = mulscalen<10>(dmulscalen<10>(ox,bakgyvect,-oy,bakgxvect),i);
+			g_pt2.x = mulscalen<10>(dmulscalen<10>(ox,bakgxvect,oy,bakgyvect),i);
+			g_pt2.y = mulscalen<10>(dmulscalen<10>(ox,bakgyvect,-oy,bakgxvect),i);
 
 			ox = picsiz[globalpicnum];
 			oy = ((ox>>4)&15);
@@ -7467,13 +7456,13 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			if (pow2long[ox] != xspan)
 			{
 				ox++;
-				globalx1 = mulscale(globalx1,xspan,ox);
-				globaly1 = mulscale(globaly1,xspan,ox);
+				g_pt1.x = mulscale(g_pt1.x,xspan,ox);
+				g_pt1.y = mulscale(g_pt1.y,xspan,ox);
 			}
 
 			bakx1 = (bakx1>>4)-(xdim<<7); baky1 = (baky1>>4)-(ydim<<7);
-			globalposx = dmulscalen<28>(-baky1,globalx1,-bakx1,globaly1);
-			globalposy = dmulscalen<28>(bakx1,globalx2,-baky1,globaly2);
+			globalposx = dmulscalen<28>(-baky1,g_pt1.x,-bakx1,g_pt1.y);
+			globalposy = dmulscalen<28>(bakx1,g_pt2.x,-baky1,g_pt2.y);
 
 			if ((spr->cstat&2) == 0)
 				msethlineshift(ox,oy);
@@ -7483,16 +7472,15 @@ void drawmapview(int dax, int day, int zoome, short ang)
 			}
 
 			if ((spr->cstat&0x4) > 0) {
-				globalx1 = -globalx1;
-				globaly1 = -globaly1;
+				g_pt1 = -g_pt1;
 				globalposx = -globalposx;
 			}
 
-			asm1 = (globaly1<<2);
-			globalx1 <<= 2;
+			asm1 = (g_pt1.y<<2);
+			g_pt1.x <<= 2;
 			globalposx <<= (20+2);
-			asm2 = (globalx2<<2);
-			globaly2 <<= 2;
+			asm2 = (g_pt2.x<<2);
+			g_pt2.y <<= 2;
 			globalposy <<= (20+2);
 
 			globalorientation = ((spr->cstat&2)<<7) | ((spr->cstat&512)>>2);	// so polymost can get the translucency. ignored in software mode.

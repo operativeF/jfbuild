@@ -5018,12 +5018,12 @@ void polymost_fillpolygon (int npoints)
 	int i;
 	struct polymostdrawpolycall draw;
 
-	globalx1 = mulscalen<16>(globalx1,xyaspect);
-	globaly2 = mulscalen<16>(globaly2,xyaspect);
+	g_pt1.x = mulscalen<16>(g_pt1.x,xyaspect);
+	g_pt2.y = mulscalen<16>(g_pt2.y,xyaspect);
 	gux = ((double)asm1)*(1.0/4294967296.0);
 	gvx = ((double)asm2)*(1.0/4294967296.0);
-	guy = ((double)globalx1)*(1.0/4294967296.0);
-	gvy = ((double)globaly2)*(-1.0/4294967296.0);
+	guy = ((double)g_pt1.x)*(1.0/4294967296.0);
+	gvy = ((double)g_pt2.y)*(-1.0/4294967296.0);
 	guo = (((double)xdim)*gux + ((double)ydim)*guy)*-.5 + ((double)globalposx)*(1.0/4294967296.0);
 	gvo = (((double)xdim)*gvx + ((double)ydim)*gvy)*-.5 - ((double)globalposy)*(1.0/4294967296.0);
 
