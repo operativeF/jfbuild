@@ -82,6 +82,11 @@ struct point2d_base {
 };
 
 template<typename T>
+inline constexpr T determ(const point2d_base<T>& lhp, const point2d_base<T>& rhp) {
+	return lhp.x * rhp.y - rhp.x * lhp.y;
+}
+
+template<typename T>
 inline constexpr point2d_base<T> operator+(point2d_base<T> lhp, const point2d_base<T>& rhp) {
 	lhp += rhp;
 	return lhp;
@@ -205,6 +210,17 @@ struct point3d_base {
 		return temp;
 	}
 
+	constexpr point2d_base<point_type> xy() const {
+		return {x, y};
+	}
+
+	constexpr point2d_base<point_type> xz() const {
+		return {x, z};
+	}
+
+	constexpr point2d_base<point_type> yz() const {
+		return {y, z};
+	}
 };
 
 template<typename T>

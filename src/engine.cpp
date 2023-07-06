@@ -510,7 +510,8 @@ void scansector(short sectnum)
 				  (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
 				  (spritesortcnt < MAXSPRITESONSCREEN))
 			{
-				xs = spr->x-globalpos.x; ys = spr->y-globalpos.y;
+				xs = spr->x-globalpos.x;
+				ys = spr->y-globalpos.y;
 				if ((spr->cstat&48) || (xs*cosglobalang+ys*singlobalang > 0))
 				{
 					copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
@@ -532,32 +533,30 @@ void scansector(short sectnum)
 			const short nextsectnum = wal->nextsector;
 
 			wal2 = &wall[wal->point2];
-			x1 = wal->pt.x - globalpos.x;
-			y1 = wal->pt.y - globalpos.y;
-			x2 = wal2->pt.x - globalpos.x;
-			y2 = wal2->pt.y - globalpos.y;
+			const auto pt1 = wal->pt - globalpos.xy();
+			const auto pt2 = wal2->pt - globalpos.xy();
 
 			if ((nextsectnum >= 0) && ((wal->cstat&32) == 0))
 				if ((gotsector[nextsectnum>>3] & pow2char[nextsectnum & 7]) == 0)
 				{
-					templong = x1*y2-x2*y1;
+					templong = determ(pt1, pt2);
 					if (((unsigned)templong+262144) < 524288)
-						if (mulscalen<5>(templong,templong) <= (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
+						if (mulscalen<5>(templong,templong) <= (pt2.x - pt1.x)*(pt2.x - pt1.x)+(pt2.y - pt1.y) * (pt2.y - pt1.y))
 							sectorborder[sectorbordercnt++] = nextsectnum;
 				}
 
 			if ((z == startwall) || (wall[z-1].point2 != z))
 			{
-				xp1 = dmulscalen<6>(y1,cosglobalang,-x1,singlobalang);
-				yp1 = dmulscalen<6>(x1,cosviewingrangeglobalang,y1,sinviewingrangeglobalang);
+				xp1 = dmulscalen<6>(pt1.y,cosglobalang,-pt1.x,singlobalang);
+				yp1 = dmulscalen<6>(pt1.x,cosviewingrangeglobalang,pt1.y,sinviewingrangeglobalang);
 			}
 			else
 			{
 				xp1 = xp2;
 				yp1 = yp2;
 			}
-			xp2 = dmulscalen<6>(y2,cosglobalang,-x2,singlobalang);
-			yp2 = dmulscalen<6>(x2,cosviewingrangeglobalang,y2,sinviewingrangeglobalang);
+			xp2 = dmulscalen<6>(pt2.y,cosglobalang,-pt2.x,singlobalang);
+			yp2 = dmulscalen<6>(pt2.x,cosviewingrangeglobalang,pt2.y,sinviewingrangeglobalang);
 			if ((yp1 < 256) && (yp2 < 256)) goto skipitaddwall;
 
 				//If wall's NOT facing you
@@ -824,26 +823,21 @@ void maskwallscan(int x1, int x2, std::span<const short> uwal, std::span<const s
 int wallfront(int l1, int l2)
 {
 	walltype* wal = &wall[thewall[l1]];
-	const int x11 = wal->pt.x;
-	const int y11 = wal->pt.y;
+	const auto pt11 = wal->pt;
 
 	wal = &wall[wal->point2];
-	const int x21 = wal->pt.x;
-	const int y21 = wal->pt.y;
+	const auto pt21 = wal->pt;
 
 	wal = &wall[thewall[l2]];
-	const int x12 = wal->pt.x;
-	const int y12 = wal->pt.y;
+	const auto pt12 = wal->pt;
 
 	wal = &wall[wal->point2];
-	const int x22 = wal->pt.x;
-	const int y22 = wal->pt.y;
+	const auto pt22 = wal->pt;
 
-	int dx = x21 - x11;
-	int dy = y21 - y11;
+	const auto dpt21_11 = pt21 - pt11;
 
-	int t1 = dmulscalen<2>(x12 - x11, dy, -dx, y12 - y11); //p1(l2) vs. l1
-	int t2 = dmulscalen<2>(x22 - x11, dy, -dx, y22 - y11); //p2(l2) vs. l1
+	int t1 = dmulscalen<2>(pt12.x - pt11.x, dpt21_11.y, -dpt21_11.x, pt12.y - pt11.y); //p1(l2) vs. l1
+	int t2 = dmulscalen<2>(pt22.x - pt11.x, dpt21_11.y, -dpt21_11.x, pt22.y - pt11.y); //p2(l2) vs. l1
 	
 	if (t1 == 0) {
 		t1 = t2;
@@ -856,15 +850,14 @@ int wallfront(int l1, int l2)
 	
 	if ((t1 ^ t2) >= 0)
 	{
-		t2 = dmulscalen<2>(globalpos.x-x11,dy,-dx,globalpos.y-y11); //pos vs. l1
+		t2 = dmulscalen<2>(globalpos.x - pt11.x, dpt21_11.y, -dpt21_11.x, globalpos.y - pt11.y); //pos vs. l1
 		return (t2 ^ t1) >= 0;
 	}
 
-	dx = x22 - x12;
-	dy = y22 - y12;
+	const auto dpt22_12 = pt22 - pt12;
 
-	t1 = dmulscalen<2>(x11 - x12, dy, -dx, y11 - y12); //p1(l1) vs. l2
-	t2 = dmulscalen<2>(x21 - x12, dy, -dx, y21 - y12); //p2(l1) vs. l2
+	t1 = dmulscalen<2>(pt11.x - pt12.x, dpt22_12.y, -dpt22_12.x, pt11.y - pt12.y); //p1(l1) vs. l2
+	t2 = dmulscalen<2>(pt21.x - pt12.x, dpt22_12.y, -dpt22_12.x, pt21.y - pt12.y); //p2(l1) vs. l2
 	
 	if (t1 == 0) {
 		t1 = t2;
@@ -877,7 +870,7 @@ int wallfront(int l1, int l2)
 
 	if ((t1 ^ t2) >= 0)
 	{
-		t2 = dmulscalen<2>(globalpos.x - x12, dy, -dx, globalpos.y - y12); //pos vs. l2
+		t2 = dmulscalen<2>(globalpos.x - pt12.x, dpt22_12.y, -dpt22_12.x, globalpos.y - pt12.y); //pos vs. l2
 		return (t2 ^ t1) < 0;
 	}
 
@@ -893,12 +886,12 @@ namespace {
 bool spritewallfront(const spritetype *s, int w)
 {
 	walltype* wal = &wall[w];
-	const int x1 = wal->pt.x;
-	const int y1 = wal->pt.y;
+	const auto pt1 = wal->pt;
 
-	wal = &wall[wal->point2];
+	walltype* wal2 = &wall[wal->point2];
+	const auto pt2 = wal2->pt;
 
-	return dmulscalen<32>(wal->pt.x - x1, s->y - y1, -(s->x - x1), wal->pt.y - y1) >= 0;
+	return dmulscalen<32>(pt2.x - pt1.x, s->y - pt1.y, -(s->x - pt1.x), pt2.y - pt1.y) >= 0;
 }
 
 
@@ -1267,8 +1260,6 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	int yinc;
 	int z1;
 	int z2;
-	int xv;
-	int yv;
 	int oz1;
 	int oz2;
 	int s1;
@@ -1296,28 +1287,24 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 	if (i == g_sector[sectnum].wallptr)
 		return(owallmost(mostbuf,w,z));
 
-	const int x1 = wall[i].pt.x;
-	const int x2 = wall[wall[i].point2].pt.x - x1;
-	const int y1 = wall[i].pt.y;
-	const int y2 = wall[wall[i].point2].pt.y - y1;
+	const auto pt1 = wall[i].pt;
+	const auto pt2 = wall[wall[i].point2].pt - pt1;
 
 	const int fw = g_sector[sectnum].wallptr;
 	i = wall[fw].point2;
-	const int dx = wall[i].pt.x - wall[fw].pt.x;
-	const int dy = wall[i].pt.y - wall[fw].pt.y;
-	const int dasqr = krecipasm(static_cast<int>(std::hypot(dx, dy)));
+	const auto dpt = wall[i].pt - wall[fw].pt;
+	const int dasqr = krecipasm(static_cast<int>(std::hypot(dpt.x, dpt.y)));
 
+	point2di ptv;
 	if (xb1[w] == 0) {
-		xv = cosglobalang+sinviewingrangeglobalang;
-		yv = singlobalang-cosviewingrangeglobalang;
+		ptv = {cosglobalang + sinviewingrangeglobalang, singlobalang - cosviewingrangeglobalang};
 	}
 	else {
-		xv = x1 - globalpos.x;
-		yv = y1 - globalpos.y;
+		ptv = pt1 - globalpos.xy();
 	}
 
-	i = xv * (y1 - globalpos.y) - yv * (x1 - globalpos.x);
-	j = yv * x2 - xv * y2;
+	i = ptv.x * (pt1.y - globalpos.y) - ptv.y * (pt1.x - globalpos.x);
+	j = ptv.y * pt2.x - ptv.x * pt2.y;
 
 	if (std::abs(j) > std::abs(i >> 3))
 		i = divscalen<28>(i, j);
@@ -1331,21 +1318,20 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 		z1 = g_sector[sectnum].floorz;
 	}
 
-	z1 = dmulscalen<24>(dx*t,mulscalen<20>(y2,i)+((y1-wall[fw].pt.y)<<8),
-						 -dy*t,mulscalen<20>(x2,i)+((x1-wall[fw].pt.x)<<8))+((z1-globalpos.z)<<7);
+	z1 = dmulscalen<24>(dpt.x * t,mulscalen<20>(pt2.y, i)+((pt1.y - wall[fw].pt.y)<<8),
+						 -dpt.y * t,mulscalen<20>(pt2.x, i)+((pt1.x - wall[fw].pt.x)<<8))+((z1-globalpos.z)<<7);
 
 
 	if (xb2[w] == xdimen - 1) {
-		xv = cosglobalang - sinviewingrangeglobalang;
-		yv = singlobalang + cosviewingrangeglobalang;
+		ptv = {cosglobalang - sinviewingrangeglobalang,
+			   singlobalang + cosviewingrangeglobalang};
 	}
 	else {
-		xv = (x2 + x1) - globalpos.x;
-		yv = (y2 + y1) - globalpos.y;
+		ptv = pt1 + pt2 - globalpos.xy();
 	}
 
-	i = xv * (y1 - globalpos.y) - yv * (x1 - globalpos.x);
-	j = yv * x2 - xv * y2;
+	i = determ(ptv, (pt1 - globalpos.xy()));
+	j = determ(pt2, ptv);
 
 	if (std::abs(j) > std::abs(i >> 3))
 		i = divscalen<28>(i, j);
@@ -1361,8 +1347,8 @@ int wallmost(std::span<short> mostbuf, int w, int sectnum, unsigned char dastat)
 		z2 = g_sector[sectnum].floorz;
 	}
 
-	z2 = dmulscalen<24>(dx*t,mulscalen<20>(y2,i)+((y1-wall[fw].pt.y)<<8),
-						 -dy*t,mulscalen<20>(x2,i)+((x1-wall[fw].pt.x)<<8))+((z2-globalpos.z)<<7);
+	z2 = dmulscalen<24>(dpt.x * t,mulscalen<20>(pt2.y,i)+((pt1.y-wall[fw].pt.y)<<8),
+						 -dpt.y * t,mulscalen<20>(pt2.x,i)+((pt1.x-wall[fw].pt.x)<<8))+((z2-globalpos.z)<<7);
 
 
 	s1 = mulscalen<20>(globaluclip,yb1[w]);
@@ -1569,14 +1555,13 @@ void ceilscan(int x1, int x2, int sectnum)
 		g_pt1.y = mulscalen<10>(dmulscalen<10>(opt.x,cosglobalang,opt.y,singlobalang),i);
 		g_pt2 = -g_pt1;
 		
-		opt.x = (wall[j].pt.x - globalpos.x);
-		opt.y = (wall[j].pt.y - globalpos.y);
+		opt = wall[j].pt - globalpos.xy();
 		opt <<= 6;
 
 		i = dmulscalen<14>(opt.y, cosglobalang,-opt.x, singlobalang);
 		j = dmulscalen<14>(opt.x, cosglobalang, opt.y, singlobalang);
-		opt.x = i;
-		opt.y = j;
+		opt = {i, j};
+
 		globalxpanning = g_pt1.x * opt.x - g_pt1.y * opt.y;
 		globalypanning = g_pt2.y * opt.x + g_pt2.x * opt.y;
 	}
@@ -1839,12 +1824,12 @@ void florscan(int x1, int x2, int sectnum)
 		g_pt1.y = mulscalen<10>(dmulscalen<10>(opt.x, cosglobalang,  opt.y, singlobalang), i);
 		g_pt2 = -g_pt1;
 
-		opt.x = ((wall[j].pt.x - globalpos.x) << 6);
-		opt.y = ((wall[j].pt.y - globalpos.y) << 6);
+		opt = wall[j].pt - globalpos.xy();
+		opt <<= 6;
+
 		i = dmulscalen<14>(opt.y,cosglobalang,-opt.x,singlobalang);
 		j = dmulscalen<14>(opt.x,cosglobalang,opt.y,singlobalang);
-		opt.x = i;
-		opt.y = j;
+		opt = {i, j};
 		globalxpanning = g_pt1.x*opt.x - g_pt1.y*opt.y;
 		globalypanning = g_pt2.y*opt.x + g_pt2.x*opt.y;
 	}
